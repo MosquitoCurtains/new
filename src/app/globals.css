@@ -1,26 +1,176 @@
 @import "tailwindcss";
 
+/* Mosquito Curtains Design System Colors */
 :root {
+  /* Brand Colors */
+  --mc-primary: #406517;
+  --mc-primary-light: #5A8F20;
+  --mc-primary-dark: #2C440E;
+  
+  --mc-secondary: #003365;
+  --mc-secondary-light: #0055A5;
+  --mc-secondary-dark: #001F3F;
+  
+  --mc-accent: #B30158;
+  --mc-accent-light: #E91E8A;
+  --mc-accent-dark: #6A0135;
+  
+  --mc-highlight: #FFA501;
+  --mc-highlight-light: #FFCC00;
+  --mc-highlight-dark: #FF6F00;
+  
+  /* Light Mode */
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #111827;
+  --card-background: #ffffff;
+  --card-border: #E5E7EB;
+  --input-background: #F9FAFB;
+  --muted: #6B7280;
+  --muted-foreground: #9CA3AF;
 }
 
 @theme inline {
+  /* Core Colors */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  
+  /* Brand Colors */
+  --color-primary: var(--mc-primary);
+  --color-primary-light: var(--mc-primary-light);
+  --color-primary-dark: var(--mc-primary-dark);
+  
+  --color-secondary: var(--mc-secondary);
+  --color-secondary-light: var(--mc-secondary-light);
+  --color-secondary-dark: var(--mc-secondary-dark);
+  
+  --color-accent: var(--mc-accent);
+  --color-accent-light: var(--mc-accent-light);
+  --color-accent-dark: var(--mc-accent-dark);
+  
+  --color-highlight: var(--mc-highlight);
+  --color-highlight-light: var(--mc-highlight-light);
+  --color-highlight-dark: var(--mc-highlight-dark);
+  
+  /* UI Colors */
+  --color-card: var(--card-background);
+  --color-card-border: var(--card-border);
+  --color-input: var(--input-background);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  
+  /* Semantic Colors */
+  --color-success: var(--mc-primary);
+  --color-info: var(--mc-secondary);
+  --color-warning: var(--mc-highlight);
+  --color-error: #DC2626;
+  
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Courier New', monospace;
+  
+  /* Container sizes */
+  --container-sm: 48rem;
+  --container-md: 64rem;
+  --container-lg: 80rem;
+  --container-xl: 88rem;
+  --container-2xl: 100rem;
 }
 
+/* Dark Mode - Optional for admin/staff areas */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root.dark-mode {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --card-background: #1F2937;
+    --card-border: #374151;
+    --input-background: #374151;
+    --muted: #9CA3AF;
+    --muted-foreground: #6B7280;
   }
+}
+
+/* Base Styles */
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Focus styles */
+*:focus-visible {
+  outline: 2px solid var(--mc-primary);
+  outline-offset: 2px;
+}
+
+/* Selection color */
+::selection {
+  background: var(--mc-primary);
+  color: white;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--card-border);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--muted);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+
+/* Utility classes for brand colors */
+.bg-mc-primary { background-color: var(--mc-primary); }
+.bg-mc-secondary { background-color: var(--mc-secondary); }
+.bg-mc-accent { background-color: var(--mc-accent); }
+.bg-mc-highlight { background-color: var(--mc-highlight); }
+
+.text-mc-primary { color: var(--mc-primary); }
+.text-mc-secondary { color: var(--mc-secondary); }
+.text-mc-accent { color: var(--mc-accent); }
+.text-mc-highlight { color: var(--mc-highlight); }
+
+.border-mc-primary { border-color: var(--mc-primary); }
+.border-mc-secondary { border-color: var(--mc-secondary); }
+.border-mc-accent { border-color: var(--mc-accent); }
+.border-mc-highlight { border-color: var(--mc-highlight); }
+
+/* Gradient utilities */
+.gradient-primary {
+  background: linear-gradient(135deg, var(--mc-primary), var(--mc-primary-light));
+}
+
+.gradient-secondary {
+  background: linear-gradient(135deg, var(--mc-secondary), var(--mc-secondary-light));
+}
+
+.gradient-accent {
+  background: linear-gradient(135deg, var(--mc-accent), var(--mc-accent-light));
+}
+
+.gradient-highlight {
+  background: linear-gradient(135deg, var(--mc-highlight), var(--mc-highlight-light));
+}
+
+.gradient-brand {
+  background: linear-gradient(135deg, var(--mc-primary), var(--mc-secondary));
+}
+
+.gradient-hero {
+  background: linear-gradient(135deg, var(--mc-primary), var(--mc-secondary), var(--mc-accent));
 }

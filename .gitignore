@@ -22,6 +22,7 @@
 
 # misc
 .DS_Store
+._*
 *.pem
 
 # debug
@@ -32,6 +33,10 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+
+# Large data files (exceed GitHub limits)
+data/parsed-orders.json
+All Previous Orders/All woocommerce orders.csv
 
 # vercel
 .vercel

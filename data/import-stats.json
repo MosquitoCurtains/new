@@ -1,0 +1,39 @@
+{
+  "totalOrders": 31322,
+  "successfulOrders": 31322,
+  "failedOrders": 0,
+  "totalLineItems": 93258,
+  "lineItemsByType": {
+    "tool": 10977,
+    "panel": 19669,
+    "bundle": 20983,
+    "track": 11030,
+    "raw_material": 9748,
+    "adjustment": 15816,
+    "attachment": 4281,
+    "unknown": 754
+  },
+  "totalPanelSpecs": 0,
+  "ordersWithDiagrams": 23236,
+  "uniqueCustomers": 22134,
+  "uniqueSalespersons": [
+    "Dan_McCaskey",
+    "Matt_Rier",
+    "Heather_Evans",
+    "Aaron_Gorecki",
+    "Kurt",
+    "0.00",
+    "John_Hubay",
+    "Iryna_Mardanova",
+    "Patrick_Jordan",
+    "Joe_Wujcik",
+    "Aidan_Hall",
+    "test"
+  ],
+  "dateRange": {
+    "earliest": "2019-12-19T07:46:49.000Z",
+    "latest": "2026-02-01T21:52:29.000Z"
+  },
+  "totalRevenue": null,
+  "errors": []
+}

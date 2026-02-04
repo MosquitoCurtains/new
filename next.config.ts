@@ -1,7 +1,23 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Allow external images from S3 and YouTube
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'static.mosquitocurtains.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.ytimg.com',
+        pathname: '/**',
+      },
+    ],
+    // Disable optimization for external images to preserve quality
+    unoptimized: true,
+  },
 };
 
 export default nextConfig;
