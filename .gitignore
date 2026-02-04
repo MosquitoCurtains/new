@@ -34,9 +34,10 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
-# Large data files (exceed GitHub limits)
-data/parsed-orders.json
-All Previous Orders/All woocommerce orders.csv
+# Migration data (completed, not needed in repo)
+/data/
+/All Previous Orders/
+/Gravity Form Downloads/
 
 # vercel
 .vercel
