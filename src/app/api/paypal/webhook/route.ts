@@ -44,7 +44,8 @@ export async function POST(request: NextRequest) {
     console.log('PayPal webhook event:', eventType)
 
     // Get Supabase client
-    const supabase = await createClient()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const supabase = await createClient() as any
 
     // Handle different event types
     switch (eventType) {
@@ -52,7 +53,6 @@ export async function POST(request: NextRequest) {
         // Payment was successfully captured
         const paypalOrderId = resource.supplementary_data?.related_ids?.order_id
         const captureId = resource.id
-        const amount = resource.amount?.value
 
         if (paypalOrderId) {
           await supabase

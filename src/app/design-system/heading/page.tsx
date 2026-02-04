@@ -91,14 +91,8 @@ export default function HeadingPage() {
           <div className="border-b border-gray-200 pb-2">
             <Heading level={3}>Heading level={3}</Heading>
           </div>
-          <div className="border-b border-gray-200 pb-2">
-            <Heading level={4}>Heading level={4}</Heading>
-          </div>
-          <div className="border-b border-gray-200 pb-2">
-            <Heading level={5}>Heading level={5}</Heading>
-          </div>
           <div>
-            <Heading level={6}>Heading level={6}</Heading>
+            <Heading level={4}>Heading level={4}</Heading>
           </div>
         </Stack>
       </Card>

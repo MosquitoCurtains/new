@@ -45,7 +45,7 @@ function arrayToCSV(data: Record<string, unknown>[], columns: string[]): string 
 // =============================================================================
 
 async function exportOrders(
-  supabase: ReturnType<typeof createClient> extends Promise<infer T> ? T : never,
+  supabase: Awaited<ReturnType<typeof createClient>>,
   startDate: string,
   endDate: string,
   includeLineItems: boolean,
@@ -76,7 +76,7 @@ async function exportOrders(
 }
 
 async function exportCustomers(
-  supabase: ReturnType<typeof createClient> extends Promise<infer T> ? T : never,
+  supabase: Awaited<ReturnType<typeof createClient>>,
   format: ExportFormat
 ) {
   const { data: customers, error } = await supabase
@@ -100,7 +100,7 @@ async function exportCustomers(
 }
 
 async function exportProducts(
-  supabase: ReturnType<typeof createClient> extends Promise<infer T> ? T : never,
+  supabase: Awaited<ReturnType<typeof createClient>>,
   format: ExportFormat
 ) {
   const { data: products, error } = await supabase
@@ -120,7 +120,7 @@ async function exportProducts(
 }
 
 async function exportRevenue(
-  supabase: ReturnType<typeof createClient> extends Promise<infer T> ? T : never,
+  supabase: Awaited<ReturnType<typeof createClient>>,
   startDate: string,
   endDate: string,
   format: ExportFormat
@@ -138,7 +138,8 @@ async function exportRevenue(
   // Aggregate by month
   const monthlyData: Record<string, { month: string; orders: number; revenue: number }> = {}
   
-  orders?.forEach(order => {
+  type OrderRow = { created_at: string; total_amount: number; payment_status: string }
+  ;(orders as OrderRow[] | null)?.forEach(order => {
     const date = new Date(order.created_at)
     const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
     

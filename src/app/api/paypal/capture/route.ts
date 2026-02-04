@@ -31,7 +31,8 @@ export async function GET(request: NextRequest) {
     const supabase = await createClient()
 
     // Create order in database
-    const { data: order, error: orderError } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: order, error: orderError } = await (supabase as any)
       .from('orders')
       .insert({
         paypal_order_id: token,
@@ -88,7 +89,8 @@ export async function POST(request: NextRequest) {
     const supabase = await createClient()
 
     // Create order in database
-    const { data: order, error: orderError } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: order, error: orderError } = await (supabase as any)
       .from('orders')
       .insert({
         paypal_order_id: orderId,
@@ -103,6 +105,10 @@ export async function POST(request: NextRequest) {
       })
       .select()
       .single()
+
+    if (orderError) {
+      console.error('Error creating order:', orderError)
+    }
 
     return NextResponse.json({
       success: true,

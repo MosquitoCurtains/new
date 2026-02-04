@@ -26,7 +26,7 @@ const CODE_EXAMPLE = `import { YouTubeEmbed } from '@/lib/design-system'
 <YouTubeEmbed
   videoId="FqNe9pDsZ8M"
   title="Product Overview"
-  variant="minimal"
+  variant="default"
 />
 
 // With duration badge
@@ -102,11 +102,11 @@ export default function YouTubeEmbedPage() {
             />
           </div>
           <div>
-            <Text className="font-semibold !mb-2">variant="minimal"</Text>
+            <Text className="font-semibold !mb-2">variant="default"</Text>
             <YouTubeEmbed
               videoId="FqNe9pDsZ8M"
               title="Example Video"
-              variant="minimal"
+              variant="default"
             />
           </div>
         </Grid>

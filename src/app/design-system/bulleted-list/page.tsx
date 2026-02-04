@@ -100,11 +100,11 @@ export default function BulletedListPage() {
             </BulletedList>
           </div>
           <div>
-            <Text className="font-semibold !mb-3">variant="bullet"</Text>
+            <Text className="font-semibold !mb-3">variant="default" (bullet)</Text>
             <BulletedList spacing="sm">
-              <ListItem variant="bullet">Item one with bullet</ListItem>
-              <ListItem variant="bullet">Item two with bullet</ListItem>
-              <ListItem variant="bullet">Item three with bullet</ListItem>
+              <ListItem variant="default">Item one with bullet</ListItem>
+              <ListItem variant="default">Item two with bullet</ListItem>
+              <ListItem variant="default">Item three with bullet</ListItem>
             </BulletedList>
           </div>
         </Grid>
@@ -126,8 +126,8 @@ export default function BulletedListPage() {
         <Heading level={3} className="!mb-4">Spacing Options</Heading>
         <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="lg">
           <div>
-            <Text className="font-semibold !mb-3">spacing="xs"</Text>
-            <BulletedList spacing="xs">
+            <Text className="font-semibold !mb-3">spacing="tight"</Text>
+            <BulletedList spacing="tight">
               <ListItem variant="checked" iconColor="#406517">Item one</ListItem>
               <ListItem variant="checked" iconColor="#406517">Item two</ListItem>
               <ListItem variant="checked" iconColor="#406517">Item three</ListItem>

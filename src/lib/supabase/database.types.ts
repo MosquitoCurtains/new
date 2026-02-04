@@ -182,6 +182,15 @@ export interface Database {
           last_name: string | null
           phone: string | null
           auth_user_id: string | null
+          city: string | null
+          state: string | null
+          total_orders: number | null
+          total_spent: number | null
+          avg_order_value: number | null
+          first_order_date: string | null
+          last_order_date: string | null
+          ltv_tier: string | null
+          rfm_segment: string | null
         }
         Insert: {
           id?: string
@@ -192,6 +201,15 @@ export interface Database {
           last_name?: string | null
           phone?: string | null
           auth_user_id?: string | null
+          city?: string | null
+          state?: string | null
+          total_orders?: number | null
+          total_spent?: number | null
+          avg_order_value?: number | null
+          first_order_date?: string | null
+          last_order_date?: string | null
+          ltv_tier?: string | null
+          rfm_segment?: string | null
         }
         Update: {
           id?: string
@@ -202,6 +220,15 @@ export interface Database {
           last_name?: string | null
           phone?: string | null
           auth_user_id?: string | null
+          city?: string | null
+          state?: string | null
+          total_orders?: number | null
+          total_spent?: number | null
+          avg_order_value?: number | null
+          first_order_date?: string | null
+          last_order_date?: string | null
+          ltv_tier?: string | null
+          rfm_segment?: string | null
         }
       }
       staff: {
@@ -233,6 +260,112 @@ export interface Database {
           name?: string
           email?: string
           role?: string
+          is_active?: boolean
+        }
+      }
+      orders: {
+        Row: {
+          id: string
+          created_at: string
+          updated_at: string
+          order_number: string | null
+          order_status: string
+          payment_status: string
+          customer_id: string | null
+          customer_email: string
+          customer_first_name: string | null
+          customer_last_name: string | null
+          subtotal: number | null
+          shipping: number | null
+          tax: number | null
+          total_amount: number
+          shipping_address: string | null
+          city: string | null
+          state: string | null
+          zip_code: string | null
+          paypal_order_id: string | null
+          paypal_capture_id: string | null
+          payer_id: string | null
+        }
+        Insert: {
+          id?: string
+          created_at?: string
+          updated_at?: string
+          order_number?: string | null
+          order_status?: string
+          payment_status?: string
+          customer_id?: string | null
+          customer_email: string
+          customer_first_name?: string | null
+          customer_last_name?: string | null
+          subtotal?: number | null
+          shipping?: number | null
+          tax?: number | null
+          total_amount: number
+          shipping_address?: string | null
+          city?: string | null
+          state?: string | null
+          zip_code?: string | null
+          paypal_order_id?: string | null
+          paypal_capture_id?: string | null
+          payer_id?: string | null
+        }
+        Update: {
+          id?: string
+          created_at?: string
+          updated_at?: string
+          order_number?: string | null
+          order_status?: string
+          payment_status?: string
+          customer_id?: string | null
+          customer_email?: string
+          customer_first_name?: string | null
+          customer_last_name?: string | null
+          subtotal?: number | null
+          shipping?: number | null
+          tax?: number | null
+          total_amount?: number
+          shipping_address?: string | null
+          city?: string | null
+          state?: string | null
+          zip_code?: string | null
+          paypal_order_id?: string | null
+          paypal_capture_id?: string | null
+          payer_id?: string | null
+        }
+      }
+      products: {
+        Row: {
+          id: string
+          created_at: string
+          updated_at: string
+          sku: string
+          name: string
+          description: string | null
+          product_type: string
+          base_price: number
+          is_active: boolean
+        }
+        Insert: {
+          id?: string
+          created_at?: string
+          updated_at?: string
+          sku: string
+          name: string
+          description?: string | null
+          product_type: string
+          base_price: number
+          is_active?: boolean
+        }
+        Update: {
+          id?: string
+          created_at?: string
+          updated_at?: string
+          sku?: string
+          name?: string
+          description?: string | null
+          product_type?: string
+          base_price?: number
           is_active?: boolean
         }
       }

@@ -31,12 +31,16 @@ export type MeshType =
   | 'heavy_mosquito' 
   | 'no_see_um' 
   | 'shade'
+  | 'scrim'
+  | 'theater_scrim'
 
 export type PanelColor = 
   | 'black' 
   | 'white' 
-  | 'gray' 
+  | 'gray'
+  | 'grey'
   | 'ivory'
+  | 'charcoal'
 
 export type TopAttachment = 
   | 'velcro' 

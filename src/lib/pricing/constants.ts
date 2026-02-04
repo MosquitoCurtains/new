@@ -20,6 +20,8 @@ export const MESH_TYPE_MULTIPLIERS = {
   heavy_mosquito: 1.00,
   no_see_um: 1.20,
   shade: 1.10,
+  scrim: 0.95,
+  theater_scrim: 0.95,
 } as const
 
 /** Top attachment adders (per panel, not per sqft) */
@@ -218,6 +220,7 @@ export const RAW_MESH_TYPE_MULTIPLIERS = {
   no_see_um: 1.20,
   shade: 1.10,
   scrim: 1.50,
+  theater_scrim: 1.50,
 } as const
 
 // =============================================================================

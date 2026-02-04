@@ -96,8 +96,8 @@ export default function InputPage() {
               <Input label="Email" type="email" placeholder="you@example.com" />
             </div>
             <div>
-              <Text className="font-semibold !mb-2">With Icon</Text>
-              <Input icon={Search} placeholder="Search..." />
+              <Text className="font-semibold !mb-2">With Placeholder</Text>
+              <Input placeholder="Search..." />
             </div>
           </Stack>
           <Stack gap="md">
@@ -110,8 +110,8 @@ export default function InputPage() {
               <Input label="Disabled" disabled value="Can't edit this" />
             </div>
             <div>
-              <Text className="font-semibold !mb-2">With Icon and Label</Text>
-              <Input label="Email" icon={Mail} type="email" placeholder="you@example.com" />
+              <Text className="font-semibold !mb-2">With Helper Text</Text>
+              <Input label="Email" type="email" placeholder="you@example.com" helperText="We'll never share your email" />
             </div>
           </Stack>
         </Grid>
