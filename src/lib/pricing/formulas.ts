@@ -12,10 +12,11 @@ import {
   MESH_TYPE_MULTIPLIERS,
   TOP_ATTACHMENT_ADDERS,
   // Vinyl
-  VINYL_BASE_SQFT,
-  VINYL_MIN_SQFT,
-  VINYL_GAUGE_MULTIPLIERS,
+  VINYL_SIZE_LINEAR_RATES,
+  VINYL_PANEL_FEE,
   VINYL_DOOR_ADDER,
+  // Shared
+  ZIPPER_PER_FOOT,
   // Scrim
   SCRIM_BASE_SQFT,
   SCRIM_MIN_SQFT,
@@ -142,28 +143,26 @@ export function calculateMeshPanelPrice(config: MeshPanelConfig): PriceBreakdown
 /**
  * Calculate vinyl panel price
  * 
- * Formula from Gravity Forms Form 10:
- * price = max(sqft, 10) × $4.00 × gaugeMultiplier + doorAdder
+ * Formula from Gravity Forms Form 16698:
+ * price = widthFeet × linearFootRate + panelFee + doorAdder + zipperAdder
  */
 export function calculateVinylPanelPrice(config: VinylPanelConfig): PriceBreakdown {
-  const { sqft, minimumApplied } = calculateSqFt(
-    config.widthInches, 
-    config.heightInches, 
-    VINYL_MIN_SQFT
-  )
+  const totalWidthFeet = config.widthFeet + (config.widthInches / 12)
+  const rate = VINYL_SIZE_LINEAR_RATES[config.panelSize] ?? VINYL_SIZE_LINEAR_RATES.medium
   
-  const gaugeMultiplier = VINYL_GAUGE_MULTIPLIERS[config.gauge]
   const doorAdder = config.hasDoor ? VINYL_DOOR_ADDER : 0
   const zipperAdder = config.hasZipper 
     ? round(config.heightInches / 12 * ZIPPER_PER_FOOT) 
     : 0
   
-  const basePrice = round(sqft * VINYL_BASE_SQFT * gaugeMultiplier)
-  const total = round(basePrice + doorAdder + zipperAdder)
+  const basePrice = round(totalWidthFeet * rate)
+  const total = round(basePrice + VINYL_PANEL_FEE + doorAdder + zipperAdder)
+  
+  const sqft = round((totalWidthFeet * config.heightInches) / 12) // Approx sqft for reference
   
   return {
-    basePrice: VINYL_BASE_SQFT,
-    meshTypeMultiplier: gaugeMultiplier, // Using this field for gauge
+    basePrice: rate,
+    meshTypeMultiplier: 1.0, // Not used for vinyl
     topAttachmentAdder: 0,
     bottomOptionAdder: 0,
     doorAdder,
@@ -173,8 +172,8 @@ export function calculateVinylPanelPrice(config: VinylPanelConfig): PriceBreakdo
     quantity: 1,
     subtotal: total,
     total,
-    minimumApplied,
-    formula: `max(${round((config.widthInches * config.heightInches) / 144)} sqft, ${VINYL_MIN_SQFT}) × $${VINYL_BASE_SQFT} × ${gaugeMultiplier} + $${doorAdder} + $${zipperAdder} = $${total}`
+    minimumApplied: false,
+    formula: `${round(totalWidthFeet)}ft × $${rate}/ft + $${VINYL_PANEL_FEE} panel fee + $${doorAdder} door + $${zipperAdder} zipper = $${total}`
   }
 }
 

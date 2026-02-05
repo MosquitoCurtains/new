@@ -194,7 +194,7 @@ function calculateQuickPrice(specs: QuickSpecs, options: QuickSetupOptions) {
   if ('meshType' in options) {
     if (options.meshType === 'no_see_um') pricePerFoot += 5
     if (options.meshType === 'shade') pricePerFoot += 8
-    if (options.topAttachment === 'standard_track' || options.topAttachment === 'heavy_track') pricePerFoot += 15
+    if ('topAttachment' in options && (options.topAttachment === 'standard_track' || options.topAttachment === 'heavy_track')) pricePerFoot += 15
   }
   if (specs.productType === 'clear_vinyl') pricePerFoot += 20
   

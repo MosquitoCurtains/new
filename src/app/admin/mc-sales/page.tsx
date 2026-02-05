@@ -507,7 +507,7 @@ function createDefaultMeshSize(): MeshPanelSize {
           meshType: meshOptions.meshType,
           color: meshOptions.meshColor,
           topAttachment: meshOptions.topAttachment,
-          velcroColor: meshOptions.velcroColor,
+          velcroColor: meshOptions.velcroColor || 'black',
          },
        })
      })
@@ -532,7 +532,7 @@ function createDefaultMeshSize(): MeshPanelSize {
            heightInches: panel.heightInches,
            color: panel.color,
            topAttachment: panel.topAttachment,
-           velcroColor: panel.velcroColor,
+           velcroColor: panel.velcroColor || 'black',
          },
        })
      })

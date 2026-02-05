@@ -110,10 +110,11 @@ export default function LeadsAnalyticsDashboard() {
         .order('total_leads', { ascending: false })
       
       if (interestError) throw interestError
-      setInterestData(interests || [])
+      const interestResults = (interests || []) as LeadsByInterest[]
+      setInterestData(interestResults)
       
       // Calculate totals from interest data
-      const totals = (interests || []).reduce((acc, i) => ({
+      const totals = interestResults.reduce((acc, i) => ({
         leads: acc.leads + (i.total_leads || 0),
         converted: acc.converted + (i.converted_leads || 0),
         revenue: acc.revenue + Number(i.total_revenue || 0)
@@ -131,7 +132,7 @@ export default function LeadsAnalyticsDashboard() {
         .limit(50)
       
       if (pagesError) throw pagesError
-      setLandingPageData(pages || [])
+      setLandingPageData((pages || []) as LeadsByLandingPage[])
       
       // Fetch monthly data
       const { data: monthly, error: monthlyError } = await supabase
@@ -141,7 +142,7 @@ export default function LeadsAnalyticsDashboard() {
         .limit(24)
       
       if (monthlyError) throw monthlyError
-      setMonthlyData((monthly || []).reverse())
+      setMonthlyData(((monthly || []) as MonthlyLeads[]).reverse())
       
       // Fetch recent conversions
       const { data: conversions, error: convError } = await supabase
@@ -152,10 +153,11 @@ export default function LeadsAnalyticsDashboard() {
         .limit(20)
       
       if (convError) throw convError
-      setRecentConversions(conversions || [])
+      const conversionResults = (conversions || []) as LeadConversion[]
+      setRecentConversions(conversionResults)
       
       // Calculate avg days to convert
-      const validDays = (conversions || [])
+      const validDays = conversionResults
         .filter(c => c.days_to_conversion !== null && c.days_to_conversion >= 0)
         .map(c => c.days_to_conversion as number)
       

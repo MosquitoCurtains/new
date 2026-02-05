@@ -171,7 +171,7 @@ export default function ClearVinylOptionsPage() {
                   </Frame>
                   <div className="p-3">
                     <div className="flex items-center justify-center gap-2">
-                      <Heading level={5} className="!mb-0 !text-sm">{color.name}</Heading>
+                      <Heading level={4} className="!mb-0 !text-sm">{color.name}</Heading>
                       {color.isNew && (
                         <Badge variant="primary" className="!text-xs !py-0 !px-1.5">New</Badge>
                       )}

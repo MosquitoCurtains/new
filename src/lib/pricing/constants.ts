@@ -14,6 +14,8 @@ export const MESH_LINEAR_FOOT_RATES = {
   heavy_mosquito: 18,
   no_see_um: 19,
   shade: 20,
+  scrim: 17,
+  theater_scrim: 17,
 } as const
 
 /** Per-panel fee for mesh panels */
@@ -53,24 +55,34 @@ export const ZIPPER_PER_FOOT = 2.50
 export const NOTCH_ADDER = 10.00
 
 // =============================================================================
-// CLEAR VINYL PANEL PRICING (Form 10)
+// CLEAR VINYL PANEL PRICING (Form 16698)
 // =============================================================================
 
-/** Base price per square foot for vinyl panels */
-export const VINYL_BASE_SQFT = 4.00
+/** Linear foot rates for vinyl panels by size */
+export const VINYL_SIZE_LINEAR_RATES = {
+  short: 28,   // Panels under 48" tall
+  medium: 34,  // Panels 48" to 96" tall (default)
+  tall: 41,    // Panels over 96" tall
+} as const
 
-/** Minimum square footage for vinyl panels */
-export const VINYL_MIN_SQFT = 10
+/** Per-panel fee for vinyl panels */
+export const VINYL_PANEL_FEE = 30
 
-/** Gauge multipliers */
+/** Vinyl door adder */
+export const VINYL_DOOR_ADDER = 25.00
+
+// Legacy gauge multipliers (kept for backwards compatibility)
 export const VINYL_GAUGE_MULTIPLIERS = {
   '20_gauge': 1.00,
   '30_gauge': 1.25,
   '40_gauge': 1.50,
 } as const
 
-/** Vinyl door adder */
-export const VINYL_DOOR_ADDER = 25.00
+/** Minimum square footage for vinyl panels (legacy) */
+export const VINYL_MIN_SQFT = 10
+
+/** Base price per square foot for vinyl panels (legacy) */
+export const VINYL_BASE_SQFT = 4.00
 
 // =============================================================================
 // SCRIM PANEL PRICING (Form 23)

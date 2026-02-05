@@ -232,7 +232,7 @@ export class PriceCalculator {
       breakdown,
       options: {
         mesh_type: item.config.meshType,
-        color: item.config.color,
+        mesh_color: item.config.meshColor,
         top_attachment: item.config.topAttachment,
       },
     }
@@ -250,9 +250,9 @@ export class PriceCalculator {
       lineTotal,
       breakdown,
       options: {
-        gauge: item.config.gauge,
-        tint: item.config.tint,
+        panel_size: item.config.panelSize,
         top_attachment: item.config.topAttachment,
+        ...(item.config.canvasColor && { canvas_color: item.config.canvasColor }),
         ...(item.config.hasDoor && { has_door: 'true' }),
         ...(item.config.hasZipper && { has_zipper: 'true' }),
       },

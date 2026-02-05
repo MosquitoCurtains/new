@@ -57,13 +57,13 @@ export async function POST(request: NextRequest) {
     }
     
     // ---------------------------------------------------------------------------
-    // Check if customer already exists
-    // ---------------------------------------------------------------------------
-    const { data: existingCustomer } = await supabase
-      .from('customers')
-      .select('id, email')
-      .eq('email', email.toLowerCase())
-      .single()
+   // Check if customer already exists
+   // ---------------------------------------------------------------------------
+   const { data: existingCustomer } = await supabase
+     .from('customers')
+     .select('id, email, first_utm_source, first_utm_medium, first_utm_campaign, first_utm_term, first_utm_content, first_landing_page, first_referrer, first_seen_at')
+     .eq('email', email.toLowerCase())
+     .single()
     
     let customerId: string
     

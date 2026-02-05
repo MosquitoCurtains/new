@@ -319,7 +319,7 @@ export default function ClearVinylOptionsPage() {
                 <Frame ratio="16/9">
                   <YouTubeEmbed
                     videoId="5dWUpGj6lYc"
-                    variant="minimal"
+                    variant="card"
                   />
                 </Frame>
                 <div className="p-3 text-center">
