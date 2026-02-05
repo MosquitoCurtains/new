@@ -164,9 +164,9 @@ export class GoogleAdsClient {
       return campaigns.map(row => ({
         campaignId: String(row.campaign?.id || ''),
         campaignName: row.campaign?.name || 'Unknown',
-        campaignStatus: row.campaign?.status ? enums.CampaignStatus[row.campaign.status] : 'UNKNOWN',
+        campaignStatus: row.campaign?.status ? String(enums.CampaignStatus[row.campaign.status]) : 'UNKNOWN',
         campaignType: row.campaign?.advertising_channel_type 
-          ? enums.AdvertisingChannelType[row.campaign.advertising_channel_type] 
+          ? String(enums.AdvertisingChannelType[row.campaign.advertising_channel_type]) 
           : 'UNKNOWN',
         date: row.segments?.date || dateRange.startDate,
         costMicros: Number(row.metrics?.cost_micros || 0),
@@ -219,7 +219,7 @@ export class GoogleAdsClient {
         keywordId: String(row.ad_group_criterion?.criterion_id || ''),
         keywordText: row.ad_group_criterion?.keyword?.text || '',
         matchType: row.ad_group_criterion?.keyword?.match_type 
-          ? enums.KeywordMatchType[row.ad_group_criterion.keyword.match_type]
+          ? String(enums.KeywordMatchType[row.ad_group_criterion.keyword.match_type])
           : 'UNKNOWN',
         date: row.segments?.date || dateRange.startDate,
         costMicros: Number(row.metrics?.cost_micros || 0),
