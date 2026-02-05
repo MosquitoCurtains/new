@@ -3,6 +3,10 @@
     {
       "path": "/api/analytics/sync",
       "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/google-ads/sync",
+      "schedule": "0 9 * * *"
     }
   ]
 }
