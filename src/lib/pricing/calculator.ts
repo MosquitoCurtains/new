@@ -234,10 +234,6 @@ export class PriceCalculator {
         mesh_type: item.config.meshType,
         color: item.config.color,
         top_attachment: item.config.topAttachment,
-        bottom_option: item.config.bottomOption || 'weighted_hem',
-        ...(item.config.hasDoor && { has_door: 'true' }),
-        ...(item.config.hasZipper && { has_zipper: 'true' }),
-        ...(item.config.hasNotch && { has_notch: 'true' }),
       },
     }
   }

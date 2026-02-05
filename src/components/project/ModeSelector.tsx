@@ -3,10 +3,12 @@
 /**
  * ModeSelector Component
  * 
- * Landing page for the Start Project wizard showing three modes:
+ * Mode selection cards for the Start Project wizard:
  * 1. Planner Mode - Contact us with photos (salesperson assistance)
  * 2. Instant Quote Mode - Quick estimate calculator
  * 3. DIY Builder Mode - Full panel-by-panel configuration
+ * 
+ * Follows Mosquito Curtains Design System patterns.
  */
 
 import { useState } from 'react'
@@ -18,10 +20,7 @@ import {
   Check,
   Camera,
   Clock,
-  DollarSign,
   Ruler,
-  Palette,
-  ShoppingCart,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -44,6 +43,7 @@ interface ModeCardProps {
   features: string[]
   badge?: string
   badgeColor?: string
+  accentColor: string
   isSelected: boolean
   onSelect: () => void
 }
@@ -53,13 +53,13 @@ interface ModeCardProps {
 // =============================================================================
 
 function ModeCard({
-  mode,
   title,
   description,
   icon,
   features,
   badge,
-  badgeColor = 'bg-primary',
+  badgeColor = 'bg-[#406517]',
+  accentColor,
   isSelected,
   onSelect,
 }: ModeCardProps) {
@@ -67,11 +67,11 @@ function ModeCard({
     <button
       onClick={onSelect}
       className={cn(
-        'relative text-left p-6 rounded-2xl border-2 transition-all duration-300',
-        'hover:transform hover:-translate-y-1',
+        'relative text-left p-6 rounded-2xl border-2 transition-all duration-300 bg-white',
+        'hover:transform hover:-translate-y-1 hover:shadow-lg',
         isSelected
-          ? 'border-primary bg-primary/10 ring-4 ring-primary/20'
-          : 'border-gray-700 bg-gray-900/50 hover:border-gray-600'
+          ? 'border-[#406517] bg-[#406517]/5 ring-4 ring-[#406517]/20'
+          : 'border-gray-200 hover:border-gray-300'
       )}
     >
       {/* Badge */}
@@ -88,41 +88,44 @@ function ModeCard({
       <div className={cn(
         'absolute top-4 right-4 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all',
         isSelected
-          ? 'border-primary bg-primary'
-          : 'border-gray-600 bg-transparent'
+          ? 'border-[#406517] bg-[#406517]'
+          : 'border-gray-300 bg-transparent'
       )}>
         {isSelected && <Check className="w-4 h-4 text-white" />}
       </div>
 
       {/* Icon */}
-      <div className={cn(
-        'w-14 h-14 rounded-xl flex items-center justify-center mb-4',
-        isSelected ? 'bg-primary/20' : 'bg-gray-800'
-      )}>
-        <div className={cn(
-          'w-7 h-7',
-          isSelected ? 'text-primary' : 'text-gray-400'
-        )}>
+      <div 
+        className={cn(
+          'w-14 h-14 rounded-xl flex items-center justify-center mb-4 transition-colors',
+          isSelected ? '' : 'bg-gray-100'
+        )}
+        style={{ backgroundColor: isSelected ? `${accentColor}20` : undefined }}
+      >
+        <div 
+          className="w-7 h-7"
+          style={{ color: isSelected ? accentColor : '#9CA3AF' }}
+        >
           {icon}
         </div>
       </div>
 
       {/* Title & Description */}
       <h3 className={cn(
-        'text-xl font-bold mb-2',
-        isSelected ? 'text-primary' : 'text-white'
+        'text-xl font-bold mb-2 transition-colors',
+        isSelected ? 'text-[#406517]' : 'text-gray-900'
       )}>
         {title}
       </h3>
-      <p className="text-gray-400 text-sm mb-4">
+      <p className="text-gray-600 text-sm mb-4">
         {description}
       </p>
 
       {/* Features */}
       <ul className="space-y-2">
         {features.map((feature, i) => (
-          <li key={i} className="flex items-center gap-2 text-sm text-gray-300">
-            <Check className="w-4 h-4 text-primary flex-shrink-0" />
+          <li key={i} className="flex items-center gap-2 text-sm text-gray-700">
+            <Check className="w-4 h-4 text-[#406517] flex-shrink-0" />
             {feature}
           </li>
         ))}
@@ -145,18 +148,7 @@ export function ModeSelector({ onSelectMode, className }: ModeSelectorProps) {
   }
 
   return (
-    <div className={cn('space-y-8', className)}>
-      {/* Header */}
-      <div className="text-center">
-        <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-          How Would You Like to Start?
-        </h2>
-        <p className="text-gray-400 max-w-2xl mx-auto">
-          Choose the approach that works best for you. Whether you want expert guidance, 
-          a quick estimate, or to build it yourself — we&apos;ve got you covered.
-        </p>
-      </div>
-
+    <div className={cn('space-y-6', className)}>
       {/* Mode Cards */}
       <div className="grid md:grid-cols-3 gap-6">
         {/* Planner Mode */}
@@ -172,7 +164,8 @@ export function ModeSelector({ onSelectMode, className }: ModeSelectorProps) {
             'Custom quote within 24-48 hours',
           ]}
           badge="Most Personal"
-          badgeColor="bg-purple-500"
+          badgeColor="bg-[#B30158]"
+          accentColor="#B30158"
           isSelected={selectedMode === 'planner'}
           onSelect={() => setSelectedMode('planner')}
         />
@@ -190,7 +183,8 @@ export function ModeSelector({ onSelectMode, className }: ModeSelectorProps) {
             'Easy to adjust options',
           ]}
           badge="Fastest"
-          badgeColor="bg-teal-500"
+          badgeColor="bg-[#003365]"
+          accentColor="#003365"
           isSelected={selectedMode === 'quote'}
           onSelect={() => setSelectedMode('quote')}
         />
@@ -208,14 +202,15 @@ export function ModeSelector({ onSelectMode, className }: ModeSelectorProps) {
             'Add to cart & checkout',
           ]}
           badge="Most Control"
-          badgeColor="bg-orange-500"
+          badgeColor="bg-[#FFA501]"
+          accentColor="#FFA501"
           isSelected={selectedMode === 'diy'}
           onSelect={() => setSelectedMode('diy')}
         />
       </div>
 
       {/* Continue Button */}
-      <div className="flex justify-center">
+      <div className="flex justify-center pt-2">
         <button
           onClick={handleContinue}
           disabled={!selectedMode}
@@ -223,8 +218,8 @@ export function ModeSelector({ onSelectMode, className }: ModeSelectorProps) {
             'px-8 py-4 rounded-full font-semibold text-lg',
             'flex items-center gap-3 transition-all',
             selectedMode
-              ? 'bg-gradient-to-r from-primary to-teal-500 text-white hover:-translate-y-0.5'
-              : 'bg-gray-700 text-gray-400 cursor-not-allowed'
+              ? 'bg-[#406517] text-white hover:-translate-y-0.5 hover:bg-[#4d7a1c] shadow-lg'
+              : 'bg-gray-200 text-gray-400 cursor-not-allowed'
           )}
         >
           Continue with {
@@ -238,23 +233,23 @@ export function ModeSelector({ onSelectMode, className }: ModeSelectorProps) {
       </div>
 
       {/* Comparison Helper */}
-      <div className="bg-gray-800/50 rounded-2xl p-6">
-        <h4 className="text-white font-semibold text-center mb-4">Not sure which to choose?</h4>
+      <div className="bg-white border border-gray-200 rounded-2xl p-6 mt-4">
+        <h4 className="text-gray-900 font-semibold text-center mb-4">Not sure which to choose?</h4>
         <div className="grid md:grid-cols-3 gap-4 text-center text-sm">
-          <div className="p-3 rounded-xl bg-gray-900/50">
-            <Camera className="w-6 h-6 text-purple-400 mx-auto mb-2" />
-            <p className="text-gray-300">Have photos but need guidance?</p>
-            <p className="text-purple-400 font-medium">Choose Expert Help</p>
+          <div className="p-4 rounded-xl bg-gray-50 border border-gray-100">
+            <Camera className="w-6 h-6 text-[#B30158] mx-auto mb-2" />
+            <p className="text-gray-700 mb-1">Have photos but need guidance?</p>
+            <p className="text-[#B30158] font-semibold">Choose Expert Help</p>
           </div>
-          <div className="p-3 rounded-xl bg-gray-900/50">
-            <Clock className="w-6 h-6 text-teal-400 mx-auto mb-2" />
-            <p className="text-gray-300">Just need a quick estimate?</p>
-            <p className="text-teal-400 font-medium">Choose Instant Quote</p>
+          <div className="p-4 rounded-xl bg-gray-50 border border-gray-100">
+            <Clock className="w-6 h-6 text-[#003365] mx-auto mb-2" />
+            <p className="text-gray-700 mb-1">Just need a quick estimate?</p>
+            <p className="text-[#003365] font-semibold">Choose Instant Quote</p>
           </div>
-          <div className="p-3 rounded-xl bg-gray-900/50">
-            <Ruler className="w-6 h-6 text-orange-400 mx-auto mb-2" />
-            <p className="text-gray-300">Know your exact measurements?</p>
-            <p className="text-orange-400 font-medium">Choose DIY Builder</p>
+          <div className="p-4 rounded-xl bg-gray-50 border border-gray-100">
+            <Ruler className="w-6 h-6 text-[#FFA501] mx-auto mb-2" />
+            <p className="text-gray-700 mb-1">Know your exact measurements?</p>
+            <p className="text-[#FFA501] font-semibold">Choose DIY Builder</p>
           </div>
         </div>
       </div>

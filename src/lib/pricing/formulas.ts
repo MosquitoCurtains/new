@@ -7,14 +7,10 @@
 
 import {
   // Mesh
-  MESH_BASE_SQFT,
-  MESH_MIN_SQFT,
+  MESH_LINEAR_FOOT_RATES,
+  MESH_PANEL_FEE,
   MESH_TYPE_MULTIPLIERS,
   TOP_ATTACHMENT_ADDERS,
-  BOTTOM_OPTION_ADDERS,
-  DOOR_ADDER,
-  ZIPPER_PER_FOOT,
-  NOTCH_ADDER,
   // Vinyl
   VINYL_BASE_SQFT,
   VINYL_MIN_SQFT,
@@ -113,44 +109,29 @@ export function round(value: number): number {
 /**
  * Calculate mesh panel price
  * 
- * Formula from Gravity Forms Form 8:
- * price = max(sqft, 10) × $1.50 × meshMultiplier + topAdder + bottomAdder + doorAdder + zipperAdder
+ * Formula from Gravity Forms Form 16028:
+ * price = (width_feet + width_inches/12) × mesh_rate + panel_fee
  */
 export function calculateMeshPanelPrice(config: MeshPanelConfig): PriceBreakdown {
-  const { sqft, minimumApplied } = calculateSqFt(
-    config.widthInches, 
-    config.heightInches, 
-    MESH_MIN_SQFT
-  )
-  
-  const meshMultiplier = MESH_TYPE_MULTIPLIERS[config.meshType]
-  const topAdder = TOP_ATTACHMENT_ADDERS[config.topAttachment]
-  const bottomAdder = config.bottomOption 
-    ? BOTTOM_OPTION_ADDERS[config.bottomOption] 
-    : 0
-  const doorAdder = config.hasDoor ? DOOR_ADDER : 0
-  const zipperAdder = config.hasZipper 
-    ? round(config.heightInches / 12 * ZIPPER_PER_FOOT) 
-    : 0
-  const notchAdder = config.hasNotch ? NOTCH_ADDER : 0
-  
-  const basePrice = round(sqft * MESH_BASE_SQFT * meshMultiplier)
-  const total = round(basePrice + topAdder + bottomAdder + doorAdder + zipperAdder + notchAdder)
-  
+  const totalWidthFeet = config.widthFeet + (config.widthInches / 12)
+  const rate = MESH_LINEAR_FOOT_RATES[config.meshType] ?? MESH_LINEAR_FOOT_RATES.heavy_mosquito
+  const basePrice = round(totalWidthFeet * rate)
+  const total = round(basePrice + MESH_PANEL_FEE)
+
   return {
-    basePrice: MESH_BASE_SQFT,
-    meshTypeMultiplier: meshMultiplier,
-    topAttachmentAdder: topAdder,
-    bottomOptionAdder: bottomAdder,
-    doorAdder,
-    zipperAdder,
-    notchAdder,
-    squareFeet: sqft,
+    basePrice: rate,
+    meshTypeMultiplier: 1,
+    topAttachmentAdder: 0,
+    bottomOptionAdder: 0,
+    doorAdder: 0,
+    zipperAdder: 0,
+    notchAdder: 0,
+    squareFeet: 0,
     quantity: 1,
     subtotal: total,
     total,
-    minimumApplied,
-    formula: `max(${round((config.widthInches * config.heightInches) / 144)} sqft, ${MESH_MIN_SQFT}) × $${MESH_BASE_SQFT} × ${meshMultiplier} + $${topAdder} + $${bottomAdder} + $${doorAdder} + $${zipperAdder} + $${notchAdder} = $${total}`
+    minimumApplied: false,
+    formula: `(${round(totalWidthFeet)} ft × $${rate}) + $${MESH_PANEL_FEE} = $${total}`
   }
 }
 

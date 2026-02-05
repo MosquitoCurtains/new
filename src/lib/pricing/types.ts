@@ -1,5 +1,8 @@
 /**
  * Pricing System Types
+ * 
+ * IMPORTANT: These types match the actual Gravity Forms product structure
+ * from mosquitocurtains.com
  */
 
 // =============================================================================
@@ -24,43 +27,80 @@ export type PricingType =
   | 'calculated'
 
 // =============================================================================
-// Panel Types
+// Mesh Panel Types (from Gravity Form 16028)
 // =============================================================================
 
 export type MeshType = 
-  | 'heavy_mosquito' 
-  | 'no_see_um' 
-  | 'shade'
-  | 'scrim'
-  | 'theater_scrim'
+  | 'heavy_mosquito'  // $18/linear ft
+  | 'no_see_um'       // $19/linear ft
+  | 'shade'           // $20/linear ft
+  | 'scrim'           // For raw materials
+  | 'theater_scrim'   // For raw materials
 
-export type PanelColor = 
+// Mesh color availability depends on mesh type:
+// - heavy_mosquito: black, white, ivory
+// - no_see_um: black, white
+// - shade: black, white
+export type MeshColor = 
   | 'black' 
   | 'white' 
-  | 'gray'
-  | 'grey'
-  | 'ivory'
-  | 'charcoal'
+  | 'ivory'  // Only available for heavy_mosquito
+  | 'silver' // Theater scrim option
 
-export type TopAttachment = 
-  | 'velcro' 
-  | 'tracking_short' 
-  | 'tracking_tall' 
-  | 'grommets'
+export type MeshTopAttachment = 
+  | 'standard_track'  // For panels under 10ft tall
+  | 'heavy_track'     // For panels over 10ft tall
+  | 'velcro'          // Fixed in place (shows velcro_color option)
+  | 'special_rigging' // Custom attachment
+
+export type VelcroColor = 'black' | 'white'
+
+// =============================================================================
+// Clear Vinyl Panel Types (from Gravity Form 16698)
+// =============================================================================
+
+// Panel size determines pricing tier (not gauge/thickness!)
+// Vinyl is always 20-gauge
+export type VinylPanelSize = 
+  | 'short'   // $28/linear ft
+  | 'medium'  // $34/linear ft (default)
+  | 'tall'    // $41/linear ft
+
+// Canvas color - the fabric border around the clear vinyl
+// Only available for medium and tall panels (short = N/A)
+export type CanvasColor = 
+  | 'tbd'               // To Be Determined
+  | 'ashen_gray'
+  | 'burgundy'
+  | 'black'
+  | 'cocoa_brown'
+  | 'clear_top_to_bottom' // No canvas border
+  | 'forest_green'
+  | 'moss_green'
+  | 'navy_blue'
+  | 'royal_blue'
+  | 'sandy_tan'
+
+export type VinylTopAttachment = 
+  | 'standard_track'  // For panels under 10ft tall
+  | 'heavy_track'     // For panels over 10ft tall
+  | 'velcro'          // Fixed in place (shows velcro_color option)
+  | 'binding_only'    // Just finished edge, no attachment
+  | 'special_rigging' // Custom attachment
+
+// Legacy types - kept for backwards compatibility
+export type PanelColor = MeshColor | CanvasColor
+export type TopAttachment = MeshTopAttachment | VinylTopAttachment
 
 export type BottomOption = 
   | 'weighted_hem' 
   | 'chain_weight' 
   | 'rod_pocket'
 
-export type VinylGauge = 
-  | '20_gauge' 
-  | '30_gauge' 
-  | '40_gauge'
-
-export type VinylTint = 
-  | 'clear' 
-  | 'tinted'
+// DEPRECATED - Vinyl doesn't have gauge/thickness options
+// It's always 20-gauge. Price varies by panel HEIGHT (short/medium/tall)
+export type VinylGauge = '20_gauge'
+export type VinylTint = 'clear' | 'tinted'
 
 // =============================================================================
 // Track Types
@@ -81,42 +121,69 @@ export type TrackLength =
 // Configuration Interfaces
 // =============================================================================
 
+/**
+ * Mesh Panel Configuration
+ * Matches Gravity Form 16028 - Mesh Panels
+ */
 export interface MeshPanelConfig {
-  widthInches: number
+  // Dimensions
+  widthFeet: number
+  widthInches: number  // 0-11 portion
   heightInches: number
-  meshType: MeshType
-  color: PanelColor
-  topAttachment: TopAttachment
-  bottomOption?: BottomOption
-  hasDoor?: boolean
-  hasZipper?: boolean
-  hasNotch?: boolean
-  notchWidth?: number
-  notchHeight?: number
+  
+  // Required Options
+  meshType: MeshType           // Determines price per linear foot
+  meshColor: MeshColor         // Conditional on meshType (ivory only for heavy_mosquito)
+  topAttachment: MeshTopAttachment
+  
+  // Conditional Options
+  velcroColor?: VelcroColor    // Only when topAttachment = 'velcro'
 }
 
+/**
+ * Clear Vinyl Panel Configuration
+ * Matches Gravity Form 16698 - Clear Vinyl Panels
+ */
 export interface VinylPanelConfig {
-  widthInches: number
+  // Dimensions
+  widthFeet: number
+  widthInches: number  // 0-11 portion
   heightInches: number
-  gauge: VinylGauge
-  tint: VinylTint
-  topAttachment: TopAttachment
+  
+  // Required Options
+  panelSize: VinylPanelSize    // Determines price per linear foot (short/medium/tall)
+  topAttachment: VinylTopAttachment
+  
+  // Conditional Options
+  canvasColor?: CanvasColor    // Only for medium/tall panels (not short)
+  velcroColor?: VelcroColor    // Only when topAttachment = 'velcro'
+  
+  // Optional Additions
   hasDoor?: boolean
   hasZipper?: boolean
+  notes?: string
 }
 
+/**
+ * Scrim Panel Configuration
+ */
 export interface ScrimPanelConfig {
+  widthFeet: number
   widthInches: number
   heightInches: number
-  color: PanelColor
-  topAttachment: TopAttachment
+  color: MeshColor
+  topAttachment: MeshTopAttachment
 }
 
+/**
+ * Roll-up Panel Configuration
+ */
 export interface RollupPanelConfig {
+  widthFeet: number
   widthInches: number
   heightInches: number
   meshType: MeshType
-  color: PanelColor
+  color: MeshColor
 }
 
 export interface TrackConfig {

@@ -12,7 +12,7 @@ import { useState, useMemo } from 'react'
 import { Plus, ShoppingCart, Calculator, Package, Wrench } from 'lucide-react'
 import { Card, Grid, Stack, Heading, Text, Button } from '@/lib/design-system'
 import { PanelEditor, PanelConfig } from './PanelEditor'
-import type { MeshType } from '@/lib/pricing/types'
+import { calculateMeshPanelPrice } from '@/lib/pricing/formulas'
 
 // =============================================================================
 // TYPES
@@ -65,25 +65,26 @@ function createDefaultPanel(): PanelConfig {
     heightInches: 96,
     meshType: 'heavy_mosquito',
     color: 'black',
-    topAttachment: 'tracking_short',
-    hasDoorway: false,
+    topAttachment: 'velcro', // Most popular default
+    velcroColor: 'black',
     notes: '',
   }
 }
 
+/**
+ * Calculate panel price based on Gravity Forms formula:
+ * (width_feet + width_inches/12) * mesh_rate + panel_fee
+ */
 function calculatePanelPrice(panel: PanelConfig): number {
-  const totalWidthFeet = panel.widthFeet + (panel.widthInches / 12)
-  const meshRates: Record<MeshType, number> = {
-    heavy_mosquito: 18,
-    no_see_um: 19,
-    shade: 20,
-    scrim: 18.5,
-    theater_scrim: 18.5,
-  }
-  const basePrice = totalWidthFeet * meshRates[panel.meshType]
-  const panelFee = 24
-  const doorwayCost = panel.hasDoorway ? 75 : 0
-  return basePrice + panelFee + doorwayCost
+  return calculateMeshPanelPrice({
+    widthFeet: panel.widthFeet,
+    widthInches: panel.widthInches,
+    heightInches: panel.heightInches,
+    meshType: panel.meshType,
+    meshColor: panel.color,
+    topAttachment: panel.topAttachment,
+    velcroColor: panel.velcroColor,
+  }).total
 }
 
 function calculateHardwarePrice(hardware: TrackHardware): number {
@@ -133,8 +134,8 @@ export function DIYBuilder({ onAddToCart }: DIYBuilderProps) {
     const hardwareSubtotal = calculateHardwarePrice(hardware)
     const addOnsSubtotal = (addOns.snapTool ? 130 : 0) + (addOns.magnetDoorway * 75)
     const subtotal = panelsSubtotal + hardwareSubtotal + addOnsSubtotal
-    const estimatedShipping = subtotal > 500 ? 0 : 35 + (panels.length * 15)
-    return { panelsSubtotal, hardwareSubtotal, addOnsSubtotal, subtotal, estimatedShipping, total: subtotal + estimatedShipping }
+    const estimatedShipping = 0 // Calculated at checkout
+    return { panelsSubtotal, hardwareSubtotal, addOnsSubtotal, subtotal, estimatedShipping, total: subtotal }
   }, [panels, hardware, addOns])
 
   // Estimate recommended hardware
@@ -406,20 +407,14 @@ export function DIYBuilder({ onAddToCart }: DIYBuilderProps) {
                   <span className="font-medium text-gray-900">${totals.subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm mt-1">
-                  <span className="text-gray-600">Est. Shipping</span>
-                  <span className="font-medium text-gray-900">
-                    {totals.estimatedShipping === 0 ? (
-                      <span className="text-[#406517]">FREE</span>
-                    ) : (
-                      `$${totals.estimatedShipping.toFixed(2)}`
-                    )}
-                  </span>
+                  <span className="text-gray-600">Shipping</span>
+                  <span className="text-gray-500 italic">Calculated at checkout</span>
                 </div>
               </div>
               <div className="border-t border-gray-200 pt-2 mt-2">
                 <div className="flex justify-between">
-                  <span className="font-semibold text-gray-900">Total</span>
-                  <span className="text-2xl font-bold text-[#406517]">${totals.total.toFixed(2)}</span>
+                  <span className="font-semibold text-gray-900">Subtotal</span>
+                  <span className="text-2xl font-bold text-[#406517]">${totals.subtotal.toFixed(2)}</span>
                 </div>
               </div>
             </Stack>
@@ -435,10 +430,6 @@ export function DIYBuilder({ onAddToCart }: DIYBuilderProps) {
                 Add to Cart
               </Button>
             </div>
-
-            <Text size="sm" className="text-gray-500 text-center mt-4">
-              Free shipping on orders over $500
-            </Text>
           </Card>
 
           {/* Help Card */}

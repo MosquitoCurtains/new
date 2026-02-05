@@ -6,14 +6,18 @@
  */
 
 // =============================================================================
-// MESH PANEL PRICING (Form 8)
+// MESH PANEL PRICING (Form 16028)
 // =============================================================================
 
-/** Base price per square foot for mesh panels */
-export const MESH_BASE_SQFT = 1.50
+/** Linear foot rates for mesh panels */
+export const MESH_LINEAR_FOOT_RATES = {
+  heavy_mosquito: 18,
+  no_see_um: 19,
+  shade: 20,
+} as const
 
-/** Minimum square footage for mesh panels */
-export const MESH_MIN_SQFT = 10
+/** Per-panel fee for mesh panels */
+export const MESH_PANEL_FEE = 24
 
 /** Multipliers for different mesh types */
 export const MESH_TYPE_MULTIPLIERS = {
@@ -24,12 +28,12 @@ export const MESH_TYPE_MULTIPLIERS = {
   theater_scrim: 0.95,
 } as const
 
-/** Top attachment adders (per panel, not per sqft) */
+/** Top attachment adders (unused for mesh panels) */
 export const TOP_ATTACHMENT_ADDERS = {
+  standard_track: 0,
+  heavy_track: 0,
   velcro: 0,
-  tracking_short: 2.00,
-  tracking_tall: 4.00,
-  grommets: 0,
+  special_rigging: 0,
 } as const
 
 /** Bottom option adders */

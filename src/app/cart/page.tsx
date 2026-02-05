@@ -49,13 +49,16 @@ function CartItem({
   onUpdateQuantity: (quantity: number) => void
   onRemove: () => void
 }) {
-  const isPanel = item.type === 'panel'
+  const isCustomItem = item.type === 'panel' || item.type === 'fabric'
+  const isFabric = item.type === 'fabric'
   
   return (
     <div className="flex gap-4 p-4 bg-white border border-gray-200 rounded-xl">
       {/* Icon/Image */}
-      <div className="w-16 h-16 bg-[#406517]/10 rounded-lg flex items-center justify-center flex-shrink-0">
-        <Package className="w-8 h-8 text-[#406517]" />
+      <div className={`w-16 h-16 rounded-lg flex items-center justify-center flex-shrink-0 ${
+        isFabric ? 'bg-[#B30158]/10' : 'bg-[#406517]/10'
+      }`}>
+        <Package className={`w-8 h-8 ${isFabric ? 'text-[#B30158]' : 'text-[#406517]'}`} />
       </div>
 
       {/* Details */}
@@ -78,8 +81,8 @@ function CartItem({
 
         {/* Quantity & Price */}
         <div className="flex items-center justify-between mt-3">
-          {isPanel ? (
-            <Text size="sm" className="text-gray-500 !mb-0">Custom panel</Text>
+          {isCustomItem ? (
+            <Text size="sm" className="text-gray-500 !mb-0">{isFabric ? 'Raw fabric order' : 'Custom panel'}</Text>
           ) : (
             <div className="flex items-center gap-2">
               <button
@@ -186,6 +189,7 @@ export default function CartPage() {
 
   // Group items by type
   const panels = cart.items.filter(i => i.type === 'panel')
+  const fabric = cart.items.filter(i => i.type === 'fabric')
   const track = cart.items.filter(i => i.type === 'track')
   const hardware = cart.items.filter(i => i.type === 'hardware')
   const addOns = cart.items.filter(i => i.type === 'addon')
@@ -228,10 +232,30 @@ export default function CartPage() {
                     <div>
                       <div className="flex items-center gap-2 mb-3">
                         <Package className="w-5 h-5 text-[#406517]" />
-                        <Heading level={3} className="!mb-0">Panels ({panels.length})</Heading>
+                        <Heading level={3} className="!mb-0">Custom Panels ({panels.length})</Heading>
                       </div>
                       <Stack gap="sm">
                         {panels.map(item => (
+                          <CartItem
+                            key={item.id}
+                            item={item}
+                            onUpdateQuantity={(qty) => updateQuantity(item.id, qty)}
+                            onRemove={() => removeItem(item.id)}
+                          />
+                        ))}
+                      </Stack>
+                    </div>
+                  )}
+
+                  {/* Raw Fabric Section */}
+                  {fabric.length > 0 && (
+                    <div>
+                      <div className="flex items-center gap-2 mb-3">
+                        <Package className="w-5 h-5 text-[#B30158]" />
+                        <Heading level={3} className="!mb-0">Raw Mesh Fabric ({fabric.length})</Heading>
+                      </div>
+                      <Stack gap="sm">
+                        {fabric.map(item => (
                           <CartItem
                             key={item.id}
                             item={item}
@@ -317,24 +341,16 @@ export default function CartPage() {
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Shipping</span>
-                      <span className="font-medium text-gray-900">
-                        {cart.shipping === 0 ? (
-                          <span className="text-[#406517]">FREE</span>
-                        ) : (
-                          `$${cart.shipping.toFixed(2)}`
-                        )}
-                      </span>
+                      <span className="text-gray-500 italic">Calculated at checkout</span>
                     </div>
-                    {cart.tax > 0 && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Tax</span>
-                        <span className="font-medium text-gray-900">${cart.tax.toFixed(2)}</span>
-                      </div>
-                    )}
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Tax</span>
+                      <span className="text-gray-500 italic">Calculated at checkout</span>
+                    </div>
                     <div className="border-t border-gray-200 pt-2 mt-2">
                       <div className="flex justify-between">
-                        <span className="font-semibold text-gray-900">Total</span>
-                        <span className="text-2xl font-bold text-[#406517]">${cart.total.toFixed(2)}</span>
+                        <span className="font-semibold text-gray-900">Subtotal</span>
+                        <span className="text-2xl font-bold text-[#406517]">${cart.subtotal.toFixed(2)}</span>
                       </div>
                     </div>
                   </Stack>
@@ -385,7 +401,7 @@ export default function CartPage() {
                       </div>
                       <div className="flex items-center gap-2 text-sm text-gray-600">
                         <Truck className="w-4 h-4 text-[#406517]" />
-                        <span>Free shipping on orders over $500</span>
+                        <span>Shipping calculated based on order</span>
                       </div>
                     </Stack>
                   </div>

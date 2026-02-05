@@ -5,9 +5,10 @@
  * 
  * Drag-and-drop photo upload with preview, progress, and S3 integration.
  * Used in the Start Project wizard.
+ * Follows Mosquito Curtains Design System patterns.
  */
 
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { Upload, X, Image as ImageIcon, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -48,6 +49,18 @@ export function PhotoUploader({
   const [photos, setPhotos] = useState<UploadedPhoto[]>([])
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const onUploadCompleteRef = useRef(onUploadComplete)
+
+  // Keep ref updated
+  useEffect(() => {
+    onUploadCompleteRef.current = onUploadComplete
+  }, [onUploadComplete])
+
+  // Sync completed photos to parent
+  useEffect(() => {
+    const completedPhotos = photos.filter(p => p.status === 'complete')
+    onUploadCompleteRef.current?.(completedPhotos)
+  }, [photos])
 
   // ===========================================================================
   // FILE HANDLING
@@ -121,23 +134,17 @@ export function PhotoUploader({
       })
 
       if (!uploadResponse.ok) {
-        throw new Error('Upload failed')
+        const errorText = await uploadResponse.text()
+        console.error('S3 upload error:', uploadResponse.status, errorText)
+        throw new Error(`Upload failed: ${uploadResponse.status}`)
       }
 
       // 3. Mark as complete
-      setPhotos(prev => {
-        const updated = prev.map(p => 
-          p.id === id 
-            ? { ...p, status: 'complete' as const, progress: 100, publicUrl, key }
-            : p
-        )
-        
-        // Notify parent of completed uploads
-        const completedPhotos = updated.filter(p => p.status === 'complete')
-        onUploadComplete?.(completedPhotos)
-        
-        return updated
-      })
+      setPhotos(prev => prev.map(p => 
+        p.id === id 
+          ? { ...p, status: 'complete' as const, progress: 100, publicUrl, key }
+          : p
+      ))
 
     } catch (error) {
       console.error('Upload error:', error)
@@ -179,13 +186,8 @@ export function PhotoUploader({
   }, [handleFiles])
 
   const removePhoto = useCallback((id: string) => {
-    setPhotos(prev => {
-      const updated = prev.filter(p => p.id !== id)
-      const completedPhotos = updated.filter(p => p.status === 'complete')
-      onUploadComplete?.(completedPhotos)
-      return updated
-    })
-  }, [onUploadComplete])
+    setPhotos(prev => prev.filter(p => p.id !== id))
+  }, [])
 
   // ===========================================================================
   // RENDER
@@ -201,9 +203,9 @@ export function PhotoUploader({
         onClick={() => fileInputRef.current?.click()}
         className={cn(
           'border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all',
-          'hover:border-primary hover:bg-primary/5',
-          isDragging && 'border-primary bg-primary/10',
-          !isDragging && 'border-gray-700'
+          'hover:border-[#406517] hover:bg-[#406517]/5',
+          isDragging && 'border-[#406517] bg-[#406517]/10',
+          !isDragging && 'border-gray-300 bg-gray-50'
         )}
       >
         <input
@@ -218,24 +220,24 @@ export function PhotoUploader({
         <div className="flex flex-col items-center gap-3">
           <div className={cn(
             'w-16 h-16 rounded-full flex items-center justify-center',
-            isDragging ? 'bg-primary/20' : 'bg-gray-800'
+            isDragging ? 'bg-[#406517]/20' : 'bg-gray-100'
           )}>
             <Upload className={cn(
               'w-8 h-8',
-              isDragging ? 'text-primary' : 'text-gray-400'
+              isDragging ? 'text-[#406517]' : 'text-gray-400'
             )} />
           </div>
           
           <div>
-            <p className="text-lg font-medium text-white">
+            <p className="text-lg font-medium text-gray-900">
               {isDragging ? 'Drop photos here' : 'Drag photos here or click to browse'}
             </p>
-            <p className="text-sm text-gray-400 mt-1">
+            <p className="text-sm text-gray-500 mt-1">
               JPG, PNG, WebP, HEIC up to 10MB each
             </p>
           </div>
           
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-400">
             {photos.length} / {maxFiles} photos
           </p>
         </div>
@@ -247,7 +249,7 @@ export function PhotoUploader({
           {photos.map(photo => (
             <div 
               key={photo.id}
-              className="relative group rounded-xl overflow-hidden bg-gray-800 aspect-square"
+              className="relative group rounded-xl overflow-hidden bg-gray-100 aspect-square border border-gray-200"
             >
               {/* Preview Image */}
               {photo.preview ? (
@@ -258,21 +260,21 @@ export function PhotoUploader({
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
-                  <ImageIcon className="w-12 h-12 text-gray-600" />
+                  <ImageIcon className="w-12 h-12 text-gray-300" />
                 </div>
               )}
 
               {/* Status Overlay */}
               <div className={cn(
                 'absolute inset-0 flex items-center justify-center transition-opacity',
-                photo.status === 'uploading' && 'bg-black/60',
+                photo.status === 'uploading' && 'bg-white/80',
                 photo.status === 'error' && 'bg-red-500/60',
                 photo.status === 'complete' && 'bg-black/0 group-hover:bg-black/40'
               )}>
                 {photo.status === 'uploading' && (
                   <div className="text-center">
-                    <div className="w-12 h-12 rounded-full border-4 border-primary/30 border-t-primary animate-spin" />
-                    <p className="text-white text-sm mt-2">{photo.progress}%</p>
+                    <div className="w-12 h-12 rounded-full border-4 border-[#406517]/30 border-t-[#406517] animate-spin" />
+                    <p className="text-gray-700 text-sm mt-2">{photo.progress}%</p>
                   </div>
                 )}
                 
@@ -284,7 +286,7 @@ export function PhotoUploader({
                 )}
                 
                 {photo.status === 'complete' && (
-                  <CheckCircle2 className="w-8 h-8 text-green-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <CheckCircle2 className="w-8 h-8 text-[#406517] opacity-0 group-hover:opacity-100 transition-opacity" />
                 )}
               </div>
 
@@ -295,16 +297,17 @@ export function PhotoUploader({
                   removePhoto(photo.id)
                 }}
                 className={cn(
-                  'absolute top-2 right-2 w-8 h-8 rounded-full bg-black/60 flex items-center justify-center',
+                  'absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 border border-gray-200 flex items-center justify-center',
                   'opacity-0 group-hover:opacity-100 transition-opacity',
-                  'hover:bg-red-500'
+                  'hover:bg-red-50 hover:border-red-200 hover:text-red-500',
+                  'shadow-sm'
                 )}
               >
-                <X className="w-4 h-4 text-white" />
+                <X className="w-4 h-4" />
               </button>
 
               {/* File Name */}
-              <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 to-transparent">
+              <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/70 to-transparent">
                 <p className="text-white text-xs truncate">{photo.fileName}</p>
               </div>
             </div>

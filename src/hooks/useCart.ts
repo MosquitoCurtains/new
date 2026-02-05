@@ -9,6 +9,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { PanelConfig } from '@/components/project/PanelEditor'
 import type { TrackHardware } from '@/components/project/DIYBuilder'
+import type { FabricOrder } from '@/components/project/FabricConfigurator'
+import { calculateMeshPanelPrice } from '@/lib/pricing/formulas'
 
 // =============================================================================
 // TYPES
@@ -16,7 +18,7 @@ import type { TrackHardware } from '@/components/project/DIYBuilder'
 
 export interface CartLineItem {
   id: string
-  type: 'panel' | 'track' | 'hardware' | 'addon'
+  type: 'panel' | 'track' | 'hardware' | 'addon' | 'fabric'
   productSku: string
   name: string
   description: string
@@ -82,17 +84,15 @@ function convertDIYToLineItems(
   // Convert panels to line items
   panels.forEach((panel, index) => {
     const totalWidth = panel.widthFeet + (panel.widthInches / 12)
-    const meshRates: Record<string, number> = {
-      heavy_mosquito: 18,
-      no_see_um: 19,
-      shade: 20,
-      scrim: 18.5,
-      theater_scrim: 18.5,
-    }
-    const basePrice = totalWidth * (meshRates[panel.meshType] || 18)
-    const panelFee = 24
-    const doorwayCost = panel.hasDoorway ? 75 : 0
-    const unitPrice = basePrice + panelFee + doorwayCost
+    const unitPrice = calculateMeshPanelPrice({
+      widthFeet: panel.widthFeet,
+      widthInches: panel.widthInches,
+      heightInches: panel.heightInches,
+      meshType: panel.meshType,
+      meshColor: panel.color,
+      topAttachment: panel.topAttachment,
+      velcroColor: panel.velcroColor,
+    }).total
 
     items.push({
       id: panel.id,
@@ -110,7 +110,6 @@ function convertDIYToLineItems(
         meshType: panel.meshType,
         color: panel.color,
         topAttachment: panel.topAttachment,
-        hasDoorway: panel.hasDoorway,
         notes: panel.notes,
       },
     })
@@ -241,10 +240,40 @@ function convertDIYToLineItems(
   return items
 }
 
+function convertFabricToLineItems(fabric: FabricOrder, totalPrice: number): CartLineItem[] {
+  const fabricNames: Record<string, string> = {
+    heavy_mosquito: 'Heavy Mosquito Netting',
+    no_see_um: 'No-See-Um Mesh',
+    shade: 'Shade Mesh',
+    scrim: 'Theater Scrim',
+    theater_scrim: 'Theater Scrim',
+  }
+  
+  const sqYards = (fabric.widthFeet / 3) * fabric.lengthYards
+  
+  return [{
+    id: `fabric-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    type: 'fabric',
+    productSku: `raw_${fabric.fabricType}`,
+    name: fabricNames[fabric.fabricType] || 'Raw Mesh Fabric',
+    description: `${fabric.widthFeet}ft × ${fabric.lengthYards}yd (${sqYards.toFixed(1)} sq yds) - ${fabric.color}`,
+    quantity: 1,
+    unitPrice: totalPrice,
+    totalPrice: totalPrice,
+    options: {
+      fabricType: fabric.fabricType,
+      color: fabric.color,
+      widthFeet: fabric.widthFeet,
+      lengthYards: fabric.lengthYards,
+      notes: fabric.notes,
+    },
+  }]
+}
+
 function calculateTotals(items: CartLineItem[]): { subtotal: number; shipping: number; tax: number; total: number } {
   const subtotal = items.reduce((sum, item) => sum + item.totalPrice, 0)
-  const shipping = subtotal > 500 ? 0 : 35 + (items.filter(i => i.type === 'panel').length * 15)
-  const tax = 0 // Will be calculated at checkout based on address
+  const shipping = 0 // Calculated at checkout
+  const tax = 0 // Calculated at checkout based on address
   const total = subtotal + shipping + tax
 
   return { subtotal, shipping, tax, total }
@@ -269,6 +298,23 @@ export function useCart() {
         if (parsed.type === 'diy' && parsed.project) {
           const { project, contact, sessionId } = parsed
           const items = convertDIYToLineItems(project.panels, project.hardware, project.addOns)
+          const totals = calculateTotals(items)
+          
+          const newCart: CartData = {
+            id: `cart-${Date.now()}`,
+            items,
+            ...totals,
+            contact: contact || undefined,
+            sessionId: sessionId || `session-${Date.now()}`,
+            createdAt: parsed.timestamp || Date.now(),
+            updatedAt: Date.now(),
+          }
+          setCart(newCart)
+          localStorage.setItem(CART_KEY, JSON.stringify(newCart))
+        } else if (parsed.type === 'raw_materials' && parsed.fabric) {
+          // Handle raw materials cart format
+          const { fabric, totals: fabricTotals, contact, sessionId } = parsed
+          const items = convertFabricToLineItems(fabric, fabricTotals?.total || 0)
           const totals = calculateTotals(items)
           
           const newCart: CartData = {

@@ -12,7 +12,7 @@ import { useState } from 'react'
 import { Trash2, GripVertical, ChevronDown, ChevronUp } from 'lucide-react'
 import { Card, Grid, Input, Text, Button } from '@/lib/design-system'
 import { cn } from '@/lib/utils'
-import type { MeshType, TopAttachment, PanelColor } from '@/lib/pricing/types'
+import type { MeshType, MeshColor, MeshTopAttachment, VelcroColor } from '@/lib/pricing/types'
 
 // =============================================================================
 // TYPES
@@ -25,9 +25,9 @@ export interface PanelConfig {
   widthInches: number
   heightInches: number
   meshType: MeshType
-  color: PanelColor
-  topAttachment: TopAttachment
-  hasDoorway: boolean
+  color: MeshColor
+  topAttachment: MeshTopAttachment
+  velcroColor?: VelcroColor
   notes: string
 }
 
@@ -40,27 +40,26 @@ interface PanelEditorProps {
 }
 
 // =============================================================================
-// CONSTANTS
+// CONSTANTS (from Gravity Form 16028 - Mesh Panels)
 // =============================================================================
 
-const MESH_TYPES: { id: MeshType; label: string; description: string }[] = [
-  { id: 'heavy_mosquito', label: 'Heavy Mosquito', description: 'Most popular - keeps out mosquitoes' },
-  { id: 'no_see_um', label: 'No-See-Um', description: 'Finer mesh for tiny insects' },
-  { id: 'shade', label: 'Shade Mesh', description: 'Provides shade while keeping bugs out' },
+const MESH_TYPES: { id: MeshType; label: string; description: string; pricePerFoot: number; colors: MeshColor[] }[] = [
+  { id: 'heavy_mosquito', label: 'Heavy Mosquito', description: 'Most popular - 90% choose this', pricePerFoot: 18, colors: ['black', 'white', 'ivory'] },
+  { id: 'no_see_um', label: 'No-See-Um', description: 'Finer mesh for tiny coastal insects', pricePerFoot: 19, colors: ['black', 'white'] },
+  { id: 'shade', label: 'Shade Mesh', description: 'Shade + privacy + bugs', pricePerFoot: 20, colors: ['black', 'white'] },
 ]
 
-const COLORS: { id: PanelColor; label: string; hex: string }[] = [
+const ALL_COLORS: { id: MeshColor; label: string; hex: string }[] = [
   { id: 'black', label: 'Black', hex: '#1a1a1a' },
   { id: 'white', label: 'White', hex: '#f5f5f5' },
-  { id: 'grey', label: 'Grey', hex: '#6b7280' },
-  { id: 'charcoal', label: 'Charcoal', hex: '#374151' },
+  { id: 'ivory', label: 'Ivory', hex: '#FFFFF0' },
 ]
 
-const TOP_ATTACHMENTS: { id: TopAttachment; label: string }[] = [
-  { id: 'tracking_short', label: 'Standard Track (< 10ft)' },
-  { id: 'tracking_tall', label: 'Heavy Track (> 10ft)' },
-  { id: 'velcro', label: 'Velcro (Fixed)' },
-  { id: 'grommets', label: 'Grommets Only' },
+const TOP_ATTACHMENTS: { id: MeshTopAttachment; label: string; description: string; showsVelcroColor?: boolean }[] = [
+  { id: 'standard_track', label: 'Standard Track', description: 'For panels under 10ft tall - slides side-to-side' },
+  { id: 'heavy_track', label: 'Heavy Track', description: 'For panels over 10ft tall - extra durability' },
+  { id: 'velcro', label: 'Velcro®', description: 'Fixed in place - most affordable', showsVelcroColor: true },
+  { id: 'special_rigging', label: 'Special Rigging', description: 'Custom attachment for unique situations' },
 ]
 
 // =============================================================================
@@ -78,6 +77,16 @@ export function PanelEditor({
 
   const totalWidth = panel.widthFeet + (panel.widthInches / 12)
   const sqft = (totalWidth * panel.heightInches / 12).toFixed(1)
+  
+  // Get available colors based on mesh type
+  const selectedMesh = MESH_TYPES.find(m => m.id === panel.meshType)
+  const availableColors = ALL_COLORS.filter(c => selectedMesh?.colors.includes(c.id))
+  
+  // Check if current color is valid for selected mesh type
+  const isColorValid = availableColors.some(c => c.id === panel.color)
+  
+  // Show velcro color option when velcro is selected
+  const showVelcroColor = panel.topAttachment === 'velcro'
 
   return (
     <Card variant="elevated" className="!p-0 overflow-hidden">
@@ -93,7 +102,7 @@ export function PanelEditor({
               Panel {index + 1}: {panel.name || `${totalWidth.toFixed(1)}ft x ${panel.heightInches}in`}
             </Text>
             <Text size="sm" className="text-gray-500 !mb-0">
-              {sqft} sq ft | {MESH_TYPES.find(m => m.id === panel.meshType)?.label} | {COLORS.find(c => c.id === panel.color)?.label}
+              {sqft} sq ft | {MESH_TYPES.find(m => m.id === panel.meshType)?.label} | {ALL_COLORS.find(c => c.id === panel.color)?.label}
             </Text>
           </div>
         </div>
@@ -191,7 +200,11 @@ export function PanelEditor({
               {MESH_TYPES.map((mesh) => (
                 <button
                   key={mesh.id}
-                  onClick={() => onUpdate({ ...panel, meshType: mesh.id })}
+                  onClick={() => {
+                    // Reset color if not valid for new mesh type
+                    const newColor = mesh.colors.includes(panel.color) ? panel.color : mesh.colors[0]
+                    onUpdate({ ...panel, meshType: mesh.id, color: newColor })
+                  }}
                   className={cn(
                     'px-4 py-2 rounded-full text-sm font-medium transition-colors',
                     panel.meshType === mesh.id
@@ -203,15 +216,18 @@ export function PanelEditor({
                 </button>
               ))}
             </div>
+            <Text size="sm" className="text-gray-500 mt-1">
+              {selectedMesh?.description}
+            </Text>
           </div>
 
-          {/* Color */}
+          {/* Color - Only show colors available for selected mesh type */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Mesh Color
             </label>
             <div className="flex flex-wrap gap-3">
-              {COLORS.map((color) => (
+              {availableColors.map((color) => (
                 <button
                   key={color.id}
                   onClick={() => onUpdate({ ...panel, color: color.id })}
@@ -227,9 +243,15 @@ export function PanelEditor({
                     style={{ backgroundColor: color.hex }}
                   />
                   <span className="text-gray-700">{color.label}</span>
+                  {color.id === 'black' && <span className="text-xs text-[#406517] font-medium">90%</span>}
                 </button>
               ))}
             </div>
+            {panel.meshType !== 'heavy_mosquito' && (
+              <Text size="sm" className="text-gray-500 mt-1">
+                Ivory is only available with Heavy Mosquito mesh
+              </Text>
+            )}
           </div>
 
           {/* Top Attachment */}
@@ -241,7 +263,7 @@ export function PanelEditor({
               {TOP_ATTACHMENTS.map((attachment) => (
                 <button
                   key={attachment.id}
-                  onClick={() => onUpdate({ ...panel, topAttachment: attachment.id })}
+                  onClick={() => onUpdate({ ...panel, topAttachment: attachment.id, velcroColor: attachment.showsVelcroColor ? (panel.velcroColor || 'black') : undefined })}
                   className={cn(
                     'px-4 py-2 rounded-full text-sm font-medium transition-colors',
                     panel.topAttachment === attachment.id
@@ -253,24 +275,39 @@ export function PanelEditor({
                 </button>
               ))}
             </div>
+            <Text size="sm" className="text-gray-500 mt-1">
+              {TOP_ATTACHMENTS.find(a => a.id === panel.topAttachment)?.description}
+            </Text>
           </div>
 
-          {/* Doorway Toggle */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => onUpdate({ ...panel, hasDoorway: !panel.hasDoorway })}
-              className={cn(
-                'w-12 h-6 rounded-full transition-colors relative',
-                panel.hasDoorway ? 'bg-[#406517]' : 'bg-gray-300'
-              )}
-            >
-              <div className={cn(
-                'w-5 h-5 rounded-full bg-white absolute top-0.5 transition-transform shadow',
-                panel.hasDoorway ? 'translate-x-6' : 'translate-x-0.5'
-              )} />
-            </button>
-            <Text className="text-gray-700 !mb-0">This panel has a magnetic doorway</Text>
-          </div>
+          {/* Velcro Color - Only show when Velcro is selected */}
+          {showVelcroColor && (
+            <div className="p-4 bg-[#003365]/5 rounded-xl border border-[#003365]/20">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Velcro® Color For Mounting Surface
+              </label>
+              <div className="flex gap-3">
+                {(['black', 'white'] as VelcroColor[]).map((color) => (
+                  <button
+                    key={color}
+                    onClick={() => onUpdate({ ...panel, velcroColor: color })}
+                    className={cn(
+                      'flex items-center gap-2 px-4 py-2 rounded-xl transition-all',
+                      panel.velcroColor === color
+                        ? 'ring-2 ring-[#003365] bg-white'
+                        : 'bg-white hover:bg-gray-50'
+                    )}
+                  >
+                    <div 
+                      className="w-5 h-5 rounded-full border border-gray-300"
+                      style={{ backgroundColor: color === 'black' ? '#1a1a1a' : '#f5f5f5' }}
+                    />
+                    <span className="font-medium capitalize">{color}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Notes */}
           <div>
