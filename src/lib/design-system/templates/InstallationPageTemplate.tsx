@@ -18,6 +18,7 @@
 import { ReactNode } from 'react'
 import Link from 'next/link'
 import { ArrowRight, Play, Upload, Heart } from 'lucide-react'
+import { ORDERS_SERVED_STRINGS, ORDERS_SERVED_FORMATTED } from '@/lib/constants/orders-served'
 import {
   Container,
   Stack,
@@ -194,7 +195,7 @@ export function InstallationPageTemplate({
               </div>
               <Heading level={2} className="!mb-4">Thank You For Your Business!</Heading>
               <Text className="text-gray-600 max-w-2xl mx-auto mb-6">
-                If you've already ordered, thank you for joining the 92,000+ clients we've served since 2004! 
+                If you've already ordered, thank you for joining the {ORDERS_SERVED_FORMATTED} clients we've served since 2004! 
                 We are a small family business and your order means the world to us.
               </Text>
               <Button variant="primary" asChild>

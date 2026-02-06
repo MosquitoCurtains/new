@@ -1,0 +1,153 @@
+'use client'
+
+import Link from 'next/link'
+import { 
+  ArrowRight, 
+  ArrowLeft,
+  Layers,
+  CheckCircle,
+  DollarSign,
+} from 'lucide-react'
+import { 
+  Container, 
+  Stack, 
+  Grid, 
+  Text, 
+  Button, 
+  Card,
+  Heading,
+  Frame,
+  BulletedList,
+  ListItem,
+  FinalCTATemplate,
+  HeaderBarSection,
+} from '@/lib/design-system'
+
+export default function TwoSidedRegularVelcroPage() {
+  return (
+    <Container size="xl">
+      <Stack gap="lg">
+        
+        {/* Back Link */}
+        <Link href="/plan/2-sided" className="inline-flex items-center text-gray-500 hover:text-gray-700 -mb-4">
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to 2-Sided Exposure
+        </Link>
+
+        {/* Header */}
+        <section className="relative py-8 text-center">
+          <Stack gap="md" className="max-w-3xl mx-auto">
+            <div className="inline-flex items-center justify-center gap-2 text-sm text-gray-500 mb-2">
+              <span className="px-2 py-1 bg-gray-100 rounded">2-Sided</span>
+              <span className="px-2 py-1 bg-gray-100 rounded">Regular Shape</span>
+              <span className="px-2 py-1 bg-[#003365]/10 text-[#003365] rounded font-medium">Velcro</span>
+            </div>
+            <Heading level={1} className="!text-4xl md:!text-5xl">
+              2-Sided Regular Velcro
+            </Heading>
+            <Text className="text-xl text-gray-600">
+              Your 2-sided space has regular rectangular openings and you prefer the 
+              economical velcro attachment option.
+            </Text>
+          </Stack>
+        </section>
+
+        {/* What This Means */}
+        <HeaderBarSection icon={CheckCircle} label="Your Configuration" variant="dark">
+          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg" className="items-center">
+            <Frame ratio="16/9" className="rounded-xl overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Velcro-Example.jpg"
+                alt="Velcro attachment example"
+                className="w-full h-full object-cover"
+              />
+            </Frame>
+            <Stack gap="md">
+              <BulletedList spacing="md">
+                <ListItem variant="checked" iconColor="#003365">Two open sides to cover</ListItem>
+                <ListItem variant="checked" iconColor="#003365">Rectangular/square openings (no arches)</ListItem>
+                <ListItem variant="checked" iconColor="#003365">Velcro attachment (curtains don't slide)</ListItem>
+                <ListItem variant="checked" iconColor="#003365">Most economical option</ListItem>
+              </BulletedList>
+              <Card className="!p-4 !bg-[#003365]/5 !border-[#003365]/20">
+                <Text className="text-sm text-gray-600 !mb-0">
+                  <strong>Velcro attachment</strong> means curtains are fixed in place. 
+                  They don't slide side-to-side, but can be removed seasonally if desired.
+                </Text>
+              </Card>
+            </Stack>
+          </Grid>
+        </HeaderBarSection>
+
+        {/* Benefits */}
+        <HeaderBarSection icon={DollarSign} label="Why Choose Velcro?" variant="dark">
+          <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="lg">
+            <Card variant="elevated" className="!p-6 text-center">
+              <Heading level={4} className="!mb-4">Lower Cost</Heading>
+              <Text className="text-gray-600 !mb-0">
+                Velcro attachment is more economical than tracking, reducing your 
+                overall project cost.
+              </Text>
+            </Card>
+            <Card variant="elevated" className="!p-6 text-center">
+              <Heading level={4} className="!mb-4">Simple Install</Heading>
+              <Text className="text-gray-600 !mb-0">
+                Adhesive velcro strips are easy to apply. Most homeowners complete 
+                installation in an afternoon.
+              </Text>
+            </Card>
+            <Card variant="elevated" className="!p-6 text-center">
+              <Heading level={4} className="!mb-4">Seasonal Use</Heading>
+              <Text className="text-gray-600 !mb-0">
+                Perfect if you want to remove curtains during off-season. Velcro 
+                allows easy on/off.
+              </Text>
+            </Card>
+          </Grid>
+        </HeaderBarSection>
+
+        {/* Good Fit */}
+        <Card className="!p-6 !bg-[#406517]/5 !border-[#406517]/20">
+          <Heading level={3} className="!mb-4 text-center">Velcro is Great If...</Heading>
+          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
+            <BulletedList spacing="sm">
+              <ListItem variant="checked" iconColor="#406517">Budget is a priority</ListItem>
+              <ListItem variant="checked" iconColor="#406517">You don't need daily opening/closing</ListItem>
+              <ListItem variant="checked" iconColor="#406517">Seasonal use (install in spring, remove in fall)</ListItem>
+            </BulletedList>
+            <BulletedList spacing="sm">
+              <ListItem variant="checked" iconColor="#406517">Simpler aesthetic preferred</ListItem>
+              <ListItem variant="checked" iconColor="#406517">You're comfortable with DIY installation</ListItem>
+              <ListItem variant="checked" iconColor="#406517">Want the fastest installation</ListItem>
+            </BulletedList>
+          </Grid>
+        </Card>
+
+        {/* CTA */}
+        <section className="bg-gradient-to-br from-[#406517]/10 via-white to-[#003365]/10 rounded-3xl p-8 md:p-12 text-center">
+          <Heading level={2} className="!mb-4">Ready for a Quote?</Heading>
+          <Text className="text-gray-600 max-w-2xl mx-auto mb-8">
+            2-sided velcro projects are straightforward. Get instant pricing with our quote tool.
+          </Text>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button variant="primary" asChild>
+              <Link href="/start-project?mode=quote">
+                Get Instant Quote
+                <ArrowRight className="ml-2 w-4 h-4" />
+              </Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link href="/plan/2-sided">
+                View Other Options
+              </Link>
+            </Button>
+          </div>
+        </section>
+
+        {/* Final CTA */}
+        <FinalCTATemplate />
+
+      </Stack>
+    </Container>
+  )
+}

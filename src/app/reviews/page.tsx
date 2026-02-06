@@ -14,6 +14,7 @@ import {
   Frame,
 } from '@/lib/design-system'
 import { FinalCTATemplate } from '@/lib/design-system/templates'
+import { ORDERS_SERVED_FORMATTED, ORDERS_SERVED_COUNT } from '@/lib/constants/orders-served'
 
 // Featured testimonials from WordPress
 const FEATURED_TESTIMONIALS = [
@@ -60,7 +61,7 @@ export default function ReviewsPage() {
               Customer Reviews
             </h1>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-2">
-              See what 92,000+ customers have to say about Mosquito Curtains.
+              See what {ORDERS_SERVED_FORMATTED} customers have to say about Mosquito Curtains.
             </p>
             <p className="text-[#406517] font-medium">
               Trusted since 2004
@@ -141,7 +142,7 @@ export default function ReviewsPage() {
           <div className="bg-[#406517] rounded-3xl p-8 md:p-12">
             <Grid responsiveCols={{ mobile: 2, tablet: 4 }} gap="lg">
               <div className="text-center text-white">
-                <p className="text-4xl font-bold mb-1">92,000+</p>
+                <p className="text-4xl font-bold mb-1">{ORDERS_SERVED_COUNT.toLocaleString()}+</p>
                 <p className="text-white/80">Happy Customers</p>
               </div>
               <div className="text-center text-white">
@@ -165,7 +166,7 @@ export default function ReviewsPage() {
           <Card variant="elevated" className="!p-8 text-center">
             <Heading level={2} className="!mb-4">Ready to Join Our Happy Customers?</Heading>
             <Text className="text-gray-600 mb-6 max-w-xl mx-auto">
-              Start your project today and see why 92,000+ customers have trusted Mosquito Curtains 
+              Start your project today and see why {ORDERS_SERVED_FORMATTED} customers have trusted Mosquito Curtains 
               for their screen and weather enclosure needs.
             </Text>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">

@@ -14,6 +14,7 @@ import {
   Frame,
 } from '@/lib/design-system'
 import { FinalCTATemplate } from '@/lib/design-system/templates'
+import { ORDERS_SERVED_FORMATTED, ORDERS_SERVED_COUNT } from '@/lib/constants/orders-served'
 
 export default function OurStoryPage() {
   return (
@@ -27,7 +28,7 @@ export default function OurStoryPage() {
               Our Story
             </h1>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              How a simple family problem became a solution for 92,000+ customers
+              How a simple family problem became a solution for {ORDERS_SERVED_FORMATTED} customers
             </p>
           </div>
         </section>
@@ -90,7 +91,7 @@ export default function OurStoryPage() {
                 </Text>
                 <Text className="text-gray-600">
                   What started as a solution for one family's porch has grown into a business 
-                  that has served over 92,000 customers across North America and beyond.
+                  that has served over {ORDERS_SERVED_COUNT.toLocaleString()} customers across North America and beyond.
                 </Text>
                 <Text className="text-gray-600">
                   But we're still the same family-owned company, still making every curtain 
@@ -150,7 +151,7 @@ export default function OurStoryPage() {
                 <p className="text-white/80">Founded</p>
               </div>
               <div className="text-center text-white">
-                <p className="text-4xl font-bold mb-1">92,000+</p>
+                <p className="text-4xl font-bold mb-1">{ORDERS_SERVED_COUNT.toLocaleString()}+</p>
                 <p className="text-white/80">Happy Customers</p>
               </div>
               <div className="text-center text-white">
@@ -184,7 +185,7 @@ export default function OurStoryPage() {
         {/* CTA */}
         <FinalCTATemplate 
           title="Ready to Enjoy Your Outdoor Space?"
-          subtitle="Join the 92,000+ customers who have trusted us since 2004."
+          subtitle={`Join the ${ORDERS_SERVED_FORMATTED} customers who have trusted us since 2004.`}
         />
       </Stack>
     </Container>

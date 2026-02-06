@@ -1,8 +1,51 @@
 # Page Building Rules - Mosquito Curtains Design System
 
-## 🎯 REFERENCE PAGES (LOCKED IN - COPY THESE PATTERNS)
+## REFERENCE PAGE (DEFAULT TEMPLATE)
 
-### Live Design System
+**PRIMARY REFERENCE:** `/screened-porch` with `PowerHeaderTemplate variant="compact"`
+
+Copy this exact pattern for all new landing pages:
+- `src/app/screened-porch/page.tsx`
+
+This page demonstrates:
+- `PowerHeaderTemplate` with `variant="compact"` (hero left, video right)
+- `MC_HERO_ACTIONS` (globally editable action buttons)
+- `WhyChooseUsTemplate` (shared across pages)
+- `HeaderBarSection` content blocks
+- `FinalCTATemplate` (shared CTA)
+
+---
+
+## MC HERO ACTIONS (Edit Once, Update Everywhere)
+
+The hero action buttons (Expert Assistance, Instant Quote, DIY Builder) are now **globally editable**.
+
+**Location:** `src/lib/design-system/templates/MCHeroActions.tsx`
+
+```tsx
+// Import and use in any page:
+import { MC_HERO_ACTIONS } from '@/lib/design-system'
+
+<PowerHeaderTemplate
+  title="Your Title"
+  subtitle="Your subtitle"
+  videoId="VIDEO_ID"
+  variant="compact"
+  actions={MC_HERO_ACTIONS}  // <- Uses global actions
+/>
+```
+
+**To edit the actions for ALL pages:** Edit `MCHeroActions.tsx`
+
+Available action sets:
+- `MC_HERO_ACTIONS` - Standard landing page actions (default)
+- `MC_ACTIONS` - Same as MC_HERO_ACTIONS
+- `CV_HERO_ACTIONS` - For Clear Vinyl pages
+- `MC_SIMPLE_ACTIONS` - For info/support pages
+
+---
+
+## Live Design System
 **Visit:** [http://localhost:3002/design-system](http://localhost:3002/design-system) - Overview with all components
 
 **Individual Component Pages:**
@@ -29,10 +72,10 @@ These pages are the **source of truth** for how to build pages:
 
 | Page | Path | Use Case |
 |------|------|----------|
+| **Screened Porch (DEFAULT)** | `src/app/screened-porch/page.tsx` | PowerHeaderTemplate compact + global CTA actions |
 | **Homepage** | `src/app/page.tsx` | Custom hero + templates + HeaderBarSection content |
-| **Screened Porch** | `src/app/screened-porch/page.tsx` | PowerHeaderTemplate + HeaderBarSection content sections |
 
-**Always reference these files first** when building new pages.
+**Always reference `/screened-porch` first** when building new pages.
 
 ---
 
@@ -91,6 +134,8 @@ import {
   FinalCTATemplate,
   // Section containers
   HeaderBarSection,
+  // MC Hero Actions (edit in MCHeroActions.tsx)
+  MC_HERO_ACTIONS,
 } from '@/lib/design-system'
 
 export default function YourCategoryPage() {
@@ -98,14 +143,15 @@ export default function YourCategoryPage() {
     <Container size="xl">
       <Stack gap="lg">
         
-        {/* HERO - PowerHeaderTemplate */}
+        {/* HERO - PowerHeaderTemplate with MC Hero Actions */}
         <PowerHeaderTemplate
           title="Your Page Title"
           subtitle="Clear, concise description of the product/category"
           videoId="FqNe9pDsZ8M"
           videoTitle="Overview Video"
           thumbnailUrl="https://..."  // Optional custom thumbnail
-          variant="compact"  // "compact" = two-column, "stacked" = full-width video
+          variant="compact"  // ALWAYS use compact for landing pages
+          actions={MC_HERO_ACTIONS}  // Global actions - edit in MCHeroActions.tsx
         />
 
         {/* WHY CHOOSE US - Shared template */}

@@ -2,7 +2,8 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { Phone, Mail, MapPin } from 'lucide-react'
+import { Phone, Mail } from 'lucide-react'
+import { ORDERS_SERVED_STRINGS } from '@/lib/constants/orders-served'
 
 const footerLinks = {
   products: [
@@ -37,7 +38,7 @@ export function Footer() {
               className="h-10 w-auto brightness-0 invert"
             />
             <p className="text-gray-400 text-sm">
-              Custom screen enclosures since 2004. Over 92,000 happy clients.
+              Custom screen enclosures since 2004. {ORDERS_SERVED_STRINGS.happyClients}.
             </p>
             <div className="space-y-2">
               <a

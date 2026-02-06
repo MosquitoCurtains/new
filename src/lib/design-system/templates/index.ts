@@ -12,6 +12,16 @@ export { ProfessionalsCalloutTemplate } from './ProfessionalsCalloutTemplate'
 export { PowerHeaderTemplate } from './PowerHeaderTemplate'
 export type { PowerHeaderTemplateProps, PowerHeaderAction } from './PowerHeaderTemplate'
 
+// MC Hero Actions (Global - Edit Once, Update Everywhere)
+export { 
+  MC_HERO_ACTIONS,
+  MC_ACTIONS,
+  CV_HERO_ACTIONS,
+  MC_SIMPLE_ACTIONS,
+  getMCHeroActions,
+} from './MCHeroActions'
+export type { MCHeroAction } from './MCHeroActions'
+
 // Page Layout Templates
 export { ProjectTypePageTemplate } from './ProjectTypePageTemplate'
 export type { ProjectTypePageTemplateProps, ContentSection, GalleryImage as ProjectGalleryImage } from './ProjectTypePageTemplate'

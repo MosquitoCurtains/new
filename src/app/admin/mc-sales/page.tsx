@@ -18,9 +18,9 @@ import type { MeshColor, MeshTopAttachment, MeshType, VelcroColor } from '@/lib/
  type ScrimColor = 'silver' | 'white'
  type ScrimPanel = {
    id: string
-   widthFeet: number
-   widthInches: number
-   heightInches: number
+   widthFeet: number | undefined
+   widthInches: number | undefined
+   heightInches: number | undefined
    color: ScrimColor
    topAttachment: 'standard_track' | 'heavy_track' | 'velcro' | 'special_rigging'
    velcroColor?: 'black' | 'white'
@@ -350,17 +350,23 @@ import type { MeshColor, MeshTopAttachment, MeshType, VelcroColor } from '@/lib/
 
 type MeshPanelSize = {
   id: string
-  widthFeet: number
-  widthInches: number
-  heightInches: number
+  widthFeet: number | undefined
+  widthInches: number | undefined
+  heightInches: number | undefined
+}
+
+type StuccoStrip = {
+  id: string
+  heightInches: number | undefined
+  quantity: number | undefined
 }
 
  function createDefaultScrimPanel(): ScrimPanel {
    return {
      id: `scrim-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-     widthFeet: 5,
-     widthInches: 0,
-     heightInches: 96,
+     widthFeet: undefined,
+     widthInches: undefined,
+     heightInches: undefined,
      color: 'silver',
      topAttachment: 'velcro',
      velcroColor: 'black',
@@ -370,9 +376,17 @@ type MeshPanelSize = {
 function createDefaultMeshSize(): MeshPanelSize {
   return {
     id: `mesh-size-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-    widthFeet: 5,
-    widthInches: 0,
-    heightInches: 96,
+    widthFeet: undefined,
+    widthInches: undefined,
+    heightInches: undefined,
+  }
+}
+
+function createDefaultStuccoStrip(): StuccoStrip {
+  return {
+    id: `stucco-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    heightInches: undefined,
+    quantity: undefined,
   }
 }
 
@@ -400,8 +414,7 @@ function createDefaultMeshSize(): MeshPanelSize {
   })
   const [meshSizes, setMeshSizes] = useState<MeshPanelSize[]>([createDefaultMeshSize()])
    const [scrimPanels, setScrimPanels] = useState<ScrimPanel[]>([createDefaultScrimPanel()])
-   const [stuccoHeight, setStuccoHeight] = useState(12)
-   const [stuccoQty, setStuccoQty] = useState(1)
+   const [stuccoStrips, setStuccoStrips] = useState<StuccoStrip[]>([createDefaultStuccoStrip()])
    const [trackWeight, setTrackWeight] = useState<'standard' | 'heavy'>('standard')
    const [trackColor, setTrackColor] = useState<'white' | 'black'>('white')
    const [trackItems, setTrackItems] = useState({
@@ -419,13 +432,12 @@ function createDefaultMeshSize(): MeshPanelSize {
      taxCredit: 0,
      tariff: 0,
    })
-   const [snapToolQty, setSnapToolQty] = useState(0)
 
    const meshTotals = useMemo(() => {
     const panelTotals = meshSizes.map((size) => calculateMeshPanelPrice({
-      widthFeet: size.widthFeet,
-      widthInches: size.widthInches,
-      heightInches: size.heightInches,
+      widthFeet: size.widthFeet ?? 0,
+      widthInches: size.widthInches ?? 0,
+      heightInches: size.heightInches ?? 0,
       meshType: meshOptions.meshType,
       meshColor: meshOptions.meshColor,
       topAttachment: meshOptions.topAttachment,
@@ -437,12 +449,18 @@ function createDefaultMeshSize(): MeshPanelSize {
 
    const scrimTotals = useMemo(() => {
      const panelTotals = scrimPanels.map((panel) => {
-       const totalWidthFeet = panel.widthFeet + (panel.widthInches / 12)
+       const totalWidthFeet = (panel.widthFeet ?? 0) + ((panel.widthInches ?? 0) / 12)
        return totalWidthFeet * 18.5 + 24
      })
      const subtotal = panelTotals.reduce((sum, value) => sum + value, 0)
      return { panelTotals, subtotal }
    }, [scrimPanels])
+
+  const stuccoTotals = useMemo(() => {
+    const stripTotals = stuccoStrips.map((strip) => (strip.heightInches ?? 0) * 24 * (strip.quantity ?? 0))
+    const subtotal = stripTotals.reduce((sum, value) => sum + value, 0)
+    return { stripTotals, subtotal }
+  }, [stuccoStrips])
 
    const trackPricing = useMemo(() => {
      const isHeavy = trackWeight === 'heavy'
@@ -488,22 +506,34 @@ function createDefaultMeshSize(): MeshPanelSize {
     }
   }
 
+  const addStuccoStrip = () => setStuccoStrips([...stuccoStrips, createDefaultStuccoStrip()])
+  const updateStuccoStrip = (index: number, strip: StuccoStrip) => {
+    const next = [...stuccoStrips]
+    next[index] = strip
+    setStuccoStrips(next)
+  }
+  const removeStuccoStrip = (index: number) => {
+    if (stuccoStrips.length > 1) {
+      setStuccoStrips(stuccoStrips.filter((_, i) => i !== index))
+    }
+  }
+
    const addMeshPanelsToCart = () => {
     meshSizes.forEach((size, index) => {
        const breakdown = meshTotals.panelTotals[index]
-      const totalWidth = size.widthFeet + (size.widthInches / 12)
+      const totalWidth = (size.widthFeet ?? 0) + ((size.widthInches ?? 0) / 12)
        addItem({
          type: 'panel',
          productSku: 'mesh_panel',
         name: `Mesh Panel ${index + 1}`,
-        description: `${totalWidth.toFixed(1)}ft x ${size.heightInches}in ${meshOptions.meshType.replace(/_/g, ' ')} - ${meshOptions.meshColor}`,
+        description: `${totalWidth.toFixed(1)}ft x ${size.heightInches ?? 0}in ${meshOptions.meshType.replace(/_/g, ' ')} - ${meshOptions.meshColor}`,
          quantity: 1,
          unitPrice: breakdown.total,
          totalPrice: breakdown.total,
          options: {
-          widthFeet: size.widthFeet,
-          widthInches: size.widthInches,
-          heightInches: size.heightInches,
+          widthFeet: size.widthFeet ?? 0,
+          widthInches: size.widthInches ?? 0,
+          heightInches: size.heightInches ?? 0,
           meshType: meshOptions.meshType,
           color: meshOptions.meshColor,
           topAttachment: meshOptions.topAttachment,
@@ -516,20 +546,20 @@ function createDefaultMeshSize(): MeshPanelSize {
 
    const addScrimPanelsToCart = () => {
      scrimPanels.forEach((panel, index) => {
-       const totalWidth = panel.widthFeet + (panel.widthInches / 12)
+       const totalWidth = (panel.widthFeet ?? 0) + ((panel.widthInches ?? 0) / 12)
        const price = scrimTotals.panelTotals[index]
        addItem({
          type: 'panel',
          productSku: 'scrim_panel',
          name: `Scrim Panel ${index + 1}`,
-         description: `${totalWidth.toFixed(1)}ft x ${panel.heightInches}in scrim - ${panel.color}`,
+         description: `${totalWidth.toFixed(1)}ft x ${panel.heightInches ?? 0}in scrim - ${panel.color}`,
          quantity: 1,
          unitPrice: price,
          totalPrice: price,
          options: {
-           widthFeet: panel.widthFeet,
-           widthInches: panel.widthInches,
-           heightInches: panel.heightInches,
+           widthFeet: panel.widthFeet ?? 0,
+           widthInches: panel.widthInches ?? 0,
+           heightInches: panel.heightInches ?? 0,
            color: panel.color,
            topAttachment: panel.topAttachment,
            velcroColor: panel.velcroColor || 'black',
@@ -540,21 +570,25 @@ function createDefaultMeshSize(): MeshPanelSize {
    }
 
    const addStuccoToCart = () => {
-     const unitPrice = stuccoHeight * 24
-     addItem({
-       type: 'hardware',
-       productSku: 'stucco_strip',
-       name: 'Stucco Strip',
-       description: `${stuccoHeight}in height`,
-       quantity: stuccoQty,
-       unitPrice,
-       totalPrice: unitPrice * stuccoQty,
-       options: {
-         heightInches: stuccoHeight,
-       },
-     })
-     router.push('/cart')
-   }
+    stuccoStrips.forEach((strip, index) => {
+      const height = strip.heightInches ?? 0
+      const qty = strip.quantity ?? 0
+      const unitPrice = height * 24
+      addItem({
+        type: 'hardware',
+        productSku: 'stucco_strip',
+        name: `Stucco Strip ${index + 1}`,
+        description: `${height}in height x ${qty}`,
+        quantity: qty,
+        unitPrice,
+        totalPrice: unitPrice * qty,
+        options: {
+          heightInches: height,
+        },
+      })
+    })
+    router.push('/cart')
+  }
 
    const addTracksToCart = () => {
      const isHeavy = trackWeight === 'heavy'
@@ -652,6 +686,40 @@ function createDefaultMeshSize(): MeshPanelSize {
      setAttachmentQtys((prev) => ({ ...prev, [item.id]: 0 }))
    }
 
+   const addAllAttachmentItems = () => {
+     ATTACHMENT_ITEMS.forEach((item) => {
+       const qty = attachmentQtys[item.id] || 0
+       if (qty > 0) {
+         addItem({
+           type: 'hardware',
+           productSku: item.sku,
+           name: item.label,
+           description: item.description || `${qty} ${item.unitLabel}`,
+           quantity: 1,
+           unitPrice: item.unitPrice * qty,
+           totalPrice: item.unitPrice * qty,
+           options: {
+             quantity: qty,
+             unit: item.unitLabel,
+           },
+         })
+       }
+     })
+     setAttachmentQtys({})
+     router.push('/cart')
+   }
+
+   const attachmentSubtotal = useMemo(() => {
+     return ATTACHMENT_ITEMS.reduce((sum, item) => {
+       const qty = attachmentQtys[item.id] || 0
+       return sum + (item.unitPrice * qty)
+     }, 0)
+   }, [attachmentQtys])
+
+   const hasSelectedAttachments = useMemo(() => {
+     return ATTACHMENT_ITEMS.some((item) => (attachmentQtys[item.id] || 0) > 0)
+   }, [attachmentQtys])
+
    const addAdjustment = (type: 'positive' | 'negative' | 'taxCredit' | 'tariff') => {
      const amount = adjustments[type]
      if (!amount) return
@@ -678,17 +746,16 @@ function createDefaultMeshSize(): MeshPanelSize {
    }
 
    const addSnapTool = () => {
-     if (snapToolQty <= 0) return
      addItem({
        type: 'addon',
        productSku: 'industrial_snap_tool',
        name: 'Industrial Snap Tool',
        description: 'Fully refundable if returned',
-       quantity: snapToolQty,
+       quantity: 1,
        unitPrice: 130,
-       totalPrice: 130 * snapToolQty,
+       totalPrice: 130,
      })
-     setSnapToolQty(0)
+     router.push('/cart')
    }
 
    return (
@@ -799,9 +866,10 @@ function createDefaultMeshSize(): MeshPanelSize {
                     type="number"
                     min={1}
                     max={12}
-                    value={size.widthFeet}
-                    onChange={(e) => updateMeshSize(index, { ...size, widthFeet: parseInt(e.target.value) || 0 })}
+                    value={size.widthFeet ?? ''}
+                    onChange={(e) => updateMeshSize(index, { ...size, widthFeet: e.target.value === '' ? undefined : parseInt(e.target.value) })}
                     className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#003365] focus:border-transparent"
+                    placeholder="ft"
                   />
                 </div>
                 <div>
@@ -809,18 +877,20 @@ function createDefaultMeshSize(): MeshPanelSize {
                     type="number"
                     min={0}
                     max={11}
-                    value={size.widthInches}
-                    onChange={(e) => updateMeshSize(index, { ...size, widthInches: parseInt(e.target.value) || 0 })}
+                    value={size.widthInches ?? ''}
+                    onChange={(e) => updateMeshSize(index, { ...size, widthInches: e.target.value === '' ? undefined : parseInt(e.target.value) })}
                     className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#003365] focus:border-transparent"
+                    placeholder="in"
                   />
                 </div>
                 <div>
                   <input
                     type="number"
                     min={24}
-                    value={size.heightInches}
-                    onChange={(e) => updateMeshSize(index, { ...size, heightInches: parseInt(e.target.value) || 0 })}
+                    value={size.heightInches ?? ''}
+                    onChange={(e) => updateMeshSize(index, { ...size, heightInches: e.target.value === '' ? undefined : parseInt(e.target.value) })}
                     className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#003365] focus:border-transparent"
+                    placeholder="in"
                   />
                 </div>
                 <div className="text-sm text-gray-700 text-right font-medium">
@@ -868,152 +938,244 @@ function createDefaultMeshSize(): MeshPanelSize {
         </Card>
 
          {/* Scrim Panels */}
-         <Card variant="elevated" className="!p-6">
-           <div className="flex items-center justify-between mb-4">
-             <Heading level={2} className="!mb-0">Scrim Panels</Heading>
-             <Button variant="outline" onClick={addScrimPanel}>
-               <Plus className="w-4 h-4 mr-2" />
-               Add Scrim Panel
-             </Button>
-           </div>
-           <Stack gap="md">
-             {scrimPanels.map((panel, index) => (
-               <Card key={panel.id} variant="outlined" className="!p-4">
-                 <div className="flex items-center justify-between mb-3">
-                   <Text className="font-semibold !mb-0">Scrim Panel {index + 1}</Text>
-                   <Button variant="ghost" size="sm" onClick={() => removeScrimPanel(index)}>
-                     Remove
-                   </Button>
-                 </div>
-                 <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="md">
-                   <div>
-                     <label className="block text-sm text-gray-600 mb-1">Width (ft)</label>
-                     <Input
-                       type="number"
-                       min={1}
-                       value={panel.widthFeet}
-                       onChange={(e) => updateScrimPanel(index, { ...panel, widthFeet: parseInt(e.target.value) || 0 })}
-                     />
-                   </div>
-                   <div>
-                     <label className="block text-sm text-gray-600 mb-1">Width (in)</label>
-                     <Input
-                       type="number"
-                       min={0}
-                       max={11}
-                       value={panel.widthInches}
-                       onChange={(e) => updateScrimPanel(index, { ...panel, widthInches: parseInt(e.target.value) || 0 })}
-                     />
-                   </div>
-                   <div>
-                     <label className="block text-sm text-gray-600 mb-1">Height (in)</label>
-                     <Input
-                       type="number"
-                       min={24}
-                       max={144}
-                       value={panel.heightInches}
-                       onChange={(e) => updateScrimPanel(index, { ...panel, heightInches: parseInt(e.target.value) || 0 })}
-                     />
-                   </div>
-                 </Grid>
-                 <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="md" className="mt-4">
-                   <div>
-                     <label className="block text-sm text-gray-600 mb-1">Color</label>
-                     <select
-                       value={panel.color}
-                       onChange={(e) => updateScrimPanel(index, { ...panel, color: e.target.value as ScrimColor })}
-                       className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 text-sm"
-                     >
-                       <option value="silver">Silver</option>
-                       <option value="white">White</option>
-                     </select>
-                   </div>
-                   <div>
-                     <label className="block text-sm text-gray-600 mb-1">Top Attachment</label>
-                     <select
-                       value={panel.topAttachment}
-                       onChange={(e) => updateScrimPanel(index, { ...panel, topAttachment: e.target.value as ScrimPanel['topAttachment'] })}
-                       className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 text-sm"
-                     >
-                       {TOP_ATTACHMENTS.map((attachment) => (
-                         <option key={attachment.id} value={attachment.id}>{attachment.label}</option>
-                       ))}
-                     </select>
-                   </div>
-                  {panel.topAttachment === 'velcro' && (
-                    <div>
-                      <label className="block text-sm text-gray-600 mb-1">Velcro Color</label>
-                      <select
-                        value={panel.velcroColor || 'black'}
-                        onChange={(e) => updateScrimPanel(index, { ...panel, velcroColor: e.target.value as ScrimPanel['velcroColor'] })}
-                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 text-sm"
-                      >
-                        <option value="black">Black</option>
-                        <option value="white">White</option>
-                      </select>
-                    </div>
+        <Card variant="elevated" className="!p-6">
+          <Heading level={2} className="!mb-4">Scrim Panels</Heading>
+          
+          {/* Panel Options */}
+          <Grid responsiveCols={{ mobile: 2, tablet: 4 }} gap="md" className="mb-6">
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Color</label>
+              <select
+                value={scrimPanels[0]?.color || 'silver'}
+                onChange={(e) => {
+                  const newColor = e.target.value as ScrimColor
+                  setScrimPanels(scrimPanels.map(panel => ({ ...panel, color: newColor })))
+                }}
+                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 text-sm"
+              >
+                <option value="silver">Silver</option>
+                <option value="white">White</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Top Attachment</label>
+              <select
+                value={scrimPanels[0]?.topAttachment || 'velcro'}
+                onChange={(e) => {
+                  const newAttachment = e.target.value as ScrimPanel['topAttachment']
+                  setScrimPanels(scrimPanels.map(panel => ({
+                    ...panel,
+                    topAttachment: newAttachment,
+                    velcroColor: newAttachment === 'velcro' ? (panel.velcroColor || 'black') : undefined,
+                  })))
+                }}
+                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 text-sm"
+              >
+                {TOP_ATTACHMENTS.map((attachment) => (
+                  <option key={attachment.id} value={attachment.id}>{attachment.label}</option>
+                ))}
+              </select>
+            </div>
+            {scrimPanels[0]?.topAttachment === 'velcro' && (
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">Velcro Color</label>
+                <select
+                  value={scrimPanels[0]?.velcroColor || 'black'}
+                  onChange={(e) => {
+                    const newVelcroColor = e.target.value as ScrimPanel['velcroColor']
+                    setScrimPanels(scrimPanels.map(panel => ({ ...panel, velcroColor: newVelcroColor })))
+                  }}
+                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 text-sm"
+                >
+                  <option value="black">Black</option>
+                  <option value="white">White</option>
+                </select>
+              </div>
+            )}
+          </Grid>
+
+          {/* Panel Sizes Table */}
+          <div className="border border-gray-200 rounded-lg overflow-hidden mb-4">
+            {/* Table Header */}
+            <div className="bg-gray-50 border-b border-gray-200 px-3 py-2 grid grid-cols-[40px_1fr_1fr_1fr_80px_48px] gap-2 text-xs font-medium text-gray-600">
+              <div>#</div>
+              <div>Width (ft)</div>
+              <div>Width (in)</div>
+              <div>Height (in)</div>
+              <div className="text-right">Price</div>
+              <div></div>
+            </div>
+            
+            {/* Panel Rows */}
+            {scrimPanels.map((panel, index) => (
+              <div 
+                key={panel.id} 
+                className="px-3 py-2 grid grid-cols-[40px_1fr_1fr_1fr_80px_48px] gap-2 items-center border-b border-gray-100 last:border-b-0"
+              >
+                <div className="text-sm font-medium text-gray-500">{index + 1}</div>
+                <div>
+                  <input
+                    type="number"
+                    min={1}
+                    max={12}
+                    value={panel.widthFeet ?? ''}
+                    onChange={(e) => updateScrimPanel(index, { ...panel, widthFeet: e.target.value === '' ? undefined : parseInt(e.target.value) })}
+                    className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#003365] focus:border-transparent"
+                    placeholder="ft"
+                  />
+                </div>
+                <div>
+                  <input
+                    type="number"
+                    min={0}
+                    max={11}
+                    value={panel.widthInches ?? ''}
+                    onChange={(e) => updateScrimPanel(index, { ...panel, widthInches: e.target.value === '' ? undefined : parseInt(e.target.value) })}
+                    className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#003365] focus:border-transparent"
+                    placeholder="in"
+                  />
+                </div>
+                <div>
+                  <input
+                    type="number"
+                    min={24}
+                    max={144}
+                    value={panel.heightInches ?? ''}
+                    onChange={(e) => updateScrimPanel(index, { ...panel, heightInches: e.target.value === '' ? undefined : parseInt(e.target.value) })}
+                    className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#003365] focus:border-transparent"
+                    placeholder="in"
+                  />
+                </div>
+                <div className="text-sm text-gray-700 text-right font-medium">
+                  ${formatMoney(scrimTotals.panelTotals[index] || 0)}
+                </div>
+                <div className="flex justify-end gap-1">
+                  {scrimPanels.length > 1 && (
+                    <button
+                      onClick={() => removeScrimPanel(index)}
+                      className="w-7 h-7 rounded-full bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-100 transition-colors"
+                      aria-label="Remove panel"
+                    >
+                      <Minus className="w-4 h-4" />
+                    </button>
                   )}
-                 </Grid>
-                 <Text size="sm" className="text-gray-500 mt-3">
-                   Price: ${formatMoney(scrimTotals.panelTotals[index] || 0)}
-                 </Text>
-               </Card>
-             ))}
-           </Stack>
-           <div className="flex justify-between items-center mt-4">
-             <Text className="text-gray-600 !mb-0">Scrim Subtotal</Text>
-             <Text className="font-semibold !mb-0">${formatMoney(scrimTotals.subtotal)}</Text>
-           </div>
-           <Button
-             variant="primary"
-             className="w-full mt-4"
-             onClick={addScrimPanelsToCart}
-             disabled={isLoading}
-           >
-             <ShoppingCart className="w-5 h-5 mr-2" />
-             Add Scrim Panels
-           </Button>
-         </Card>
+                  {index === scrimPanels.length - 1 && (
+                    <button
+                      onClick={addScrimPanel}
+                      className="w-7 h-7 rounded-full bg-[#406517] text-white flex items-center justify-center hover:bg-[#335112] transition-colors"
+                      aria-label="Add panel"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Subtotal and Add Button */}
+          <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+            <div className="flex items-center gap-4">
+              <Text className="text-gray-600 !mb-0">Subtotal:</Text>
+              <Text className="text-xl font-semibold !mb-0">${formatMoney(scrimTotals.subtotal)}</Text>
+            </div>
+            <Button
+              variant="primary"
+              onClick={addScrimPanelsToCart}
+              disabled={isLoading}
+            >
+              <ShoppingCart className="w-5 h-5 mr-2" />
+              Add Scrim Panels
+            </Button>
+          </div>
+        </Card>
 
          {/* Stucco Strips */}
-         <Card variant="elevated" className="!p-6">
-           <Heading level={2} className="!mb-4">Stucco Strips</Heading>
-           <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="md">
-             <div>
-               <label className="block text-sm text-gray-600 mb-1">Height (inches)</label>
-               <Input
-                 type="number"
-                 min={1}
-                 value={stuccoHeight}
-                 onChange={(e) => setStuccoHeight(parseInt(e.target.value) || 0)}
-               />
-             </div>
-             <div>
-               <label className="block text-sm text-gray-600 mb-1">Quantity</label>
-               <Input
-                 type="number"
-                 min={1}
-                 value={stuccoQty}
-                 onChange={(e) => setStuccoQty(parseInt(e.target.value) || 1)}
-               />
-             </div>
-             <div>
-               <label className="block text-sm text-gray-600 mb-1">Subtotal</label>
-               <div className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 text-sm">
-                 ${formatMoney(stuccoHeight * 24 * stuccoQty)}
-               </div>
-             </div>
-           </Grid>
-           <Button
-             variant="primary"
-             className="w-full mt-4"
-             onClick={addStuccoToCart}
-             disabled={isLoading}
-           >
-             <ShoppingCart className="w-5 h-5 mr-2" />
-             Add Stucco Strips
-           </Button>
-         </Card>
+        <Card variant="elevated" className="!p-6">
+          <Heading level={2} className="!mb-4">Stucco Strips</Heading>
+          <Text size="sm" className="text-gray-500 !mb-4">$24 per inch of height</Text>
+          
+          {/* Stucco Strips Table */}
+          <div className="border border-gray-200 rounded-lg overflow-hidden mb-4">
+            {/* Table Header */}
+            <div className="bg-gray-50 border-b border-gray-200 px-3 py-2 grid grid-cols-[40px_1fr_1fr_80px_48px] gap-2 text-xs font-medium text-gray-600">
+              <div>#</div>
+              <div>Height (in)</div>
+              <div>Quantity</div>
+              <div className="text-right">Price</div>
+              <div></div>
+            </div>
+            
+            {/* Strip Rows */}
+            {stuccoStrips.map((strip, index) => (
+              <div 
+                key={strip.id} 
+                className="px-3 py-2 grid grid-cols-[40px_1fr_1fr_80px_48px] gap-2 items-center border-b border-gray-100 last:border-b-0"
+              >
+                <div className="text-sm font-medium text-gray-500">{index + 1}</div>
+                <div>
+                  <input
+                    type="number"
+                    min={1}
+                    value={strip.heightInches ?? ''}
+                    onChange={(e) => updateStuccoStrip(index, { ...strip, heightInches: e.target.value === '' ? undefined : parseInt(e.target.value) })}
+                    className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#003365] focus:border-transparent"
+                    placeholder="in"
+                  />
+                </div>
+                <div>
+                  <input
+                    type="number"
+                    min={1}
+                    value={strip.quantity ?? ''}
+                    onChange={(e) => updateStuccoStrip(index, { ...strip, quantity: e.target.value === '' ? undefined : parseInt(e.target.value) })}
+                    className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#003365] focus:border-transparent"
+                    placeholder="qty"
+                  />
+                </div>
+                <div className="text-sm text-gray-700 text-right font-medium">
+                  ${formatMoney(stuccoTotals.stripTotals[index] || 0)}
+                </div>
+                <div className="flex justify-end gap-1">
+                  {stuccoStrips.length > 1 && (
+                    <button
+                      onClick={() => removeStuccoStrip(index)}
+                      className="w-7 h-7 rounded-full bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-100 transition-colors"
+                      aria-label="Remove strip"
+                    >
+                      <Minus className="w-4 h-4" />
+                    </button>
+                  )}
+                  {index === stuccoStrips.length - 1 && (
+                    <button
+                      onClick={addStuccoStrip}
+                      className="w-7 h-7 rounded-full bg-[#406517] text-white flex items-center justify-center hover:bg-[#335112] transition-colors"
+                      aria-label="Add strip"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Subtotal and Add Button */}
+          <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+            <div className="flex items-center gap-4">
+              <Text className="text-gray-600 !mb-0">Subtotal:</Text>
+              <Text className="text-xl font-semibold !mb-0">${formatMoney(stuccoTotals.subtotal)}</Text>
+            </div>
+            <Button
+              variant="primary"
+              onClick={addStuccoToCart}
+              disabled={isLoading}
+            >
+              <ShoppingCart className="w-5 h-5 mr-2" />
+              Add Stucco Strips
+            </Button>
+          </div>
+        </Card>
 
          {/* Track Hardware */}
          <Card variant="elevated" className="!p-6">
@@ -1105,19 +1267,20 @@ function createDefaultMeshSize(): MeshPanelSize {
                />
              </div>
            </Grid>
-           <div className="flex justify-between items-center mt-4">
-             <Text className="text-gray-600 !mb-0">Tracking Subtotal</Text>
-             <Text className="font-semibold !mb-0">${formatMoney(trackPricing.subtotal)}</Text>
-           </div>
-           <Button
-             variant="primary"
-             className="w-full mt-4"
-             onClick={addTracksToCart}
-             disabled={isLoading}
-           >
-             <ShoppingCart className="w-5 h-5 mr-2" />
-             Add Tracking Hardware
-           </Button>
+          <div className="flex items-center justify-between pt-4 mt-4 border-t border-gray-200">
+            <div className="flex items-center gap-4">
+              <Text className="text-gray-600 !mb-0">Subtotal:</Text>
+              <Text className="text-xl font-semibold !mb-0">${formatMoney(trackPricing.subtotal)}</Text>
+            </div>
+            <Button
+              variant="primary"
+              onClick={addTracksToCart}
+              disabled={isLoading}
+            >
+              <ShoppingCart className="w-5 h-5 mr-2" />
+              Add Tracking Hardware
+            </Button>
+          </div>
          </Card>
 
          {/* Attachment Items */}
@@ -1139,8 +1302,8 @@ function createDefaultMeshSize(): MeshPanelSize {
                                {item.description || `$${formatMoney(item.unitPrice)} per ${item.unitLabel}`}
                              </Text>
                            </div>
-                           <div className="flex items-center gap-3">
-                             <Input
+                           <div className="flex items-center gap-3 justify-end">
+                             <input
                                type="number"
                                min={item.min}
                                max={item.max}
@@ -1150,10 +1313,10 @@ function createDefaultMeshSize(): MeshPanelSize {
                                  ...prev,
                                  [item.id]: parseInt(e.target.value) || 0,
                                }))}
-                               className="w-28"
+                               className="w-24 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 text-right focus:outline-none focus:ring-2 focus:ring-[#003365] focus:border-transparent"
                              />
                              <Button
-                               variant="outline"
+                               variant={qty > 0 ? 'primary' : 'outline'}
                                onClick={() => addAttachmentItem(item, qty)}
                                disabled={qty <= 0}
                              >
@@ -1168,107 +1331,115 @@ function createDefaultMeshSize(): MeshPanelSize {
                </div>
              ))}
            </Stack>
+          
+          {/* Subtotal and Add All Button */}
+          <div className="flex items-center justify-between pt-4 mt-4 border-t border-gray-200">
+            <div className="flex items-center gap-4">
+              <Text className="text-gray-600 !mb-0">Subtotal:</Text>
+              <Text className="text-xl font-semibold !mb-0">${formatMoney(attachmentSubtotal)}</Text>
+            </div>
+            <Button
+              variant="primary"
+              onClick={addAllAttachmentItems}
+              disabled={!hasSelectedAttachments || isLoading}
+            >
+              <ShoppingCart className="w-5 h-5 mr-2" />
+              Add Attachment Items
+            </Button>
+          </div>
          </Card>
 
          {/* Snap Tool */}
          <Card variant="elevated" className="!p-6">
-           <Heading level={2} className="!mb-4">Industrial Snap Tool</Heading>
-           <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="md">
+           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
              <div>
-               <label className="block text-sm text-gray-600 mb-1">Quantity</label>
-               <Input
-                 type="number"
-                 min={0}
-                 value={snapToolQty}
-                 onChange={(e) => setSnapToolQty(parseInt(e.target.value) || 0)}
-               />
+               <Heading level={2} className="!mb-1">Industrial Snap Tool</Heading>
+               <Text size="sm" className="text-gray-500 !mb-0">
+                 $130.00 - Fully refundable if returned
+               </Text>
              </div>
-             <div>
-               <label className="block text-sm text-gray-600 mb-1">Unit Price</label>
-               <div className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 text-sm">
-                 $130.00
-               </div>
-             </div>
-           </Grid>
-           <Button
-             variant="primary"
-             className="w-full mt-4"
-             onClick={addSnapTool}
-             disabled={snapToolQty <= 0}
-           >
-             <ShoppingCart className="w-5 h-5 mr-2" />
-             Add Snap Tool
-           </Button>
+             <Button
+               variant="primary"
+               onClick={addSnapTool}
+             >
+               <ShoppingCart className="w-5 h-5 mr-2" />
+               Add Snap Tool
+             </Button>
+           </div>
          </Card>
 
          {/* Adjustments */}
          <Card variant="elevated" className="!p-6">
            <Heading level={2} className="!mb-4">Adjustments</Heading>
-           <Stack gap="md">
-             <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="md">
-               <div>
-                 <label className="block text-sm text-gray-600 mb-1">Positive Price Adjustment</label>
-                 <Input
-                   type="number"
-                   min={0}
-                   value={adjustments.positive}
-                   onChange={(e) => setAdjustments({ ...adjustments, positive: parseFloat(e.target.value) || 0 })}
-                 />
+           <Stack gap="sm">
+             <Card variant="outlined" className="!p-4">
+               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                 <Text className="font-medium text-gray-900 !mb-0">Positive Price Adjustment</Text>
+                 <div className="flex items-center gap-3 justify-end">
+                   <input
+                     type="number"
+                     min={0}
+                     value={adjustments.positive}
+                     onChange={(e) => setAdjustments({ ...adjustments, positive: parseFloat(e.target.value) || 0 })}
+                     className="w-24 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 text-right focus:outline-none focus:ring-2 focus:ring-[#003365] focus:border-transparent"
+                   />
+                   <Button variant="outline" onClick={() => addAdjustment('positive')}>
+                     Add
+                   </Button>
+                 </div>
                </div>
-               <div className="flex items-end">
-                 <Button variant="outline" onClick={() => addAdjustment('positive')}>
-                   Add Positive Adjustment
-                 </Button>
+             </Card>
+             <Card variant="outlined" className="!p-4">
+               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                 <Text className="font-medium text-gray-900 !mb-0">Negative Price Adjustment</Text>
+                 <div className="flex items-center gap-3 justify-end">
+                   <input
+                     type="number"
+                     min={0}
+                     value={adjustments.negative}
+                     onChange={(e) => setAdjustments({ ...adjustments, negative: parseFloat(e.target.value) || 0 })}
+                     className="w-24 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 text-right focus:outline-none focus:ring-2 focus:ring-[#003365] focus:border-transparent"
+                   />
+                   <Button variant="outline" onClick={() => addAdjustment('negative')}>
+                     Add
+                   </Button>
+                 </div>
                </div>
-             </Grid>
-             <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="md">
-               <div>
-                 <label className="block text-sm text-gray-600 mb-1">Negative Price Adjustment</label>
-                 <Input
-                   type="number"
-                   min={0}
-                   value={adjustments.negative}
-                   onChange={(e) => setAdjustments({ ...adjustments, negative: parseFloat(e.target.value) || 0 })}
-                 />
+             </Card>
+             <Card variant="outlined" className="!p-4">
+               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                 <Text className="font-medium text-gray-900 !mb-0">Credit for Sales Tax Exemption</Text>
+                 <div className="flex items-center gap-3 justify-end">
+                   <input
+                     type="number"
+                     min={0}
+                     value={adjustments.taxCredit}
+                     onChange={(e) => setAdjustments({ ...adjustments, taxCredit: parseFloat(e.target.value) || 0 })}
+                     className="w-24 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 text-right focus:outline-none focus:ring-2 focus:ring-[#003365] focus:border-transparent"
+                   />
+                   <Button variant="outline" onClick={() => addAdjustment('taxCredit')}>
+                     Add
+                   </Button>
+                 </div>
                </div>
-               <div className="flex items-end">
-                 <Button variant="outline" onClick={() => addAdjustment('negative')}>
-                   Add Negative Adjustment
-                 </Button>
+             </Card>
+             <Card variant="outlined" className="!p-4">
+               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                 <Text className="font-medium text-gray-900 !mb-0">Canadian Tariff</Text>
+                 <div className="flex items-center gap-3 justify-end">
+                   <input
+                     type="number"
+                     min={0}
+                     value={adjustments.tariff}
+                     onChange={(e) => setAdjustments({ ...adjustments, tariff: parseFloat(e.target.value) || 0 })}
+                     className="w-24 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 text-right focus:outline-none focus:ring-2 focus:ring-[#003365] focus:border-transparent"
+                   />
+                   <Button variant="outline" onClick={() => addAdjustment('tariff')}>
+                     Add
+                   </Button>
+                 </div>
                </div>
-             </Grid>
-             <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="md">
-               <div>
-                 <label className="block text-sm text-gray-600 mb-1">Credit for Sales Tax Exemption</label>
-                 <Input
-                   type="number"
-                   min={0}
-                   value={adjustments.taxCredit}
-                   onChange={(e) => setAdjustments({ ...adjustments, taxCredit: parseFloat(e.target.value) || 0 })}
-                 />
-               </div>
-               <div className="flex items-end">
-                 <Button variant="outline" onClick={() => addAdjustment('taxCredit')}>
-                   Add Tax Credit
-                 </Button>
-               </div>
-             </Grid>
-             <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="md">
-               <div>
-                 <label className="block text-sm text-gray-600 mb-1">Canadian Tariff</label>
-                 <Input
-                   type="number"
-                   min={0}
-                   value={adjustments.tariff}
-                   onChange={(e) => setAdjustments({ ...adjustments, tariff: parseFloat(e.target.value) || 0 })}
-                 />
-               </div>
-               <div className="flex items-end">
-                 <Button variant="outline" onClick={() => addAdjustment('tariff')}>
-                   Add Tariff
-                 </Button>
-               </div>
-             </Grid>
+             </Card>
            </Stack>
          </Card>
        </Stack>

@@ -22,6 +22,7 @@ import {
   Settings,
   LayoutGrid,
   FileUser,
+  Shield,
 } from 'lucide-react'
 import {
   Container,
@@ -113,12 +114,28 @@ const ADMIN_AREAS: AdminArea[] = [
   },
   {
     title: 'Sitemap',
-    description: 'View and manage site page structure',
+    description: 'View all live pages on the site',
     href: '/admin/sitemap',
     icon: Map,
     color: '#6B7280',
   },
+  {
+    title: 'Site Audit',
+    description: 'Track page health, SEO, performance, and issues',
+    href: '/admin/audit',
+    icon: Shield,
+    color: '#059669',
+    badge: 'New',
+  },
 ]
+
+// Migration stats for display
+const MIGRATION_STATS = {
+  total: 213,
+  complete: 43,
+  remaining: 170,
+  percentComplete: 20,
+}
 
 // =============================================================================
 // COMPONENT

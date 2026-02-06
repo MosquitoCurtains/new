@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { ORDERS_SERVED_STRINGS } from '@/lib/constants/orders-served'
 import { 
   ArrowRight, 
   Shield, 
@@ -120,7 +121,7 @@ export default function HomePage() {
               {/* Trust Badge */}
               <Badge variant="primary" className="!bg-[#406517]/10 !text-[#406517] !border-[#406517]/30">
                 <Sparkles className="w-4 h-4 mr-2" />
-                Trusted by 92,000+ customers since 2004
+                {ORDERS_SERVED_STRINGS.trustedBy}
               </Badge>
               
               {/* Headline */}

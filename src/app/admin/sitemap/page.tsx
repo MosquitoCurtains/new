@@ -71,6 +71,10 @@ const SITE_SECTIONS: SiteSection[] = [
       { path: '/screened-in-decks', name: 'Screened-In Decks', isNew: true },
       { path: '/awning-screen-enclosures', name: 'Awning Enclosures', isNew: true },
       { path: '/industrial-netting', name: 'Industrial Netting', isNew: true },
+      { path: '/french-door-screens', name: 'French Door Screens', isNew: true },
+      { path: '/boat-screens', name: 'Boat Screens', isNew: true },
+      { path: '/pollen-protection', name: 'Pollen Protection', isNew: true },
+      { path: '/weather-curtains', name: 'Weather Curtains', description: 'SEO for "weather curtains"', isNew: true },
     ],
   },
   {
@@ -125,6 +129,11 @@ const SITE_SECTIONS: SiteSection[] = [
       { path: '/shipping', name: 'Shipping & Delivery', isNew: true },
       { path: '/satisfaction-guarantee', name: 'Satisfaction Guarantee', isNew: true },
       { path: '/reviews', name: 'Reviews', isNew: true },
+      { path: '/returns', name: 'Returns Policy', isNew: true },
+      { path: '/privacy-policy', name: 'Privacy Policy', isNew: true },
+      { path: '/faq', name: 'FAQ Hub', isNew: true },
+      { path: '/faq/mosquito-curtains', name: 'MC FAQ', description: '40+ questions', isNew: true },
+      { path: '/opportunities', name: 'Careers', isNew: true },
     ],
   },
   {
@@ -147,6 +156,14 @@ const SITE_SECTIONS: SiteSection[] = [
       { path: '/gallery/clear-vinyl', name: 'Clear Vinyl Gallery', isNew: true },
       { path: '/admin/gallery', name: 'Admin: Images', description: 'Manage images', isNew: true },
       { path: '/admin/galleries', name: 'Admin: Collections', description: 'Manage collections', isNew: true },
+    ],
+  },
+  {
+    title: 'Marketing Landing Pages',
+    icon: Users,
+    color: '#10B981',
+    routes: [
+      { path: '/fb', name: 'Facebook Landing', description: 'FB ad landing', isNew: true },
     ],
   },
   {

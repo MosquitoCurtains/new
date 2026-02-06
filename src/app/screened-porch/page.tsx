@@ -8,9 +8,6 @@ import {
   Wrench,
   Sparkle,
   Shield,
-  MessageSquare,
-  Calculator,
-  Hammer,
 } from 'lucide-react'
 import { 
   Container, 
@@ -27,36 +24,9 @@ import {
   HeaderBarSection,
   PowerHeaderTemplate,
   YouTubeEmbed,
+  // MC Hero Actions - Edit in MCHeroActions.tsx
+  MC_HERO_ACTIONS,
 } from '@/lib/design-system'
-import type { PowerHeaderAction } from '@/lib/design-system/templates/PowerHeaderTemplate'
-
-// Action buttons matching start-project flow
-const heroActions: PowerHeaderAction[] = [
-  {
-    icon: MessageSquare,
-    title: 'Expert Assistance',
-    description: 'Send photos, get personalized guidance from our team.',
-    href: '/start-project?mode=planner',
-    buttonText: 'Get Help',
-    color: '#406517',
-  },
-  {
-    icon: Calculator,
-    title: 'Instant Quote',
-    description: 'Quick specs for an estimate within 5% of actual cost.',
-    href: '/start-project?mode=quote',
-    buttonText: 'Calculate',
-    color: '#003365',
-  },
-  {
-    icon: Hammer,
-    title: 'DIY Builder',
-    description: 'Configure panels yourself and add directly to cart.',
-    href: '/start-project?mode=diy',
-    buttonText: 'Build',
-    color: '#B30158',
-  },
-]
 
 // Gallery images from WordPress
 const GALLERY_IMAGES = [
@@ -78,7 +48,8 @@ export default function ScreenedPorchPage() {
       <Stack gap="lg">
         
         {/* ================================================================
-            POWER HEADER - With Project Flow Actions
+            POWER HEADER - With MC Hero Actions
+            Edit actions in: src/lib/design-system/templates/MCHeroActions.tsx
             ================================================================ */}
         <PowerHeaderTemplate
           title="Screened Porch Enclosures"
@@ -87,7 +58,7 @@ export default function ScreenedPorchPage() {
           videoTitle="Mosquito Curtains Overview"
           thumbnailUrl="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Mosquito-Netting-Curtains-Video-Thumbnail-1.jpg"
           variant="compact"
-          actions={heroActions}
+          actions={MC_HERO_ACTIONS}
         />
 
         {/* ================================================================

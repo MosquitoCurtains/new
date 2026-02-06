@@ -1,73 +1,163 @@
 'use client'
 
-import { ProjectTypePageTemplate } from '@/lib/design-system/templates'
-import { Package, Truck, Shield, Wrench } from 'lucide-react'
-import { Text, BulletedList, ListItem } from '@/lib/design-system'
+import Link from 'next/link'
+import { 
+  ArrowRight, 
+  Tent,
+  Layers,
+  Sun,
+  Snowflake,
+  Shield,
+} from 'lucide-react'
+import { 
+  Container, 
+  Stack, 
+  Grid, 
+  Text, 
+  Button, 
+  Card,
+  Heading,
+  TwoColumn,
+  Frame,
+  WhyChooseUsTemplate,
+  FinalCTATemplate,
+  HeaderBarSection,
+  PowerHeaderTemplate,
+  MC_HERO_ACTIONS,
+} from '@/lib/design-system'
 
-const CONTENT_SECTIONS = [
-  {
-    title: 'Gazebo Screen Curtains',
-    content: (
-      <>
-        <Text className="text-gray-600 mb-4">
-          Gazebos are meant to be enjoyed, but mosquitoes and gnats can quickly ruin the experience. 
-          Our custom gazebo screen curtains create an invisible barrier against bugs while maintaining 
-          the elegant look of your outdoor structure.
-        </Text>
-        <Text className="text-gray-600">
-          Unlike the cheap screens that come with some gazebos (you know, the ones you can poke your 
-          thumb through), our marine-grade netting is built to last for years of outdoor use.
-        </Text>
-      </>
-    ),
-    bullets: [
-      'Custom-fitted for any gazebo size or shape',
-      'Works with round, square, hexagonal, or octagonal gazebos',
-      'Heavy-duty netting that won\'t tear or fade',
-      'Multiple mesh options: mosquito, no-see-um, or shade',
-    ],
-  },
-  {
-    title: 'Built to Last, Not Like Store-Bought',
-    content: (
-      <BulletedList spacing="md">
-        <ListItem variant="checked" iconColor="#406517">
-          Marine-grade polyester that withstands weather
-        </ListItem>
-        <ListItem variant="checked" iconColor="#406517">
-          Solution-dyed fabric won't fade in the sun
-        </ListItem>
-        <ListItem variant="checked" iconColor="#406517">
-          Reinforced webbing on all edges
-        </ListItem>
-        <ListItem variant="checked" iconColor="#406517">
-          Stainless steel hardware and fasteners
-        </ListItem>
-        <ListItem variant="checked" iconColor="#406517">
-          Strong enough to lift a 240lb man (we've tested it!)
-        </ListItem>
-      </BulletedList>
-    ),
-    reversed: true,
-  },
+const GALLERY_IMAGES = [
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/30-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg', alt: 'Gazebo screen curtains' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/31-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg', alt: 'Gazebo netting' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/09-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg', alt: 'Gazebo enclosure' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/32-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg', alt: 'Gazebo screens' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/21-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg', alt: 'Gazebo insect curtains' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/25-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg', alt: 'Gazebo bug screens' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/23-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg', alt: 'Gazebo mosquito curtains' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/20-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg', alt: 'Gazebo netting panels' },
 ]
 
 export default function GazeboScreenCurtainsPage() {
   return (
-    <ProjectTypePageTemplate
-      title="Gazebo Screen Curtains"
-      subtitle="Heavy-duty custom screen curtains that protect your gazebo from bugs - not the flimsy stuff from big box stores."
-      benefits={[
-        { icon: Package, title: 'Custom Fit', description: 'Made to your gazebo\'s exact dimensions.', color: '#406517' },
-        { icon: Truck, title: 'Fast Ship', description: '6-10 business days delivery.', color: '#003365' },
-        { icon: Shield, title: 'Built Tough', description: 'Won\'t tear like cheap alternatives.', color: '#B30158' },
-        { icon: Wrench, title: 'Easy DIY', description: 'Simple installation process.', color: '#FFA501' },
-      ]}
-      overviewVideoId="FqNe9pDsZ8M"
-      galleryImages={[]}
-      contentSections={CONTENT_SECTIONS}
-      showReviews={true}
-      productType="mosquito_curtains"
-    />
+    <Container size="xl">
+      <Stack gap="lg">
+        
+        <PowerHeaderTemplate
+          title="Gazebo Screen Enclosures"
+          subtitle="Modular Gazebo Curtains custom-made to fit any space. One system, limitless applications."
+          videoId="FqNe9pDsZ8M"
+          videoTitle="Mosquito Curtains Overview"
+          thumbnailUrl="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Mosquito-Netting-Curtains-Video-Thumbnail-1.jpg"
+          variant="compact"
+          actions={MC_HERO_ACTIONS}
+        />
+
+        <WhyChooseUsTemplate />
+
+        <HeaderBarSection icon={Tent} label="Client Installed Projects" variant="dark">
+          <Grid responsiveCols={{ mobile: 2, tablet: 4 }} gap="md">
+            {GALLERY_IMAGES.map((img, idx) => (
+              <Frame key={idx} ratio="4/3" className="rounded-xl overflow-hidden">
+                <img src={img.src} alt={img.alt} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+              </Frame>
+            ))}
+          </Grid>
+          <div className="flex justify-center pt-6">
+            <Button variant="outline" asChild>
+              <Link href="/gallery">See Full Gallery<ArrowRight className="ml-2 w-4 h-4" /></Link>
+            </Button>
+          </div>
+        </HeaderBarSection>
+
+        <HeaderBarSection icon={Shield} label="Gazebo Screen Curtains Made To Last" variant="dark">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                We custom-make marine grade quality Outdoor Gazebo Screen Curtains using mosquito netting that is 
+                10x stronger than tissue paper thin materials stamped out in China that do not last.
+              </Text>
+              <Text className="text-gray-600">
+                Our black curtains are crystal clear to look through and will not fade (solution dyed) and is 
+                strong enough to lift our heaviest 240lb employee. If you are tired of the low quality gazebo 
+                screens, we can help.
+              </Text>
+              <Card className="!p-4 !bg-amber-50 !border-amber-200">
+                <Text className="text-sm text-amber-800 !mb-0">
+                  <strong>Looking For Cheap Replacement Screens?</strong> Sorry, not us. Try gardenwinds.com or wayfair.com
+                </Text>
+              </Card>
+            </Stack>
+            <Grid responsiveCols={{ mobile: 2, tablet: 2 }} gap="md">
+              <Frame ratio="1/1" className="rounded-xl overflow-hidden"><img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/30-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg" alt="Elegant enclosure" className="w-full h-full object-cover" /></Frame>
+              <Frame ratio="1/1" className="rounded-xl overflow-hidden"><img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Insect-Mesh-Holds-Up-240-LB-Man-400.jpg" alt="Super strength" className="w-full h-full object-cover" /></Frame>
+            </Grid>
+          </TwoColumn>
+        </HeaderBarSection>
+
+        <HeaderBarSection icon={Layers} label="Top Attachment Options For Gazebo Curtains" variant="dark">
+          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
+            <Card variant="elevated" className="!p-6">
+              <Heading level={4} className="!mb-3">Tracking Top Attachment</Heading>
+              <Text className="text-gray-600 !mb-0">
+                Enables you to slide the curtains side to side, creating decorative "swags" when gazebo curtains 
+                are pulled back.
+              </Text>
+            </Card>
+            <Card variant="elevated" className="!p-6">
+              <Heading level={4} className="!mb-3">Velcro Top Attachment</Heading>
+              <Text className="text-gray-600 !mb-0">
+                Top will not slide. More common and less expensive. Panels are fixed in place though you may 
+                still create magnetic doorways.
+              </Text>
+            </Card>
+          </Grid>
+        </HeaderBarSection>
+
+        <HeaderBarSection icon={Sun} label="Other Gazebo Screen Mesh Types" variant="dark">
+          <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="lg">
+            <Card variant="elevated" className="!p-6">
+              <div className="w-12 h-12 bg-amber-100 rounded-full mb-4 flex items-center justify-center">
+                <Sun className="w-6 h-6 text-amber-600" />
+              </div>
+              <Heading level={4} className="!mb-2">Shade Mesh</Heading>
+              <Text className="text-sm text-gray-600 !mb-0">
+                Blocks biting insects and also blocks 80% of sunlight. Outstanding clarity (inside looking out).
+              </Text>
+            </Card>
+            <Card variant="elevated" className="!p-6">
+              <div className="w-12 h-12 bg-blue-100 rounded-full mb-4 flex items-center justify-center">
+                <Tent className="w-6 h-6 text-blue-600" />
+              </div>
+              <Heading level={4} className="!mb-2">No-See-Um Screen Mesh</Heading>
+              <Text className="text-sm text-gray-600 !mb-0">
+                For tiny midge flies generally found near large bodies of water. About as big as a ridge and a 
+                half of your fingerprint.
+              </Text>
+            </Card>
+            <Card variant="elevated" className="!p-6">
+              <div className="w-12 h-12 bg-cyan-100 rounded-full mb-4 flex items-center justify-center">
+                <Snowflake className="w-6 h-6 text-cyan-600" />
+              </div>
+              <Heading level={4} className="!mb-2">Clear Vinyl Winter Panels</Heading>
+              <Text className="text-sm text-gray-600 !mb-0">
+                Want a weatherproof gazebo? They are interchangeable with our screens and use the same fasteners. 
+                Swap them out seasonally.
+              </Text>
+            </Card>
+          </Grid>
+        </HeaderBarSection>
+
+        <Card className="!p-6 !bg-[#406517]/5 !border-[#406517]/20 text-center">
+          <Text className="text-lg text-gray-700 !mb-0">
+            We believe we can produce a quality product that will make people happy. Call us and you will hear 
+            unflinching passion. You'll want to join the <strong>92,000+ others</strong> that are now part of 
+            our family of satisfied clients.
+          </Text>
+        </Card>
+
+        <FinalCTATemplate />
+
+      </Stack>
+    </Container>
   )
 }

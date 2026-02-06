@@ -26,6 +26,7 @@ import {
   Wrench,
   LucideIcon,
 } from 'lucide-react'
+import { ORDERS_SERVED_STRINGS } from '@/lib/constants/orders-served'
 import {
   Container,
   Stack,
@@ -121,7 +122,7 @@ export function ProductPageTemplate({
           <div className="bg-gradient-to-br from-[#406517]/10 via-white to-[#003365]/10 border-2 border-[#406517]/20 rounded-3xl p-8 md:p-12">
             <div className="text-center mb-8">
               <Badge variant="primary" className="!bg-[#406517]/10 !text-[#406517] !border-[#406517]/30 mb-4">
-                Trusted by 92,000+ customers since 2004
+                {ORDERS_SERVED_STRINGS.trustedBy}
               </Badge>
               <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-2">
                 {title}

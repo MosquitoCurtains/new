@@ -3,6 +3,7 @@
 import { SupportPageTemplate } from '@/lib/design-system/templates'
 import { Shield, RefreshCw, AlertTriangle, CheckCircle } from 'lucide-react'
 import { Text, Grid, Card, Heading, BulletedList, ListItem } from '@/lib/design-system'
+import { ORDERS_SERVED_COUNT, ORDERS_SERVED_FORMATTED } from '@/lib/constants/orders-served'
 
 const CONTENT_SECTIONS = [
   {
@@ -16,7 +17,7 @@ const CONTENT_SECTIONS = [
           we'll work with you to make it right. Our goal is your complete satisfaction.
         </Text>
         <Text className="text-gray-600">
-          We've served over 92,000 customers since 2004 because we care about quality and 
+          We've served over {ORDERS_SERVED_COUNT.toLocaleString()} customers since 2004 because we care about quality and 
           customer service. Your order matters to us.
         </Text>
       </>
@@ -142,7 +143,7 @@ export default function SatisfactionGuaranteePage() {
           </Card>
           <Card variant="outlined" className="!p-4 text-center">
             <div className="text-2xl mb-2">⭐</div>
-            <Text size="sm" className="font-medium">92,000+ Customers</Text>
+            <Text size="sm" className="font-medium">{ORDERS_SERVED_FORMATTED} Customers</Text>
           </Card>
         </Grid>
       </section>

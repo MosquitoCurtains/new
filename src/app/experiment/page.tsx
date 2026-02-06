@@ -9,6 +9,7 @@ import {
   Snowflake,
   Scissors,
 } from 'lucide-react'
+import { ORDERS_SERVED_STRINGS } from '@/lib/constants/orders-served'
 
 import {
   Container,
@@ -82,7 +83,7 @@ export default function ExperimentPage() {
               {/* Trust Badge */}
               <Badge variant="primary" className="!bg-[#406517]/10 !text-[#406517] !border-[#406517]/30">
                 <Sparkles className="w-4 h-4 mr-2" />
-                Trusted by 92,000+ customers since 2004
+                {ORDERS_SERVED_STRINGS.trustedBy}
               </Badge>
               
               {/* Headline */}

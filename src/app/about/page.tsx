@@ -3,6 +3,7 @@
 import { SupportPageTemplate } from '@/lib/design-system/templates'
 import { Heart, Users, Award, Clock } from 'lucide-react'
 import { Text, Grid, Card, Heading } from '@/lib/design-system'
+import { ORDERS_SERVED_COUNT, ORDERS_SERVED_FORMATTED } from '@/lib/constants/orders-served'
 
 const CONTENT_SECTIONS = [
   {
@@ -18,7 +19,7 @@ const CONTENT_SECTIONS = [
         </Text>
         <Text className="text-gray-600 mb-4">
           What started as a solution for our own home has grown into a company that has served 
-          over 92,000 customers across North America and beyond. We're still family-owned and 
+          over {ORDERS_SERVED_COUNT.toLocaleString()} customers across North America and beyond. We're still family-owned and 
           operated, and we still make every curtain right here in Atlanta, Georgia.
         </Text>
         <Text className="text-gray-600">
@@ -77,7 +78,7 @@ export default function AboutPage() {
   return (
     <SupportPageTemplate
       title="About Us"
-      subtitle="A family business serving 92,000+ customers since 2004"
+      subtitle={`A family business serving ${ORDERS_SERVED_FORMATTED} customers since 2004`}
       sections={CONTENT_SECTIONS}
       quickLinks={QUICK_LINKS}
       showContactInfo={true}
@@ -86,7 +87,7 @@ export default function AboutPage() {
       <section className="mt-8">
         <Grid responsiveCols={{ mobile: 2, tablet: 4 }} gap="md">
           <Card variant="elevated" className="!p-6 text-center">
-            <p className="text-3xl font-bold text-[#406517]">92,000+</p>
+            <p className="text-3xl font-bold text-[#406517]">{ORDERS_SERVED_COUNT.toLocaleString()}+</p>
             <p className="text-sm text-gray-500">Happy Customers</p>
           </Card>
           <Card variant="elevated" className="!p-6 text-center">

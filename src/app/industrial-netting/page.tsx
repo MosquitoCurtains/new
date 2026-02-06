@@ -1,92 +1,210 @@
 'use client'
 
-import { ProjectTypePageTemplate } from '@/lib/design-system/templates'
-import { Package, Truck, Shield, Wrench } from 'lucide-react'
-import { Text, BulletedList, ListItem } from '@/lib/design-system'
+import Link from 'next/link'
+import { 
+  ArrowRight, 
+  Building,
+  Filter,
+  Sun,
+  Droplets,
+  Wind,
+  Shield,
+} from 'lucide-react'
+import { 
+  Container, 
+  Stack, 
+  Grid, 
+  Text, 
+  Button, 
+  Card,
+  Heading,
+  TwoColumn,
+  Frame,
+  BulletedList,
+  ListItem,
+  WhyChooseUsTemplate,
+  FinalCTATemplate,
+  HeaderBarSection,
+  PowerHeaderTemplate,
+  MC_HERO_ACTIONS,
+} from '@/lib/design-system'
 
-const CONTENT_SECTIONS = [
-  {
-    title: 'Industrial & Commercial Netting Solutions',
-    content: (
-      <>
-        <Text className="text-gray-600 mb-4">
-          Beyond residential use, our marine-grade netting serves a variety of industrial and 
-          commercial applications. From agricultural pest control to theater scrim material, our 
-          quality mesh is trusted by businesses and organizations of all sizes.
-        </Text>
-        <Text className="text-gray-600">
-          We've supplied netting to the USDA, NASA, film productions, agricultural operations, and 
-          countless commercial businesses that need reliable, durable mesh solutions.
-        </Text>
-      </>
-    ),
-    bullets: [
-      'USDA and NASA are among our satisfied clients',
-      'Custom sizes up to 12ft wide by any length',
-      'Multiple mesh densities for different applications',
-      'Bulk pricing available for large orders',
-    ],
-  },
-  {
-    title: 'Industrial Applications',
-    content: (
-      <BulletedList spacing="md">
-        <ListItem variant="checked" iconColor="#406517">
-          <strong>Agriculture:</strong> Crop protection and pest control barriers
-        </ListItem>
-        <ListItem variant="checked" iconColor="#406517">
-          <strong>HVAC:</strong> Large-scale filter screens and air barriers
-        </ListItem>
-        <ListItem variant="checked" iconColor="#406517">
-          <strong>Theater:</strong> Scrim material for stage productions
-        </ListItem>
-        <ListItem variant="checked" iconColor="#406517">
-          <strong>Construction:</strong> Safety and debris netting
-        </ListItem>
-        <ListItem variant="checked" iconColor="#406517">
-          <strong>Research:</strong> Controlled environment barriers
-        </ListItem>
-        <ListItem variant="checked" iconColor="#406517">
-          <strong>Restaurants:</strong> Large patio enclosure systems
-        </ListItem>
-      </BulletedList>
-    ),
-    reversed: true,
-  },
-  {
-    title: 'Why Choose Our Industrial Netting?',
-    content: (
-      <>
-        <Text className="text-gray-600 mb-4">
-          When your application demands reliable, long-lasting netting, don't settle for cheap 
-          alternatives. Our mesh is solution-dyed for UV resistance, lock-stitched so it won't 
-          unravel when cut, and strong enough to withstand commercial demands.
-        </Text>
-        <Text className="text-gray-600">
-          Contact us for bulk pricing and custom specifications. We're happy to work with your 
-          engineering team to develop the perfect solution for your industrial application.
-        </Text>
-      </>
-    ),
-  },
+const GALLERY_IMAGES = [
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/06-Garage-Door-Mosquito-Mesh-Netting-Panels-1200-1024x768.jpg', alt: 'Industrial netting' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/08-Boat-Garage-Door-Mosquito-Mesh-Netting-Panels-1200-1024x768.jpg', alt: 'Warehouse netting' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/16-Garage-Door-Mosquito-Mesh-Netting-Panels-1200-1024x768.jpg', alt: 'Industrial screens' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/11-Garage-Door-Mosquito-Mesh-Netting-Panels-1200-1024x768.jpg', alt: 'Commercial netting' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/04-Garage-Door-Mosquito-Mesh-Netting-Panels-1200-1024x768.jpg', alt: 'Industrial enclosure' },
+]
+
+const PHYSICAL_FILTER_EXAMPLES = [
+  'Segregate warehouse from insects (Health Dept)',
+  'Entomology experiments & Insectaries',
+  'Safe zones for workers in malarial countries',
+  'Screens to dry crops',
+  'Vat covers for wineries',
+  'Screen door for convex airplane door (USDA)',
+  'Personal fall protection',
+  'Construction netting to contain dropped objects',
+  'HVAC pre-filters for cost savings',
+]
+
+const OPTICAL_FILTER_EXAMPLES = [
+  'Projection screens',
+  'Shade Mesh panels',
+  'Privacy mesh for top secret equipment',
+  'Sniper Hides for US Special Forces',
+  'Shade Screens',
+]
+
+const HYDRO_FILTER_EXAMPLES = [
+  'Grow algae to oxygenate water for water treatment facility',
+  'Segregate baby eels from hungry adults',
+  'Oil Spill Curtain to catch tar balls',
 ]
 
 export default function IndustrialNettingPage() {
   return (
-    <ProjectTypePageTemplate
-      title="Industrial Netting"
-      subtitle="Commercial-grade netting solutions for agriculture, HVAC, theater, and industrial applications."
-      benefits={[
-        { icon: Package, title: 'Custom Sizes', description: 'Up to 12ft wide by any length.', color: '#406517' },
-        { icon: Truck, title: 'Bulk Orders', description: 'Fast shipping on large quantities.', color: '#003365' },
-        { icon: Shield, title: 'Industrial Grade', description: 'Built for commercial demands.', color: '#B30158' },
-        { icon: Wrench, title: 'Lock Stitched', description: 'Won\'t unravel when cut.', color: '#FFA501' },
-      ]}
-      overviewVideoId="FqNe9pDsZ8M"
-      galleryImages={[]}
-      contentSections={CONTENT_SECTIONS}
-      showReviews={true}
-      productType="mosquito_curtains"
-    />
+    <Container size="xl">
+      <Stack gap="lg">
+        
+        <PowerHeaderTemplate
+          title="Industrial Netting Solutions"
+          subtitle="If you can imagine it, we can probably make it! Custom netting solutions for industry."
+          videoId="FqNe9pDsZ8M"
+          videoTitle="Mosquito Curtains Overview"
+          thumbnailUrl="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Mosquito-Netting-Curtains-Video-Thumbnail-1.jpg"
+          variant="compact"
+          actions={MC_HERO_ACTIONS}
+        />
+
+        <WhyChooseUsTemplate />
+
+        <HeaderBarSection icon={Building} label="Client Installed Projects" variant="dark">
+          <Grid responsiveCols={{ mobile: 2, tablet: 3, desktop: 5 }} gap="md">
+            {GALLERY_IMAGES.map((img, idx) => (
+              <Frame key={idx} ratio="4/3" className="rounded-xl overflow-hidden">
+                <img src={img.src} alt={img.alt} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+              </Frame>
+            ))}
+          </Grid>
+        </HeaderBarSection>
+
+        <HeaderBarSection icon={Filter} label="Understanding Industrial Netting As A Type Of Filter" variant="dark">
+          <TwoColumn gap="lg" className="items-start">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                We provide custom netting solutions for industry. If you think about mesh netting, it is really 
+                a type of filter. Some things are allowed to pass through while other things are blocked.
+              </Text>
+              <Text className="text-gray-600">
+                All that is required is the appropriate industrial Netting mesh specific to the application and 
+                a means to rig it. When you are looking for ideas, our planners will work WITH you to outline a 
+                surprisingly affordable industrial netting solution.
+              </Text>
+              <Button variant="primary" asChild>
+                <Link href="/contact">Contact Us to Brainstorm<ArrowRight className="ml-2 w-4 h-4" /></Link>
+              </Button>
+            </Stack>
+            <Frame ratio="16/9" className="rounded-2xl overflow-hidden">
+              <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/06-Garage-Door-Mosquito-Mesh-Netting-Panels-1200-1024x768.jpg" alt="Industrial netting" className="w-full h-full object-cover" />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+
+        <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="lg">
+          <Card variant="elevated" className="!p-6">
+            <div className="w-12 h-12 bg-blue-100 rounded-full mb-4 flex items-center justify-center">
+              <Filter className="w-6 h-6 text-blue-600" />
+            </div>
+            <Heading level={4} className="!mb-3">Physical Filters</Heading>
+            <Text className="text-sm text-gray-600 mb-4">
+              Stop physical objects like insects, falling hammers, or dust while still allowing air flow.
+            </Text>
+            <BulletedList spacing="xs">
+              {PHYSICAL_FILTER_EXAMPLES.map((example, idx) => (
+                <ListItem key={idx} variant="bullet"><span className="text-xs">{example}</span></ListItem>
+              ))}
+            </BulletedList>
+          </Card>
+          
+          <Card variant="elevated" className="!p-6">
+            <div className="w-12 h-12 bg-amber-100 rounded-full mb-4 flex items-center justify-center">
+              <Sun className="w-6 h-6 text-amber-600" />
+            </div>
+            <Heading level={4} className="!mb-3">Optical Filters</Heading>
+            <Text className="text-sm text-gray-600 mb-4">
+              For shade, projection mapping screens, and concealment applications.
+            </Text>
+            <BulletedList spacing="xs">
+              {OPTICAL_FILTER_EXAMPLES.map((example, idx) => (
+                <ListItem key={idx} variant="bullet"><span className="text-xs">{example}</span></ListItem>
+              ))}
+            </BulletedList>
+          </Card>
+          
+          <Card variant="elevated" className="!p-6">
+            <div className="w-12 h-12 bg-cyan-100 rounded-full mb-4 flex items-center justify-center">
+              <Droplets className="w-6 h-6 text-cyan-600" />
+            </div>
+            <Heading level={4} className="!mb-3">Hydro Filtration</Heading>
+            <Text className="text-sm text-gray-600 mb-4">
+              When water must flow through a physical barrier to block unwanted objects.
+            </Text>
+            <BulletedList spacing="xs">
+              {HYDRO_FILTER_EXAMPLES.map((example, idx) => (
+                <ListItem key={idx} variant="bullet"><span className="text-xs">{example}</span></ListItem>
+              ))}
+            </BulletedList>
+          </Card>
+        </Grid>
+
+        <HeaderBarSection icon={Wind} label="Pre-Filter Screens For HVAC" variant="dark">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Heading level={3}>Pre-Filter Screens For Cottonwoods, Pollen, Dust & Humidity</Heading>
+              <Text className="text-gray-600">
+                We make cost effective custom screens to keep out large particulates so that your Air Handler 
+                unit will run more efficiently. With our pre-screens, you will save on expensive air handler 
+                filter replacements and save on servicing frequency.
+              </Text>
+              <Text className="text-gray-600">
+                Our HVAC screens are externally mounted so that visual inspections are easy. All Chiller screens 
+                are bound with a sturdy webbing around the entire perimeter. When it gets dirty, rinse with a 
+                hose or wash in a machine. It is that easy!
+              </Text>
+            </Stack>
+            <Frame ratio="16/9" className="rounded-2xl overflow-hidden">
+              <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/16-Garage-Door-Mosquito-Mesh-Netting-Panels-1200-1024x768.jpg" alt="HVAC pre-filter" className="w-full h-full object-cover" />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+
+        <HeaderBarSection icon={Shield} label="Quality & Service" variant="dark">
+          <TwoColumn gap="lg" className="items-center">
+            <Frame ratio="16/9" className="rounded-2xl overflow-hidden">
+              <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Mosquito-Curtains-Team-1200-300x225.jpg" alt="Mosquito Curtains Team" className="w-full h-full object-cover" />
+            </Frame>
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                You want it done right the first time, right? Our most important concern is always quality so 
+                that your choice as a facilities engineer is the right choice.
+              </Text>
+              <Text className="text-gray-600">
+                We will set up an online planning session with screen sharing. You will describe your situation 
+                and your goals. We will work together to make an industrial netting solution for you. If you 
+                have any digital photos, during our planning session, we can draw on them as you watch.
+              </Text>
+              <Button variant="primary" asChild>
+                <Link href="/contact">Get Started<ArrowRight className="ml-2 w-4 h-4" /></Link>
+              </Button>
+            </Stack>
+          </TwoColumn>
+        </HeaderBarSection>
+
+        <FinalCTATemplate />
+
+      </Stack>
+    </Container>
   )
 }

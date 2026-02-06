@@ -3,7 +3,7 @@
 /**
  * WhyChooseUsTemplate
  * 
- * The "Why 92,000+ Customers Choose Us" section with Google Reviews and feature cards.
+ * The "Why X+ Customers Choose Us" section with Google Reviews and feature cards.
  * Edit this template to update ALL instances across the site.
  * 
  * Usage:
@@ -19,6 +19,7 @@
 import { Shield, Wrench, Truck, Award, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { Heading, Grid, FeatureCard, Button, GoogleReviews } from '../components'
+import { ORDERS_SERVED_STRINGS } from '@/lib/constants/orders-served'
 
 export interface WhyChooseUsTemplateProps {
   /** Show Google Reviews carousel (default: true) */
@@ -38,7 +39,7 @@ export function WhyChooseUsTemplate({
           {/* Header */}
           <div className="text-center mb-6">
             <Heading level={2} className="text-gray-900 !mb-2">
-              Why 92,000+ Customers Choose Us
+              {ORDERS_SERVED_STRINGS.whyChooseUs}
             </Heading>
             <p className="text-gray-600 max-w-2xl mx-auto">
               We're not the cheapest. But if you want quality that lasts, we're the only choice.

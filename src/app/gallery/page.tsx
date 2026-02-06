@@ -1,6 +1,7 @@
 'use client'
 
 import { GalleryPageTemplate } from '@/lib/design-system/templates'
+import { ORDERS_SERVED_FORMATTED } from '@/lib/constants/orders-served'
 
 // Sample gallery images (would come from Supabase in production)
 const GALLERY_IMAGES = [
@@ -123,7 +124,7 @@ export default function GalleryPage() {
   return (
     <GalleryPageTemplate
       title="Project Gallery"
-      subtitle="Browse real installations from our 92,000+ customers. Filter by product type and project to find inspiration for your space."
+      subtitle={`Browse real installations from our ${ORDERS_SERVED_FORMATTED} customers. Filter by product type and project to find inspiration for your space.`}
       images={GALLERY_IMAGES}
       filters={GALLERY_FILTERS}
       showFilters={true}

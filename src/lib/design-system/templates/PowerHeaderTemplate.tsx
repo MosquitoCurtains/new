@@ -12,8 +12,6 @@ import {
 } from 'lucide-react'
 import { 
   Stack, 
-  Grid, 
-  Card, 
   Heading, 
   Text, 
   Button, 
@@ -21,6 +19,7 @@ import {
   YouTubeEmbed,
   TwoColumn,
 } from '../components'
+import { ORDERS_SERVED_STRINGS } from '@/lib/constants/orders-served'
 
 // ============================================================================
 // TYPES
@@ -74,13 +73,28 @@ export interface PowerHeaderTemplateProps {
   actions?: PowerHeaderAction[]
   /**
    * Layout variant
-   * - 'stacked': Video below hero, actions as cards (more vertical space)
+   * - 'stacked': Home page style - hero content with divider, content goes in children
    * - 'compact': Hero left, video right, actions in bar (conserves space)
-   * @default 'stacked'
+   * @default 'compact'
    */
   variant?: 'stacked' | 'compact'
   /**
-   * Additional content below the header
+   * Divider heading text (stacked variant only)
+   * @default 'Get Started'
+   */
+  dividerHeading?: string
+  /**
+   * Divider subtext (stacked variant only)
+   * @default 'Watch the overview, then plan your project'
+   */
+  dividerSubtext?: string
+  /**
+   * Whether to show the divider (stacked variant only)
+   * @default true
+   */
+  showDivider?: boolean
+  /**
+   * Additional content below the header (inside the container for stacked, outside for compact)
    */
   children?: ReactNode
 }
@@ -124,30 +138,47 @@ const defaultActions: PowerHeaderAction[] = [
  * PowerHeaderTemplate - Flexible hero section for landing pages
  * 
  * Two variants:
- * - 'stacked': Traditional layout with video below hero content
- * - 'compact': Two-column layout conserving vertical space
+ * - 'compact' (default): Hero left, video right, actions in bar (conserves space)
+ * - 'stacked': Home page style - centered hero with optional divider, content passed via children
  * 
- * @example
+ * @example Compact variant (default)
  * ```tsx
  * <PowerHeaderTemplate
  *   title="Screened Porch Enclosures"
  *   subtitle="Custom-made mosquito netting panels for any space."
  *   videoId="FqNe9pDsZ8M"
- *   variant="compact"
  * />
+ * ```
+ * 
+ * @example Stacked variant with custom content
+ * ```tsx
+ * <PowerHeaderTemplate
+ *   title="Transform Your Outdoor Space"
+ *   subtitle="Custom-crafted screen enclosures and clear vinyl panels."
+ *   variant="stacked"
+ *   dividerHeading="Choose Your Solution"
+ *   dividerSubtext="Custom-made to your exact measurements"
+ * >
+ *   <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="md">
+ *     {products.map(p => <ProductCard key={p.title} {...p} />)}
+ *   </Grid>
+ * </PowerHeaderTemplate>
  * ```
  */
 export function PowerHeaderTemplate({
   title,
   subtitle,
-  trustBadge = 'Trusted by 92,000+ customers since 2004',
+  trustBadge = ORDERS_SERVED_STRINGS.trustedBy,
   ctaText = 'Start Your Project',
   ctaHref = '/start-project',
   videoId,
   videoTitle = 'Overview Video',
   thumbnailUrl,
   actions = defaultActions,
-  variant = 'stacked',
+  variant = 'compact',
+  dividerHeading = 'Get Started',
+  dividerSubtext = 'Watch the overview, then plan your project',
+  showDivider = true,
   children,
 }: PowerHeaderTemplateProps) {
   
@@ -239,7 +270,7 @@ export function PowerHeaderTemplate({
     )
   }
   
-  // Default 'stacked' variant
+  // 'stacked' variant - Home page style container
   return (
     <section className="relative">
       {/* Background blurs */}
@@ -248,11 +279,11 @@ export function PowerHeaderTemplate({
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#003365]/10 rounded-full blur-3xl" />
       </div>
       
-      {/* Main container */}
+      {/* Main container with gradient border */}
       <div className="bg-gradient-to-br from-[#406517]/5 via-white to-[#003365]/5 border-[#406517]/20 border-2 rounded-3xl p-6 md:p-8 lg:p-10">
         
         {/* Hero Content - Centered */}
-        <div className="flex flex-col items-center text-center space-y-4 mb-8">
+        <div className={`flex flex-col items-center text-center space-y-4 ${(showDivider || children) ? 'mb-8' : ''}`}>
           {trustBadge && (
             <Badge variant="primary" className="!bg-[#406517]/10 !text-[#406517] !border-[#406517]/30">
               <Sparkles className="w-4 h-4 mr-2" />
@@ -279,53 +310,21 @@ export function PowerHeaderTemplate({
         </div>
         
         {/* Divider */}
-        <div className="flex items-center gap-4 mb-6">
-          <div className="h-px flex-1 bg-gradient-to-r from-transparent to-gray-300" />
-          <div className="text-center px-4">
-            <Heading level={3} className="!text-lg !mb-0 text-gray-900">Get Started</Heading>
-            <Text size="sm" className="text-gray-500 !mb-0">Watch the overview, then plan your project</Text>
+        {showDivider && (
+          <div className={`flex items-center gap-4 ${children ? 'mb-6' : ''}`}>
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent to-gray-300" />
+            <div className="text-center px-4">
+              <Heading level={3} className="!text-lg !mb-0 text-gray-900">{dividerHeading}</Heading>
+              <Text size="sm" className="text-gray-500 !mb-0">{dividerSubtext}</Text>
+            </div>
+            <div className="h-px flex-1 bg-gradient-to-l from-transparent to-gray-300" />
           </div>
-          <div className="h-px flex-1 bg-gradient-to-l from-transparent to-gray-300" />
-        </div>
+        )}
         
-        {/* Video + CTA Cards */}
-        <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg" className="items-center">
-          {videoId && (
-            <YouTubeEmbed
-              videoId={videoId}
-              title={videoTitle}
-              variant="card"
-              thumbnailUrl={thumbnailUrl}
-            />
-          )}
-          <Stack gap="md">
-            {actions.map((action, idx) => (
-              <Card key={idx} variant="elevated" className="!p-5 hover:shadow-lg transition-shadow">
-                <div className="flex items-center gap-4">
-                  <div 
-                    className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={{ backgroundColor: `${action.color}15` }}
-                  >
-                    <action.icon className="w-6 h-6" style={{ color: action.color }} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <Heading level={4} className="!mb-1">{action.title}</Heading>
-                    <Text size="sm" className="text-gray-600 !mb-0">{action.description}</Text>
-                  </div>
-                  <Button variant="ghost" asChild className="flex-shrink-0">
-                    <Link href={action.href}>
-                      {action.buttonText} <ArrowRight className="ml-1 w-4 h-4" />
-                    </Link>
-                  </Button>
-                </div>
-              </Card>
-            ))}
-          </Stack>
-        </Grid>
+        {/* Content area - passed via children */}
+        {children}
         
       </div>
-      
-      {children}
     </section>
   )
 }
