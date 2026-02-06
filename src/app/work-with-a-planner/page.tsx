@@ -27,7 +27,7 @@ import {
   FinalCTATemplate,
   HeaderBarSection,
   YouTubeEmbed,
-} from '@/lib/design-system'
+, TwoColumn} from '@/lib/design-system'
 
 // Planning team members
 const PLANNING_TEAM = [
@@ -253,6 +253,148 @@ export default function WorkWithAPlannerPage() {
         {/* ================================================================
             FINAL CTA
             ================================================================ */}
+        
+        {/* Photo Gallery */}
+        <HeaderBarSection icon={Camera} label="Work With A Planner Gallery" variant="blue">
+          <Grid responsiveCols={{ mobile: 2, tablet: 3 }} gap="md">
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/Aaron-150x150.jpg"
+                  alt="Work With A Planner"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/kurt-square-150x150.jpg"
+                  alt="Work With A Planner"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/05/Matt-Rier-New-150x150.jpg"
+                  alt="Work With A Planner"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/Heather-150x150.jpg"
+                  alt="Work With A Planner"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/07/John-Hubay-New-150x150.jpg"
+                  alt="Work With A Planner"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/08/Iryna-150x150.jpg"
+                  alt="Work With A Planner"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/06/Patrick-Jordan-150x150.jpg"
+                  alt="Work With A Planner"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/07/Dan-McClaskey-150x150.jpg"
+                  alt="Work With A Planner"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/Garage-Screen-300x225.jpg"
+                  alt="Garage Screen Door"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Shade-Fabric-400x300-1-300x225.jpg"
+                  alt="Shade Fabric"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+          </Grid>
+        </HeaderBarSection>
+
+        <HeaderBarSection icon={Info} label="Good Photos" variant="green">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                Why? We can see each full side with fastening surfaces in each high resolution photo.
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Good-1-Big-1024x768.jpg"
+                alt="Good Photos"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Bad Photos" variant="green">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                Why? They are too close up so we can’t see ALL fastening surfaces and corner transitions.
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Bad-2-Big-1024x768.jpg"
+                alt="Bad Photos"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+
         <FinalCTATemplate />
 
       </Stack>

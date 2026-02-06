@@ -8,7 +8,7 @@ import {
   CheckCircle,
   DollarSign,
   PlayCircle,
-} from 'lucide-react'
+, Camera, Info} from 'lucide-react'
 import { 
   Container, 
   Stack, 
@@ -23,7 +23,7 @@ import {
   FinalCTATemplate,
   HeaderBarSection,
   YouTubeEmbed,
-} from '@/lib/design-system'
+, TwoColumn} from '@/lib/design-system'
 
 export default function ThreeSidedRegularVelcroPage() {
   return (
@@ -168,6 +168,144 @@ export default function ThreeSidedRegularVelcroPage() {
         </section>
 
         {/* Final CTA */}
+        
+        {/* Photo Gallery */}
+        <HeaderBarSection icon={Camera} label="3-Sided Regular Velcro Gallery" variant="blue">
+          <Grid responsiveCols={{ mobile: 2, tablet: 2 }} gap="md">
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/05-Black-Heavy-Mosquito-Mesh-768x576.jpg"
+                  alt="3-Sided Regular Velcro"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/11/4-Panel-2-768x576.jpg"
+                  alt="3-Sided Regular Velcro"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/11/Irregular-Inside-Measure-768x576.jpg"
+                  alt="3-Sided Regular Velcro"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/11/6-Panel-2-768x576.jpg"
+                  alt="3-Sided Regular Velcro"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Panel-Example-600x450-1.jpg"
+                  alt="Mosquito Netting Panels"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+          </Grid>
+        </HeaderBarSection>
+
+        <HeaderBarSection icon={Info} label="Recommended Panel Configuration &amp; Measuring" variant="green">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                An inside hang is almost never recommended. Instead, take advantage of the skeletal structure of your porch with an outside path for regularly-shaped columns, start with three panels (one for each side).
+
+Only split panels where you need a magnetic doorway to enter and exit (3-6 panels total). Magnetic doorways for Velcro® top attachment work exactly the same way as they do for tracking attachment.
+
+Outside Path – Regular Columns With Velcro®
+
+Panel Configuration Example
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/05-Black-Heavy-Mosquito-Mesh-768x576.jpg"
+                alt="Recommended Panel Configuration &amp; Measuring"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Measurement Tips" variant="green">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                The configuration diagrams below demonstrate an example from a top view using marine snaps, magnetic doorways, and stucco strips. Watch the video to get an overview on how to measure and some ideas for your panel configuration.
+
+Planning Overview (2:26)
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/11/Irregular-Inside-Measure-768x576.jpg"
+                alt="Measurement Tips"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Panel Adjustments (Or Use Calculator Below)" variant="green">
+          <Stack gap="md">
+              <Text className="text-gray-600">Once you have your panel configuration, there are a few panel adjustments to make for each panel. The sum width of all your panels needs to be wider than your actual exposure for overlapping magnetic doors or overlapping a structural surface (like a wall or column) and a little more so that you can have a relaxed fit. Use our panel calculator below to help with your calculations.</Text>
+              <Text className="text-gray-600">Width & Height Adjustments For Panels On Velcro®</Text>
+              <Text className="text-gray-600">WIDTH ADJUSTMENTSHEIGHT ADJUSTMENTS</Text>
+              <Text className="text-gray-600">WIDTH ADJUSTMENTSHEIGHT ADJUSTMENTS</Text>
+              <BulletedList>
+                <li>Automatically add 2-inches per panel regardless of width, then</li>
+                <li>Add another 1-inch per panel for EACH edge that will snap to some surface</li>
+                <li>Subtract 1-in for EACH edge connecting a Stucco Strip, and ignore width of stucco strip</li>
+                <li>For Tracking Attachment: Add another 1-in per 10ft of panel width for relaxed fit.</li>
+                <li>Velcro – Add 2″ to height from bottom of Velcro® mounting surface to the floor</li>
+                <li>This provides 1″ of overlap on top and bottom for mounting panels on your Velcro® strip</li>
+                <li>If height of a given panel varies by 2″ or less, use taller height</li>
+              </BulletedList>
+          </Stack>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Simple Panel Adjustment Calculator (if all heights are the same)" variant="green">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                This simple panel calculator will make your panel adjustments for each panel, one at a time!
+
+Use this calculator by entering the 5 pieces of information required to adjust your panels. Repeat for each panel larger than a stucco strip.
+
+NOTE: If the difference between all 4 heights is less than 1.5-inches, just use the tallest of the 4 heights. If the heights differs more than 1.5-inches, call in your order because we will need to taper the slope.
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Panel-Example-600x450-1.jpg"
+                alt="Mosquito Netting Panels"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+
         <FinalCTATemplate />
 
       </Stack>

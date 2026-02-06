@@ -7,7 +7,7 @@ import {
   Snowflake,
   Shield,
   Users,
-} from 'lucide-react'
+, Camera, Info} from 'lucide-react'
 import { 
   Container, 
   Stack, 
@@ -23,7 +23,7 @@ import {
   HeaderBarSection,
   PowerHeaderTemplate,
   MC_HERO_ACTIONS,
-} from '@/lib/design-system'
+, Card} from '@/lib/design-system'
 
 const GALLERY_IMAGES = [
   { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/26-Tent-Awning-Screens-1200-1024x768.jpg', alt: 'Awning screens' },
@@ -158,6 +158,194 @@ export default function AwningScreenEnclosuresPage() {
               </Text>
             </Stack>
           </TwoColumn>
+        </HeaderBarSection>
+
+        
+        {/* Photo Gallery */}
+        <HeaderBarSection icon={Camera} label="Awning Screen Enclosures Gallery" variant="blue">
+          <Grid responsiveCols={{ mobile: 2, tablet: 3 }} gap="md">
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/26-Tent-Awning-Screens-1200-1024x768.jpg"
+                  alt="Awning screens"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/33-Tent-Awning-Screens-1200-1024x768.jpg"
+                  alt="Awning mosquito netting"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/27-Tent-Awning-Screens-1200-1024x768.jpg"
+                  alt="Awning insect curtains"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/29-Tent-Awning-Screens-1200-1024x768.jpg"
+                  alt="Insect curtains for awnings"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/14-Tent-Awning-Screens-1200-1024x768.jpg"
+                  alt="14 Tent &amp; Awning Screens 1200"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/11-Tent-Awning-Screens-1200-1024x768.jpg"
+                  alt="11 Tent &amp; Awning Screens 1200"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/02-Tent-Awning-Screens-1200-1024x768.jpg"
+                  alt="02 Tent &amp; Awning Screens 1200"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/03-Tent-Awning-Screens-1200-1024x768.jpg"
+                  alt="03 Tent &amp; Awning Screens 1200"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/01-Tent-Awning-Screens-1200-1024x768.jpg"
+                  alt="01 Tent &amp; Awning Screens 1200"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/00-Tent-Awning-Screens-1200-1024x768.jpg"
+                  alt="00 Tent &amp; Awning Screens 1200"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/Garage-Screen-300x225.jpg"
+                  alt="Garage Screen Door"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Shade-Fabric-400x300-1-300x225.jpg"
+                  alt="Shade Fabric"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+          </Grid>
+        </HeaderBarSection>
+
+        <HeaderBarSection icon={Info} label="DIY Install" variant="green">
+          <Stack gap="md">
+              <Text className="text-gray-600">DIY installation in an afternoon with simple tools and fasteners.</Text>
+          </Stack>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Ordering" variant="green">
+          <Stack gap="md">
+              <Text className="text-gray-600">Our team will help plan your project!</Text>
+              <Text className="text-gray-600">10% Off Sale until Feb 14th… Coupon = Midwinter26</Text>
+          </Stack>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Get Started Fast With a Real Person!" variant="green">
+          <Stack gap="md">
+              <Text className="text-gray-600">We are happy to help you plan your project with a quick planning session. For maximum speed and efficiency, photos of your space are extremely helpful. Click the buttons below to see photo guidelines. If you have a general question, call us at (770) 645-4745.</Text>
+              <BulletedList>
+                <li>Please provide 2-4 high resolution photos that show all complete sides of your project.</li>
+                <li>Step BACK and zoom OUT so we can see as much as possible. No close-ups.</li>
+                <li>Large file sizes – Small images do not provide enough resolution for planning sessions.</li>
+              </BulletedList>
+          </Stack>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Good Photos" variant="green">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                Why? We can see each full side with fastening surfaces in each high resolution photo.
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Good-1-Big-1024x768.jpg"
+                alt="Good Photos"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Bad Photos" variant="green">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                Why? They are too close up so we can’t see ALL fastening surfaces and corner transitions.
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Bad-2-Big-1024x768.jpg"
+                alt="Bad Photos"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Quick Connect Form" variant="green">
+          <Stack gap="md">
+              <Text className="text-gray-600">Fill and a planner will connect to discuss your project!</Text>
+          </Stack>
         </HeaderBarSection>
 
         <FinalCTATemplate />

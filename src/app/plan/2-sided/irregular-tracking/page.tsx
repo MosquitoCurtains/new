@@ -8,7 +8,7 @@ import {
   AlertTriangle,
   Users,
   PlayCircle,
-} from 'lucide-react'
+, Camera, Info} from 'lucide-react'
 import { 
   Container, 
   Stack, 
@@ -23,7 +23,7 @@ import {
   FinalCTATemplate,
   HeaderBarSection,
   YouTubeEmbed,
-} from '@/lib/design-system'
+, TwoColumn} from '@/lib/design-system'
 
 export default function TwoSidedIrregularTrackingPage() {
   return (
@@ -156,6 +156,133 @@ export default function TwoSidedIrregularTrackingPage() {
         </HeaderBarSection>
 
         {/* Final CTA */}
+        
+        {/* Photo Gallery */}
+        <HeaderBarSection icon={Camera} label="2-Sided Irregular Tracking Gallery" variant="blue">
+          <Grid responsiveCols={{ mobile: 2, tablet: 2 }} gap="md">
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/11/3-panel-2-sided-irregular-768x576.png"
+                  alt="2-Sided Irregular Tracking"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/11/2-Sided-Measure-Irregular-768x576.jpg"
+                  alt="2-Sided Irregular Tracking"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/11/2-Panels-SS-2-Sided-768x576.png"
+                  alt="2-Sided Irregular Tracking"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Panel-Example-600x450-1.jpg"
+                  alt="Mosquito Netting Panels"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+          </Grid>
+        </HeaderBarSection>
+
+        <HeaderBarSection icon={Info} label="Recommended Panel Configuration &amp; Measuring" variant="green">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                If you have irregularly-shaped columns, you have one choice, an Inside Hang, where panels take a path INSIDE your columns.
+
+Projects with Irregular-shaped columns are generally 3 panel configurations for ease of use and natural looking swags. Because we cannot fasten a panel directly to the irregularly-shaped corner column, the second panel will straddle the corner column.
+
+Inside Path – Irregular Columns With Tracking
+
+Panel Configuration Example
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/11/2-Sided-Irregular-Columns-Tracking-Inside-Hang.jpg"
+                alt="Recommended Panel Configuration &amp; Measuring"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Measurement Tips" variant="green">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                The configuration diagrams below demonstrate two examples from a top view using marine snaps, magnetic doorways, and stucco strips. Watch the video to get an overview on how to measure and some ideas for your panel configuration.
+
+Planning Overview (2:26)
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/11/2-Sided-Measure-Irregular-768x576.jpg"
+                alt="Measurement Tips"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Panel Adjustments (Or Use Calculator Below)" variant="green">
+          <Stack gap="md">
+              <Text className="text-gray-600">Once you have your panel configuration, there are a few panel adjustments to make for each panel. The sum width of all your panels needs to be wider than your actual exposure for overlapping magnetic doors or overlapping a structural surface (like a wall or column) and a little more so that you can have a relaxed fit. Use our panel calculator below to help with your calculations.</Text>
+              <Text className="text-gray-600">Width & Height Adjustments For Panels On Tracking</Text>
+              <Text className="text-gray-600">WIDTH ADJUSTMENTS (or use calculator below)HEIGHT ADJUSTMENTS</Text>
+              <Text className="text-gray-600">WIDTH ADJUSTMENTS (or use calculator below)HEIGHT ADJUSTMENTS</Text>
+              <BulletedList>
+                <li>Automatically add 2-inches per panel regardless of width, then</li>
+                <li>Add another 1-inch per panel for EACH edge that will snap to some surface</li>
+                <li>Subtract 1-in for EACH edge connecting a Stucco Strip, and ignore width of stucco strip</li>
+                <li>For Tracking Attachment: Add another 1-in per 10ft of panel width for relaxed fit</li>
+                <li>NO height adjustments necessary for tracking. The 1-inch drop in the track will automatically give you a 1-inch overlap with the floor.</li>
+                <li>Measuring is done from the bottom of the track mounting surface to the floor.</li>
+              </BulletedList>
+          </Stack>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Simple Panel Adjustment Calculator (if all heights are the same)" variant="green">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                This simple panel calculator will make your panel adjustments for each panel, one at a time!
+
+Use this calculator by entering the 5 pieces of information required to adjust your panels. Repeat for each panel larger than a stucco strip.
+
+NOTE: If the difference between all 4 heights is less than 1.5-inches, just use the tallest of the 4 heights. If the heights differs more than 1.5-inches, call in your order because we will need to taper the slope.
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Panel-Example-600x450-1.jpg"
+                alt="Mosquito Netting Panels"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+
         <FinalCTATemplate />
 
       </Stack>

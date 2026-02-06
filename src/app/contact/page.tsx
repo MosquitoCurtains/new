@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Phone, Mail, Clock, MapPin, Send, CheckCircle } from 'lucide-react'
+import { Phone, Mail, Clock, MapPin, Send, CheckCircle , Camera} from 'lucide-react'
 import {
   Container,
   Stack,
@@ -12,7 +12,7 @@ import {
   Button,
   Input,
   Textarea,
-} from '@/lib/design-system'
+, Frame, HeaderBarSection, TwoColumn, BulletedList} from '@/lib/design-system'
 
 export default function ContactPage() {
   const [formState, setFormState] = useState({
@@ -257,6 +257,221 @@ export default function ContactPage() {
           </Card>
         </section>
       </Stack>
-    </Container>
+    
+        {/* Photo Gallery */}
+        <HeaderBarSection icon={Camera} label="Contact Gallery" variant="blue">
+          <Grid responsiveCols={{ mobile: 2, tablet: 3 }} gap="md">
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/Aaron-150x150.jpg"
+                  alt="Contact"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/kurt-square-150x150.jpg"
+                  alt="Contact"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/05/Matt-Rier-New-150x150.jpg"
+                  alt="Contact"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2025/10/Heather-1-150x150.jpg"
+                  alt="Contact"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/07/John-Hubay-New-150x150.jpg"
+                  alt="Contact"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/08/Iryna-150x150.jpg"
+                  alt="Contact"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/06/Patrick-Jordan-150x150.jpg"
+                  alt="Contact"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/07/Dan-McClaskey-150x150.jpg"
+                  alt="Contact"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+          </Grid>
+        </HeaderBarSection>
+
+        <HeaderBarSection icon={Info} label="Get Started Fast With a Real Person!" variant="green">
+          <Stack gap="md">
+              <Text className="text-gray-600">Every porch is different and we  need to see project photos to plan these correctly. You can upload from your phone or computer. Want to use our Instant Price Estimator? For general questions, write a note below or call us at (770) 645-4745.</Text>
+              <BulletedList>
+                <li>Please provide 2-4 high resolution photos that show all complete sides of your project.</li>
+                <li>Step BACK and zoom OUT so we can see as much as possible. No close-ups.</li>
+                <li>Large file sizes – Small images do not provide enough resolution for planning sessions.</li>
+              </BulletedList>
+          </Stack>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Good Photos" variant="green">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                Why? We can see each full side with fastening surfaces in each high resolution photo.
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Good-1-Big-1024x768.jpg"
+                alt="Good Photos"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Bad Photos" variant="green">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                Why? They are too close up so we can’t see ALL fastening surfaces and corner transitions.
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Bad-2-Big-1024x768.jpg"
+                alt="Bad Photos"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Quick Connect Form" variant="green">
+          <Stack gap="md">
+              <Text className="text-gray-600">Fill and a planner will connect to discuss your project!</Text>
+          </Stack>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="These Are Good Photos" variant="green">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                Why? Because we can see each full side with fastening surfaces in each high resolution photo.
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Good-1-Big-1024x768.jpg"
+                alt="These Are Good Photos"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="These Are Bad Photos" variant="green">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                Why? Because they are too close up so we can’t see ALL fastening surfaces and corner transitions.
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Bad-2-Big-1024x768.jpg"
+                alt="These Are Bad Photos"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Contact Information" variant="green">
+          <Stack gap="md">
+              <Text className="text-gray-600">When you call, our FIRST question will be, “Have you sent photos?”</Text>
+              <BulletedList>
+                <li>(770) 645-4745</li>
+              </BulletedList>
+          </Stack>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="The Planning Team" variant="green">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                Aaron Gorecki
+
+Kurt Jordan
+
+Matt Rier
+
+Heather Evans
+
+John Hubay
+
+Iryna Mardanova
+
+Patrick Jordan
+
+Dan McCaskey
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/Aaron-150x150.jpg"
+                alt="The Planning Team"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Need help before submitting photos?" variant="green">
+          <Stack gap="md">
+              <Text className="text-gray-600">We are here to help. Give us a call and one of our planners will gladly assist you.</Text>
+          </Stack>
+        </HeaderBarSection>
+
+        </Container>
   )
 }

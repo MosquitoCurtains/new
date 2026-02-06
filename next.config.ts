@@ -11,6 +11,11 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'media.mosquitocurtains.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
         hostname: 'i.ytimg.com',
         pathname: '/**',
       },

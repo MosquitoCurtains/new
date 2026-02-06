@@ -9,7 +9,7 @@ import {
   Snowflake,
   Shield,
   Film,
-} from 'lucide-react'
+, Camera, Info} from 'lucide-react'
 import { 
   Container, 
   Stack, 
@@ -201,6 +201,303 @@ export default function GarageDoorScreensPage() {
                 <ListItem variant="checked" iconColor="#406517">System can be used for porch, pergola, gazebo, deck, awning, and more</ListItem>
               </BulletedList>
             </Grid>
+          </Stack>
+        </HeaderBarSection>
+
+        
+        {/* Photo Gallery */}
+        <HeaderBarSection icon={Camera} label="Garage Door Screens Gallery" variant="blue">
+          <Grid responsiveCols={{ mobile: 2, tablet: 3 }} gap="md">
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/14-Garage-Door-Mosquito-Mesh-Netting-Panels-1200-1024x768.jpg"
+                  alt="2 car garage screen"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/13-Garage-Door-Mosquito-Mesh-Netting-Panels-1200-1024x768.jpg"
+                  alt="Cost to screen garage"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/16-Garage-Door-Mosquito-Mesh-Netting-Panels-1200-1024x768.jpg"
+                  alt="16ft garage screen"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/08-Boat-Garage-Door-Mosquito-Mesh-Netting-Panels-1200-1024x768.jpg"
+                  alt="Garage screens"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/04-Garage-Door-Mosquito-Mesh-Netting-Panels-1200-1024x768.jpg"
+                  alt="Garage door screens"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/11-Garage-Door-Mosquito-Mesh-Netting-Panels-1200-1024x768.jpg"
+                  alt="Garage bug netting"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/01-Garage-Door-Mosquito-Mesh-Netting-Panels-Shade-In-1200-1024x768.jpg"
+                  alt="Garage Screen Door"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/06-Garage-Door-Mosquito-Mesh-Netting-Panels-1200-1024x768.jpg"
+                  alt="Commercial garage screen"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/10-Garage-Door-Mosquito-Mesh-Netting-Panels-1200-1024x768.jpg"
+                  alt="Garage mosquito netting"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/00-Garage-Door-Mosquito-Mesh-Netting-Panels-Clear-Out-1200-1024x768.jpg"
+                  alt="Garage Door Screens"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/02-Garage-Door-Mosquito-Mesh-Netting-Panels-1200-768x576.jpg"
+                  alt="Garage door insect screen curtains"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/16-Garage-Door-Mosquito-Mesh-Netting-Panels-1200-768x576.jpg"
+                  alt="16ft garage screen"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/SINGLE-PANEL-WITH-STUCCO-STRIP-2000-2-768x461.jpg"
+                  alt="Custom French door screens 1"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/2-PANELS-WITH-MAGNETIC-DOORWAY-2000-1-768x461.jpg"
+                  alt="Garage door screens option 2"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/SINGLE-PANEL-WITH-2-STUCCO-STRIPS-2000-768x461.jpg"
+                  alt="Custom French door screens"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/SINGLE-PANEL-WITH-MARINE-SNAPS-ON-EACH-END-2000-1-300x180.jpg"
+                  alt="Custom French door screens 2"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+          </Grid>
+        </HeaderBarSection>
+
+        <HeaderBarSection icon={Info} label="DIY Install" variant="green">
+          <Stack gap="md">
+              <Text className="text-gray-600">DIY installation in an afternoon with simple tools and fasteners.</Text>
+          </Stack>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Ordering" variant="green">
+          <Stack gap="md">
+              <Text className="text-gray-600">Our team will help plan your project!</Text>
+              <Text className="text-gray-600">10% Off Sale until Feb 14th… Coupon = Midwinter26</Text>
+          </Stack>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Custom Shapes" variant="green">
+          <Stack gap="md">
+              <Text className="text-gray-600">Multiple Mesh Options						
+					
+				
+									
+						Mosquito, No-See-Um, Shade/Privacy</Text>
+              <Text className="text-gray-600">Tracking Available						
+					
+				
+									
+						Allows you to slide your screen side to side</Text>
+              <Text className="text-gray-600">Simple Installation						
+					
+				
+									
+						Or any handyman can do it for you</Text>
+          </Stack>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="PROJECTION SCREEN WITH ROD" variant="green">
+          <Stack gap="md">
+              <Text className="text-gray-600">Velcro On Top</Text>
+              <Text className="text-gray-600">This solution is not on a track and therefore not capable of sliding. The screen is top-attached using Velcro. You can unzip the side and roll it up for storage and even remove the screens by pulling it off the Velcro attachments.</Text>
+              <Text className="text-gray-600">This solution is not on a track and therefore not capable of sliding. The screen is top-attached using Velcro. You can unzip the side and roll it up for storage and even remove the screens by pulling it off the Velcro attachments.</Text>
+              <BulletedList>
+                <li>Unzips and rolls up for fast storage</li>
+                <li>Cheaper alternative to tracking solutions</li>
+                <li>Detaches from Velcro attachments for easy removal</li>
+              </BulletedList>
+          </Stack>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Possible Panel Configurations" variant="green">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                Your project will consist of 1 or more panels. The diagrams below demonstrate a few possibilities from a side view using marine snaps, magnetic doorways, and stucco strips.
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/SINGLE-PANEL-WITH-STUCCO-STRIP-2000-2-768x461.jpg"
+                alt="Custom French door screens 1"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Our Integrity Saves You Money" variant="green">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                We have a corny slogan internally that we make people happy and then make garage screen enclosure solutions that they will brag to their friends about. If you receive your product and it it not right, we will fix it immediately. If you open the box and simply don’t like what you see, we will refund your purchase (less shipping). In our world, no dollar is worth the price of honor. We are a small American family business and we are teaching out children that “work is good.”
+
+We believe we can produce a quality product that will make people happy, earn a living, and leave work each day with our heads up knowing that we fulfilled that promise. Call us and you will hear unflinching passion. You’ll want to join over 53,000 others that are now part of our family of satisfied clients.
+
+As Seen On:
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Mosquito-Curtains-Team-1200-1-768x576.jpg"
+                alt="Mosquito Curtains Team"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Get Started Fast With a Real Person!" variant="green">
+          <Stack gap="md">
+              <Text className="text-gray-600">We are happy to help you plan your project with a quick planning session. For maximum speed and efficiency, photos of your space are extremely helpful. Click the buttons below to see photo guidelines. If you have a general question, call us at (770) 645-4745.</Text>
+              <BulletedList>
+                <li>Please provide 2-4 high resolution photos that show all complete sides of your project.</li>
+                <li>Step BACK and zoom OUT so we can see as much as possible. No close-ups.</li>
+                <li>Large file sizes – Small images do not provide enough resolution for planning sessions.</li>
+              </BulletedList>
+          </Stack>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Good Photos" variant="green">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                Why? We can see each full side with fastening surfaces in each high resolution photo.
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Good-1-Big-1024x768.jpg"
+                alt="Good Photos"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Bad Photos" variant="green">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                Why? They are too close up so we can’t see ALL fastening surfaces and corner transitions.
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Bad-2-Big-1024x768.jpg"
+                alt="Bad Photos"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Quick Connect Form" variant="green">
+          <Stack gap="md">
+              <Text className="text-gray-600">Fill and a planner will connect to discuss your project!</Text>
           </Stack>
         </HeaderBarSection>
 

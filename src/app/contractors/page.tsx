@@ -8,7 +8,7 @@ import {
   Package,
   Users,
   CheckCircle,
-} from 'lucide-react'
+, Camera, Info} from 'lucide-react'
 import { 
   Container, 
   Stack, 
@@ -23,7 +23,7 @@ import {
   FinalCTATemplate,
   HeaderBarSection,
   YouTubeEmbed,
-} from '@/lib/design-system'
+, TwoColumn} from '@/lib/design-system'
 import { VIDEOS } from '@/lib/constants/videos'
 
 export default function ContractorsPage() {
@@ -189,6 +189,209 @@ export default function ContractorsPage() {
         </section>
 
         {/* Final CTA */}
+        
+        {/* Photo Gallery */}
+        <HeaderBarSection icon={Camera} label="Contractor Gallery" variant="blue">
+          <Grid responsiveCols={{ mobile: 2, tablet: 3 }} gap="md">
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/19-Mosquito-Netting-Various-Projects-1200-768x576.jpg"
+                  alt="Contractor"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/MC-Track-Installation-768x576.jpg"
+                  alt="Contractor"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Velcro-Installation-768x576.jpg"
+                  alt="Contractor"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Clear-Vinyl-Installation-1-768x576.jpg"
+                  alt="Contractor"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/00-Clear-Plastic-Winter-Panels-Porch-Gray-1200-768x576.jpg"
+                  alt="clear vinyl plastic winter enclosure panels"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/wide-net-1200-768x576.jpg"
+                  alt="Large mosquito netting"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+          </Grid>
+        </HeaderBarSection>
+
+        <HeaderBarSection icon={Info} label="Why Become a Professional Reseller?" variant="green">
+          <Stack gap="md">
+              <Text className="text-gray-600">Imagine one of your clients is looking for a screened-in porch requiring framing, painting, and hanging a door.How would you price a 3-sided exposure with a total sum width of 33ft at 9ft tall? How long would it take? What would you charge?Now, imagine you could purchase a Mosquito Curtain for $1,000 and install it in about 6 hours at double or triple your typical hourly rate.</Text>
+          </Stack>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="We make custom screen and clear vinyl plastic enclosures to meet the exact needs of your clients." variant="green">
+          <Stack gap="md">
+              <Text className="text-gray-600">We have done tens of thousands of screen enclosures for porches, patios, gazebos, decks, etc. along with thousands of other unique projects and applications. We would love to help you bring your client projects to life! With excellent automation and tricks up our sleeve, we can help you create solution after solution for your clients. This helps you add more value to more clients and streamlines your profitability.</Text>
+          </Stack>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Delivering the Desired End Result at an Attractive Price Point" variant="green">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                Our curtains may have a higher perceived value to your client since they are retractable with an overhead tracking system, removable, and far less intrusive to that lovely architecture.
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/19-Mosquito-Netting-Various-Projects-1200-768x576.jpg"
+                alt="Delivering the Desired End Result at an Attractive Price Point"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="High Value Mosquito Curtains" variant="green">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                Curtains may have a higher perceived value to your client since they are retractable with an overhead tracking system, removable, and far less intrusive to that lovely architecture.
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/19-Mosquito-Netting-Various-Projects-1200-768x576.jpg"
+                alt="High Value Mosquito Curtains"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Discover Your Options" variant="green">
+          <Stack gap="md">
+              <Text className="text-gray-600">This page is designed to give you an overview of your options and a basic understanding of our simple attachment hardware. Use the “Dive Into Details” link on any section to see more on that topic.</Text>
+              <BulletedList>
+                <li>Know Your Mesh Type & Color</li>
+                <li>Know Your Top Attachment Preference</li>
+                <li>Understand Our Simple Attachment Hardware</li>
+              </BulletedList>
+          </Stack>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Mosquito Curtains on Tracking" variant="green">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                Learn to install mosquito curtains with a tracking top attachment.
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/MC-Track-Installation-768x576.jpg"
+                alt="Mosquito Curtains on Tracking"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Mosquito Curtains on Velcro®" variant="green">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                Learn to install mosquito curtains with a Velcro® top attachment.
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Velcro-Installation-768x576.jpg"
+                alt="Mosquito Curtains on Velcro®"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Clear Vinyl Winter Panels" variant="green">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                Learn to install clear vinyl panels on Velcro® or Tracking.
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Clear-Vinyl-Installation-1-768x576.jpg"
+                alt="Clear Vinyl Winter Panels"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+        <div className="rounded-lg overflow-hidden">
+          <img
+            src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/00-Mosquito-Netting-Various-Projects-400.jpg"
+            alt="Bulk Mosquito Netting For Various Projects"
+            className="w-full h-auto object-cover"
+            loading="lazy"
+          />
+        </div>
+        <HeaderBarSection icon={Info} label="Clear Vinyl Winter Panels" variant="green">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                Create A Warm Cozy Outdoor Weatherproof Space Sheltered From Wind, Rain & Cold!
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/wide-net-1200-768x576.jpg"
+                alt="Large mosquito netting"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Raw Mesh Fabrics" variant="green">
+          <Stack gap="md">
+              <Text className="text-gray-600">Mosquito Netting, No-See-Um, Shade Mesh & Scrim Mesh Fabrics For Any Project</Text>
+          </Stack>
+        </HeaderBarSection>
+
         <FinalCTATemplate />
 
       </Stack>

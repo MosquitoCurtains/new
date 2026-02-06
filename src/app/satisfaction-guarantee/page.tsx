@@ -1,8 +1,8 @@
 'use client'
 
 import { SupportPageTemplate } from '@/lib/design-system/templates'
-import { Shield, RefreshCw, AlertTriangle, CheckCircle } from 'lucide-react'
-import { Text, Grid, Card, Heading, BulletedList, ListItem } from '@/lib/design-system'
+import { Shield, RefreshCw, AlertTriangle, CheckCircle , Camera} from 'lucide-react'
+import { Text, Grid, Card, Heading, BulletedList, ListItem , Frame, HeaderBarSection, Stack, TwoColumn} from '@/lib/design-system'
 import { ORDERS_SERVED_COUNT, ORDERS_SERVED_FORMATTED } from '@/lib/constants/orders-served'
 
 const CONTENT_SECTIONS = [
@@ -107,6 +107,49 @@ const CONTENT_SECTIONS = [
           </ListItem>
         </BulletedList>
       </>
+
+        {/* Photo Gallery */}
+        <HeaderBarSection icon={Camera} label="Satisfaction Guarantee Gallery" variant="blue">
+          <Grid responsiveCols={{ mobile: 2, tablet: 2 }} gap="md">
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Kurt-200x291-1.jpg"
+                  alt="Satisfaction Guarantee"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/Garage-Screen-300x225.jpg"
+                  alt="Garage Screen Door"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Shade-Fabric-400x300-1-300x225.jpg"
+                  alt="Shade Fabric"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+          </Grid>
+        </HeaderBarSection>
+
+        <HeaderBarSection icon={Info} label="Privacy Policy" variant="green">
+          <Stack gap="md">
+              <Text className="text-gray-600">We do NOT share ANY customer information with 3rd parties, EVER. Our credit card processing is set up in a manner that even we cannot access your credit card numbers for online orders. Credit cards are directly processed through PayPal processing. You will notice https:// in the URL signifying that our site is secured with an SSL certificate for your protection.</Text>
+              <Text className="text-gray-600">At times, clients ask us for the names of clients in the neighborhood so that they can see the product, first hand. We politely refuse ALL such requests to protect the privacy of our good clients. We cannot afford background checks and we would rather miss the business than subject anyone to unforeseen risk, however remote. Read Privacy Policy.</Text>
+          </Stack>
+        </HeaderBarSection>
     ),
   },
 ]

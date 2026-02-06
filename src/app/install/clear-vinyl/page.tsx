@@ -1,5 +1,7 @@
 'use client'
 
+
+import { Camera } from 'lucide-react'
 import { InstallationPageTemplate } from '@/lib/design-system/templates'
 
 const INSTALLATION_STEPS = [

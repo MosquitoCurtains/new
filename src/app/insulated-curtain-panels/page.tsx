@@ -7,7 +7,7 @@ import {
   Shield,
   AlertCircle,
   CheckCircle,
-} from 'lucide-react'
+, Camera, Info} from 'lucide-react'
 import { 
   Container, 
   Stack, 
@@ -24,7 +24,7 @@ import {
   WhyChooseUsTemplate,
   PowerHeaderTemplate,
   MC_HERO_ACTIONS,
-} from '@/lib/design-system'
+, TwoColumn} from '@/lib/design-system'
 
 export default function InsulatedCurtainPanelsPage() {
   return (
@@ -180,6 +180,278 @@ export default function InsulatedCurtainPanelsPage() {
         </section>
 
         {/* Final CTA */}
+        
+        {/* Photo Gallery */}
+        <HeaderBarSection icon={Camera} label="Insulated Curtain Panels Gallery" variant="blue">
+          <Grid responsiveCols={{ mobile: 2, tablet: 3 }} gap="md">
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Clear-Vinyl-1481-1024x1024.jpg"
+                  alt="Clear Plastic Porch Enclosures"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Curtain-Vinyl-Interchangeable-2410-1024x1024.jpg"
+                  alt="Clear Vinyl Porch Enclosures"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Gazebo-CV-1745-1024x1024.jpg"
+                  alt="Insulated Curtain Panels"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/06/Interchangeable-Mosquito-Curtain-Clear-Vinyl-3-768x576.jpg"
+                  alt="Insulated Curtain Panels"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/06/Interchangeable-Mosquito-Curtain-Clear-Vinyl-4-1024x768.jpg"
+                  alt="Insulated Curtain Panels"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Mosquito-Netting-Interchangeable-1-1200-768x576.jpg"
+                  alt="Mosquito Netting Mesh Curtains are interchangeable with Clear Vinyl Winter Enclosures"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Clear-Vinyl-Interchangeable-1-1200-768x576.jpg"
+                  alt="Clear Vinyl Plastic Porch Enclosures"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/06/Interchangeable-Mosquito-Curtain-Clear-Vinyl-1-768x576.jpg"
+                  alt="Insulated Curtain Panels"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/06/Interchangeable-Mosquito-Curtain-Clear-Vinyl-2-768x576.jpg"
+                  alt="Insulated Curtain Panels"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Clear-Vinyl-Bar-2-200x117-1.jpg"
+                  alt="Clear Plastic Patio Enclosures"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/Garage-Screen-300x225.jpg"
+                  alt="Garage Screen Door"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Shade-Fabric-400x300-1-300x225.jpg"
+                  alt="Shade Fabric"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+          </Grid>
+        </HeaderBarSection>
+
+        <div className="rounded-lg overflow-hidden">
+          <img
+            src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Clear-Vinyl-1481-1024x1024.jpg"
+            alt="Clear Plastic Porch Enclosures"
+            className="w-full h-auto object-cover"
+            loading="lazy"
+          />
+        </div>
+        <div className="rounded-lg overflow-hidden">
+          <img
+            src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Curtain-Vinyl-Interchangeable-2410-1024x1024.jpg"
+            alt="Clear Vinyl Porch Enclosures"
+            className="w-full h-auto object-cover"
+            loading="lazy"
+          />
+        </div>
+        <div className="rounded-lg overflow-hidden">
+          <img
+            src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Gazebo-CV-1745-1024x1024.jpg"
+            alt="$2,410.00 + Shipping"
+            className="w-full h-auto object-cover"
+            loading="lazy"
+          />
+        </div>
+        <HeaderBarSection icon={Info} label="Clear Vinyl Plastic Porch Enclosures" variant="green">
+          <Stack gap="md">
+              <Text className="text-gray-600">Are you wasting usable living space in your own home? Think about the possibilities if that porch or patio wasn’t so cold in the winter. A cozy dinner outside, board games with the kids, a hangout for football games, or maybe just a good smooch on a porch swing during a snow storm. Time is precious. Perhaps you can connect with your family the old-fashioned way… just outside your own door.</Text>
+          </Stack>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Plastic Enclosures Interchangeable With Our Summer Mosquito Curtains" variant="green">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                We offer both Summer Mosquito Netting Curtains & Clear Vinyl Winter Panels that will enable you to enjoy family time just outside your own home. Best of all, the two products are entirely removable & interchangeable such that you can swap them out in the Spring and Fall. We designed an easy to self-install product perfect as an afternoon family project that you will all later enjoy, together! Congratulations! You just found a needle in a haystack and the best Quality / Price anywhere!
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/06/Interchangeable-Mosquito-Curtain-Clear-Vinyl-3-768x576.jpg"
+                alt="Plastic Enclosures Interchangeable With Our Summer Mosquito Curtains"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+        <div className="rounded-lg overflow-hidden">
+          <img
+            src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/06/Interchangeable-Mosquito-Curtain-Clear-Vinyl-4-1024x768.jpg"
+            alt="Summer Insect Panels"
+            className="w-full h-auto object-cover"
+            loading="lazy"
+          />
+        </div>
+        <div className="rounded-lg overflow-hidden">
+          <img
+            src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Mosquito-Netting-Interchangeable-1-1200-768x576.jpg"
+            alt="Mosquito Netting Mesh Curtains are interchangeable with Clear Vinyl Winter Enclosures"
+            className="w-full h-auto object-cover"
+            loading="lazy"
+          />
+        </div>
+        <div className="rounded-lg overflow-hidden">
+          <img
+            src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Clear-Vinyl-Interchangeable-1-1200-768x576.jpg"
+            alt="Clear Vinyl Plastic Porch Enclosures"
+            className="w-full h-auto object-cover"
+            loading="lazy"
+          />
+        </div>
+        <div className="rounded-lg overflow-hidden">
+          <img
+            src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/06/Interchangeable-Mosquito-Curtain-Clear-Vinyl-1-768x576.jpg"
+            alt="Winter Weather Panels"
+            className="w-full h-auto object-cover"
+            loading="lazy"
+          />
+        </div>
+        <div className="rounded-lg overflow-hidden">
+          <img
+            src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/06/Interchangeable-Mosquito-Curtain-Clear-Vinyl-2-768x576.jpg"
+            alt="Summer Insect Panels"
+            className="w-full h-auto object-cover"
+            loading="lazy"
+          />
+        </div>
+        <div className="rounded-lg overflow-hidden">
+          <img
+            src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Clear-Vinyl-Bar-1.jpg"
+            alt="Plastic Patio Enclosures"
+            className="w-full h-auto object-cover"
+            loading="lazy"
+          />
+        </div>
+        <div className="rounded-lg overflow-hidden">
+          <img
+            src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Clear-Vinyl-Bar-2-200x117-1.jpg"
+            alt="Clear Plastic Patio Enclosures"
+            className="w-full h-auto object-cover"
+            loading="lazy"
+          />
+        </div>
+        <div className="rounded-lg overflow-hidden">
+          <img
+            src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Clear-Vinyl-Bar-3.jpg"
+            alt="Clear vinyl Patio Enclosures"
+            className="w-full h-auto object-cover"
+            loading="lazy"
+          />
+        </div>
+        <div className="rounded-lg overflow-hidden">
+          <img
+            src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Clear-Vinyl-Bar-4.jpg"
+            alt="Clear Vinyl Plastic Patio Enclosures"
+            className="w-full h-auto object-cover"
+            loading="lazy"
+          />
+        </div>
+        <div className="rounded-lg overflow-hidden">
+          <img
+            src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Clear-Vinyl-Bar-6.jpg"
+            alt="Clear Plastic Enclosures for Patio"
+            className="w-full h-auto object-cover"
+            loading="lazy"
+          />
+        </div>
+        <div className="rounded-lg overflow-hidden">
+          <img
+            src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Clear-Vinyl-Bar-5.jpg"
+            alt="Winter Patio Enclosures"
+            className="w-full h-auto object-cover"
+            loading="lazy"
+          />
+        </div>
+        <HeaderBarSection icon={Info} label="Plastic Enclosure Curtains to Insulate Patio" variant="dark">
+          <Stack gap="md">
+              <Text className="text-gray-600">Insulate your porch or patio from old wind, rain, snow or spring pollen with custom-made Clear Vinyl Plastic Enclosures. Used in conjunction with a space heater, our plastic porch enclosures will insulate your outdoor space while protecting your porch from the damaging elements. Weatherproof your Patio Today!</Text>
+          </Stack>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="All Weather Insulated Porch Enclosures" variant="dark">
+          <Stack gap="md">
+              <Text className="text-gray-600">Are custom-made with marine-grade quality materials for an affordable all-weather outdoor space. Waterproof all-weather plastic curtains will protect you, your family pets, and plants from frosty winter weather. Great for weather-proofing existing screen porches & patios!</Text>
+          </Stack>
+        </HeaderBarSection>
+
         <FinalCTATemplate />
 
       </Stack>

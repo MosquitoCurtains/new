@@ -15,7 +15,7 @@ import {
   Umbrella,
   HelpCircle,
   Layers,
-} from 'lucide-react'
+, Info} from 'lucide-react'
 import { 
   Container, 
   Stack, 
@@ -30,7 +30,7 @@ import {
   HeaderBarSection,
   PowerHeaderTemplate,
   MC_HERO_ACTIONS,
-} from '@/lib/design-system'
+, TwoColumn} from '@/lib/design-system'
 
 // Project types grid - matches WordPress
 const PROJECT_TYPES = [
@@ -301,6 +301,14 @@ export default function ScreenedPorchEnclosuresPage() {
         {/* ================================================================
             FINAL CTA
             ================================================================ */}
+        
+        <HeaderBarSection icon={Info} label="DIY Install" variant="green">
+          <Stack gap="md">
+              <Text className="text-gray-600">DIY installation in an afternoon with simple tools and fasteners.</Text>
+              <Text className="text-gray-600">10% Off Sale until Feb 14th… Coupon = Midwinter26</Text>
+          </Stack>
+        </HeaderBarSection>
+
         <FinalCTATemplate />
 
       </Stack>

@@ -8,7 +8,7 @@ import {
   AlertTriangle,
   Wrench,
   Shield,
-} from 'lucide-react'
+, Camera, Info} from 'lucide-react'
 import { 
   Container, 
   Stack, 
@@ -163,6 +163,356 @@ export default function PergolaScreenCurtainsPage() {
                 <ListItem variant="checked" iconColor="#406517">Our attachment hardware is much simpler and more affordable</ListItem>
               </BulletedList>
             </Stack>
+          </TwoColumn>
+        </HeaderBarSection>
+
+        
+        {/* Photo Gallery */}
+        <HeaderBarSection icon={Camera} label="Pergola Screen Curtains Gallery" variant="blue">
+          <Grid responsiveCols={{ mobile: 2, tablet: 3 }} gap="md">
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/18-Pergola-Screen-Panels-1200-1024x768.jpg"
+                  alt="18 Pergola Screen Panels 1200"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/13-Pergola-Screen-Panels-1200-1024x768.jpg"
+                  alt="13 Pergola Screen Panels 1200"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/16-Pergola-Screen-Panels-1200-1024x768.jpg"
+                  alt="16 Pergola Screen Panels 1200"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/17-Pergola-Screen-Panels-1200-1024x768.jpg"
+                  alt="17 Pergola Screen Panels 1200"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/09-Pergola-Screen-Panels-1200-1024x768.jpg"
+                  alt="Pergola Screen Panels for Decks"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/02-Pergola-Screen-Panels-1200-1024x768.jpg"
+                  alt="Pergola insect curtains"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/00-Pergola-Screen-Panels-1200-1024x768.jpg"
+                  alt="Pergola Screen Panels"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/03-Pergola-Screen-Panels-1200-1024x768.jpg"
+                  alt="03 Pergola Screen Panels 1200"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/15-Pergola-Screen-Panels-1200-1024x768.jpg"
+                  alt="15 Pergola Screen Panels 1200"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/11-Pergola-Screen-Panels-1200-1024x768.jpg"
+                  alt="Pergola Screens"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/22-Pergola-Screen-Panels-1200-768x576.jpg"
+                  alt="Insect Curtains for Pergolas"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/21-Pergola-Screen-Panels-1200-768x576.jpg"
+                  alt="Screens for Pergolas"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2024/05/Deck-Example4-768x576.jpg"
+                  alt="Pergola Screen Curtains"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/20-Pergola-Screen-Panels-1200-768x576.jpg"
+                  alt="20 Pergola Screen Panels 1200"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/24-Pergola-Screen-Panels-1200-768x576.jpg"
+                  alt="24 Pergola Screen Panels 1200"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/23-Pergola-Screen-Panels-1200-1024x768.jpg"
+                  alt="Mosquito netting curtains for pergolas"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/02-Pergola-Screen-Panels-400-300x225.jpg"
+                  alt="Pergola insect curtains"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/10-Pergola-Screen-Panels-400-300x225.jpg"
+                  alt="Pergola bug curtain screens"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/47-Screened-in-Deck-1200-300x225.jpg"
+                  alt="Pergola Screen Curtains"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+            <Card className="!p-0 overflow-hidden">
+              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/19-Screened-in-Deck-Overhead-Box-1200-300x225.jpg"
+                  alt="Screened In Deck Overhead Box"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </Frame>
+            </Card>
+          </Grid>
+        </HeaderBarSection>
+
+        <HeaderBarSection icon={Info} label="DIY Install" variant="green">
+          <Stack gap="md">
+              <Text className="text-gray-600">DIY installation in an afternoon with simple tools and fasteners.</Text>
+          </Stack>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Ordering" variant="green">
+          <Stack gap="md">
+              <Text className="text-gray-600">Our team will help plan your project!</Text>
+              <Text className="text-gray-600">10% Off Sale until Feb 14th… Coupon = Midwinter26</Text>
+          </Stack>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="The Simplest Possible Structures" variant="green">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                All we really need is an overhead box that is stable so that no one gets hurt. For the project on the right, the client only wanted an overhead shade to block the West Texas sun using our shade mesh. They didn’t have a bug problem, although this would be enough structure to mount wall panels if they did.
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/47-Screened-in-Deck-1200-300x225.jpg"
+                alt="The Simplest Possible Structures"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+        <div className="rounded-lg overflow-hidden">
+          <img
+            src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/19-Screened-in-Deck-Overhead-Box-1200-300x225.jpg"
+            alt="Screened In Deck Overhead Box"
+            className="w-full h-auto object-cover"
+            loading="lazy"
+          />
+        </div>
+        <div className="rounded-lg overflow-hidden">
+          <img
+            src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/17-Screened-in-Deck-Overhead-Box-1200-300x225.jpg"
+            alt="Simple pergola design for screening"
+            className="w-full h-auto object-cover"
+            loading="lazy"
+          />
+        </div>
+        <div className="rounded-lg overflow-hidden">
+          <img
+            src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/18-Screened-in-Deck-Overhead-Box-1200-300x225.jpg"
+            alt="Simple pergola design for screens"
+            className="w-full h-auto object-cover"
+            loading="lazy"
+          />
+        </div>
+        <div className="rounded-lg overflow-hidden">
+          <img
+            src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/16-Screened-in-Deck-Simple-Overhead-Wood-Box-400-300x225.jpg"
+            alt="Screened In Deck with Simple Frame"
+            className="w-full h-auto object-cover"
+            loading="lazy"
+          />
+        </div>
+        <div className="rounded-lg overflow-hidden">
+          <img
+            src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/20-Screened-in-Deck-Overhead-Box-1200-300x225.jpg"
+            alt="Screen deck ideas"
+            className="w-full h-auto object-cover"
+            loading="lazy"
+          />
+        </div>
+        <div className="rounded-lg overflow-hidden">
+          <img
+            src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/15-Screened-in-Deck-Simple-Overhead-Wood-Box-1200-300x225.jpg"
+            alt="Screened In Deck with Simple Overhead Wood Box Frame"
+            className="w-full h-auto object-cover"
+            loading="lazy"
+          />
+        </div>
+        <HeaderBarSection icon={Info} label="Get Started Fast With a Real Person!" variant="green">
+          <Stack gap="md">
+              <Text className="text-gray-600">We are happy to help you plan your project with a quick planning session. For maximum speed and efficiency, photos of your space are extremely helpful. Click the buttons below to see photo guidelines. If you have a general question, call us at (770) 645-4745.</Text>
+              <BulletedList>
+                <li>Please provide 2-4 high resolution photos that show all complete sides of your project.</li>
+                <li>Step BACK and zoom OUT so we can see as much as possible. No close-ups.</li>
+                <li>Large file sizes – Small images do not provide enough resolution for planning sessions.</li>
+              </BulletedList>
+          </Stack>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Good Photos" variant="green">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                Why? We can see each full side with fastening surfaces in each high resolution photo.
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Good-1-Big-1024x768.jpg"
+                alt="Good Photos"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Bad Photos" variant="green">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                Why? They are too close up so we can’t see ALL fastening surfaces and corner transitions.
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Bad-2-Big-1024x768.jpg"
+                alt="Bad Photos"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Quick Connect Form" variant="green">
+          <Stack gap="md">
+              <Text className="text-gray-600">Fill and a planner will connect to discuss your project!</Text>
+          </Stack>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="Click the button to learn your customization options." variant="green">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                As Seen On:
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/USA_Today_logo_horizontal-300x56.png"
+                alt="Mosquito Netting Curtains as featured on USA Today"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </Frame>
           </TwoColumn>
         </HeaderBarSection>
 

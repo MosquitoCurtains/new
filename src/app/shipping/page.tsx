@@ -2,7 +2,7 @@
 
 import { SupportPageTemplate } from '@/lib/design-system/templates'
 import { Truck, Globe, MapPin, Clock } from 'lucide-react'
-import { Text, Grid, Card, Heading, Frame } from '@/lib/design-system'
+import { Text, Grid, Card, Heading, Frame , HeaderBarSection, Stack, TwoColumn, BulletedList} from '@/lib/design-system'
 
 const CONTENT_SECTIONS = [
   {
@@ -82,6 +82,29 @@ const CONTENT_SECTIONS = [
           estimate what your shipping cost will be depending on your order type and project dimensions.
         </Text>
       </>
+
+        <HeaderBarSection icon={Info} label="Shipping &amp; Delivery Information" variant="green">
+          <Stack gap="md">
+              <Text className="text-gray-600">AMERICAN ORDERSYour custom made curtain panels will ship out via UPS in 1-4 days from ATLANTA depending upon complexity. The map shows time in transit. Sometimes, we send USPS to Alaska and Hawaii as it often arrives faster. We do NOT require a signature. CANADIAN ORDERSTransit times are 3 days to Ontario and up to 7 days to BC. When you order, we will charge you GST/HST and then pay these taxes along with any brokerage fees on your behalf. The price estimator does not make these calculations, though they are what you would expect in your province. What you pay us is the LAST USD you will pay to receive your order. INTERNATIONAL ORDERSTransit times are generally 5 -14 business days and the carrier is determined based on cost as our actual shipping costs exceed what you will be charged. You will pay customs fees upon arrival. For international orders, we strongly encourage you to email us a digital photo prior to ordering so that we can ensure the accuracy of your order.</Text>
+          </Stack>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="How To Use This Instant Price Calculator" variant="green">
+          <Stack gap="md">
+              <Text className="text-gray-600">If you haven’t yet explored the website to discover your options, that’s okay for now! This will give you some close idea on cost, quickly & hassle free to determine if our product is worth your time. It should be within about 5% and enough to make a decision. Mesh Type – Mosquito Mesh & Tracking “Top Attachment” are most common but you are free to change. Project Width – is the Sum Width of your ENTIRE project (sum width of ALL Panels). A good guess at project width will provide a reasonable price “guess-timate” Number of Panels – Your project will be divided into some number of individual panels. Typically, it is the number of ENTIRE sides (before exposure turns a corner) + 1, but you can change. For example, a 3-sided or U-Shaped exposure will typically require 4 individual panels (3 sides + 1). Top Attachment – will determine what type, if any, tracking hardware you will need. This estimate should be very close and predicts what fastening hardware you will need. In fact, 90% of the time it will be higher than your actual cost since we would rather have you pleasantly surprised than the other way around. Costs may be a bit more if you have unusual situations requiring custom work like slopes or notches.</Text>
+          </Stack>
+        </HeaderBarSection>
+        <HeaderBarSection icon={Info} label="How To Use This Instant Price Calculator" variant="green">
+          <Stack gap="md">
+              <Text className="text-gray-600">A good guess at measurements will provide a good guess at pricing. The calculator estimates all the hardware you will need. 90% of the time your actual price will be a bit lower unless there is a lot of custom work like notches and slopes or unusual circumstances. Project Height – we break pricing into 3 buckets based on the height. Project Width = TOTAL sum width of the ENTIRE project to protect. Number of Panels – More panels means more fasteners & fabrication effort. Introduce a new panel:Top Attachment – Most Clear Vinyl Applications use Fixed / Velcro Top Attachment. Choosing “tracking” estimates the cost of tracking hardware you will need.</Text>
+              <BulletedList>
+                <li>Where you need an exit. (Panels will “zip together” for egress).</li>
+                <li>Where exposures turn a corner.</li>
+                <li>When exposures along the same plane get longer than 16ft.</li>
+                <li>Panels can span several openings along the same plane.</li>
+                <li>Still not sure how many panels? Divide the total project width by 7 and you will be close.</li>
+              </BulletedList>
+          </Stack>
+        </HeaderBarSection>
     ),
   },
 ]
