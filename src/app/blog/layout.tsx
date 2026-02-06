@@ -12,10 +12,8 @@ export const metadata: Metadata = buildPageMetadata({
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <head>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(BreadcrumbSchema(breadcrumbsFromSlug('/blog', 'Blog Hub')))} } />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(WebPageSchema({ title: 'Blog Hub', description: 'Learn about blog hub from Mosquito Curtains. Expert guidance on custom screen enclosures, mosquito netting, and outdoor living solutions.', url: '/blog' })) }} />
-      </head>
       {children}
     </>
   )

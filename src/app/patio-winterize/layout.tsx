@@ -12,10 +12,8 @@ export const metadata: Metadata = buildPageMetadata({
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <head>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(BreadcrumbSchema(breadcrumbsFromSlug('/patio-winterize', 'Patio Winterize')))} } />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(WebPageSchema({ title: 'Patio Winterize', description: 'Patio Winterize solutions from Mosquito Curtains. Custom-fitted mosquito netting, clear vinyl, and screen enclosures. Free quotes and fast shipping nationwide.', url: '/patio-winterize' })) }} />
-      </head>
       {children}
     </>
   )

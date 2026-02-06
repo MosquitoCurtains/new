@@ -12,10 +12,8 @@ export const metadata: Metadata = buildPageMetadata({
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <head>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(BreadcrumbSchema(breadcrumbsFromSlug('/install/tracking', 'Tracking Installation')))} } />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(WebPageSchema({ title: 'Tracking Installation', description: 'Tracking Installation - Get help with your Mosquito Curtains order. Installation guides, measuring tips, and customer support for all our screen products.', url: '/install/tracking' })) }} />
-      </head>
       {children}
     </>
   )
