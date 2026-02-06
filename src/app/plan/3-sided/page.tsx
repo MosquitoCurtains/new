@@ -8,7 +8,7 @@ import {
   Ruler,
   Camera,
   Users,
-Info} from 'lucide-react'
+} from 'lucide-react'
 import { 
   Container, 
   Stack, 
@@ -23,7 +23,7 @@ import {
   FinalCTATemplate,
   HeaderBarSection,
   YouTubeEmbed,
-TwoColumn} from '@/lib/design-system'
+} from '@/lib/design-system'
 
 export default function ThreeSidedPage() {
   return (
@@ -195,120 +195,6 @@ export default function ThreeSidedPage() {
         </section>
 
         {/* Final CTA */}
-        
-        {/* Photo Gallery */}
-        <HeaderBarSection icon={Camera} label="3 Sided Exposure Gallery" variant="blue">
-          <Grid responsiveCols={{ mobile: 2, tablet: 2 }} gap="md">
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Regular-Columns-W-Tracking-400x208-1.jpg"
-                  alt="3 Sided Exposure"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Regular-Columns-W-Velcro-400x208-1.jpg"
-                  alt="3 Sided Exposure"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Irregular-Tracking-400x208-1.jpg"
-                  alt="outdoor curtain track"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Irregular-Columns-W-Velcro-400x208-1.jpg"
-                  alt="3 Sided Exposure"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-          </Grid>
-        </HeaderBarSection>
-
-        <HeaderBarSection icon={Info} label="Planning a 3-sided Exposure" variant="green">
-          <Stack gap="md">
-              <Text className="text-gray-600">By now you have probably decided on a mesh-type & color and either tracking or Velcro® top attachment. Now you will choose a path and select a panel configuration to size individual panels for sealing to surfaces and positioning magnetic doorways.</Text>
-              <Text className="text-gray-600">At this point, we recommend:</Text>
-              <BulletedList>
-                <li>Watch our planning tutorial to see an example laid out step by step. This is optional but very helpful.</li>
-                <li>Determine a path either inside or outside your columns depending on your particular column type.</li>
-                <li>Select a configuration to see our configuration-specific detailed planning instructions.</li>
-              </BulletedList>
-          </Stack>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="1) Full Example Planning Session" variant="green">
-          <Stack gap="md">
-              <Text className="text-gray-600">We have created full example planning session videos to show you how to plan an entire project! This begins with your panel configuration and goes through guidelines for ordering the hardware you need to put it all together. Choose the video with a tracking or Velcro® top attachment to get off to a fast start.</Text>
-              <Text className="text-gray-600">Tracking Planning Session</Text>
-              <Text className="text-gray-600">Velcro® Planning Session</Text>
-          </Stack>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="2) Determine a Path" variant="green">
-          <Stack gap="md">
-              <Text className="text-gray-600">There is a subtle difference in the path curtains will take depending on what type of columns or you have. There are two types of paths to take, an inside hang (inside your columns), or an outside hang (outside your columns).</Text>
-              <Text className="text-gray-600">We group columns into two categories – regular columns and irregular columns. The path you take depends on the “shape” of the columns that you have.</Text>
-              <Text className="text-gray-600">If you have regular columns and can seal to a perfectly straight edge, we want to take advantage of that opportunity to maximize space and performance of your curtains. You can pass intermediate columns but it is best to terminate panels at CORNER regular columns.</Text>
-              <Text className="text-gray-600">If you have irregularly shaped columns, we will need to plan such that we never have to directly seal to a non-linear edge so panels do not terminate at CORNER irregular columns.</Text>
-          </Stack>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="Regular or Irregular Columns" variant="green">
-          <TwoColumn gap="lg" className="items-center">
-            <Stack gap="md">
-              <Text className="text-gray-600">
-                A regular column has a straight edge that makes for a good sealing surface with marine snaps. We recommend an outside hang ending panels at corner columns.
-
-Irregular columns do not have this straight edge to snap to, so panels will straddle irregular corner columns with our elastic cord to “pinch” the center of the straddling panel to an irregular corner column.
-
-Regular Columns
-
-Irregular Columns
-              </Text>
-            </Stack>
-            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Regular-Columns-1.jpg"
-                alt="Regular or Irregular Columns"
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </Frame>
-          </TwoColumn>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="3) Click 1 of 4 Options For Panel Configuration Guidelines" variant="green">
-          <TwoColumn gap="lg" className="items-center">
-            <Stack gap="md">
-              <Text className="text-gray-600">
-                Now choose a configuration based on your column type for details specific to your application.
-              </Text>
-            </Stack>
-            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Regular-Columns-W-Tracking-400x208-1.jpg"
-                alt="3) Click 1 of 4 Options For Panel Configuration Guidelines"
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </Frame>
-          </TwoColumn>
-        </HeaderBarSection>
-
         <FinalCTATemplate />
 
       </Stack>

@@ -7,7 +7,7 @@ import {
   Wrench,
   Lightbulb,
   Play,
-Camera, Info} from 'lucide-react'
+} from 'lucide-react'
 import { 
   Container, 
   Stack, 
@@ -22,7 +22,7 @@ import {
   FinalCTATemplate,
   HeaderBarSection,
   YouTubeEmbed,
-TwoColumn} from '@/lib/design-system'
+} from '@/lib/design-system'
 import { VIDEOS } from '@/lib/constants/videos'
 
 const RIGGING_IDEAS = [
@@ -202,177 +202,6 @@ export default function RiggingPage() {
         </section>
 
         {/* Final CTA */}
-        
-        {/* Photo Gallery */}
-        <HeaderBarSection icon={Camera} label="Fasteners &amp; Rigging Gallery" variant="blue">
-          <Grid responsiveCols={{ mobile: 2, tablet: 2 }} gap="md">
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Elastic-Cord-1024x1024.jpg"
-                  alt="Fasteners &amp; Rigging"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Lasso-Golf-Ball-1024x768.jpg"
-                  alt="Fasteners &amp; Rigging"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Golf-Ball-Corners-1024x768.jpg"
-                  alt="Fasteners &amp; Rigging"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Wood-Strip-Edge-1024x768.jpg"
-                  alt="Fasteners &amp; Rigging"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-          </Grid>
-        </HeaderBarSection>
-
-        <HeaderBarSection icon={Info} label="Cool Tricks With Simple Hardware" variant="green">
-          <Stack gap="md">
-              <Text className="text-gray-600">Our core business revolves around making custom netting solutions mostly for porch enclosures, however; we have done much more! We have worked many creative and fun projects, like underwater torpedo targets for the Navy, sniper hides for military, massive 70ft x 40ft outdoor projection screens and more. Sometimes our fancy fabricated solutions might be overkill for your project. Just to tickle your imagination, we want to offer a few creative rigging ideas that you can use with mosquito netting that we have learned mostly from clever clients like you that helped them to create a more cost effective solution. If you have a unique project and are looking for ideas, feel free to give us a call! We’ll be happy to help</Text>
-              <Text className="text-gray-600">SHOP MESHES</Text>
-              <BulletedList>
-                <li>Heavy Mosquito Mesh</li>
-                <li>No See Um Mesh</li>
-                <li>Shade Screen Mesh</li>
-                <li>Theater Scrim</li>
-                <li>Industrial Mesh</li>
-                <li>Let Us Make It For You</li>
-                <li>Buy Attachment Hardware</li>
-                <li>Fasteners and Rigging Ideas</li>
-              </BulletedList>
-          </Stack>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="Marine Snaps &amp; Rubber Washers" variant="green">
-          <TwoColumn gap="lg" className="items-center">
-            <Stack gap="md">
-              <Text className="text-gray-600">
-                We sell marine snaps and rubber washers. You can find them in the attachment hardware page in the menu. To place a marine snap in raw netting, use two rubber washers, one on each side of the mesh (to distribute the load and preventing the snaps from “ripping out”). Place a the female side of a marine snap through the two washers. The male snap is either on a screw stud or adhesive snap to fasten netting to almost any surface. Note: you will need the refundable industrial snap tool to place snaps through these washers.
-              </Text>
-            </Stack>
-            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Marine-Snap-in-Raw-Netting.jpg"
-                alt="Marine Snaps &amp; Rubber Washers"
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </Frame>
-          </TwoColumn>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="Elastic Cord" variant="green">
-          <TwoColumn gap="lg" className="items-center">
-            <Stack gap="md">
-              <Text className="text-gray-600">
-                Remember when mom lost the lid to a jar? She placed wax paper over the top of the jar and used a rubber band to seal the wax paper to the jar. Elastic Cord is handy for many projects and best described in a winery vat application to prevent fruit flies that altered the tannics of the wine. Elastic cord is just a giant rubber band that pinches the netting over the top of the vat. They didn’t need an expensive or fancy solution and just wanted something easy to use at the lowest price possible. Sometimes simple is better than expensive!
-              </Text>
-            </Stack>
-            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Elastic-Cord-1024x1024.jpg"
-                alt="Elastic Cord"
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </Frame>
-          </TwoColumn>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="Duct Tape" variant="green">
-          <Stack gap="md">
-              <Text className="text-gray-600">Sound Crazy? Read on. Fold Duct tape in half like a taco and tuck the netting inside (Duct Tape comes in a variety of colors and there is something used in the film industry called Gaffer’s Tape that has a matte textured backing that looks more like cloth). Apply the Duct Tape around the entire perimeter of the netting panel and use an ordinary stapler to secure the corners.</Text>
-          </Stack>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="Boat Photos – Yep! Duct Tape!" variant="green">
-          <TwoColumn gap="lg" className="items-center">
-            <Stack gap="md">
-              <Text className="text-gray-600">
-                You can apply adhesive-backed Velcro directly to the Duct Tape to join panels or affix to a surface. Not as pretty or as strong as our Custom Solutions, but sometimes the project is more about affordable functionality and less about aesthetics. LIMITATIONS: This method only works with our “Heavy Mesh. You will not be able to use any sort of tracking and can only create a fixed attachment.
-              </Text>
-            </Stack>
-            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Boat-with-duct-tape-on-mesh-1.jpg"
-                alt="Boat Photos – Yep! Duct Tape!"
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </Frame>
-          </TwoColumn>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="Boy Scout Idea" variant="green">
-          <TwoColumn gap="lg" className="items-center">
-            <Stack gap="md">
-              <Text className="text-gray-600">
-                Take a marble, round stone or golf ball and wrap netting over the ball. Use a cord to choke a noose around the ball and then tie off the cord. This will not stress the netting and you can pull the “tie off” cord till kingdom come and it won’t rip out. In addition your panel is reusable by repositioning the balls.
-              </Text>
-            </Stack>
-            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Lasso-Golf-Ball-1024x768.jpg"
-                alt="Boy Scout Idea"
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </Frame>
-          </TwoColumn>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="PVC Snap Clamps" variant="green">
-          <TwoColumn gap="lg" className="items-center">
-            <Stack gap="md">
-              <Text className="text-gray-600">
-                While we do not offer PVC Snap Clamps, You can readily purchase them online. One provider is www.pvcplans.com. PVC Snap Clamps are a convenient way to “Clip” Mosquito Netting to a PVC Tube. They come in a variety of lengths for different gauge tube thicknesses. Often used in gardening applications like “hoop houses” PVC Snap clamps are a great tool for improvised rigging. HINT: They can easily be cut with a hacksaw, so you can save by purchasing long clamps (up to 24″) and cutting them into 2-4″ usable pieces.
-              </Text>
-            </Stack>
-            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/PCV-Snap-Clamps-1A-1.jpg"
-                alt="PVC Snap Clamps"
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </Frame>
-          </TwoColumn>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="Wood Strip" variant="green">
-          <TwoColumn gap="lg" className="items-center">
-            <Stack gap="md">
-              <Text className="text-gray-600">
-                You can wrap the netting a few turns around a wood strip (like a 1″ x 2″) and then nail the wood strip to some surface. Distributing the mounting tension along a long wood strip is far better than simply nailing directly into raw netting which is prone to “rip out”.
-              </Text>
-            </Stack>
-            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Wood-Strip-Edge-1024x768.jpg"
-                alt="Wood Strip"
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </Frame>
-          </TwoColumn>
-        </HeaderBarSection>
-
         <FinalCTATemplate />
 
       </Stack>

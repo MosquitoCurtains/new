@@ -9,7 +9,7 @@ import {
   Droplets,
   Wind,
   Eye,
-Camera, Info} from 'lucide-react'
+} from 'lucide-react'
 import { 
   Container, 
   Stack, 
@@ -24,7 +24,7 @@ import {
   FinalCTATemplate,
   HeaderBarSection,
   YouTubeEmbed,
-TwoColumn} from '@/lib/design-system'
+} from '@/lib/design-system'
 import { VIDEOS } from '@/lib/constants/videos'
 
 export default function ClearVinylConsiderationsPage() {
@@ -208,130 +208,6 @@ export default function ClearVinylConsiderationsPage() {
         </section>
 
         {/* Final CTA */}
-        
-        {/* Photo Gallery */}
-        <HeaderBarSection icon={Camera} label="What Can Go Wrong Gallery" variant="blue">
-          <Grid responsiveCols={{ mobile: 2, tablet: 2 }} gap="md">
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/What-Not-To-Do-768x576.jpg"
-                  alt="What Can Go Wrong"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/MOSQUITO-CURTAINS-CLEAR-VINYL-EXAMPLE-2400-768x576.jpg"
-                  alt="What Can Go Wrong"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Kurt-200x291-1.jpg"
-                  alt="What Can Go Wrong"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Shade-Fabric-400x300-1.jpg"
-                  alt="Shade Fabric"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-          </Grid>
-        </HeaderBarSection>
-
-        <HeaderBarSection icon={Info} label="Full Transparency = Trust" variant="green">
-          <TwoColumn gap="lg" className="items-center">
-            <Stack gap="md">
-              <Text className="text-gray-600">
-                Let’s start backwards and talk about how clear vinyl panels will eventually meet their demise and it is all about YOUR REASONABLE CARE. Clear Vinyl Plastic does fine in the cooler months but shrinks and yellows in the very hot summer sun and panels need to be cleaned once a year with a conditioner (we provide) to clean the bit of street crud that can accumulate over time and only gets harder to remove.
-
-Typically panels go up in the fall and MUST be completely removed when temperatures are consistently above 80°F (just after pollen season) and stored in a cool dry place below 75°F. Anyone who tells you differently… well, let’s just say we don’t share the same ethics in business.
-
-Clear Vinyl Plastic Enclosures are perfectly dense and subject to wind loads that depend on a number of factors. More fixed fasteners will distribute the stress on those fasteners, so please use what is recommended by your planner. If you have significant winds, TELL YOUR PLANNER. We will either show you how to brace for significant winds, or in some cases, we will recommend another provider with more robust (though intrusive) hardware.
-
-Like any material fabric, Clear Vinyl Winter Panels are vulnerable to sharp objects and very hot objects (like a BBQ). Follow these care guidelines and you will get 8-12 years out of them… Or don’t, and you will get about half that life. Lastly, when comparing products consider the hardware used, usability, ease of removal, and fabrication quality. All will affect the look and longevity of your new enclosure.
-
-What Not To Do!
-
-What We Do
-              </Text>
-            </Stack>
-            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/What-Not-To-Do-768x576.jpg"
-                alt="Full Transparency = Trust"
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </Frame>
-          </TwoColumn>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="Caring For Clear Vinyl Winter Panels" variant="green">
-          <Stack gap="md">
-              <Text className="text-gray-600">Caring for your curtains is extremely important! We put our hearts into making these with extreme attention to detail. Take care of them properly and they will last you many fun seasons. We love getting calls from clients saying their clear vinyl winter panels have lasted way longer than they anticipated! These are the people who took an hour a year to take them down, wash them, and store them in a cool, dry place for next season.</Text>
-              <BulletedList>
-                <li>Take down your curtains before summer</li>
-                <li>Wash with soap and water and condition with FastWax</li>
-                <li>Store in a cool, dry place like under a bed indoors</li>
-                <li>Take advantage of our simple hardware to make your enclosure last</li>
-              </BulletedList>
-          </Stack>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="Here Is An Extreme Example" variant="green">
-          <TwoColumn gap="lg" className="items-center">
-            <Stack gap="md">
-              <Text className="text-gray-600">
-                In 2020, Lake Havasu experienced 3 weeks with temperatures above 108 degrees. These were rolled up on a metal bar that was even hotter and the scorching bar melted holes in the direct sun. The curtains shrunk and became misshaped .
-
-COMPLETELY remove curtains when temperatures approach 80 degrees and store in a cool dry place (NOT in a garage or attic).  A good rule of thumb is to remove them right after pollen season.
-
-What Not To Do!
-              </Text>
-            </Stack>
-            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/CV-left-up-during-summer-in-108-degrees-small.jpg"
-                alt="Here Is An Extreme Example"
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </Frame>
-          </TwoColumn>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="Expected Life Depends On Your Reasonable Care" variant="green">
-          <Stack gap="md">
-              <Text className="text-gray-600">The mosquito netting, no-see-um netting & Clear Vinyl are high quality fabrics, but with limits. A weed eater will definitely make a hole, raking the netting repeatedly against a stucco corner, or sharp object will wear a hole. Curtains are vulnerable to sharp objects and hot objects that will melt panels such as cigarettes, BBQs and hot gas blowers (gardeners should be made aware).</Text>
-              <Text className="text-gray-600">Clear Vinyl panels are perfectly dense and should be removed in heavy winds over 25mph and will crack if manipulated at temperatures below minus 10-degrees Fahrenheit. We ask you to please be careful with your measurements! We recognize that ordering such a product online is new to many of you and perhaps a bit of a challenge. If there are any miscuts or defects, we will simply correct the error to your satisfaction. Your backstop is that you are free return the curtain for a complete refund of your purchase (not including original or return shipping charges) within 6 weeks of your purchase date. It is an easy guarantee to make since after more than 54,000 orders, we’ve had only a handful of returns.</Text>
-          </Stack>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="Privacy Policy" variant="green">
-          <Stack gap="md">
-              <Text className="text-gray-600">We do NOT share ANY customer information with 3rd parties, EVER. Our credit card processing is set up in a manner that even we cannot access your credit card numbers for online orders. Credit cards are directly processed through PayPal processing. You will notice https:// in the URL signifying that our site is secured with an SSL certificate for your protection.</Text>
-              <Text className="text-gray-600">At times, clients ask us for the names of clients in the neighborhood so that they can see the product, first hand. We politely refuse ALL such requests to protect the privacy of our good clients. We cannot afford background checks and we would rather miss the business than subject anyone to unforeseen risk, however remote.</Text>
-          </Stack>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="Clear Vinyl Plastic Enclosures" variant="green">
-          <Stack gap="md">
-              <Text className="text-gray-600">Is great for protecting people plants and pets from the winter elements. We encourage you to remove them during the hot summer months. It isn’t a huge request because they are easy to remove and there is no need for them in the summer, anyways. Remember these are perfectly dense so do you really want to sit behind a magnifying glass in the hot summer sun? Wouldn’t it be better to have our interchangeable mosquito netting curtains that will enable the cool breeze to pass?</Text>
-          </Stack>
-        </HeaderBarSection>
-
         <FinalCTATemplate />
 
       </Stack>

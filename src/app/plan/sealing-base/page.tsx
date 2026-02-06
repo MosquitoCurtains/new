@@ -6,7 +6,7 @@ import {
   ArrowLeft,
   ShieldCheck,
   Layers,
-Camera, Info} from 'lucide-react'
+} from 'lucide-react'
 import { 
   Container, 
   Stack, 
@@ -21,7 +21,7 @@ import {
   FinalCTATemplate,
   HeaderBarSection,
   YouTubeEmbed,
-TwoColumn} from '@/lib/design-system'
+} from '@/lib/design-system'
 import { VIDEOS } from '@/lib/constants/videos'
 
 const SEALING_OPTIONS = [
@@ -203,154 +203,6 @@ export default function SealingBasePage() {
         </section>
 
         {/* Final CTA */}
-        
-        {/* Photo Gallery */}
-        <HeaderBarSection icon={Camera} label="Sealing The Base Gallery" variant="blue">
-          <Grid responsiveCols={{ mobile: 2, tablet: 3 }} gap="md">
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/06/Interchangeable-Mosquito-Curtain-Clear-Vinyl-3-768x576.jpg"
-                  alt="Sealing The Base"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/06/Interchangeable-Mosquito-Curtain-Clear-Vinyl-4-1024x768.jpg"
-                  alt="Sealing The Base"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Mosquito-Netting-Interchangeable-1-1200-768x576.jpg"
-                  alt="Mosquito Netting Mesh Curtains are interchangeable with Clear Vinyl Winter Enclosures"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Clear-Vinyl-Interchangeable-1-1200-768x576.jpg"
-                  alt="Clear Vinyl Plastic Porch Enclosures"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/06/Interchangeable-Mosquito-Curtain-Clear-Vinyl-1-768x576.jpg"
-                  alt="Sealing The Base"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/06/Interchangeable-Mosquito-Curtain-Clear-Vinyl-2-768x576.jpg"
-                  alt="Sealing The Base"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-          </Grid>
-        </HeaderBarSection>
-
-        <HeaderBarSection icon={Info} label="4. Sealing the Base" variant="green">
-          <Stack gap="md">
-              <Text className="text-gray-600">There is something a bit counter intuitive about securing the base of your curtain. At first, you might think the best way to secure the bottom is to pull it straight down and perhaps tie it down or weight it, however the key to securing the base is horizontal tension. Weights do not work for outdoor curtains because they aren’t heavy enough and weights drive the base of the curtain into the floor wearing it faster. Instead, use Marine Snaps to secure the base and Elastic Cord described below.</Text>
-              <Text className="text-gray-600">Imagine for a moment, we laid a 20ft belt from the Jolly Green Giant on the side walk. If you step on one end, and Mr. Jolly Green stands on the other end, it would be hard to lift the middle of the belt. The little bit of horizontal tension would be enough to keep the belt down. Marine snaps every 6 – 12ft help to maintain horizontal tension along the base especially in the corners. Generally, this is the spacing of support columns where marine snaps can be placed into the base of the column.</Text>
-          </Stack>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="Elastic Cord – “Vertical Ribs”" variant="green">
-          <Stack gap="md">
-              <Text className="text-gray-600">Commonly Used for Tracking Attachment With Path Inside Columns</Text>
-              <Text className="text-gray-600">Curtains with tracking attachment typically take a path on the inside of your columns often with configurations where panels straddle a corner. Elastic cord “pinches” the curtain to the corner column. Think of elastic cord as a large bungee cord clipped vertically between 2 D-rings. Elastic cord is not attached to the curtain at all. It acts as a false column giving the curtain a corner rib inside the curtain to brace the curtain in the breeze and help to maintain horizontal tension.</Text>
-              <Text className="text-gray-600">These vertical elastic cord ribs can be placed anywhere to add support to the curtain in breezy conditions (not just at corners). The best location is in front of columns to act as a giant rubber band to “pinch” the curtain to the column.</Text>
-          </Stack>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="Tether Clips" variant="green">
-          <Stack gap="md">
-              <Text className="text-gray-600">These are rarely used, but sometimes quite useful. There are times when you may not want to snap the base of your screened patio curtains. Perhaps you have a tile floor or the base of your column is plastic and won’t hold a screw. Hmm…what to do? We have a clip that will fasten to the bottom webbing (NEVER to netting).</Text>
-          </Stack>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="Outdoor Insect Curtains are Designed for a Relaxed Fit" variant="green">
-          <Stack gap="md">
-              <Text className="text-gray-600">They aren’t stretched taut like a drum nor are they sloppy loose. The relaxed fit will animate your curtain allowing it to wave a bit in the breeze, but will maintain just enough horizontal tension to keep the base down. In the PLAN section we will discuss some measurement adjustments. Don’t be concerned about tiny gaps around the edges. A mosquito is D-U-M-B. It smells certain chemicals and vectors right towards you. Nonetheless, we want the best seal possible for your screened patio.</Text>
-          </Stack>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="Interchangeable With Our Clear Vinyl Panels" variant="green">
-          <TwoColumn gap="lg" className="items-center">
-            <Stack gap="md">
-              <Text className="text-gray-600">
-                We offer both Summer Mosquito Netting Curtains & Clear Vinyl Winter Panels that will enable you to enjoy family time just outside your own home. Best of all, the two products are entirely removable & interchangeable such that you can swap them out in the Spring and Fall.
-              </Text>
-            </Stack>
-            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/06/Interchangeable-Mosquito-Curtain-Clear-Vinyl-3-768x576.jpg"
-                alt="Interchangeable With Our Clear Vinyl Panels"
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </Frame>
-          </TwoColumn>
-        </HeaderBarSection>
-        <div className="rounded-lg overflow-hidden">
-          <img
-            src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/06/Interchangeable-Mosquito-Curtain-Clear-Vinyl-4-1024x768.jpg"
-            alt="Summer Insect Panels"
-            className="w-full h-auto object-cover"
-            loading="lazy"
-          />
-        </div>
-        <div className="rounded-lg overflow-hidden">
-          <img
-            src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Mosquito-Netting-Interchangeable-1-1200-768x576.jpg"
-            alt="Mosquito Netting Mesh Curtains are interchangeable with Clear Vinyl Winter Enclosures"
-            className="w-full h-auto object-cover"
-            loading="lazy"
-          />
-        </div>
-        <div className="rounded-lg overflow-hidden">
-          <img
-            src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Clear-Vinyl-Interchangeable-1-1200-768x576.jpg"
-            alt="Clear Vinyl Plastic Porch Enclosures"
-            className="w-full h-auto object-cover"
-            loading="lazy"
-          />
-        </div>
-        <div className="rounded-lg overflow-hidden">
-          <img
-            src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/06/Interchangeable-Mosquito-Curtain-Clear-Vinyl-1-768x576.jpg"
-            alt="Winter Weather Panels"
-            className="w-full h-auto object-cover"
-            loading="lazy"
-          />
-        </div>
-        <div className="rounded-lg overflow-hidden">
-          <img
-            src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/06/Interchangeable-Mosquito-Curtain-Clear-Vinyl-2-768x576.jpg"
-            alt="Summer Insect Panels"
-            className="w-full h-auto object-cover"
-            loading="lazy"
-          />
-        </div>
-
         <FinalCTATemplate />
 
       </Stack>

@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowRight, Ruler, Scissors, Info, ShoppingCart, Play , Camera} from 'lucide-react'
+import { ArrowRight, Ruler, Scissors, Info, ShoppingCart, Play } from 'lucide-react'
 import {
   Container,
   Stack,
@@ -16,7 +16,7 @@ import {
   BulletedList,
   ListItem,
   YouTubeEmbed,
-HeaderBarSection} from '@/lib/design-system'
+} from '@/lib/design-system'
 import { FinalCTATemplate } from '@/lib/design-system/templates'
 import { VIDEOS } from '@/lib/constants/videos'
 
@@ -279,115 +279,6 @@ export default function RawNettingStorePage() {
         </section>
 
         {/* Final CTA */}
-        
-        {/* Photo Gallery */}
-        <HeaderBarSection icon={Camera} label="Fabric Store Gallery" variant="blue">
-          <Grid responsiveCols={{ mobile: 2, tablet: 2 }} gap="md">
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/08/Mosquito-Mesh-1600-1024x768.jpg"
-                  alt="Fabric Store"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/White-Sharks-tooth-Scrim-1200-768x576.jpg"
-                  alt="White Theatre scrim"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/08/See-All-Meshes-1600-768x576.jpg"
-                  alt="Fabric Store"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2025/05/camping-splash-page-min-1024x576.jpg"
-                  alt="Fabric Store"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-          </Grid>
-        </HeaderBarSection>
-
-        <HeaderBarSection icon={Info} label="Raw Netting Fabric Store" variant="green">
-          <Stack gap="md">
-              <Text className="text-gray-600">Giant rolls of raw netting custom-cut to your specifications. Incredibly strong with limitless applications.</Text>
-          </Stack>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="Multi-Purpose" variant="green">
-          <Stack gap="md">
-              <Text className="text-gray-600">We have different meshes to meet your exact specifications.</Text>
-              <Text className="text-gray-600">10% Off Sale until Feb 14th… Coupon = Midwinter26</Text>
-          </Stack>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="Raw  Mesh Netting Fabrics at a Glance" variant="green">
-          <TwoColumn gap="lg" className="items-center">
-            <Stack gap="md">
-              <Text className="text-gray-600">
-                We have several mesh net fabric types to choose from! Each of these raw netting meshes serve a particular purpose in our fabricated solutions. We sell them here in raw netting pieces cut by the linear foot from huge rolls to custom fit your needs. Scroll down to see and navigate to our different mesh net types.
-              </Text>
-            </Stack>
-            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/08/Mosquito-Mesh-1600-1024x768.jpg"
-                alt="Raw  Mesh Netting Fabrics at a Glance"
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </Frame>
-          </TwoColumn>
-        </HeaderBarSection>
-        <div className="rounded-lg overflow-hidden">
-          <img
-            src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/08/Noseeum-Mesh-1600.jpg"
-            alt="Heavy Mosquito Netting"
-            className="w-full h-auto object-cover"
-            loading="lazy"
-          />
-        </div>
-        <div className="rounded-lg overflow-hidden">
-          <img
-            src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/White-Sharks-tooth-Scrim-1200-768x576.jpg"
-            alt="White Theatre scrim"
-            className="w-full h-auto object-cover"
-            loading="lazy"
-          />
-        </div>
-        <HeaderBarSection icon={Info} label="Camping Net" variant="green">
-          <TwoColumn gap="lg" className="items-center">
-            <Stack gap="md">
-              <Text className="text-gray-600">
-                Check out our camping net page! Incredibly strong with limitless applications for camping.
-              </Text>
-            </Stack>
-            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2025/05/camping-splash-page-min-1024x576.jpg"
-                alt="Camping Net"
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </Frame>
-          </TwoColumn>
-        </HeaderBarSection>
-
         <FinalCTATemplate />
       </Stack>
     </Container>

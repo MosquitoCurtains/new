@@ -9,7 +9,7 @@ import {
   DollarSign,
   CheckCircle,
   Users,
-Camera, Info} from 'lucide-react'
+} from 'lucide-react'
 import { 
   Container, 
   Stack, 
@@ -24,7 +24,7 @@ import {
   FinalCTATemplate,
   HeaderBarSection,
   YouTubeEmbed,
-TwoColumn} from '@/lib/design-system'
+} from '@/lib/design-system'
 import { VIDEOS } from '@/lib/constants/videos'
 
 export default function ClearVinylDIYPage() {
@@ -210,87 +210,6 @@ export default function ClearVinylDIYPage() {
         </section>
 
         {/* Final CTA */}
-        
-        {/* Photo Gallery */}
-        <HeaderBarSection icon={Camera} label="Self-Install Advantages Gallery" variant="blue">
-          <Grid responsiveCols={{ mobile: 2, tablet: 2 }} gap="md">
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Quick-Clear-Vinyl-Panel-Installation-1920-1024x576.jpg"
-                  alt="Self-Install Advantages"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Snaps-and-L-Screws-768x432.jpg"
-                  alt="Self-Install Advantages"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Shade-Fabric-400x300-1.jpg"
-                  alt="Shade Fabric"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-          </Grid>
-        </HeaderBarSection>
-
-        <div className="rounded-lg overflow-hidden">
-          <img
-            src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Quick-Clear-Vinyl-Panel-Installation-1920-1024x576.jpg"
-            alt="(See Installation Page With Videos &amp; PDF’s)"
-            className="w-full h-auto object-cover"
-            loading="lazy"
-          />
-        </div>
-        <HeaderBarSection icon={Info} label="Self-Installation Has Advantages Beyond Cost Savings" variant="green">
-          <Stack gap="md">
-              <Text className="text-gray-600">You know how it works and can easily troubleshoot wind issues. You have more control!</Text>
-              <Text className="text-gray-600">It is about a 4 out of 10 for DIY skills (mostly because of a ladder). Folks take pride in their own accomplishment. You will too.</Text>
-              <Text className="text-gray-600">Other systems use hardware that make it so complicated to remove the panels, so no one removes them and they don’t LAST!</Text>
-              <Text className="text-gray-600">Most competitors charge a hefty fee to remove and re-hang their complicated design. We don’t see the value to you for that service.</Text>
-              <Text className="text-gray-600">Removal, cleaning & storage after pollen season takes about an hour for same 40ft application.</Text>
-              <Text className="text-gray-600">Can you handle a drill, a ladder, an install video, and perhaps a glass of wine?</Text>
-              <Text className="text-gray-600">Initial installation for a 40ft wide enclosure in about 4-6 hours.</Text>
-              <Text className="text-gray-600">Rehanging them in the fall takes about an hour.</Text>
-              <Text className="text-gray-600">Not into self-installation? Any handyman can handle this for you.</Text>
-          </Stack>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="Simple Components &amp; Usability" variant="green">
-          <TwoColumn gap="lg" className="items-center">
-            <Stack gap="md">
-              <Text className="text-gray-600">
-                One of our biggest focal points is the ease of installation and usability of your curtain. For simple installation, we use a series of versatile components like L screws and marine snaps to allow you to attach to different surfaces. Our zipper doorways allow you easy entry and exit between panels and at the edge of panels. The marine Snap Video is under 90 seconds. Watch it and you will understand most of what you need to know about how your curtains will operate.
-              </Text>
-            </Stack>
-            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Snaps-and-L-Screws-768x432.jpg"
-                alt="Simple Components &amp; Usability"
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </Frame>
-          </TwoColumn>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="DIY Plastic Enclosures" variant="green">
-          <Stack gap="md">
-              <Text className="text-gray-600">If the system design is simple enough DIY Plastic Enclosures are a great way to save cost. Do you really need or want someone to come out for estimates and installation that you will pay for? Seasonally, you will be removing and hanging these plastic enclosures anyways unless you want to pay more annual fees. Unless your project is such that it could be dangerous, take pride in the fact that this is could be your accomplishment with modest skills and consider doing it yourself!</Text>
-          </Stack>
-        </HeaderBarSection>
-
         <FinalCTATemplate />
 
       </Stack>

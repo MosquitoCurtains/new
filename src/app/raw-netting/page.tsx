@@ -10,7 +10,7 @@ import {
   Wrench,
   Scissors,
   Play,
-Camera, Info} from 'lucide-react'
+} from 'lucide-react'
 import { 
   Container, 
   Stack, 
@@ -26,7 +26,7 @@ import {
   HeaderBarSection,
   WhyChooseUsTemplate,
   YouTubeEmbed,
-TwoColumn} from '@/lib/design-system'
+} from '@/lib/design-system'
 import { RAW_NETTING_VIDEOS } from '@/lib/constants/videos'
 
 const NETTING_TYPES = [
@@ -228,140 +228,6 @@ export default function RawNettingPage() {
         </section>
 
         {/* Final CTA */}
-        
-        {/* Photo Gallery */}
-        <HeaderBarSection icon={Camera} label="Mosquito Netting Hub Gallery" variant="blue">
-          <Grid responsiveCols={{ mobile: 2, tablet: 3 }} gap="md">
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/11/Panel-Example-100x100.jpg"
-                  alt="Mosquito Netting Panels"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/12/NoSeeUm-Mesh-WooCommerce-100x100.jpg"
-                  alt="Mosquito Netting Hub"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/12/Heavy-Mosquito-Netting-WooCommerce-700x394.jpg"
-                  alt="Raw Heavy Mosquito Mesh"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/11/Mosquito-Netting-Mesh-Sold-in-Large-Sheets-768x432.jpg"
-                  alt="Mosquito Netting Hub"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/11/Strong-Mosquito-Netting-Mesh-768x432.jpg"
-                  alt="Mosquito Netting Hub"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2025/08/White-Boat-Netting-768x432.jpg"
-                  alt="Mosquito Netting Hub"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-          </Grid>
-        </HeaderBarSection>
-
-        <HeaderBarSection icon={Info} label="Our “Heavy” Mosquito Netting Fabric" variant="green">
-          <TwoColumn gap="lg" className="items-center">
-            <Stack gap="md">
-              <Text className="text-gray-600">
-                Heavy Mosquito Netting is our most popular and offers the best value and quality for the price! It also has the best airflow. This mosquito netting is incredibly strong unlike the other cheap meshes that you see elsewhere. Its rectangular pattern will stop even gnats & black flies. Our Heavy Mosquito Netting Mesh is our own durable recipe made to last.
-
-Incredibly Strong Netting
-
-Massive Rolls Sold by Foot
-
-Jumbo Sizes
-
-Why Us For Raw Netting
-
-Mesh Types Overview
-
-Rigging Ideas
-
-Strong Net
-
-Versatile Uses
-
-For Any Application
-
-10% Off Sale until Feb 14th… Coupon = Midwinter26
-
-Multi-PurposeLooking for a quality mesh fabric that will protect you from mosquitos and other insects? Perhaps your project is for a purpose other than insects. Our mesh netting fabric can do just that.
-
-100% Polyester Made To Get WetOur Mosquito Netting Fabric is 100% polyester made for outdoors and made to get wet.
-
-Sold by the Foot From Massive RollsCommon bolts of fabric are 54-60″ wide. OUR mesh fabric rolls are VERY WIDE from 100″ – 140″. Order by the linear foot from the respective roll. Use the order form to determine the cost.
-
-CA Fire RatedNetting Fabrics are CA fire rated (NFPA 701 small test).
-
-Will Not Unravel On EdgeOur unique mesh netting weave is a “lock stitch” such that it will not unravel when cut.
-
-Solution DyedNetting materials are solution dyed for maximum fade resistance.
-              </Text>
-            </Stack>
-            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/11/Mosquito-Netting-Mesh-Sold-in-Large-Sheets-768x432.jpg"
-                alt="Our “Heavy” Mosquito Netting Fabric"
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </Frame>
-          </TwoColumn>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="Heavy Mosquito Netting Specs Table" variant="green">
-          <TwoColumn gap="lg" className="items-center">
-            <Stack gap="md">
-              <Text className="text-gray-600">
-                Click table to enlarge.
-              </Text>
-            </Stack>
-            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2024/05/All-Mesh-Netting-Specifications-Table-New.jpg"
-                alt="Heavy Mosquito Netting Specs Table"
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </Frame>
-          </TwoColumn>
-        </HeaderBarSection>
-
         <FinalCTATemplate />
 
       </Stack>

@@ -14,7 +14,7 @@ import {
   Camera,
   Images,
   Star,
-Info} from 'lucide-react'
+} from 'lucide-react'
 import {
   Container,
   Stack,
@@ -29,7 +29,7 @@ import {
   PowerHeaderTemplate,
   BulletedList,
   ListItem,
-TwoColumn} from '@/lib/design-system'
+} from '@/lib/design-system'
 import { FinalCTATemplate } from '@/lib/design-system/templates'
 import type { PowerHeaderAction } from '@/lib/design-system/templates/PowerHeaderTemplate'
 import { VIDEOS, HARDWARE_VIDEOS } from '@/lib/constants/videos'
@@ -357,121 +357,6 @@ export default function OptionsPage() {
         {/* ================================================================
             FINAL CTA
             ================================================================ */}
-        
-        {/* Photo Gallery */}
-        <HeaderBarSection icon={Camera} label="Options Hub Gallery" variant="blue">
-          <Grid responsiveCols={{ mobile: 2, tablet: 2 }} gap="md">
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/Square-Mosquito-Netting-500x500.jpg"
-                  alt="Options Hub"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/Square-Noseeum-Mosquito-Netting-500x500.jpg"
-                  alt="Options Hub"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/Sqaure-Heavy-Shade-Mesh-Mosquito-Netting-500x500.jpg"
-                  alt="Options Hub"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-          </Grid>
-        </HeaderBarSection>
-
-        <HeaderBarSection icon={Info} label="1. Know Your Mesh Type &amp; Color" variant="green">
-          <TwoColumn gap="lg" className="items-center">
-            <Stack gap="md">
-              <Text className="text-gray-600">
-                Your project will be made up of a series of mesh panels made from a mesh type and color of your choosing. There are three mesh types and three colors to choose from. Over 90 percent of orders choose Black Heavy Mosquito Mesh. The first exception is our Noseeum mesh where “No-seeum” biting flies are a problem. The second exception is our Shade Mesh for those trying to create shade in their application. We also have a roll-up shade screen design you can view here. All Materials are a durable outdoor polyester, made to get wet and will not fade.
-
-Heavy Mosquito Mesh (90% Choose This in Black)
-
-Black
-
-White
-
-Ivory
-
-Noseeum Mesh 
-(For Tiny Biting Flies)
-
-Black
-
-White
-
-Shade Mesh  (For Shade & Projection)
-
-Black
-
-White
-              </Text>
-            </Stack>
-            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/Square-Mosquito-Netting-500x500.jpg"
-                alt="1. Know Your Mesh Type &amp; Color"
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </Frame>
-          </TwoColumn>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="Step 2. Two Top Attachment Options" variant="green">
-          <TwoColumn gap="lg" className="items-center">
-            <Stack gap="md">
-              <Text className="text-gray-600">
-                Tracking – slides side-to-side
-
-Velcro® (fixed) does NOT slide
-              </Text>
-            </Stack>
-            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Track-480-Optimized-1.gif"
-                alt="Outdoor curtain track"
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </Frame>
-          </TwoColumn>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="3. Understand Our Simple Attachment Hardware" variant="green">
-          <Stack gap="md">
-              <Text className="text-gray-600">One of our biggest focal points is the ease of installation and usability of your curtain. For simple installation, we use a series of versatile components like marine snaps to allow you to attach to different surfaces. Our magnetic doorways allow you easy entry and exit between panels and at the edge of panels. Each of these videos is under 90 seconds. Watch them and you will understand most of what you need to know about how your curtains will operate.</Text>
-          </Stack>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="Get Started Fast With a Real Person!" variant="green">
-          <Stack gap="md">
-              <Text className="text-gray-600">We are happy to help you plan your project with a quick planning session. For maximum speed and efficiency, photos of your space are extremely helpful. Click the buttons below to see photo guidelines. If you have a general question, call us at (770) 645-4745.</Text>
-              <BulletedList>
-                <li>Please provide 2-4 high resolution photos that show all complete sides of your project.</li>
-                <li>Step BACK and zoom OUT so we can see as much as possible. No close-ups.</li>
-                <li>Large file sizes – Small images do not provide enough resolution for planning sessions.</li>
-              </BulletedList>
-          </Stack>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="Quick Connect Form" variant="green">
-          <Stack gap="md">
-              <Text className="text-gray-600">Fill and a planner will connect to discuss your project!</Text>
-          </Stack>
-        </HeaderBarSection>
-
         <FinalCTATemplate />
 
       </Stack>

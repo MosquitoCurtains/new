@@ -23,7 +23,7 @@ import {
   MessageSquare,
   Zap,
   Target,
-Camera, Info} from 'lucide-react'
+} from 'lucide-react'
 
 import { 
   Container, 
@@ -52,7 +52,7 @@ import {
   WhoWeAreWhatWeDoTemplate,
   FinalCTATemplate,
   ProfessionalsCalloutTemplate,
-HeaderBarSection} from '@/lib/design-system'
+} from '@/lib/design-system'
 
 // ============================================================================
 // HOMEPAGE - Mosquito Curtains
@@ -455,128 +455,6 @@ export default function HomePage() {
         {/* ================================================================
             FINAL CTA - Using Template (edit in templates/FinalCTATemplate.tsx)
             ================================================================ */}
-        
-        {/* Photo Gallery */}
-        <HeaderBarSection icon={Camera} label="Homepage Gallery" variant="blue">
-          <Grid responsiveCols={{ mobile: 2, tablet: 2 }} gap="md">
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/00-Mosquito-Netting-Various-Projects-1200-768x576.jpg"
-                  alt="Bulk Mosquito Netting For Various Projects"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/00-Clear-Plastic-Winter-Panels-Porch-Gray-1200-768x576.jpg"
-                  alt="clear vinyl plastic winter enclosure panels"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/wide-net-1200-768x576.jpg"
-                  alt="Large mosquito netting"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/Garage-Screen-300x225.jpg"
-                  alt="Garage Screen Door"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-            <Card className="!p-0 overflow-hidden">
-              <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Shade-Fabric-400x300-1-300x225.jpg"
-                  alt="Shade Fabric"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </Frame>
-            </Card>
-          </Grid>
-        </HeaderBarSection>
-
-        <HeaderBarSection icon={Info} label="Screen Patio Enclosures &amp; Clear Vinyl Plastic Enclosures" variant="green">
-          <TwoColumn gap="lg" className="items-center">
-            <Stack gap="md">
-              <Text className="text-gray-600">
-                Tired of cheap quality products that don’t work? Custom-crafted enclosures made to fit. Made to LAST!We’re the Original with over 70,000 happy clients since 2004. If you want a crap product, call someone else!
-              </Text>
-            </Stack>
-            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/00-Mosquito-Netting-Various-Projects-1200-768x576.jpg"
-                alt="Bulk Mosquito Netting For Various Projects"
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </Frame>
-          </TwoColumn>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="Clear Vinyl Winter Panels" variant="green">
-          <TwoColumn gap="lg" className="items-center">
-            <Stack gap="md">
-              <Text className="text-gray-600">
-                Create a Warm, Cozy Outdoor Weatherproof Space Sheltered From the Wind, Rain & Cold With Easy Installation Kits. Google Reviews
-              </Text>
-            </Stack>
-            <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/wide-net-1200-768x576.jpg"
-                alt="Large mosquito netting"
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </Frame>
-          </TwoColumn>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="Are you a professional?" variant="green">
-          <Stack gap="md">
-              <Text className="text-gray-600">Find out how to use our modular system to add a new profit center to your business!</Text>
-          </Stack>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="Who We Are…" variant="green">
-          <Stack gap="md">
-              <Text className="text-gray-600">We are a small family business</Text>
-              <Text className="text-gray-600">Dedicated to quality and service</Text>
-              <Text className="text-gray-600">And making people happy</Text>
-              <Text className="text-gray-600">Just like the good old days</Text>
-              <Text className="text-gray-600">When humans answered the phone</Text>
-              <Text className="text-gray-600">And a promise was as good as gold!</Text>
-          </Stack>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="What We Do…" variant="green">
-          <Stack gap="md">
-              <Text className="text-gray-600">We custom-make Mosquito Curtains</Text>
-              <Text className="text-gray-600">With exceptional marine-grade quality</Text>
-              <Text className="text-gray-600">Offered at an affordable price</Text>
-              <Text className="text-gray-600">Delivered in 3-8 business days</Text>
-              <Text className="text-gray-600">That are easy-to-self-install</Text>
-              <Text className="text-gray-600">So you can enjoy family time outdoors!</Text>
-          </Stack>
-        </HeaderBarSection>
-        <HeaderBarSection icon={Info} label="Screen Patio Enclosure  Benefits" variant="green">
-          <Stack gap="md">
-              <Text className="text-gray-600">Are you sick of nasty mosquitoes hunting you and your family when you are trying to enjoy your porch or patio? Any area around your house with a covered roof can be converted into valuable outdoor living space or a screen porch with a mosquito netting curtain. A patio screen enclosure does much more than just add value to your home. Mosquito netting curtains add living space, enclose a gazebo, awning, houseboat, pergola, pontoon boat, porch, patio or anything with an overhead structure.</Text>
-          </Stack>
-        </HeaderBarSection>
-
         <FinalCTATemplate />
 
       </Stack>
