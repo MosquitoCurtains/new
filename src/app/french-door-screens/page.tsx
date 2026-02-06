@@ -105,7 +105,7 @@ export default function FrenchDoorScreensPage() {
         <HeaderBarSection icon={Settings} label="3 French Door Screen Options Explained" variant="dark">
           <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="lg">
             <Card variant="elevated" className="!p-6">
-              <YouTubeEmbed videoId="8yLxXvkSM7s" title="Tracking with Magnetic Doorway" variant="card" className="mb-4" />
+              <YouTubeEmbed videoId="FqNe9pDsZ8M" title="Tracking with Magnetic Doorway" variant="card" className="mb-4" />
               <Heading level={4} className="!mb-2">Option 1: Tracking With Magnetic Doorway</Heading>
               <Text className="text-sm text-gray-600 !mb-0">
                 Tracking is mounted to the underside of your header beam flush with the most exterior edge. 
@@ -113,7 +113,7 @@ export default function FrenchDoorScreensPage() {
               </Text>
             </Card>
             <Card variant="elevated" className="!p-6">
-              <YouTubeEmbed videoId="Z8xnPvdDWhs" title="Tracking with Stucco Strip" variant="card" className="mb-4" />
+              <YouTubeEmbed videoId="ZjxrDItgV8w" title="Tracking with Stucco Strip" variant="card" className="mb-4" />
               <Heading level={4} className="!mb-2">Option 2: Tracking With Stucco Strip</Heading>
               <Text className="text-sm text-gray-600 !mb-0">
                 Our favorite configuration with the doorway to one side for a seamless look. Main panel can 

@@ -9,6 +9,10 @@ import {
   Ruler,
   CheckCircle,
   HelpCircle,
+  Palette,
+  Layers,
+  DoorOpen,
+  ShoppingCart,
 } from 'lucide-react'
 import { 
   Container, 
@@ -18,7 +22,6 @@ import {
   Button, 
   Card,
   Heading,
-  Frame,
   BulletedList,
   ListItem,
   FinalCTATemplate,
@@ -146,7 +149,7 @@ export default function ProjectPlanningOverviewPage() {
             <Card className="!p-4 hover:shadow-md transition-shadow">
               <Link href="/plan/mesh-colors" className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Frame className="w-6 h-6 text-gray-600" />
+                  <Palette className="w-6 h-6 text-gray-600" />
                 </div>
                 <div>
                   <Heading level={5} className="!mb-1">Mesh Types & Colors</Heading>
@@ -158,7 +161,7 @@ export default function ProjectPlanningOverviewPage() {
             <Card className="!p-4 hover:shadow-md transition-shadow">
               <Link href="/plan/tracking" className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Frame className="w-6 h-6 text-gray-600" />
+                  <Layers className="w-6 h-6 text-gray-600" />
                 </div>
                 <div>
                   <Heading level={5} className="!mb-1">Tracking Systems</Heading>
@@ -170,7 +173,7 @@ export default function ProjectPlanningOverviewPage() {
             <Card className="!p-4 hover:shadow-md transition-shadow">
               <Link href="/plan/magnetic-doorways" className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Frame className="w-6 h-6 text-gray-600" />
+                  <DoorOpen className="w-6 h-6 text-gray-600" />
                 </div>
                 <div>
                   <Heading level={5} className="!mb-1">Magnetic Doorways</Heading>
@@ -182,7 +185,7 @@ export default function ProjectPlanningOverviewPage() {
             <Card className="!p-4 hover:shadow-md transition-shadow">
               <Link href="/plan/how-to-order" className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Frame className="w-6 h-6 text-gray-600" />
+                  <ShoppingCart className="w-6 h-6 text-gray-600" />
                 </div>
                 <div>
                   <Heading level={5} className="!mb-1">How to Order</Heading>

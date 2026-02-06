@@ -1,4 +1,5 @@
-import { Metadata } from 'next'
+'use client'
+
 import Link from 'next/link'
 import { Shield, Mail, Phone, Globe } from 'lucide-react'
 import {
@@ -12,11 +13,6 @@ import {
   ListItem,
   FinalCTATemplate,
 } from '@/lib/design-system'
-
-export const metadata: Metadata = {
-  title: 'Privacy Policy | Mosquito Curtains',
-  description: 'Privacy Policy for Mosquito Curtains. Learn how we collect, use, and protect your personal information.',
-}
 
 export default function PrivacyPolicyPage() {
   return (

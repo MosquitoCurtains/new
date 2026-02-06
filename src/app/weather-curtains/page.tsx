@@ -93,7 +93,7 @@ export default function WeatherCurtainsPage() {
         <PowerHeaderTemplate
           title="Outdoor Cold Weather Curtains"
           subtitle="Use Clear Vinyl Weather Curtains with Space Heater to Stay Warm. Custom made Weather Curtain Panels to Insulate Outdoor Space."
-          videoId="e7nP-iD3J9U"
+          videoId="ca6GufadXoE"
           videoTitle="Clear Vinyl Weather Curtains Overview"
           thumbnailUrl="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Clear-Vinyl-Video-Thumbnail.jpg"
           variant="compact"
@@ -250,7 +250,7 @@ export default function WeatherCurtainsPage() {
               </BulletedList>
             </Stack>
             <YouTubeEmbed
-              videoId="e7nP-iD3J9U"
+              videoId="ca6GufadXoE"
               title="Clear Vinyl Enclosures"
               variant="card"
               thumbnailUrl="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Clear-Vinyl-Video-Thumbnail.jpg"

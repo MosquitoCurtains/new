@@ -214,7 +214,7 @@ export default function CampingNetPage() {
             </Stack>
             <div className="bg-[#406517]/5 border-2 border-[#406517]/20 rounded-2xl p-8">
               <Text className="text-xl font-bold text-center mb-6">Available Sizes</Text>
-              <Grid responsiveCols={{ mobile: 2, tablet: 2 }} gap="4">
+              <Grid responsiveCols={{ mobile: 2, tablet: 2 }} className="gap-4">
                 <div className="text-center p-3 bg-white rounded-lg">
                   <Text className="font-semibold">10ft x 8ft</Text>
                 </div>

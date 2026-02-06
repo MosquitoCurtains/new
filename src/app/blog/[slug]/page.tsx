@@ -1,4 +1,6 @@
-import { notFound } from 'next/navigation'
+'use client'
+
+import { notFound, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { 
   ArrowLeft,
@@ -21,12 +23,9 @@ import {
 } from '@/lib/design-system'
 import { BLOG_POSTS, getPostBySlug } from '../blog-data'
 
-interface PageProps {
-  params: Promise<{ slug: string }>
-}
-
-export default async function BlogPostPage({ params }: PageProps) {
-  const { slug } = await params
+export default function BlogPostPage() {
+  const params = useParams()
+  const slug = params.slug as string
   const post = getPostBySlug(slug)
   
   if (!post) {
@@ -236,9 +235,3 @@ function formatContent(content: string): string {
     .join('\n')
 }
 
-// Generate static params for all blog posts
-export async function generateStaticParams() {
-  return BLOG_POSTS.map(post => ({
-    slug: post.slug,
-  }))
-}

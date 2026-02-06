@@ -1,4 +1,5 @@
-import { Metadata } from 'next'
+'use client'
+
 import Link from 'next/link'
 import { RotateCcw, Phone, Mail, Clock, MapPin, Heart, Shield, AlertCircle, ChevronRight } from 'lucide-react'
 import {
@@ -13,11 +14,6 @@ import {
   ListItem,
   FinalCTATemplate,
 } from '@/lib/design-system'
-
-export const metadata: Metadata = {
-  title: 'Returns Policy | Mosquito Curtains',
-  description: 'Returns policy for Mosquito Curtains. We accept returns within 6 weeks, no reason required.',
-}
 
 export default function ReturnsPage() {
   return (

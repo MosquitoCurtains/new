@@ -24,8 +24,8 @@ const CODE_EXAMPLE = `import { BulletedList, ListItem } from '@/lib/design-syste
 
 // Bullet list
 <BulletedList spacing="sm">
-  <ListItem variant="bullet">Item one</ListItem>
-  <ListItem variant="bullet">Item two</ListItem>
+  <ListItem variant="default">Item one</ListItem>
+  <ListItem variant="default">Item two</ListItem>
 </BulletedList>
 
 // With different icon colors (per brand)

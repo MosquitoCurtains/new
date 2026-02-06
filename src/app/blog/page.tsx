@@ -68,7 +68,7 @@ export default function BlogPage() {
         <HeaderBarSection icon={BookOpen} label="Featured Article" variant="dark">
           <Card variant="elevated" className="!p-0 overflow-hidden">
             <Link href={`/blog/${featuredPost.slug}`} className="block group">
-              <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="none">
+              <Grid responsiveCols={{ mobile: 1, tablet: 2 }} className="gap-0">
                 <Frame ratio="4/3" className="relative">
                   <img
                     src={featuredPost.image}

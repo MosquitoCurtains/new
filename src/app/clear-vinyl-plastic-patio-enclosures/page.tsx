@@ -12,6 +12,9 @@ import {
   TreePine,
   Tent,
   Building,
+  Play,
+  Calculator,
+  MessageSquare,
 } from 'lucide-react'
 import { 
   Container, 
@@ -56,9 +59,30 @@ const PROJECT_TYPES = [
 ]
 
 const CLEAR_VINYL_HERO_ACTIONS = [
-  { href: '/clear-vinyl-options', label: 'Discover Your Options', variant: 'primary' as const },
-  { href: '/clear-vinyl-instant-quote', label: 'Instant Price Calculator', variant: 'secondary' as const },
-  { href: '/contact', label: 'Contact Us With Photos', variant: 'outline' as const },
+  {
+    icon: Play,
+    title: 'Options',
+    description: 'Thickness, colors & accessories.',
+    href: '/clear-vinyl-options',
+    buttonText: 'Discover',
+    color: '#406517',
+  },
+  {
+    icon: Calculator,
+    title: 'Instant Quote',
+    description: 'Get an estimate within 5% of actual cost.',
+    href: '/start-project',
+    buttonText: 'Calculate',
+    color: '#003365',
+  },
+  {
+    icon: MessageSquare,
+    title: 'Contact',
+    description: 'Send photos for personalized help!',
+    href: '/contact',
+    buttonText: 'Contact',
+    color: '#B30158',
+  },
 ]
 
 export default function ClearVinylPage() {

@@ -133,7 +133,7 @@ export async function PATCH(request: NextRequest) {
 
     const { data, error } = await supabase
       .from('site_pages')
-      .update(updates)
+      .update(updates as never)
       .eq('id', id)
       .select()
       .single()
@@ -176,7 +176,7 @@ export async function POST(request: NextRequest) {
         migration_batch: migration_batch || null,
         migration_status: 'not_started',
         review_status: 'pending',
-      })
+      } as never)
       .select()
       .single()
 

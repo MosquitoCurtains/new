@@ -121,9 +121,9 @@ export default function IndustrialNettingPage() {
             <Text className="text-sm text-gray-600 mb-4">
               Stop physical objects like insects, falling hammers, or dust while still allowing air flow.
             </Text>
-            <BulletedList spacing="xs">
+            <BulletedList spacing="tight">
               {PHYSICAL_FILTER_EXAMPLES.map((example, idx) => (
-                <ListItem key={idx} variant="bullet"><span className="text-xs">{example}</span></ListItem>
+                <ListItem key={idx} variant="default"><span className="text-xs">{example}</span></ListItem>
               ))}
             </BulletedList>
           </Card>
@@ -136,9 +136,9 @@ export default function IndustrialNettingPage() {
             <Text className="text-sm text-gray-600 mb-4">
               For shade, projection mapping screens, and concealment applications.
             </Text>
-            <BulletedList spacing="xs">
+            <BulletedList spacing="tight">
               {OPTICAL_FILTER_EXAMPLES.map((example, idx) => (
-                <ListItem key={idx} variant="bullet"><span className="text-xs">{example}</span></ListItem>
+                <ListItem key={idx} variant="default"><span className="text-xs">{example}</span></ListItem>
               ))}
             </BulletedList>
           </Card>
@@ -151,9 +151,9 @@ export default function IndustrialNettingPage() {
             <Text className="text-sm text-gray-600 mb-4">
               When water must flow through a physical barrier to block unwanted objects.
             </Text>
-            <BulletedList spacing="xs">
+            <BulletedList spacing="tight">
               {HYDRO_FILTER_EXAMPLES.map((example, idx) => (
-                <ListItem key={idx} variant="bullet"><span className="text-xs">{example}</span></ListItem>
+                <ListItem key={idx} variant="default"><span className="text-xs">{example}</span></ListItem>
               ))}
             </BulletedList>
           </Card>

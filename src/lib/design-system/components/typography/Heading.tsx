@@ -5,7 +5,7 @@ import { cn } from '../shared-utils'
 
 interface HeadingProps extends React.HTMLAttributes<HTMLHeadingElement> {
   children: React.ReactNode
-  level?: 1 | 2 | 3 | 4
+  level?: 1 | 2 | 3 | 4 | 5 | 6
   className?: string
 }
 
@@ -15,21 +15,27 @@ export const Heading = React.forwardRef<HTMLHeadingElement, HeadingProps>(
       1: 'text-2xl md:text-5xl lg:text-6xl',      // Hero titles
       2: 'text-xl md:text-4xl lg:text-5xl',       // Section titles
       3: 'text-lg md:text-3xl lg:text-4xl',       // Subsection titles
-      4: 'text-lg md:text-2xl'      // Card titles
+      4: 'text-lg md:text-2xl',                   // Card titles
+      5: 'text-base md:text-lg',                  // Small headings
+      6: 'text-sm md:text-base'                   // Smallest headings
     }
     
     const margins = {
       1: 'mb-4 md:mb-6',
       2: 'mb-3 md:mb-4',
       3: 'mb-2 md:mb-3',
-      4: 'mb-2'
+      4: 'mb-2',
+      5: 'mb-1',
+      6: 'mb-1'
     }
     
     const weights = {
       1: 'font-bold',
       2: 'font-bold',
       3: 'font-bold',
-      4: '' // H4 is not bold
+      4: '',           // H4 is not bold
+      5: 'font-semibold',
+      6: 'font-semibold'
     }
     
     const baseClassName = cn(weights[level], sizes[level], margins[level], className)
@@ -58,6 +64,18 @@ export const Heading = React.forwardRef<HTMLHeadingElement, HeadingProps>(
           <h4 ref={ref} className={baseClassName} {...props}>
             {children}
           </h4>
+        )
+      case 5:
+        return (
+          <h5 ref={ref} className={baseClassName} {...props}>
+            {children}
+          </h5>
+        )
+      case 6:
+        return (
+          <h6 ref={ref} className={baseClassName} {...props}>
+            {children}
+          </h6>
         )
     }
   }
