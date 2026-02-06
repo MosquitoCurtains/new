@@ -10,7 +10,7 @@ import {
   Wrench,
   Scissors,
   Play,
-, Camera, Info} from 'lucide-react'
+Camera, Info} from 'lucide-react'
 import { 
   Container, 
   Stack, 
@@ -26,7 +26,7 @@ import {
   HeaderBarSection,
   WhyChooseUsTemplate,
   YouTubeEmbed,
-, TwoColumn} from '@/lib/design-system'
+TwoColumn} from '@/lib/design-system'
 import { RAW_NETTING_VIDEOS } from '@/lib/constants/videos'
 
 const NETTING_TYPES = [

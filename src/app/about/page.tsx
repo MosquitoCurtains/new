@@ -1,7 +1,7 @@
 'use client'
 
 import { SupportPageTemplate } from '@/lib/design-system/templates'
-import { Heart, Users, Award, Clock , Camera} from 'lucide-react'
+import { Heart, Users, Award, Clock, Camera, Info } from 'lucide-react'
 import { Text, Grid, Card, Heading, YouTubeEmbed, Stack , Frame, HeaderBarSection, TwoColumn} from '@/lib/design-system'
 import { VIDEOS } from '@/lib/constants/videos'
 import { ORDERS_SERVED_COUNT, ORDERS_SERVED_FORMATTED } from '@/lib/constants/orders-served'
@@ -64,7 +64,6 @@ const CONTENT_SECTIONS = [
           is solution-dyed so it won't fade, and our hardware is stainless steel or 
           powder-coated aluminum. We believe in quality that lasts.
         </Text>
-      </>
 
         {/* Photo Gallery */}
         <HeaderBarSection icon={Camera} label="About Us Gallery" variant="blue">
@@ -349,6 +348,7 @@ We knew there had to be a better way. I trekked off to the fabric store and boug
               <Text className="text-gray-600">In 2004, the stars had aligned where I wasn’t happy as an institutional bond salesman and was looking for a career change and we decided to go for it (Read Full Story: Bond Sales, Mosquito Curtains & A Rodeo Ghost). We found jumbo sized 144″ rolls and continued to make improvements in the quality of the materials, mounting techniques and our production process. Fifteen years later, we have 17 employees and are growing like a weed. In 2004, it took us 9 hours to make our first curtain. By developing a streamline process and adding automation, not only is the quality far better with perfect stitching, that same curtain is now produced in about 25 minutes.</Text>
           </Stack>
         </HeaderBarSection>
+      </>
     ),
   },
 ]

@@ -8,7 +8,7 @@ import {
   Sun,
   Snowflake,
   Shield,
-, Camera, Info} from 'lucide-react'
+Camera, Info} from 'lucide-react'
 import { 
   Container, 
   Stack, 
@@ -24,7 +24,7 @@ import {
   HeaderBarSection,
   PowerHeaderTemplate,
   MC_HERO_ACTIONS,
-, BulletedList} from '@/lib/design-system'
+BulletedList} from '@/lib/design-system'
 
 const GALLERY_IMAGES = [
   { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/30-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg', alt: 'Gazebo screen curtains' },

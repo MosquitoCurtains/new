@@ -8,7 +8,7 @@ import {
   Wrench,
   Sparkle,
   Shield,
-, Camera, Info} from 'lucide-react'
+Camera, Info} from 'lucide-react'
 import { 
   Container, 
   Stack, 
@@ -26,7 +26,7 @@ import {
   YouTubeEmbed,
   // MC Hero Actions - Edit in MCHeroActions.tsx
   MC_HERO_ACTIONS,
-, Card} from '@/lib/design-system'
+Card} from '@/lib/design-system'
 
 // Gallery images from WordPress
 const GALLERY_IMAGES = [

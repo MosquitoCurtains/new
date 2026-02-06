@@ -17,7 +17,7 @@ import {
   TreePine,
   Camera,
   DollarSign,
-, Info} from 'lucide-react'
+Info} from 'lucide-react'
 import { 
   Container, 
   Stack, 

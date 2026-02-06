@@ -14,7 +14,7 @@ import {
   Camera,
   Images,
   Star,
-, Info} from 'lucide-react'
+Info} from 'lucide-react'
 import {
   Container,
   Stack,
@@ -29,7 +29,7 @@ import {
   PowerHeaderTemplate,
   BulletedList,
   ListItem,
-, TwoColumn} from '@/lib/design-system'
+TwoColumn} from '@/lib/design-system'
 import { FinalCTATemplate } from '@/lib/design-system/templates'
 import type { PowerHeaderAction } from '@/lib/design-system/templates/PowerHeaderTemplate'
 import { VIDEOS, HARDWARE_VIDEOS } from '@/lib/constants/videos'

@@ -15,7 +15,7 @@ import {
   Play,
   Calculator,
   MessageSquare,
-, Camera, Info} from 'lucide-react'
+Camera, Info} from 'lucide-react'
 import { 
   Container, 
   Stack, 

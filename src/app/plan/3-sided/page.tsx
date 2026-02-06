@@ -8,7 +8,7 @@ import {
   Ruler,
   Camera,
   Users,
-, Info} from 'lucide-react'
+Info} from 'lucide-react'
 import { 
   Container, 
   Stack, 
@@ -23,7 +23,7 @@ import {
   FinalCTATemplate,
   HeaderBarSection,
   YouTubeEmbed,
-, TwoColumn} from '@/lib/design-system'
+TwoColumn} from '@/lib/design-system'
 
 export default function ThreeSidedPage() {
   return (

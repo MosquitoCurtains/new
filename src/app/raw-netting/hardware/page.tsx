@@ -7,7 +7,7 @@ import {
   Wrench,
   Circle,
   Square,
-, Camera, Info} from 'lucide-react'
+Camera, Info} from 'lucide-react'
 import { 
   Container, 
   Stack, 
@@ -21,7 +21,7 @@ import {
   ListItem,
   FinalCTATemplate,
   HeaderBarSection,
-, TwoColumn} from '@/lib/design-system'
+TwoColumn} from '@/lib/design-system'
 
 const HARDWARE_TYPES = [
   {

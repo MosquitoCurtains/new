@@ -16,7 +16,7 @@ import {
   BulletedList,
   ListItem,
   YouTubeEmbed,
-, HeaderBarSection} from '@/lib/design-system'
+HeaderBarSection} from '@/lib/design-system'
 import { FinalCTATemplate } from '@/lib/design-system/templates'
 import { VIDEOS } from '@/lib/constants/videos'
 

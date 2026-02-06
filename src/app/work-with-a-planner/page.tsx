@@ -11,6 +11,7 @@ import {
   MapPin,
   User,
   Clock,
+  Info,
 } from 'lucide-react'
 import { 
   Container, 
@@ -27,7 +28,7 @@ import {
   FinalCTATemplate,
   HeaderBarSection,
   YouTubeEmbed,
-, TwoColumn} from '@/lib/design-system'
+TwoColumn} from '@/lib/design-system'
 
 // Planning team members
 const PLANNING_TEAM = [

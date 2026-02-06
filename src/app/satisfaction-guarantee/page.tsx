@@ -1,7 +1,7 @@
 'use client'
 
 import { SupportPageTemplate } from '@/lib/design-system/templates'
-import { Shield, RefreshCw, AlertTriangle, CheckCircle , Camera} from 'lucide-react'
+import { Shield, RefreshCw, AlertTriangle, CheckCircle, Camera, Info } from 'lucide-react'
 import { Text, Grid, Card, Heading, BulletedList, ListItem , Frame, HeaderBarSection, Stack, TwoColumn} from '@/lib/design-system'
 import { ORDERS_SERVED_COUNT, ORDERS_SERVED_FORMATTED } from '@/lib/constants/orders-served'
 
@@ -106,7 +106,6 @@ const CONTENT_SECTIONS = [
             Double-polished marine-grade vinyl for clear panels
           </ListItem>
         </BulletedList>
-      </>
 
         {/* Photo Gallery */}
         <HeaderBarSection icon={Camera} label="Satisfaction Guarantee Gallery" variant="blue">
@@ -150,6 +149,7 @@ const CONTENT_SECTIONS = [
               <Text className="text-gray-600">At times, clients ask us for the names of clients in the neighborhood so that they can see the product, first hand. We politely refuse ALL such requests to protect the privacy of our good clients. We cannot afford background checks and we would rather miss the business than subject anyone to unforeseen risk, however remote. Read Privacy Policy.</Text>
           </Stack>
         </HeaderBarSection>
+      </>
     ),
   },
 ]

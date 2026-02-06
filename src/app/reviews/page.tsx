@@ -13,7 +13,7 @@ import {
   GoogleReviews,
   Frame,
   YouTubeEmbed,
-, HeaderBarSection, TwoColumn} from '@/lib/design-system'
+HeaderBarSection, TwoColumn} from '@/lib/design-system'
 import { VIDEOS } from '@/lib/constants/videos'
 import { FinalCTATemplate } from '@/lib/design-system/templates'
 import { ORDERS_SERVED_FORMATTED, ORDERS_SERVED_COUNT } from '@/lib/constants/orders-served'

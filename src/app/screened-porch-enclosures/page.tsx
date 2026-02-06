@@ -15,7 +15,7 @@ import {
   Umbrella,
   HelpCircle,
   Layers,
-, Info} from 'lucide-react'
+Info} from 'lucide-react'
 import { 
   Container, 
   Stack, 
@@ -30,7 +30,7 @@ import {
   HeaderBarSection,
   PowerHeaderTemplate,
   MC_HERO_ACTIONS,
-, TwoColumn} from '@/lib/design-system'
+TwoColumn} from '@/lib/design-system'
 
 // Project types grid - matches WordPress
 const PROJECT_TYPES = [

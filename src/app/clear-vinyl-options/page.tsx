@@ -17,7 +17,7 @@ import {
   DoorOpen,
   Wrench,
   Phone,
-, Info} from 'lucide-react'
+Info} from 'lucide-react'
 import {
   Container,
   Stack,

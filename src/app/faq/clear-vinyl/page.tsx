@@ -16,7 +16,7 @@ import {
   ArrowLeft,
   Award,
   Wind,
-, Camera} from 'lucide-react'
+Camera} from 'lucide-react'
 import {
   Container,
   Stack,
@@ -26,7 +26,7 @@ import {
   Button,
   HeaderBarSection,
   FinalCTATemplate,
-, Frame, Grid} from '@/lib/design-system'
+Frame, Grid} from '@/lib/design-system'
 
 // FAQ Data organized by category
 const FAQ_DATA = {

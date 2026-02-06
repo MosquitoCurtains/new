@@ -10,7 +10,7 @@ import {
   Phone,
   Package,
   Wrench,
-, Info} from 'lucide-react'
+Info} from 'lucide-react'
 import { 
   Container, 
   Stack, 
@@ -23,7 +23,7 @@ import {
   ListItem,
   FinalCTATemplate,
   HeaderBarSection,
-, Frame, TwoColumn} from '@/lib/design-system'
+Frame, TwoColumn} from '@/lib/design-system'
 
 const STEPS = [
   {

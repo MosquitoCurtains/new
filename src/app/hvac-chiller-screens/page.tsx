@@ -8,7 +8,7 @@ import {
   Factory,
   CheckCircle,
   Wrench,
-, Camera} from 'lucide-react'
+Camera} from 'lucide-react'
 import { 
   Container, 
   Stack, 
@@ -24,7 +24,7 @@ import {
   HeaderBarSection,
   PowerHeaderTemplate,
   MC_HERO_ACTIONS,
-, Card} from '@/lib/design-system'
+Card} from '@/lib/design-system'
 
 export default function HVACChillerScreensPage() {
   return (

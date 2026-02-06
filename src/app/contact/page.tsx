@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Phone, Mail, Clock, MapPin, Send, CheckCircle , Camera} from 'lucide-react'
+import { Phone, Mail, Clock, MapPin, Send, CheckCircle, Camera, Info } from 'lucide-react'
 import {
   Container,
   Stack,
@@ -12,7 +12,7 @@ import {
   Button,
   Input,
   Textarea,
-, Frame, HeaderBarSection, TwoColumn, BulletedList} from '@/lib/design-system'
+Frame, HeaderBarSection, TwoColumn, BulletedList} from '@/lib/design-system'
 
 export default function ContactPage() {
   const [formState, setFormState] = useState({

@@ -1,7 +1,7 @@
 'use client'
 
 import { SupportPageTemplate } from '@/lib/design-system/templates'
-import { Truck, Globe, MapPin, Clock } from 'lucide-react'
+import { Truck, Globe, MapPin, Clock, Info } from 'lucide-react'
 import { Text, Grid, Card, Heading, Frame , HeaderBarSection, Stack, TwoColumn, BulletedList} from '@/lib/design-system'
 
 const CONTENT_SECTIONS = [
@@ -81,9 +81,8 @@ const CONTENT_SECTIONS = [
           Use our <a href="/start-project" className="text-[#406517] hover:underline font-medium">instant quote calculator</a> to 
           estimate what your shipping cost will be depending on your order type and project dimensions.
         </Text>
-      </>
 
-        <HeaderBarSection icon={Info} label="Shipping &amp; Delivery Information" variant="green">
+        <HeaderBarSection icon={Info} label="Shipping & Delivery Information" variant="green">
           <Stack gap="md">
               <Text className="text-gray-600">AMERICAN ORDERSYour custom made curtain panels will ship out via UPS in 1-4 days from ATLANTA depending upon complexity. The map shows time in transit. Sometimes, we send USPS to Alaska and Hawaii as it often arrives faster. We do NOT require a signature. CANADIAN ORDERSTransit times are 3 days to Ontario and up to 7 days to BC. When you order, we will charge you GST/HST and then pay these taxes along with any brokerage fees on your behalf. The price estimator does not make these calculations, though they are what you would expect in your province. What you pay us is the LAST USD you will pay to receive your order. INTERNATIONAL ORDERSTransit times are generally 5 -14 business days and the carrier is determined based on cost as our actual shipping costs exceed what you will be charged. You will pay customs fees upon arrival. For international orders, we strongly encourage you to email us a digital photo prior to ordering so that we can ensure the accuracy of your order.</Text>
           </Stack>
@@ -105,6 +104,7 @@ const CONTENT_SECTIONS = [
               </BulletedList>
           </Stack>
         </HeaderBarSection>
+      </>
     ),
   },
 ]

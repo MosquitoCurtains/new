@@ -23,7 +23,7 @@ import {
   MessageSquare,
   Zap,
   Target,
-, Camera, Info} from 'lucide-react'
+Camera, Info} from 'lucide-react'
 
 import { 
   Container, 
@@ -52,7 +52,7 @@ import {
   WhoWeAreWhatWeDoTemplate,
   FinalCTATemplate,
   ProfessionalsCalloutTemplate,
-, HeaderBarSection} from '@/lib/design-system'
+HeaderBarSection} from '@/lib/design-system'
 
 // ============================================================================
 // HOMEPAGE - Mosquito Curtains

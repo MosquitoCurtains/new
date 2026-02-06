@@ -7,7 +7,9 @@ import {
   ThermometerSun,
   Shield,
   CheckCircle,
-, Camera} from 'lucide-react'
+  Camera,
+  Info,
+} from 'lucide-react'
 import { 
   Container, 
   Stack, 
@@ -24,7 +26,7 @@ import {
   WhyChooseUsTemplate,
   PowerHeaderTemplate,
   MC_HERO_ACTIONS,
-, TwoColumn} from '@/lib/design-system'
+TwoColumn} from '@/lib/design-system'
 
 export default function PorchWinterizePage() {
   return (

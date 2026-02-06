@@ -8,7 +8,7 @@ import {
   Wrench,
   Sparkle,
   Shield,
-, Camera, Info} from 'lucide-react'
+Camera, Info} from 'lucide-react'
 import { 
   Container, 
   Stack, 
@@ -25,7 +25,7 @@ import {
   PowerHeaderTemplate,
   YouTubeEmbed,
   MC_HERO_ACTIONS,
-, Card} from '@/lib/design-system'
+Card} from '@/lib/design-system'
 
 const GALLERY_IMAGES = [
   { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/21-Screen-Patio-Enclosure-1200-1024x768.jpg', alt: 'Screen patio enclosure' },

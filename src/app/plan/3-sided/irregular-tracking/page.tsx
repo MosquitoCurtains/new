@@ -8,7 +8,7 @@ import {
   AlertTriangle,
   Users,
   PlayCircle,
-, Camera, Info} from 'lucide-react'
+Camera, Info} from 'lucide-react'
 import { 
   Container, 
   Stack, 
@@ -23,7 +23,7 @@ import {
   FinalCTATemplate,
   HeaderBarSection,
   YouTubeEmbed,
-, TwoColumn} from '@/lib/design-system'
+TwoColumn} from '@/lib/design-system'
 
 export default function ThreeSidedIrregularTrackingPage() {
   return (

@@ -10,7 +10,7 @@ import {
   Sparkles,
   Award,
   ArrowRight,
-, Camera, Info} from 'lucide-react'
+Camera, Info} from 'lucide-react'
 import { 
   Container, 
   Stack, 
@@ -24,7 +24,7 @@ import {
   Card,
   Heading,
   YouTubeEmbed,
-, Frame, TwoColumn} from '@/lib/design-system'
+Frame, TwoColumn} from '@/lib/design-system'
 import { VIDEOS } from '@/lib/constants/videos'
 
 // Required skills

@@ -8,7 +8,7 @@ import {
   Snowflake,
   Home,
   TreePine,
-, Info} from 'lucide-react'
+Info} from 'lucide-react'
 import { 
   Container, 
   Stack, 
@@ -20,7 +20,7 @@ import {
   WhyChooseUsTemplate,
   FinalCTATemplate,
   HeaderBarSection,
-, Card, TwoColumn} from '@/lib/design-system'
+Card, TwoColumn} from '@/lib/design-system'
 
 // Photo galleries
 const GALLERY_SECTIONS = [

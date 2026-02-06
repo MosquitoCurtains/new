@@ -7,7 +7,7 @@ import {
   Anchor,
   Sailboat,
   Lightbulb,
-, Camera, Info} from 'lucide-react'
+Camera, Info} from 'lucide-react'
 import { 
   Container, 
   Stack, 
@@ -24,7 +24,7 @@ import {
   PowerHeaderTemplate,
   YouTubeEmbed,
   MC_HERO_ACTIONS,
-, BulletedList} from '@/lib/design-system'
+BulletedList} from '@/lib/design-system'
 
 const MESH_TYPES = [
   'Mosquito Mesh – Black / White / Ivory',
