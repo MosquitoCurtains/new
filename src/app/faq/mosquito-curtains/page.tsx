@@ -24,7 +24,9 @@ import {
   Button,
   HeaderBarSection,
   FinalCTATemplate,
+  YouTubeEmbed,
 } from '@/lib/design-system'
+import { VIDEOS } from '@/lib/constants/videos'
 
 // FAQ Data organized by category
 const FAQ_DATA = {
@@ -238,6 +240,21 @@ export default function MosquitoCurtainsFAQPage() {
             </HeaderBarSection>
           )
         })}
+
+        {/* FAQ Video */}
+        <section>
+          <Card variant="elevated" className="!p-6 md:!p-8">
+            <Stack gap="md" className="items-center text-center">
+              <Heading level={3} className="!mb-0">Watch Our FAQ Video</Heading>
+              <Text className="text-gray-600 max-w-2xl">
+                Get answers to the most common questions about mosquito curtains in this quick overview.
+              </Text>
+              <div className="w-full max-w-3xl">
+                <YouTubeEmbed videoId={VIDEOS.FAQ_OVERVIEW} title="Mosquito Curtains FAQ" variant="card" />
+              </div>
+            </Stack>
+          </Card>
+        </section>
 
         {/* Still have questions */}
         <Card className="p-8 bg-gray-50 text-center">

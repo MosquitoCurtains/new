@@ -21,7 +21,9 @@ import {
   FinalCTATemplate,
   HeaderBarSection,
   WhyChooseUsTemplate,
+  YouTubeEmbed,
 } from '@/lib/design-system'
+import { VIDEOS } from '@/lib/constants/videos'
 
 export default function TheaterScrimsPage() {
   return (
@@ -186,6 +188,20 @@ export default function TheaterScrimsPage() {
                 </Link>
               </Button>
             </Card>
+          </Grid>
+        </HeaderBarSection>
+
+        {/* Videos */}
+        <HeaderBarSection icon={Theater} label="Theater Scrim Videos" variant="dark">
+          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
+            <div>
+              <YouTubeEmbed videoId={VIDEOS.GARAGE_PROJECTION} title="Projection Screen / Home Theater" variant="card" />
+              <Text className="text-sm text-gray-500 mt-2 text-center">Projection Screen / Home Theater</Text>
+            </div>
+            <div>
+              <YouTubeEmbed videoId={VIDEOS.THEATER_SCRIM} title="Theater Scrim Demo" variant="card" />
+              <Text className="text-sm text-gray-500 mt-2 text-center">Theater Scrim Demo</Text>
+            </div>
           </Grid>
         </HeaderBarSection>
 

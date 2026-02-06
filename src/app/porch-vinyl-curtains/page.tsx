@@ -34,7 +34,7 @@ export default function PorchVinylCurtainsPage() {
         <PowerHeaderTemplate
           title="Porch Vinyl Curtains"
           subtitle="Heavy-duty clear vinyl curtains for your porch. Block wind, rain, and cold while maintaining your view. Custom-made to fit your space perfectly."
-          videoId="FqNe9pDsZ8M"
+          videoId="ca6GufadXoE"
           variant="compact"
           actions={MC_HERO_ACTIONS}
         />

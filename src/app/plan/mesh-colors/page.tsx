@@ -22,6 +22,8 @@ import {
   ListItem,
   FinalCTATemplate,
   HeaderBarSection,
+  YouTubeEmbed,
+  TwoColumn,
 } from '@/lib/design-system'
 
 const MESH_TYPES = [
@@ -78,6 +80,20 @@ export default function MeshColorsPage() {
           </Stack>
         </section>
 
+        {/* Mesh & Fabric Video */}
+        <HeaderBarSection icon={Bug} label="Understanding Our Mesh & Fabric Options" variant="dark">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Heading level={3}>Mesh Types Explained</Heading>
+              <Text className="text-gray-600">
+                Watch this overview of our different mesh and fabric options to understand 
+                which type is best for your specific insect and environmental needs.
+              </Text>
+            </Stack>
+            <YouTubeEmbed videoId="FsQUjeSYezM" title="Mesh & Fabric Options" variant="card" />
+          </TwoColumn>
+        </HeaderBarSection>
+
         {/* Mesh Types */}
         {MESH_TYPES.map((mesh) => {
           const Icon = mesh.icon
@@ -120,6 +136,20 @@ export default function MeshColorsPage() {
             </HeaderBarSection>
           )
         })}
+
+        {/* Color Options Video */}
+        <HeaderBarSection icon={Palette} label="Choosing Your Color" variant="dark">
+          <TwoColumn gap="lg" className="items-center">
+            <YouTubeEmbed videoId="G6qIngzJz5Y" title="Color Options Guide" variant="card" />
+            <Stack gap="md">
+              <Heading level={3}>Color Options Guide</Heading>
+              <Text className="text-gray-600">
+                See our mesh colors in real-world settings. This video walks through black, white, 
+                and ivory options so you can choose the best match for your home.
+              </Text>
+            </Stack>
+          </TwoColumn>
+        </HeaderBarSection>
 
         {/* Color Comparison */}
         <HeaderBarSection icon={Palette} label="Color Comparison" variant="dark">

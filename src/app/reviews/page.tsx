@@ -12,7 +12,9 @@ import {
   Grid,
   GoogleReviews,
   Frame,
+  YouTubeEmbed,
 } from '@/lib/design-system'
+import { VIDEOS } from '@/lib/constants/videos'
 import { FinalCTATemplate } from '@/lib/design-system/templates'
 import { ORDERS_SERVED_FORMATTED, ORDERS_SERVED_COUNT } from '@/lib/constants/orders-served'
 
@@ -135,6 +137,21 @@ export default function ReviewsPage() {
               </Card>
             ))}
           </Grid>
+        </section>
+
+        {/* Customer Video */}
+        <section>
+          <Card variant="elevated" className="!p-6 md:!p-8">
+            <Stack gap="md" className="items-center text-center">
+              <Heading level={3} className="!mb-0">Hear From Our Customers</Heading>
+              <Text className="text-gray-600 max-w-2xl">
+                Watch real customers share their experience with Mosquito Curtains.
+              </Text>
+              <div className="w-full max-w-3xl">
+                <YouTubeEmbed videoId={VIDEOS.CUSTOM_NETTING} title="Customer Testimonial" variant="card" />
+              </div>
+            </Stack>
+          </Card>
         </section>
 
         {/* Stats */}

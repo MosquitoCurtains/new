@@ -25,6 +25,7 @@ import {
   HeaderBarSection,
   YouTubeEmbed,
 } from '@/lib/design-system'
+import { VIDEOS } from '@/lib/constants/videos'
 
 export default function ClearVinylDIYPage() {
   return (
@@ -93,8 +94,8 @@ export default function ClearVinylDIYPage() {
         <HeaderBarSection icon={Wrench} label="How Easy Is Installation?" variant="dark">
           <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg" className="items-center">
             <YouTubeEmbed
-              videoId="FqNe9pDsZ8M"
-              title="Clear Vinyl Installation Guide"
+              videoId={VIDEOS.SELF_INSTALL_ADVANTAGES}
+              title="Self-Install Advantages"
               variant="card"
             />
             <Stack gap="md">
@@ -113,6 +114,15 @@ export default function ClearVinylDIYPage() {
               </Text>
             </Stack>
           </Grid>
+        </HeaderBarSection>
+
+        {/* Marine Snaps Video */}
+        <HeaderBarSection icon={Wrench} label="Marine Snaps in 90 Seconds" variant="dark">
+          <YouTubeEmbed
+            videoId={VIDEOS.MARINE_SNAPS_90_SEC}
+            title="Marine Snaps in under 90 Seconds"
+            variant="card"
+          />
         </HeaderBarSection>
 
         {/* Tools Needed */}

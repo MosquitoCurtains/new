@@ -84,7 +84,7 @@ export default function ClearVinylQuotePage() {
             </Stack>
 
             <YouTubeEmbed
-              videoId="FqNe9pDsZ8M"
+              videoId="ca6GufadXoE"
               title="Clear Vinyl Overview Video"
               variant="card"
             />
@@ -237,13 +237,11 @@ export default function ClearVinylQuotePage() {
                 <ListItem variant="checked" iconColor="#003365">100% satisfaction guarantee</ListItem>
               </BulletedList>
             </Stack>
-            <Frame ratio="4/3" className="rounded-2xl overflow-hidden">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Clear-Vinyl-Quality.jpg"
-                alt="Clear vinyl quality craftsmanship"
-                className="w-full h-full object-cover"
-              />
-            </Frame>
+            <YouTubeEmbed
+              videoId="KTrkT6DHm9k"
+              title="Clear Vinyl Construction"
+              variant="card"
+            />
           </Grid>
         </HeaderBarSection>
 

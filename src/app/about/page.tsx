@@ -2,7 +2,8 @@
 
 import { SupportPageTemplate } from '@/lib/design-system/templates'
 import { Heart, Users, Award, Clock } from 'lucide-react'
-import { Text, Grid, Card, Heading } from '@/lib/design-system'
+import { Text, Grid, Card, Heading, YouTubeEmbed, Stack } from '@/lib/design-system'
+import { VIDEOS } from '@/lib/constants/videos'
 import { ORDERS_SERVED_COUNT, ORDERS_SERVED_FORMATTED } from '@/lib/constants/orders-served'
 
 const CONTENT_SECTIONS = [
@@ -83,6 +84,22 @@ export default function AboutPage() {
       quickLinks={QUICK_LINKS}
       showContactInfo={true}
     >
+      {/* Company Video */}
+      <section className="mt-8">
+        <Card variant="elevated" className="!p-6 md:!p-8">
+          <Stack gap="md" className="items-center text-center">
+            <Heading level={3} className="!mb-0">See How We Work</Heading>
+            <Text className="text-gray-600 max-w-2xl">
+              Watch our team in action - from custom fabrication to quality control, 
+              every curtain is made with care right here in Atlanta.
+            </Text>
+            <div className="w-full max-w-3xl">
+              <YouTubeEmbed videoId={VIDEOS.COMPANY_OVERVIEW} title="About Mosquito Curtains" variant="card" />
+            </div>
+          </Stack>
+        </Card>
+      </section>
+
       {/* Stats Section */}
       <section className="mt-8">
         <Grid responsiveCols={{ mobile: 2, tablet: 4 }} gap="md">

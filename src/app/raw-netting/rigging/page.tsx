@@ -6,6 +6,7 @@ import {
   ArrowLeft,
   Wrench,
   Lightbulb,
+  Play,
 } from 'lucide-react'
 import { 
   Container, 
@@ -20,7 +21,9 @@ import {
   ListItem,
   FinalCTATemplate,
   HeaderBarSection,
+  YouTubeEmbed,
 } from '@/lib/design-system'
+import { VIDEOS } from '@/lib/constants/videos'
 
 const RIGGING_IDEAS = [
   {
@@ -154,6 +157,28 @@ export default function RiggingPage() {
             </BulletedList>
           </Grid>
         </Card>
+
+        {/* Videos */}
+        <HeaderBarSection icon={Play} label="Rigging & Installation Videos" variant="dark">
+          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
+            <div>
+              <YouTubeEmbed
+                videoId={VIDEOS.RAW_NETTING_DIY}
+                title="DIY Netting Projects"
+                variant="card"
+              />
+              <Text className="text-center mt-2 font-medium text-sm">DIY Netting Projects</Text>
+            </div>
+            <div>
+              <YouTubeEmbed
+                videoId={VIDEOS.NETTING_RIGGING}
+                title="Netting Rigging Techniques"
+                variant="card"
+              />
+              <Text className="text-center mt-2 font-medium text-sm">Netting Rigging Techniques</Text>
+            </div>
+          </Grid>
+        </HeaderBarSection>
 
         {/* CTA */}
         <section className="bg-gradient-to-br from-[#406517]/10 via-white to-[#003365]/10 rounded-3xl p-8 md:p-12 text-center">

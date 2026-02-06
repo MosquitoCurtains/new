@@ -32,6 +32,7 @@ import {
 } from '@/lib/design-system'
 import { FinalCTATemplate } from '@/lib/design-system/templates'
 import type { PowerHeaderAction } from '@/lib/design-system/templates/PowerHeaderTemplate'
+import { VIDEOS, HARDWARE_VIDEOS } from '@/lib/constants/videos'
 
 // =============================================================================
 // HERO ACTIONS - Matching start-project flow
@@ -92,11 +93,7 @@ const MESH_TYPES = [
   },
 ]
 
-const HARDWARE_VIDEOS = [
-  { id: '5dWUpGj6lYc', title: 'Marine Snaps in under 90 Seconds' },
-  { id: 'QaRUVjmJKEY', title: 'Magnetic Doorways in under 90 Seconds' },
-  { id: 'dbW9Xp3_InM', title: 'Stucco Strips in under 90 Seconds' },
-]
+// HARDWARE_VIDEOS imported from @/lib/constants/videos
 
 // =============================================================================
 // PAGE COMPONENT
@@ -113,7 +110,7 @@ export default function OptionsPage() {
         <PowerHeaderTemplate
           title="Discover Your Options"
           subtitle="This page gives you an overview of your options and a basic understanding of our simple attachment hardware. Use the sections below to learn about each topic."
-          videoId="cJY1209F5sE"
+          videoId={VIDEOS.SHORT_OVERVIEW}
           videoTitle="Mosquito Curtains Options Overview"
           variant="compact"
           actions={heroActions}

@@ -22,7 +22,9 @@ import {
   ListItem,
   FinalCTATemplate,
   HeaderBarSection,
+  YouTubeEmbed,
 } from '@/lib/design-system'
+import { VIDEOS } from '@/lib/constants/videos'
 
 export default function ContractorsPage() {
   return (
@@ -139,6 +141,35 @@ export default function ContractorsPage() {
               </Stack>
             </Grid>
           </Card>
+        </HeaderBarSection>
+
+        {/* Product Videos */}
+        <HeaderBarSection icon={CheckCircle} label="Product Videos" variant="dark">
+          <Text className="text-gray-600 mb-6">
+            Watch our product overview videos to understand the solutions we offer for your clients.
+          </Text>
+          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
+            <div>
+              <YouTubeEmbed videoId={VIDEOS.MOSQUITO_CURTAINS_OVERVIEW} title="Mosquito Curtains Overview" variant="card" />
+              <Text className="text-sm text-gray-500 mt-2 text-center">Mosquito Curtains Overview</Text>
+            </div>
+            <div>
+              <YouTubeEmbed videoId={VIDEOS.SHORT_OVERVIEW} title="Short Product Overview" variant="card" />
+              <Text className="text-sm text-gray-500 mt-2 text-center">Short Product Overview</Text>
+            </div>
+            <div>
+              <YouTubeEmbed videoId={VIDEOS.CUSTOM_NETTING} title="Custom Netting Orders" variant="card" />
+              <Text className="text-sm text-gray-500 mt-2 text-center">Custom Netting Orders</Text>
+            </div>
+            <div>
+              <YouTubeEmbed videoId={VIDEOS.CUSTOM_FITTED} title="Custom Fitted / Mesh Types" variant="card" />
+              <Text className="text-sm text-gray-500 mt-2 text-center">Custom Fitted / Mesh Types</Text>
+            </div>
+            <div>
+              <YouTubeEmbed videoId={VIDEOS.QUALITY_MATERIALS} title="Quality & Materials" variant="card" />
+              <Text className="text-sm text-gray-500 mt-2 text-center">Quality & Materials</Text>
+            </div>
+          </Grid>
         </HeaderBarSection>
 
         {/* CTA */}

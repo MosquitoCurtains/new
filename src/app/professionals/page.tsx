@@ -13,7 +13,9 @@ import {
   BulletedList,
   ListItem,
   TwoColumn,
+  YouTubeEmbed,
 } from '@/lib/design-system'
+import { VIDEOS } from '@/lib/constants/videos'
 import { FinalCTATemplate } from '@/lib/design-system/templates'
 
 export default function ProfessionalsPage() {
@@ -142,6 +144,32 @@ export default function ProfessionalsPage() {
               </TwoColumn>
             </div>
           </div>
+        </section>
+
+        {/* Product Videos for Professionals */}
+        <section>
+          <Heading level={2} className="text-center !mb-8">Product Overview Videos</Heading>
+          <Text className="text-gray-600 text-center max-w-2xl mx-auto mb-8">
+            Share these videos with your clients to help them understand our products.
+          </Text>
+          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
+            <div>
+              <YouTubeEmbed videoId={VIDEOS.PROFESSIONALS_OVERVIEW} title="Professionals Overview" variant="card" />
+              <Text className="text-sm text-gray-500 mt-2 text-center">Professionals Overview</Text>
+            </div>
+            <div>
+              <YouTubeEmbed videoId={VIDEOS.MOSQUITO_CURTAINS_OVERVIEW} title="Mosquito Curtains Overview" variant="card" />
+              <Text className="text-sm text-gray-500 mt-2 text-center">Mosquito Curtains Overview</Text>
+            </div>
+            <div>
+              <YouTubeEmbed videoId={VIDEOS.CLEAR_VINYL_OVERVIEW} title="Clear Vinyl Overview" variant="card" />
+              <Text className="text-sm text-gray-500 mt-2 text-center">Clear Vinyl Overview</Text>
+            </div>
+            <div>
+              <YouTubeEmbed videoId={VIDEOS.ROLL_UP_SHADE} title="Roll Up Shade Screens" variant="card" />
+              <Text className="text-sm text-gray-500 mt-2 text-center">Roll Up Shade Screens</Text>
+            </div>
+          </Grid>
         </section>
 
         {/* Testimonial */}

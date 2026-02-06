@@ -18,7 +18,9 @@ import {
   Frame,
   FinalCTATemplate,
   HeaderBarSection,
+  YouTubeEmbed,
 } from '@/lib/design-system'
+import { VIDEOS } from '@/lib/constants/videos'
 
 const APRON_COLORS = [
   { name: 'Black', hex: '#1a1a1a', description: 'Most popular. Classic look that complements most exteriors.' },
@@ -90,6 +92,22 @@ export default function ApronColorsPage() {
                 </li>
               </ul>
             </Stack>
+          </Grid>
+        </HeaderBarSection>
+
+        {/* Related Videos */}
+        <HeaderBarSection icon={Palette} label="Related Videos" variant="dark">
+          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
+            <YouTubeEmbed
+              videoId={VIDEOS.BOAT_NETTING}
+              title="Boat & Canvas Aprons"
+              variant="card"
+            />
+            <YouTubeEmbed
+              videoId={VIDEOS.CANVAS_APRONS}
+              title="Canvas Aprons for Clear Vinyl"
+              variant="card"
+            />
           </Grid>
         </HeaderBarSection>
 

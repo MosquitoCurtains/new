@@ -68,7 +68,7 @@ export default function BoatScreensPage() {
                 ))}
               </Card>
             </Stack>
-            <YouTubeEmbed videoId="WE2RuQfehiw" title="Pontoon Boat Netting" variant="card" />
+            <YouTubeEmbed videoId="qW51xUKK_LU" title="Pontoon Boat Netting" variant="card" />
           </TwoColumn>
         </HeaderBarSection>
 
@@ -146,7 +146,7 @@ export default function BoatScreensPage() {
 
         <HeaderBarSection icon={Lightbulb} label="Rig it Yourself – Less Expensive Approach" variant="dark">
           <TwoColumn gap="lg" className="items-center">
-            <YouTubeEmbed videoId="WE2RuQfehiw" title="Golf Ball Trick" variant="card" />
+            <YouTubeEmbed videoId="x4RAeh72h9o" title="Golf Ball Trick" variant="card" />
             <Stack gap="md">
               <Text className="text-gray-600">
                 Think of your boat net from a practical point of view. Likely, you aren't trying to win any 

@@ -23,7 +23,9 @@ import {
   ListItem,
   FinalCTATemplate,
   HeaderBarSection,
+  YouTubeEmbed,
 } from '@/lib/design-system'
+import { VIDEOS } from '@/lib/constants/videos'
 
 export default function ClearVinylQualityPage() {
   return (
@@ -51,6 +53,13 @@ export default function ClearVinylQualityPage() {
             </Text>
           </Stack>
         </section>
+
+        {/* Construction Video */}
+        <YouTubeEmbed
+          videoId={VIDEOS.CLEAR_VINYL_CONSTRUCTION}
+          title="Clear Vinyl Panel Construction"
+          variant="card"
+        />
 
         {/* The Vinyl */}
         <HeaderBarSection icon={Shield} label="Premium 30-Gauge Marine Vinyl" variant="dark">

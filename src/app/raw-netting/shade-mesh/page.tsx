@@ -7,6 +7,7 @@ import {
   Sun,
   Ruler,
   CheckCircle,
+  Play,
 } from 'lucide-react'
 import { 
   Container, 
@@ -21,7 +22,9 @@ import {
   ListItem,
   FinalCTATemplate,
   HeaderBarSection,
+  YouTubeEmbed,
 } from '@/lib/design-system'
+import { VIDEOS } from '@/lib/constants/videos'
 
 export default function ShadeMeshPage() {
   return (
@@ -145,6 +148,28 @@ export default function ShadeMeshPage() {
               <Heading level={5} className="!mb-1">Pool Areas</Heading>
               <Text className="text-xs text-gray-500 !mb-0">Privacy + shade</Text>
             </Card>
+          </Grid>
+        </HeaderBarSection>
+
+        {/* Videos */}
+        <HeaderBarSection icon={Play} label="Shade Mesh Videos" variant="dark">
+          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
+            <div>
+              <YouTubeEmbed
+                videoId={VIDEOS.RAW_NETTING}
+                title="Raw Netting Overview"
+                variant="card"
+              />
+              <Text className="text-center mt-2 font-medium text-sm">Raw Netting Overview</Text>
+            </div>
+            <div>
+              <YouTubeEmbed
+                videoId={VIDEOS.RAW_NETTING_FABRIC}
+                title="Raw Netting Fabric Types"
+                variant="card"
+              />
+              <Text className="text-center mt-2 font-medium text-sm">Raw Netting Fabric Types</Text>
+            </div>
           </Grid>
         </HeaderBarSection>
 

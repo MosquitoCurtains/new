@@ -19,7 +19,9 @@ import {
   BulletedList,
   ListItem,
   FinalCTATemplate,
+  YouTubeEmbed,
 } from '@/lib/design-system'
+import { VIDEOS } from '@/lib/constants/videos'
 
 export default function RedditMCQuotePage() {
   return (
@@ -64,6 +66,15 @@ export default function RedditMCQuotePage() {
             </div>
           </Stack>
         </section>
+
+        {/* ================================================================
+            OVERVIEW VIDEO
+            ================================================================ */}
+        <YouTubeEmbed
+          videoId={VIDEOS.MOSQUITO_CURTAINS_OVERVIEW}
+          title="Mosquito Curtains Overview"
+          variant="card"
+        />
 
         {/* ================================================================
             SOCIAL PROOF

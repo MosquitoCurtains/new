@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowRight, Ruler, Scissors, Info, ShoppingCart } from 'lucide-react'
+import { ArrowRight, Ruler, Scissors, Info, ShoppingCart, Play } from 'lucide-react'
 import {
   Container,
   Stack,
@@ -15,8 +15,10 @@ import {
   Badge,
   BulletedList,
   ListItem,
+  YouTubeEmbed,
 } from '@/lib/design-system'
 import { FinalCTATemplate } from '@/lib/design-system/templates'
+import { VIDEOS } from '@/lib/constants/videos'
 
 // Raw mesh products
 const RAW_PRODUCTS = [
@@ -81,6 +83,17 @@ export default function RawNettingStorePage() {
                 Same quality materials we use in our finished products.
               </p>
             </div>
+          </div>
+        </section>
+
+        {/* Video Overview */}
+        <section>
+          <div className="max-w-3xl mx-auto">
+            <YouTubeEmbed
+              videoId={VIDEOS.RAW_NETTING}
+              title="Raw Netting Overview"
+              variant="hero"
+            />
           </div>
         </section>
 

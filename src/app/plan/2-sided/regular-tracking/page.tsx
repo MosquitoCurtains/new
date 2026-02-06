@@ -6,6 +6,7 @@ import {
   ArrowLeft,
   SlidersHorizontal,
   CheckCircle,
+  PlayCircle,
 } from 'lucide-react'
 import { 
   Container, 
@@ -20,6 +21,7 @@ import {
   ListItem,
   FinalCTATemplate,
   HeaderBarSection,
+  YouTubeEmbed,
 } from '@/lib/design-system'
 
 export default function TwoSidedRegularTrackingPage() {
@@ -50,6 +52,28 @@ export default function TwoSidedRegularTrackingPage() {
             </Text>
           </Stack>
         </section>
+
+        {/* Layout Planning Video */}
+        <HeaderBarSection icon={PlayCircle} label="Layout Planning Overview" variant="dark">
+          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg" className="items-center">
+            <YouTubeEmbed
+              videoId="MDPYl7gN4Ec"
+              title="Layout Planning Overview"
+              variant="card"
+            />
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                Watch our layout planning overview to understand how to measure and plan 
+                your 2-sided regular tracking project for the best results.
+              </Text>
+              <BulletedList spacing="md">
+                <ListItem variant="checked" iconColor="#406517">How to measure each opening</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Planning your layout</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Choosing doorway locations</ListItem>
+              </BulletedList>
+            </Stack>
+          </Grid>
+        </HeaderBarSection>
 
         {/* What This Means */}
         <HeaderBarSection icon={CheckCircle} label="Your Configuration" variant="dark">

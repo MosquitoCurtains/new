@@ -6,6 +6,7 @@ import {
   ArrowLeft,
   Factory,
   CheckCircle,
+  Play,
 } from 'lucide-react'
 import { 
   Container, 
@@ -20,7 +21,9 @@ import {
   ListItem,
   FinalCTATemplate,
   HeaderBarSection,
+  YouTubeEmbed,
 } from '@/lib/design-system'
+import { VIDEOS } from '@/lib/constants/videos'
 
 export default function IndustrialMeshPage() {
   return (
@@ -115,6 +118,18 @@ export default function IndustrialMeshPage() {
             </Button>
           </div>
         </Card>
+
+        {/* Videos */}
+        <HeaderBarSection icon={Play} label="Industrial Netting Videos" variant="dark">
+          <div className="max-w-2xl mx-auto">
+            <YouTubeEmbed
+              videoId={VIDEOS.INDUSTRIAL_NETTING}
+              title="Industrial Netting"
+              variant="card"
+            />
+            <Text className="text-center mt-2 font-medium text-sm">Industrial Netting</Text>
+          </div>
+        </HeaderBarSection>
 
         {/* CTA */}
         <section className="bg-gradient-to-br from-[#406517]/10 via-white to-[#003365]/10 rounded-3xl p-8 md:p-12 text-center">

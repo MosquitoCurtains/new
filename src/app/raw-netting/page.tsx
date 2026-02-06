@@ -9,6 +9,7 @@ import {
   Theater,
   Wrench,
   Scissors,
+  Play,
 } from 'lucide-react'
 import { 
   Container, 
@@ -24,7 +25,9 @@ import {
   FinalCTATemplate,
   HeaderBarSection,
   WhyChooseUsTemplate,
+  YouTubeEmbed,
 } from '@/lib/design-system'
+import { RAW_NETTING_VIDEOS } from '@/lib/constants/videos'
 
 const NETTING_TYPES = [
   {
@@ -115,6 +118,29 @@ export default function RawNettingPage() {
               )
             })}
           </Grid>
+        </HeaderBarSection>
+
+        {/* Video Demonstrations */}
+        <HeaderBarSection icon={Play} label="Raw Netting Videos" variant="dark">
+          <Stack gap="lg">
+            <Text className="text-gray-600 text-center max-w-3xl mx-auto">
+              Watch our videos to learn about our raw netting products, materials, and how to use them for your projects.
+            </Text>
+            <Grid responsiveCols={{ mobile: 1, tablet: 2, desktop: 3 }} gap="lg">
+              {RAW_NETTING_VIDEOS.map((video) => (
+                <div key={video.id}>
+                  <YouTubeEmbed
+                    videoId={video.id}
+                    title={video.title}
+                    variant="card"
+                  />
+                  <Text className="text-center mt-2 font-medium text-sm">
+                    {video.title}
+                  </Text>
+                </div>
+              ))}
+            </Grid>
+          </Stack>
         </HeaderBarSection>
 
         {/* Why Buy From Us */}

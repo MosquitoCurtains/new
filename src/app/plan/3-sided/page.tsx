@@ -105,8 +105,8 @@ export default function ThreeSidedPage() {
         <HeaderBarSection icon={Ruler} label="Planning Your 3-Sided Project" variant="dark">
           <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg" className="items-center">
             <YouTubeEmbed
-              videoId="FqNe9pDsZ8M"
-              title="3-Sided Planning Guide"
+              videoId="Y5hh50u3trQ"
+              title="3-Sided Exposure Overview"
               variant="card"
             />
             <Stack gap="md">

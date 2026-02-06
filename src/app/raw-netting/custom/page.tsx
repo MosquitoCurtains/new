@@ -7,6 +7,7 @@ import {
   Scissors,
   CheckCircle,
   Wrench,
+  Play,
 } from 'lucide-react'
 import { 
   Container, 
@@ -21,7 +22,9 @@ import {
   ListItem,
   FinalCTATemplate,
   HeaderBarSection,
+  YouTubeEmbed,
 } from '@/lib/design-system'
+import { VIDEOS } from '@/lib/constants/videos'
 
 export default function CustomNettingPage() {
   return (
@@ -158,6 +161,49 @@ export default function CustomNettingPage() {
             </Stack>
           </Grid>
         </Card>
+
+        {/* Videos */}
+        <HeaderBarSection icon={Play} label="Helpful Videos" variant="dark">
+          <Stack gap="lg">
+            <Text className="text-gray-600 text-center max-w-3xl mx-auto">
+              Watch our videos to learn about our products, custom fitting process, and quality materials.
+            </Text>
+            <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
+              <div>
+                <YouTubeEmbed
+                  videoId={VIDEOS.MOSQUITO_CURTAINS_OVERVIEW}
+                  title="Mosquito Curtains Overview"
+                  variant="card"
+                />
+                <Text className="text-center mt-2 font-medium text-sm">Mosquito Curtains Overview</Text>
+              </div>
+              <div>
+                <YouTubeEmbed
+                  videoId={VIDEOS.CUSTOM_NETTING}
+                  title="Custom Netting Orders"
+                  variant="card"
+                />
+                <Text className="text-center mt-2 font-medium text-sm">Custom Netting Orders</Text>
+              </div>
+              <div>
+                <YouTubeEmbed
+                  videoId={VIDEOS.CUSTOM_FITTED}
+                  title="Custom Fitted Mesh Types"
+                  variant="card"
+                />
+                <Text className="text-center mt-2 font-medium text-sm">Custom Fitted Mesh Types</Text>
+              </div>
+              <div>
+                <YouTubeEmbed
+                  videoId={VIDEOS.QUALITY_MATERIALS}
+                  title="Quality Materials"
+                  variant="card"
+                />
+                <Text className="text-center mt-2 font-medium text-sm">Quality Materials</Text>
+              </div>
+            </Grid>
+          </Stack>
+        </HeaderBarSection>
 
         {/* CTA */}
         <section className="bg-gradient-to-br from-[#406517]/10 via-white to-[#003365]/10 rounded-3xl p-8 md:p-12 text-center">

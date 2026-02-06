@@ -6,6 +6,7 @@ import {
   ArrowLeft,
   Theater,
   Lightbulb,
+  Play,
 } from 'lucide-react'
 import { 
   Container, 
@@ -20,7 +21,9 @@ import {
   ListItem,
   FinalCTATemplate,
   HeaderBarSection,
+  YouTubeEmbed,
 } from '@/lib/design-system'
+import { VIDEOS } from '@/lib/constants/videos'
 
 export default function ScrimPage() {
   return (
@@ -129,6 +132,28 @@ export default function ScrimPage() {
             Black is most common for theatrical use. Contact us for color availability.
           </Text>
         </Card>
+
+        {/* Videos */}
+        <HeaderBarSection icon={Play} label="Related Videos" variant="dark">
+          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
+            <div>
+              <YouTubeEmbed
+                videoId={VIDEOS.RAW_NETTING}
+                title="Raw Netting Overview"
+                variant="card"
+              />
+              <Text className="text-center mt-2 font-medium text-sm">Raw Netting Overview</Text>
+            </div>
+            <div>
+              <YouTubeEmbed
+                videoId={VIDEOS.RAW_NETTING_FABRIC}
+                title="Raw Netting Fabric Types"
+                variant="card"
+              />
+              <Text className="text-center mt-2 font-medium text-sm">Raw Netting Fabric Types</Text>
+            </div>
+          </Grid>
+        </HeaderBarSection>
 
         {/* CTA */}
         <section className="bg-gradient-to-br from-[#8B5CF6]/10 via-white to-[#003365]/10 rounded-3xl p-8 md:p-12 text-center">

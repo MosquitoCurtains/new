@@ -23,7 +23,9 @@ import {
   HeaderBarSection,
   Card,
   Heading,
+  YouTubeEmbed,
 } from '@/lib/design-system'
+import { VIDEOS } from '@/lib/constants/videos'
 
 // Required skills
 const REQUIRED_SKILLS = [
@@ -160,6 +162,22 @@ export default function OpportunitiesPage() {
                 </a>
               </Button>
             </div>
+          </Card>
+        </HeaderBarSection>
+
+        {/* ================================================================
+            COMPANY VIDEO
+            ================================================================ */}
+        <HeaderBarSection icon={Sparkles} label="See Who We Are" variant="dark">
+          <Card className="p-6">
+            <Stack gap="md" className="items-center text-center">
+              <Text className="text-gray-600 max-w-2xl">
+                Watch this video to learn more about our company and what it's like to work here.
+              </Text>
+              <div className="w-full max-w-3xl">
+                <YouTubeEmbed videoId={VIDEOS.COMPANY_OVERVIEW} title="Mosquito Curtains Company Overview" variant="card" />
+              </div>
+            </Stack>
           </Card>
         </HeaderBarSection>
 

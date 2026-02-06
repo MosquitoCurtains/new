@@ -6,6 +6,7 @@ import {
   ArrowLeft,
   SlidersHorizontal,
   CheckCircle,
+  Play,
 } from 'lucide-react'
 import { 
   Container, 
@@ -22,6 +23,7 @@ import {
   HeaderBarSection,
   YouTubeEmbed,
 } from '@/lib/design-system'
+import { VIDEOS, TRACKING_VIDEOS } from '@/lib/constants/videos'
 
 export default function TrackingPage() {
   return (
@@ -54,7 +56,7 @@ export default function TrackingPage() {
         <HeaderBarSection icon={SlidersHorizontal} label="How Tracking Works" variant="dark">
           <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg" className="items-center">
             <YouTubeEmbed
-              videoId="FqNe9pDsZ8M"
+              videoId={VIDEOS.TRACKING_OVERVIEW}
               title="Tracking System Overview"
               variant="card"
             />
@@ -137,6 +139,30 @@ export default function TrackingPage() {
               </Text>
             </Card>
           </Grid>
+        </HeaderBarSection>
+
+        {/* Tracking Video Demos */}
+        <HeaderBarSection icon={Play} label="Tracking System Video Demonstrations" variant="dark">
+          <Stack gap="lg">
+            <Text className="text-gray-600 text-center max-w-3xl mx-auto">
+              Watch these videos to see how our tracking system works, installation tips, 
+              and the different tracking options available for your project.
+            </Text>
+            <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
+              {TRACKING_VIDEOS.map((video) => (
+                <div key={video.id}>
+                  <YouTubeEmbed
+                    videoId={video.id}
+                    title={video.title}
+                    variant="card"
+                  />
+                  <Text className="text-center mt-2 font-medium text-sm">
+                    {video.title}
+                  </Text>
+                </div>
+              ))}
+            </Grid>
+          </Stack>
         </HeaderBarSection>
 
         {/* CTA */}

@@ -35,7 +35,7 @@ export default function InsulatedCurtainPanelsPage() {
         <PowerHeaderTemplate
           title="Insulated Curtain Panels"
           subtitle="Looking for insulated outdoor panels? Our clear vinyl enclosures provide excellent weather protection for your porch or patio."
-          videoId="FqNe9pDsZ8M"
+          videoId="ca6GufadXoE"
           variant="compact"
           actions={MC_HERO_ACTIONS}
         />

@@ -34,7 +34,7 @@ export default function PorchVinylPanelsPage() {
         <PowerHeaderTemplate
           title="Porch Vinyl Panels"
           subtitle="Custom clear vinyl panels for your porch. Weather protection that doesn't block your view. Marine-grade quality built to last."
-          videoId="FqNe9pDsZ8M"
+          videoId="ca6GufadXoE"
           variant="compact"
           actions={MC_HERO_ACTIONS}
         />

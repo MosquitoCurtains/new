@@ -221,6 +221,22 @@ export default function ClearVinylPage() {
           </Stack>
         </HeaderBarSection>
 
+        <HeaderBarSection icon={Layers} label="See Our Products In Action" variant="dark">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Heading level={3}>Versatile Outdoor Solutions</Heading>
+              <Text className="text-gray-600">
+                Our clear vinyl panels work beautifully on boats, porches, and patios. 
+                See how our canvas and netting products protect outdoor spaces in all conditions.
+              </Text>
+              <Button variant="outline" asChild>
+                <Link href="/start-project">Get Your Custom Quote<ArrowRight className="ml-2 w-4 h-4" /></Link>
+              </Button>
+            </Stack>
+            <YouTubeEmbed videoId="WE2RuQfehiw" title="Boat & Canvas Netting Solutions" variant="card" />
+          </TwoColumn>
+        </HeaderBarSection>
+
         <HeaderBarSection icon={Home} label="We Do All Types Of Enclosures - Residential & Commercial" variant="dark">
           <Grid responsiveCols={{ mobile: 2, tablet: 3, desktop: 6 }} gap="md">
             {PROJECT_TYPES.map((type) => (

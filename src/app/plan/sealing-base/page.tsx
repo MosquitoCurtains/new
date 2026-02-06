@@ -22,6 +22,7 @@ import {
   HeaderBarSection,
   YouTubeEmbed,
 } from '@/lib/design-system'
+import { VIDEOS } from '@/lib/constants/videos'
 
 const SEALING_OPTIONS = [
   {
@@ -74,14 +75,21 @@ export default function SealingBasePage() {
           </Stack>
         </section>
 
-        {/* Overview Video */}
+        {/* Overview Videos */}
         <HeaderBarSection icon={Layers} label="Base Sealing Options" variant="dark">
-          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg" className="items-center">
-            <YouTubeEmbed
-              videoId="FqNe9pDsZ8M"
-              title="Base Sealing Overview"
-              variant="card"
-            />
+          <Stack gap="lg">
+            <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
+              <YouTubeEmbed
+                videoId={VIDEOS.BASE_SEALING_1}
+                title="Base Sealing Overview"
+                variant="card"
+              />
+              <YouTubeEmbed
+                videoId={VIDEOS.BASE_SEALING_2}
+                title="Base Sealing Details"
+                variant="card"
+              />
+            </Grid>
             <Stack gap="md">
               <Text className="text-gray-600">
                 How you seal the base depends on your setup. Most customers choose the weighted hem 
@@ -94,7 +102,7 @@ export default function SealingBasePage() {
                 <ListItem variant="checked" iconColor="#406517">Your planner can help you decide</ListItem>
               </BulletedList>
             </Stack>
-          </Grid>
+          </Stack>
         </HeaderBarSection>
 
         {/* Sealing Options */}

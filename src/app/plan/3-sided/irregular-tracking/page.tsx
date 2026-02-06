@@ -7,6 +7,7 @@ import {
   SlidersHorizontal,
   AlertTriangle,
   Users,
+  PlayCircle,
 } from 'lucide-react'
 import { 
   Container, 
@@ -21,6 +22,7 @@ import {
   ListItem,
   FinalCTATemplate,
   HeaderBarSection,
+  YouTubeEmbed,
 } from '@/lib/design-system'
 
 export default function ThreeSidedIrregularTrackingPage() {
@@ -51,6 +53,28 @@ export default function ThreeSidedIrregularTrackingPage() {
             </Text>
           </Stack>
         </section>
+
+        {/* Layout Planning Video */}
+        <HeaderBarSection icon={PlayCircle} label="Layout Planning Overview" variant="dark">
+          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg" className="items-center">
+            <YouTubeEmbed
+              videoId="MDPYl7gN4Ec"
+              title="Layout Planning Overview"
+              variant="card"
+            />
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                Watch our layout planning overview to understand how to measure and plan 
+                your irregular-shaped 3-sided tracking project.
+              </Text>
+              <BulletedList spacing="md">
+                <ListItem variant="checked" iconColor="#003365">How to measure irregular openings</ListItem>
+                <ListItem variant="checked" iconColor="#003365">Planning your 3-sided layout</ListItem>
+                <ListItem variant="checked" iconColor="#003365">Working with arches and angles</ListItem>
+              </BulletedList>
+            </Stack>
+          </Grid>
+        </HeaderBarSection>
 
         {/* What This Means */}
         <HeaderBarSection icon={AlertTriangle} label="Your Configuration" variant="dark">

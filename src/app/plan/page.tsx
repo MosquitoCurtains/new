@@ -21,10 +21,12 @@ import {
   Card,
   Heading,
   Frame,
+  YouTubeEmbed,
   WhyChooseUsTemplate,
   FinalCTATemplate,
   HeaderBarSection,
 } from '@/lib/design-system'
+import { VIDEOS } from '@/lib/constants/videos'
 
 // Exposure types
 const EXPOSURE_TYPES = [
@@ -128,6 +130,15 @@ export default function PlanPage() {
                   Skip - Work With A Planner
                 </Link>
               </Button>
+            </div>
+
+            {/* Overview Video */}
+            <div className="max-w-2xl mx-auto pt-4">
+              <YouTubeEmbed
+                videoId={VIDEOS.SHORT_OVERVIEW}
+                title="Mosquito Curtains Overview"
+                variant="card"
+              />
             </div>
           </Stack>
         </section>

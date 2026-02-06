@@ -35,7 +35,7 @@ export default function PatioWinterizePage() {
         <PowerHeaderTemplate
           title="Winterize Your Patio"
           subtitle="Transform your covered patio into year-round living space with clear vinyl enclosures. Block the cold while keeping the view."
-          videoId="FqNe9pDsZ8M"
+          videoId="ca6GufadXoE"
           variant="compact"
           actions={MC_HERO_ACTIONS}
         />

@@ -22,6 +22,7 @@ import {
   HeaderBarSection,
   YouTubeEmbed,
 } from '@/lib/design-system'
+import { VIDEOS, HARDWARE_VIDEOS } from '@/lib/constants/videos'
 
 export default function MagneticDoorwaysPage() {
   return (
@@ -54,8 +55,8 @@ export default function MagneticDoorwaysPage() {
         <HeaderBarSection icon={Magnet} label="How Magnetic Doorways Work" variant="dark">
           <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg" className="items-center">
             <YouTubeEmbed
-              videoId="FqNe9pDsZ8M"
-              title="Magnetic Doorway Overview"
+              videoId={VIDEOS.MAGNETIC_DOORWAYS_90_SEC}
+              title="Magnetic Doorways in under 90 Seconds"
               variant="card"
             />
             <Stack gap="md">
@@ -72,6 +73,42 @@ export default function MagneticDoorwaysPage() {
               </BulletedList>
             </Stack>
           </Grid>
+        </HeaderBarSection>
+
+        {/* Hardware Demo Videos */}
+        <HeaderBarSection icon={DoorOpen} label="Hardware Demo Videos" variant="dark">
+          <Stack gap="lg">
+            <Text className="text-gray-600 text-center max-w-3xl mx-auto">
+              Watch these short videos to understand how our attachment hardware works. 
+              Each video is under 90 seconds.
+            </Text>
+            <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="lg">
+              {HARDWARE_VIDEOS.map((video) => (
+                <div key={video.id}>
+                  <YouTubeEmbed
+                    videoId={video.id}
+                    title={video.title}
+                    variant="card"
+                  />
+                  <Text className="text-center mt-2 font-medium text-sm">
+                    {video.title}
+                  </Text>
+                </div>
+              ))}
+            </Grid>
+            <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
+              <YouTubeEmbed
+                videoId={VIDEOS.BASE_SEALING_1}
+                title="Base Sealing Overview"
+                variant="card"
+              />
+              <YouTubeEmbed
+                videoId={VIDEOS.BASE_SEALING_2}
+                title="Base Sealing Details"
+                variant="card"
+              />
+            </Grid>
+          </Stack>
         </HeaderBarSection>
 
         {/* Doorway Options */}

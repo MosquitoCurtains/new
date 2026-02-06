@@ -7,6 +7,7 @@ import {
   Bug,
   Ruler,
   CheckCircle,
+  Play,
 } from 'lucide-react'
 import { 
   Container, 
@@ -21,7 +22,9 @@ import {
   ListItem,
   FinalCTATemplate,
   HeaderBarSection,
+  YouTubeEmbed,
 } from '@/lib/design-system'
+import { VIDEOS } from '@/lib/constants/videos'
 
 export default function MosquitoNetPage() {
   return (
@@ -150,6 +153,28 @@ export default function MosquitoNetPage() {
               <Heading level={5} className="!mb-1">Event Tents</Heading>
               <Text className="text-xs text-gray-500 !mb-0">Temporary enclosures</Text>
             </Card>
+          </Grid>
+        </HeaderBarSection>
+
+        {/* Videos */}
+        <HeaderBarSection icon={Play} label="Mosquito Netting Videos" variant="dark">
+          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
+            <div>
+              <YouTubeEmbed
+                videoId={VIDEOS.MOSQUITO_NETTING_FABRIC}
+                title="Mosquito Netting Fabric"
+                variant="card"
+              />
+              <Text className="text-center mt-2 font-medium text-sm">Mosquito Netting Fabric</Text>
+            </div>
+            <div>
+              <YouTubeEmbed
+                videoId={VIDEOS.RAW_NETTING_FABRIC}
+                title="Raw Netting Fabric Types"
+                variant="card"
+              />
+              <Text className="text-center mt-2 font-medium text-sm">Raw Netting Fabric Types</Text>
+            </div>
           </Grid>
         </HeaderBarSection>
 

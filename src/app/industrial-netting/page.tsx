@@ -71,9 +71,8 @@ export default function IndustrialNettingPage() {
         <PowerHeaderTemplate
           title="Industrial Netting Solutions"
           subtitle="If you can imagine it, we can probably make it! Custom netting solutions for industry."
-          videoId="FqNe9pDsZ8M"
-          videoTitle="Mosquito Curtains Overview"
-          thumbnailUrl="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Mosquito-Netting-Curtains-Video-Thumbnail-1.jpg"
+          videoId="bCBWpJGC9Fg"
+          videoTitle="Industrial Netting Solutions"
           variant="compact"
           actions={MC_HERO_ACTIONS}
         />

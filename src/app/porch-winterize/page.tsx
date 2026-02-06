@@ -35,7 +35,7 @@ export default function PorchWinterizePage() {
         <PowerHeaderTemplate
           title="Winterize Your Porch"
           subtitle="Extend your outdoor living season with clear vinyl enclosures. Keep the cold out and the warmth in - enjoy your porch year-round."
-          videoId="FqNe9pDsZ8M"
+          videoId="ca6GufadXoE"
           variant="compact"
           actions={MC_HERO_ACTIONS}
         />

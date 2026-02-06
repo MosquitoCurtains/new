@@ -7,6 +7,7 @@ import {
   Layers,
   CheckCircle,
   DollarSign,
+  PlayCircle,
 } from 'lucide-react'
 import { 
   Container, 
@@ -21,6 +22,7 @@ import {
   ListItem,
   FinalCTATemplate,
   HeaderBarSection,
+  YouTubeEmbed,
 } from '@/lib/design-system'
 
 export default function TwoSidedRegularVelcroPage() {
@@ -51,6 +53,28 @@ export default function TwoSidedRegularVelcroPage() {
             </Text>
           </Stack>
         </section>
+
+        {/* Layout Planning Video */}
+        <HeaderBarSection icon={PlayCircle} label="Layout Planning Overview" variant="dark">
+          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg" className="items-center">
+            <YouTubeEmbed
+              videoId="MDPYl7gN4Ec"
+              title="Layout Planning Overview"
+              variant="card"
+            />
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                Watch our layout planning overview to understand how to measure and plan 
+                your 2-sided velcro project for the best results.
+              </Text>
+              <BulletedList spacing="md">
+                <ListItem variant="checked" iconColor="#003365">How to measure each opening</ListItem>
+                <ListItem variant="checked" iconColor="#003365">Planning your layout</ListItem>
+                <ListItem variant="checked" iconColor="#003365">Velcro attachment points</ListItem>
+              </BulletedList>
+            </Stack>
+          </Grid>
+        </HeaderBarSection>
 
         {/* What This Means */}
         <HeaderBarSection icon={CheckCircle} label="Your Configuration" variant="dark">

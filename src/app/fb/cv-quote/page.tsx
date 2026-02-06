@@ -17,7 +17,9 @@ import {
   Frame,
   BulletedList,
   ListItem,
+  YouTubeEmbed,
 } from '@/lib/design-system'
+import { VIDEOS } from '@/lib/constants/videos'
 
 export default function FBCVQuotePage() {
   return (
@@ -65,6 +67,15 @@ export default function FBCVQuotePage() {
             </Text>
           </Stack>
         </section>
+
+        {/* ================================================================
+            OVERVIEW VIDEO
+            ================================================================ */}
+        <YouTubeEmbed
+          videoId={VIDEOS.CLEAR_VINYL_OVERVIEW}
+          title="Clear Vinyl Overview"
+          variant="card"
+        />
 
         {/* ================================================================
             SOCIAL PROOF

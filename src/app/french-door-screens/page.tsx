@@ -105,23 +105,23 @@ export default function FrenchDoorScreensPage() {
         <HeaderBarSection icon={Settings} label="3 French Door Screen Options Explained" variant="dark">
           <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="lg">
             <Card variant="elevated" className="!p-6">
-              <YouTubeEmbed videoId="FqNe9pDsZ8M" title="Tracking with Magnetic Doorway" variant="card" className="mb-4" />
-              <Heading level={4} className="!mb-2">Option 1: Tracking With Magnetic Doorway</Heading>
-              <Text className="text-sm text-gray-600 !mb-0">
-                Tracking is mounted to the underside of your header beam flush with the most exterior edge. 
-                Tracking enables you to slide each screen panel to one side.
-              </Text>
-            </Card>
-            <Card variant="elevated" className="!p-6">
-              <YouTubeEmbed videoId="ZjxrDItgV8w" title="Tracking with Stucco Strip" variant="card" className="mb-4" />
-              <Heading level={4} className="!mb-2">Option 2: Tracking With Stucco Strip</Heading>
+              <YouTubeEmbed videoId="EVn_xoSSGWE" title="French Door Option 1 - Tracking with Stucco Strip" variant="card" className="mb-4" />
+              <Heading level={4} className="!mb-2">Option 1: Tracking With Stucco Strip</Heading>
               <Text className="text-sm text-gray-600 !mb-0">
                 Our favorite configuration with the doorway to one side for a seamless look. Main panel can 
                 either be on left or right when you install.
               </Text>
             </Card>
             <Card variant="elevated" className="!p-6">
-              <YouTubeEmbed videoId="KTrkT6DHm9k" title="Velcro with Magnetic Doorway" variant="card" className="mb-4" />
+              <YouTubeEmbed videoId="KBN9tIq92xw" title="French Door Option 2 - Tracking with Magnetic Doorway" variant="card" className="mb-4" />
+              <Heading level={4} className="!mb-2">Option 2: Tracking With Magnetic Doorway</Heading>
+              <Text className="text-sm text-gray-600 !mb-0">
+                Tracking is mounted to the underside of your header beam flush with the most exterior edge. 
+                Tracking enables you to slide each screen panel to one side.
+              </Text>
+            </Card>
+            <Card variant="elevated" className="!p-6">
+              <YouTubeEmbed videoId="ddkU7YLDTok" title="French Door Option 3 - Velcro with Magnetic Doorway" variant="card" className="mb-4" />
               <Heading level={4} className="!mb-2">Option 3: Velcro With Magnetic Doorway</Heading>
               <Text className="text-sm text-gray-600 !mb-0">
                 This solution is not on a track and therefore not capable of sliding. The screen is 

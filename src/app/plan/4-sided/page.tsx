@@ -124,8 +124,8 @@ export default function FourSidedPage() {
                 </BulletedList>
               </Stack>
               <YouTubeEmbed
-                videoId="FqNe9pDsZ8M"
-                title="Complex Project Planning"
+                videoId="Y5hh50u3trQ"
+                title="4+ Sided Exposure Overview"
                 variant="card"
               />
             </Grid>

@@ -23,7 +23,9 @@ import {
   ListItem,
   FinalCTATemplate,
   HeaderBarSection,
+  YouTubeEmbed,
 } from '@/lib/design-system'
+import { VIDEOS } from '@/lib/constants/videos'
 
 export default function ClearVinylConsiderationsPage() {
   return (
@@ -51,6 +53,13 @@ export default function ClearVinylConsiderationsPage() {
             </Text>
           </Stack>
         </section>
+
+        {/* Video Overview */}
+        <YouTubeEmbed
+          videoId={VIDEOS.CLEAR_VINYL_WHAT_CAN_GO_WRONG}
+          title="What Can Go Wrong With Clear Vinyl"
+          variant="card"
+        />
 
         {/* Heat Buildup */}
         <HeaderBarSection icon={ThermometerSun} label="Heat Buildup" variant="dark">

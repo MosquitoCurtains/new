@@ -7,6 +7,7 @@ import {
   Bug,
   Ruler,
   AlertCircle,
+  Play,
 } from 'lucide-react'
 import { 
   Container, 
@@ -21,7 +22,9 @@ import {
   ListItem,
   FinalCTATemplate,
   HeaderBarSection,
+  YouTubeEmbed,
 } from '@/lib/design-system'
+import { VIDEOS } from '@/lib/constants/videos'
 
 export default function NoSeeUmPage() {
   return (
@@ -130,6 +133,28 @@ export default function NoSeeUmPage() {
             <Text className="!mb-0 font-medium">Lake Properties</Text>
           </Grid>
         </Card>
+
+        {/* Videos */}
+        <HeaderBarSection icon={Play} label="No-See-Um Netting Videos" variant="dark">
+          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
+            <div>
+              <YouTubeEmbed
+                videoId={VIDEOS.RAW_NETTING}
+                title="Raw Netting Overview"
+                variant="card"
+              />
+              <Text className="text-center mt-2 font-medium text-sm">Raw Netting Overview</Text>
+            </div>
+            <div>
+              <YouTubeEmbed
+                videoId={VIDEOS.RAW_NETTING_FABRIC}
+                title="Raw Netting Fabric Types"
+                variant="card"
+              />
+              <Text className="text-center mt-2 font-medium text-sm">Raw Netting Fabric Types</Text>
+            </div>
+          </Grid>
+        </HeaderBarSection>
 
         {/* CTA */}
         <section className="bg-gradient-to-br from-[#406517]/10 via-white to-[#003365]/10 rounded-3xl p-8 md:p-12 text-center">

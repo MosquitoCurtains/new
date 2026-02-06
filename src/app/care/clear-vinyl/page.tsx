@@ -2,7 +2,8 @@
 
 import { SupportPageTemplate } from '@/lib/design-system/templates'
 import { Droplets, Thermometer, FoldVertical, AlertTriangle } from 'lucide-react'
-import { Text, BulletedList, ListItem } from '@/lib/design-system'
+import { Text, BulletedList, ListItem, YouTubeEmbed, Card, Heading, Stack } from '@/lib/design-system'
+import { VIDEOS } from '@/lib/constants/videos'
 
 const CONTENT_SECTIONS = [
   {
@@ -137,6 +138,21 @@ export default function ClearVinylCarePage() {
       sections={CONTENT_SECTIONS}
       quickLinks={QUICK_LINKS}
       showContactInfo={true}
-    />
+    >
+      {/* Care & Maintenance Video */}
+      <section>
+        <Card variant="elevated" className="!p-6 md:!p-8">
+          <Stack gap="md" className="items-center text-center">
+            <Heading level={3} className="!mb-0">Clear Vinyl Care Video</Heading>
+            <Text className="text-gray-600 max-w-2xl">
+              Watch our step-by-step guide on caring for and maintaining your clear vinyl panels.
+            </Text>
+            <div className="w-full max-w-3xl">
+              <YouTubeEmbed videoId={VIDEOS.CLEAR_VINYL_CARE} title="Clear Vinyl Care & Maintenance" variant="card" />
+            </div>
+          </Stack>
+        </Card>
+      </section>
+    </SupportPageTemplate>
   )
 }

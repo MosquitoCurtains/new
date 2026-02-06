@@ -117,7 +117,7 @@ export default function GarageDoorScreensPage() {
         <HeaderBarSection icon={Settings} label="3 Retractable Garage Door Options Explained" variant="dark">
           <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="lg">
             <Card variant="elevated" className="!p-6">
-              <YouTubeEmbed videoId="FqNe9pDsZ8M" title="Tracking with Stucco Strip" variant="card" className="mb-4" />
+              <YouTubeEmbed videoId="DBR6a0EBgqI" title="Garage Door Option 1 - Tracking with Stucco Strip" variant="card" className="mb-4" />
               <Heading level={4} className="!mb-2">Option 1: Tracking With Stucco Strip</Heading>
               <Text className="text-sm text-gray-600 !mb-0">
                 Our favorite configuration with the doorway to one side for a seamless look. Tracking enables 
@@ -125,7 +125,7 @@ export default function GarageDoorScreensPage() {
               </Text>
             </Card>
             <Card variant="elevated" className="!p-6">
-              <YouTubeEmbed videoId="ZjxrDItgV8w" title="Tracking with Magnetic Doorway" variant="card" className="mb-4" />
+              <YouTubeEmbed videoId="BNIPsTVRHLg" title="Garage Option 2 - Tracking with Magnetic Doorway" variant="card" className="mb-4" />
               <Heading level={4} className="!mb-2">Option 2: Tracking With Magnetic Doorway</Heading>
               <Text className="text-sm text-gray-600 !mb-0">
                 Same as Option 1 but with a center magnetic doorway. Tracking enables you to slide each garage 
@@ -133,7 +133,7 @@ export default function GarageDoorScreensPage() {
               </Text>
             </Card>
             <Card variant="elevated" className="!p-6">
-              <YouTubeEmbed videoId="KTrkT6DHm9k" title="Velcro on Top" variant="card" className="mb-4" />
+              <YouTubeEmbed videoId="6HOIhGMuuf8" title="Garage Option 3 - Velcro On Top" variant="card" className="mb-4" />
               <Heading level={4} className="!mb-2">Option 3: Velcro On Top</Heading>
               <Text className="text-sm text-gray-600 !mb-0">
                 Not on a track and therefore not capable of sliding. Unzips and rolls up for fast storage. 
@@ -157,7 +157,7 @@ export default function GarageDoorScreensPage() {
                 </Link>
               </Button>
             </Stack>
-            <YouTubeEmbed videoId="FqNe9pDsZ8M" title="Projection Screens" variant="card" />
+            <YouTubeEmbed videoId="fGTjgRROz1Q" title="Man Cave Garage Home Theater" variant="card" />
           </TwoColumn>
         </HeaderBarSection>
 

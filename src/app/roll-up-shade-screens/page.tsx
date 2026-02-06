@@ -38,7 +38,7 @@ export default function RollUpShadeScreensPage() {
         <PowerHeaderTemplate
           title="Roll Up Shade Screens"
           subtitle="Custom roll-up shade screens to knock the harsh sun off any area. Single or double-ply options with our durable, fade-resistant shade mesh made to last."
-          videoId="FqNe9pDsZ8M"
+          videoId="T_H3cQCINhs"
           videoTitle="Roll Up Shade Screens Overview"
           variant="compact"
           actions={MC_HERO_ACTIONS}
@@ -88,8 +88,8 @@ export default function RollUpShadeScreensPage() {
               </BulletedList>
             </Stack>
             <YouTubeEmbed
-              videoId="FqNe9pDsZ8M"
-              title="Why Us For Raw Netting"
+              videoId="T_H3cQCINhs"
+              title="Roll Up Shade Screens"
               variant="card"
             />
           </TwoColumn>
@@ -188,13 +188,20 @@ export default function RollUpShadeScreensPage() {
                 <ListItem variant="checked" iconColor="#406517">UV-protected threading throughout</ListItem>
               </BulletedList>
             </Stack>
-            <Frame ratio="1/1" className="rounded-2xl overflow-hidden max-w-md mx-auto">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Strong-Shade-Mesh.jpg"
-                alt="Incredibly strong shade mesh"
-                className="w-full h-full object-cover"
+            <Stack gap="md">
+              <Frame ratio="1/1" className="rounded-2xl overflow-hidden max-w-md mx-auto">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Strong-Shade-Mesh.jpg"
+                  alt="Incredibly strong shade mesh"
+                  className="w-full h-full object-cover"
+                />
+              </Frame>
+              <YouTubeEmbed
+                videoId="WOLgWm9UMq4"
+                title="Raw Netting Materials Overview"
+                variant="card"
               />
-            </Frame>
+            </Stack>
           </TwoColumn>
         </HeaderBarSection>
 

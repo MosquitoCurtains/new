@@ -8,6 +8,7 @@ import {
   Droplets,
   Package,
   Flame,
+  Play,
 } from 'lucide-react'
 import { 
   Container, 
@@ -23,8 +24,10 @@ import {
   FinalCTATemplate,
   HeaderBarSection,
   PowerHeaderTemplate,
+  YouTubeEmbed,
   MC_HERO_ACTIONS,
 } from '@/lib/design-system'
+import { VIDEOS, CAMPING_VIDEOS } from '@/lib/constants/videos'
 
 export default function CampingNetPage() {
   return (
@@ -37,7 +40,7 @@ export default function CampingNetPage() {
         <PowerHeaderTemplate
           title="Durable Multi-Purpose Camping Net"
           subtitle="Tired of thin fragile netting that doesn't last? Large sheets of super durable No-See-Um net that stows tight and weighs only 2.0 oz/sq yd. Perfect for endless camping applications."
-          videoId="FqNe9pDsZ8M"
+          videoId={VIDEOS.CAMPING_NET_OVERVIEW}
           videoTitle="Camping Net Overview"
           variant="compact"
           actions={MC_HERO_ACTIONS}
@@ -150,7 +153,31 @@ export default function CampingNetPage() {
           </Stack>
         </HeaderBarSection>
 
-        {/* Section 3: Product Features */}
+        {/* Section 3: Video Demonstrations */}
+        <HeaderBarSection icon={Play} label="Camping Net Video Demonstrations" variant="dark">
+          <Stack gap="lg">
+            <Text className="text-gray-600 text-center max-w-3xl mx-auto">
+              Watch our camping net videos to see the many ways you can use our durable No-See-Um netting 
+              for your outdoor adventures.
+            </Text>
+            <Grid responsiveCols={{ mobile: 1, tablet: 2, desktop: 3 }} gap="lg">
+              {CAMPING_VIDEOS.map((video) => (
+                <div key={video.id}>
+                  <YouTubeEmbed
+                    videoId={video.id}
+                    title={video.title}
+                    variant="card"
+                  />
+                  <Text className="text-center mt-2 font-medium text-sm">
+                    {video.title}
+                  </Text>
+                </div>
+              ))}
+            </Grid>
+          </Stack>
+        </HeaderBarSection>
+
+        {/* Section 4: Product Features */}
         <HeaderBarSection icon={Shield} label="Premium Quality Features" variant="dark">
           <Grid responsiveCols={{ mobile: 1, tablet: 2, desktop: 3 }} gap="lg">
             <div className="bg-white border-2 border-gray-200 rounded-2xl p-6">
