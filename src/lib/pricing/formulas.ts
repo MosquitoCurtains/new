@@ -1,80 +1,42 @@
 /**
- * Pricing Formulas
+ * Pricing Formulas — Database-Driven (Single Source of Truth)
  * 
- * Core calculation functions for all product types.
- * Based on Gravity Forms logic from WordPress.
+ * All pricing values come from the `product_pricing` Supabase table.
+ * Every function REQUIRES a PricingMap — there are no hardcoded fallbacks.
+ * 
+ * If a required pricing key is missing from the map, the `p()` helper
+ * logs a loud error and returns 0. This makes data integrity issues
+ * visible without crashing the UI.
  */
-
-import {
-  // Mesh
-  MESH_LINEAR_FOOT_RATES,
-  MESH_PANEL_FEE,
-  MESH_TYPE_MULTIPLIERS,
-  TOP_ATTACHMENT_ADDERS,
-  // Vinyl
-  VINYL_SIZE_LINEAR_RATES,
-  VINYL_PANEL_FEE,
-  VINYL_DOOR_ADDER,
-  // Shared
-  ZIPPER_PER_FOOT,
-  // Scrim
-  SCRIM_BASE_SQFT,
-  SCRIM_MIN_SQFT,
-  // Rollup
-  ROLLUP_BASE_SQFT,
-  ROLLUP_MIN_SQFT,
-  ROLLUP_MECHANISM_ADDER,
-  // Track
-  TRACK_STD_PER_FOOT,
-  TRACK_HEAVY_MULTIPLIER,
-  TRACK_CURVE_90_PRICE,
-  TRACK_CURVE_135_PRICE,
-  TRACK_SPLICE_PRICE,
-  TRACK_ENDCAP_PRICE,
-  TRACK_CARRIER_PRICE,
-  CARRIER_HEAVY_MULTIPLIER,
-  // Attachments
-  MARINE_SNAP_PRICE,
-  ADHESIVE_SNAP_PRICES,
-  CHROME_SNAP_PRICE,
-  PANEL_SNAP_PRICE,
-  BLOCK_MAGNET_PRICE,
-  RING_MAGNET_PRICE,
-  FIBERGLASS_ROD_SET_PRICE,
-  FIBERGLASS_CLIP_PRICE,
-  ELASTIC_CORD_SET_PRICE,
-  TETHER_CLIP_PRICE,
-  BELTED_RIB_PRICE,
-  SCREW_STUD_PRICE,
-  L_SCREW_PRICE,
-  RUBBER_WASHER_PRICE,
-  ROD_CLIP_PRICE,
-  // Accessories
-  ADHESIVE_VELCRO_PER_FOOT,
-  WEBBING_PER_FOOT,
-  SNAP_TAPE_PER_FOOT,
-  TIEUP_STRAP_PRICE,
-  FASTWAX_PRICE,
-  STUCCO_STANDARD_PRICE,
-  STUCCO_ZIPPERED_PRICE,
-  // Tool
-  SNAP_TOOL_PRICE,
-  // Raw
-  RAW_MESH_BASE_SQFT,
-  ROLL_WIDTH_MULTIPLIERS,
-  RAW_MESH_TYPE_MULTIPLIERS,
-} from './constants'
 
 import type {
   MeshPanelConfig,
   VinylPanelConfig,
-  ScrimPanelConfig,
   RollupPanelConfig,
-  TrackConfig,
-  AttachmentConfig,
   RawMeshConfig,
   PriceBreakdown,
+  PricingMap,
 } from './types'
+
+// =============================================================================
+// PRICE LOOKUP HELPER
+// =============================================================================
+
+/**
+ * Look up a price from the DB-driven pricing map.
+ * Logs a clear error if the key is missing — no silent fallback.
+ */
+function p(prices: PricingMap, id: string): number {
+  const val = prices[id]
+  if (val === undefined) {
+    console.error(
+      `[Pricing] MISSING VALUE for '${id}' in product_pricing table. ` +
+      `Add it via /admin/pricing or the database migration.`
+    )
+    return 0
+  }
+  return val
+}
 
 // =============================================================================
 // UTILITY FUNCTIONS
@@ -110,14 +72,19 @@ export function round(value: number): number {
 /**
  * Calculate mesh panel price
  * 
- * Formula from Gravity Forms Form 16028:
- * price = (width_feet + width_inches/12) × mesh_rate + panel_fee
+ * Formula: (width_feet + width_inches/12) × mesh_rate + panel_fee
+ * 
+ * DB keys used: mesh_{meshType}, mesh_panel_fee
  */
-export function calculateMeshPanelPrice(config: MeshPanelConfig): PriceBreakdown {
+export function calculateMeshPanelPrice(
+  config: MeshPanelConfig,
+  prices: PricingMap
+): PriceBreakdown {
   const totalWidthFeet = config.widthFeet + (config.widthInches / 12)
-  const rate = MESH_LINEAR_FOOT_RATES[config.meshType] ?? MESH_LINEAR_FOOT_RATES.heavy_mosquito
+  const rate = p(prices, `mesh_${config.meshType}`)
+  const panelFee = p(prices, 'mesh_panel_fee')
   const basePrice = round(totalWidthFeet * rate)
-  const total = round(basePrice + MESH_PANEL_FEE)
+  const total = round(basePrice + panelFee)
 
   return {
     basePrice: rate,
@@ -132,7 +99,7 @@ export function calculateMeshPanelPrice(config: MeshPanelConfig): PriceBreakdown
     subtotal: total,
     total,
     minimumApplied: false,
-    formula: `(${round(totalWidthFeet)} ft × $${rate}) + $${MESH_PANEL_FEE} = $${total}`
+    formula: `(${round(totalWidthFeet)} ft × $${rate}) + $${panelFee} = $${total}`
   }
 }
 
@@ -143,26 +110,31 @@ export function calculateMeshPanelPrice(config: MeshPanelConfig): PriceBreakdown
 /**
  * Calculate vinyl panel price
  * 
- * Formula from Gravity Forms Form 16698:
- * price = widthFeet × linearFootRate + panelFee + doorAdder + zipperAdder
+ * Formula: widthFeet × linearFootRate + panelFee + doorAdder + zipperAdder
+ * 
+ * DB keys used: vinyl_{panelSize}, vinyl_panel_fee, vinyl_door_adder, zipper_per_foot
  */
-export function calculateVinylPanelPrice(config: VinylPanelConfig): PriceBreakdown {
+export function calculateVinylPanelPrice(
+  config: VinylPanelConfig,
+  prices: PricingMap
+): PriceBreakdown {
   const totalWidthFeet = config.widthFeet + (config.widthInches / 12)
-  const rate = VINYL_SIZE_LINEAR_RATES[config.panelSize] ?? VINYL_SIZE_LINEAR_RATES.medium
+  const rate = p(prices, `vinyl_${config.panelSize}`)
+  const panelFee = p(prices, 'vinyl_panel_fee')
   
-  const doorAdder = config.hasDoor ? VINYL_DOOR_ADDER : 0
+  const doorAdder = config.hasDoor ? p(prices, 'vinyl_door_adder') : 0
+  const zipperRate = p(prices, 'zipper_per_foot')
   const zipperAdder = config.hasZipper 
-    ? round(config.heightInches / 12 * ZIPPER_PER_FOOT) 
+    ? round(config.heightInches / 12 * zipperRate) 
     : 0
   
   const basePrice = round(totalWidthFeet * rate)
-  const total = round(basePrice + VINYL_PANEL_FEE + doorAdder + zipperAdder)
-  
-  const sqft = round((totalWidthFeet * config.heightInches) / 12) // Approx sqft for reference
+  const total = round(basePrice + panelFee + doorAdder + zipperAdder)
+  const sqft = round((totalWidthFeet * config.heightInches) / 12)
   
   return {
     basePrice: rate,
-    meshTypeMultiplier: 1.0, // Not used for vinyl
+    meshTypeMultiplier: 1.0,
     topAttachmentAdder: 0,
     bottomOptionAdder: 0,
     doorAdder,
@@ -173,47 +145,15 @@ export function calculateVinylPanelPrice(config: VinylPanelConfig): PriceBreakdo
     subtotal: total,
     total,
     minimumApplied: false,
-    formula: `${round(totalWidthFeet)}ft × $${rate}/ft + $${VINYL_PANEL_FEE} panel fee + $${doorAdder} door + $${zipperAdder} zipper = $${total}`
+    formula: `${round(totalWidthFeet)}ft × $${rate}/ft + $${panelFee} panel fee + $${doorAdder} door + $${zipperAdder} zipper = $${total}`
   }
 }
 
 // =============================================================================
-// SCRIM PANEL PRICING
+// SCRIM PANEL PRICING (DEPRECATED — scrim now uses calculateMeshPanelPrice)
 // =============================================================================
-
-/**
- * Calculate scrim panel price
- * 
- * Formula from Gravity Forms Form 23:
- * price = max(sqft, 10) × $2.50
- */
-export function calculateScrimPanelPrice(config: ScrimPanelConfig): PriceBreakdown {
-  const { sqft, minimumApplied } = calculateSqFt(
-    config.widthInches, 
-    config.heightInches, 
-    SCRIM_MIN_SQFT
-  )
-  
-  const topAdder = TOP_ATTACHMENT_ADDERS[config.topAttachment]
-  const basePrice = round(sqft * SCRIM_BASE_SQFT)
-  const total = round(basePrice + topAdder)
-  
-  return {
-    basePrice: SCRIM_BASE_SQFT,
-    meshTypeMultiplier: 1,
-    topAttachmentAdder: topAdder,
-    bottomOptionAdder: 0,
-    doorAdder: 0,
-    zipperAdder: 0,
-    notchAdder: 0,
-    squareFeet: sqft,
-    quantity: 1,
-    subtotal: total,
-    total,
-    minimumApplied,
-    formula: `max(${round((config.widthInches * config.heightInches) / 144)} sqft, ${SCRIM_MIN_SQFT}) × $${SCRIM_BASE_SQFT} + $${topAdder} = $${total}`
-  }
-}
+// Scrim is a mesh type with key 'mesh_scrim' at $19/linear ft.
+// Use calculateMeshPanelPrice with meshType = 'scrim' instead.
 
 // =============================================================================
 // ROLL-UP PANEL PRICING
@@ -222,23 +162,29 @@ export function calculateScrimPanelPrice(config: ScrimPanelConfig): PriceBreakdo
 /**
  * Calculate roll-up shade screen panel price
  * 
- * price = max(sqft, 10) × $3.00 × meshMultiplier + rollupMechanism
+ * Formula: max(sqft, min_sqft) × base_rate × meshMultiplier + mechanism_adder
+ * 
+ * DB keys used: rollup_base_sqft, rollup_min_sqft, rollup_mechanism_adder,
+ *               mesh_multiplier_{meshType}
  */
-export function calculateRollupPanelPrice(config: RollupPanelConfig): PriceBreakdown {
-  const { sqft, minimumApplied } = calculateSqFt(
-    config.widthInches, 
-    config.heightInches, 
-    ROLLUP_MIN_SQFT
-  )
+export function calculateRollupPanelPrice(
+  config: RollupPanelConfig,
+  prices: PricingMap
+): PriceBreakdown {
+  const baseSqft = p(prices, 'rollup_base_sqft')
+  const minSqft = p(prices, 'rollup_min_sqft')
+  const mechanismAdder = p(prices, 'rollup_mechanism_adder')
+  const widthInches = config.widthFeet * 12 + (config.widthInches || 0)
+  const { sqft, minimumApplied } = calculateSqFt(widthInches, config.heightInches, minSqft)
   
-  const meshMultiplier = MESH_TYPE_MULTIPLIERS[config.meshType]
-  const basePrice = round(sqft * ROLLUP_BASE_SQFT * meshMultiplier)
-  const total = round(basePrice + ROLLUP_MECHANISM_ADDER)
+  const meshMultiplier = p(prices, `mesh_multiplier_${config.meshType}`)
+  const basePrice = round(sqft * baseSqft * meshMultiplier)
+  const total = round(basePrice + mechanismAdder)
   
   return {
-    basePrice: ROLLUP_BASE_SQFT,
+    basePrice: baseSqft,
     meshTypeMultiplier: meshMultiplier,
-    topAttachmentAdder: ROLLUP_MECHANISM_ADDER,
+    topAttachmentAdder: mechanismAdder,
     bottomOptionAdder: 0,
     doorAdder: 0,
     zipperAdder: 0,
@@ -248,154 +194,153 @@ export function calculateRollupPanelPrice(config: RollupPanelConfig): PriceBreak
     subtotal: total,
     total,
     minimumApplied,
-    formula: `max(${round((config.widthInches * config.heightInches) / 144)} sqft, ${ROLLUP_MIN_SQFT}) × $${ROLLUP_BASE_SQFT} × ${meshMultiplier} + $${ROLLUP_MECHANISM_ADDER} = $${total}`
+    formula: `max(${round((widthInches * config.heightInches) / 144)} sqft, ${minSqft}) × $${baseSqft} × ${meshMultiplier} + $${mechanismAdder} = $${total}`
   }
 }
 
 // =============================================================================
-// TRACK PRICING
+// TRACK PRICING (Per-Piece from Gravity Forms)
 // =============================================================================
 
 /**
- * Calculate straight track price
+ * Calculate straight track price (7ft pieces)
+ * DB keys: track_std_7ft, track_heavy_7ft
  */
 export function calculateStraightTrackPrice(
-  lengthFeet: number,
+  _lengthFeet: number,
   weight: 'standard' | 'heavy',
-  quantity: number = 1
+  quantity: number = 1,
+  prices: PricingMap
 ): number {
-  const multiplier = weight === 'heavy' ? TRACK_HEAVY_MULTIPLIER : 1
-  return round(lengthFeet * TRACK_STD_PER_FOOT * multiplier * quantity)
+  const key = weight === 'heavy' ? 'track_heavy_7ft' : 'track_std_7ft'
+  return round(p(prices, key) * quantity)
 }
 
 /**
  * Calculate curve price (90 or 135 degree)
+ * DB keys: track_curve_90, track_curve_135, track_heavy_curve_90, track_heavy_curve_135
  */
 export function calculateCurvePrice(
   degree: 90 | 135,
   weight: 'standard' | 'heavy',
-  quantity: number = 1
+  quantity: number = 1,
+  prices: PricingMap
 ): number {
-  const basePrice = degree === 90 ? TRACK_CURVE_90_PRICE : TRACK_CURVE_135_PRICE
-  const multiplier = weight === 'heavy' ? TRACK_HEAVY_MULTIPLIER : 1
-  return round(basePrice * multiplier * quantity)
+  const key = weight === 'heavy'
+    ? `track_heavy_curve_${degree}`
+    : `track_curve_${degree}`
+  return round(p(prices, key) * quantity)
 }
 
 /**
  * Calculate splice price
+ * DB keys: track_splice, track_heavy_splice
  */
 export function calculateSplicePrice(
   weight: 'standard' | 'heavy',
-  quantity: number = 1
+  quantity: number = 1,
+  prices: PricingMap
 ): number {
-  const multiplier = weight === 'heavy' ? TRACK_HEAVY_MULTIPLIER : 1
-  return round(TRACK_SPLICE_PRICE * multiplier * quantity)
+  const key = weight === 'heavy' ? 'track_heavy_splice' : 'track_splice'
+  return round(p(prices, key) * quantity)
 }
 
 /**
  * Calculate end cap price
+ * DB keys: track_endcap, track_heavy_endcap
  */
 export function calculateEndCapPrice(
   weight: 'standard' | 'heavy',
-  quantity: number = 2
+  quantity: number = 2,
+  prices: PricingMap
 ): number {
-  const multiplier = weight === 'heavy' ? TRACK_HEAVY_MULTIPLIER : 1
-  return round(TRACK_ENDCAP_PRICE * multiplier * quantity)
+  const key = weight === 'heavy' ? 'track_heavy_endcap' : 'track_endcap'
+  return round(p(prices, key) * quantity)
 }
 
 /**
  * Calculate snap carriers price
+ * DB keys: track_carrier, track_heavy_carrier
  */
 export function calculateCarriersPrice(
   weight: 'standard' | 'heavy',
-  quantity: number = 10
+  quantity: number = 10,
+  prices: PricingMap
 ): number {
-  const multiplier = weight === 'heavy' ? CARRIER_HEAVY_MULTIPLIER : 1
-  return round(TRACK_CARRIER_PRICE * multiplier * quantity)
+  const key = weight === 'heavy' ? 'track_heavy_carrier' : 'track_carrier'
+  return round(p(prices, key) * quantity)
 }
 
 // =============================================================================
 // ATTACHMENT PRICING
 // =============================================================================
 
-/**
- * Calculate marine snap price
- */
+/** DB key: marine_snap */
 export function calculateMarineSnapPrice(
   quantity: number,
-  _color: 'black' | 'white' = 'black'
+  _color: 'black' | 'white' = 'black',
+  prices: PricingMap
 ): number {
-  return round(MARINE_SNAP_PRICE * quantity)
+  return round(p(prices, 'marine_snap') * quantity)
 }
 
-/**
- * Calculate adhesive snap price
- */
+/** DB keys: adhesive_snap_bw, adhesive_snap_clear */
 export function calculateAdhesiveSnapPrice(
   quantity: number,
-  color: 'black' | 'white' | 'clear' = 'black'
+  color: 'black' | 'white' | 'clear' = 'black',
+  prices: PricingMap
 ): number {
-  const unitPrice = ADHESIVE_SNAP_PRICES[color]
-  return round(unitPrice * quantity)
+  const id = color === 'clear' ? 'adhesive_snap_clear' : 'adhesive_snap_bw'
+  return round(p(prices, id) * quantity)
 }
 
-/**
- * Calculate block magnet price
- */
-export function calculateBlockMagnetPrice(quantity: number): number {
-  return round(BLOCK_MAGNET_PRICE * quantity)
+/** DB key: block_magnet */
+export function calculateBlockMagnetPrice(quantity: number, prices: PricingMap): number {
+  return round(p(prices, 'block_magnet') * quantity)
 }
 
-/**
- * Calculate fiberglass rod set price
- */
-export function calculateFiberglassRodPrice(quantity: number): number {
-  return round(FIBERGLASS_ROD_SET_PRICE * quantity)
+/** DB key: fiberglass_rod */
+export function calculateFiberglassRodPrice(quantity: number, prices: PricingMap): number {
+  return round(p(prices, 'fiberglass_rod') * quantity)
 }
 
-/**
- * Calculate elastic cord set price
- */
+/** DB key: elastic_cord */
 export function calculateElasticCordPrice(
   quantity: number,
-  _color: 'black' | 'white' = 'black'
+  _color: 'black' | 'white' = 'black',
+  prices: PricingMap
 ): number {
-  return round(ELASTIC_CORD_SET_PRICE * quantity)
+  return round(p(prices, 'elastic_cord') * quantity)
 }
 
 // =============================================================================
 // ACCESSORY PRICING
 // =============================================================================
 
-/**
- * Calculate adhesive velcro price
- */
-export function calculateVelcroPrice(lengthFeet: number): number {
-  return round(ADHESIVE_VELCRO_PER_FOOT * lengthFeet)
+/** DB key: adhesive_velcro */
+export function calculateVelcroPrice(lengthFeet: number, prices: PricingMap): number {
+  return round(p(prices, 'adhesive_velcro') * lengthFeet)
 }
 
-/**
- * Calculate webbing price
- */
-export function calculateWebbingPrice(lengthFeet: number): number {
-  return round(WEBBING_PER_FOOT * lengthFeet)
+/** DB key: webbing */
+export function calculateWebbingPrice(lengthFeet: number, prices: PricingMap): number {
+  return round(p(prices, 'webbing') * lengthFeet)
 }
 
-/**
- * Calculate snap tape price
- */
-export function calculateSnapTapePrice(lengthFeet: number): number {
-  return round(SNAP_TAPE_PER_FOOT * lengthFeet)
+/** DB key: snap_tape */
+export function calculateSnapTapePrice(lengthFeet: number, prices: PricingMap): number {
+  return round(p(prices, 'snap_tape') * lengthFeet)
 }
 
-/**
- * Calculate stucco strip price
- */
+/** DB keys: stucco_standard, stucco_zippered */
 export function calculateStuccoStripPrice(
   quantity: number,
-  zippered: boolean = false
+  zippered: boolean = false,
+  prices: PricingMap
 ): number {
-  const unitPrice = zippered ? STUCCO_ZIPPERED_PRICE : STUCCO_STANDARD_PRICE
+  const unitPrice = zippered
+    ? p(prices, 'stucco_zippered')
+    : p(prices, 'stucco_standard')
   return round(unitPrice * quantity)
 }
 
@@ -406,40 +351,22 @@ export function calculateStuccoStripPrice(
 /**
  * Calculate raw mesh price
  * 
- * Formula from Gravity Forms Form 16725:
- * price = sqft × $0.75 × materialMultiplier × widthMultiplier
+ * Formula: lengthFeet × perFootRate
+ * 
+ * DB keys: raw_{materialType}_{rollWidth}
+ * e.g. raw_heavy_mosquito_101, raw_no_see_um_123, raw_shade_120, etc.
  */
-export function calculateRawMeshPrice(config: RawMeshConfig): number {
-  const sqft = (config.rollWidth / 12) * config.lengthFeet
-  const materialMultiplier = RAW_MESH_TYPE_MULTIPLIERS[config.materialType]
-  const widthMultiplier = ROLL_WIDTH_MULTIPLIERS[config.rollWidth]
-  
-  return round(sqft * RAW_MESH_BASE_SQFT * materialMultiplier * widthMultiplier)
+export function calculateRawMeshPrice(config: RawMeshConfig, prices: PricingMap): number {
+  const key = `raw_${config.materialType}_${config.rollWidth}`
+  const perFootRate = p(prices, key)
+  return round(perFootRate * config.lengthFeet)
 }
 
 // =============================================================================
 // TOOL PRICING
 // =============================================================================
 
-/**
- * Get snap tool price (fully refundable)
- */
-export function getSnapToolPrice(): number {
-  return SNAP_TOOL_PRICE
-}
-
-// =============================================================================
-// SHIPPING CALCULATION
-// =============================================================================
-
-import { FREE_SHIPPING_THRESHOLD, FLAT_RATE_SHIPPING } from './constants'
-
-/**
- * Calculate shipping cost
- */
-export function calculateShipping(subtotal: number): number {
-  if (subtotal >= FREE_SHIPPING_THRESHOLD) {
-    return 0
-  }
-  return FLAT_RATE_SHIPPING
+/** DB key: snap_tool */
+export function getSnapToolPrice(prices: PricingMap): number {
+  return p(prices, 'snap_tool')
 }

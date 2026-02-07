@@ -107,12 +107,6 @@ export const YouTubeEmbed = React.forwardRef<HTMLDivElement, YouTubeEmbedProps>(
               </div>
             )}
 
-            {/* Title */}
-            {title && (
-              <div className="absolute bottom-3 left-3 right-16 text-white text-sm font-medium truncate">
-                {title}
-              </div>
-            )}
           </button>
         )}
       </div>

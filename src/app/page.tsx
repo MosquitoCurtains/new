@@ -92,7 +92,7 @@ const products = [
     description: 'Premium netting for custom projects. Up to 12ft wide.',
     href: '/raw-netting-fabric-store',
     image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/wide-net-1200-768x576.jpg',
-    badge: 'DIY',
+    badge: 'Raw Netting',
     color: '#B30158',
     icon: Scissors,
   },

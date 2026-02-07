@@ -7,7 +7,7 @@
  * Follows Mosquito Curtains Design System patterns.
  */
 
-import { useState } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { 
@@ -22,6 +22,8 @@ import {
   ShieldCheck,
   Package,
   Phone,
+  MapPin,
+  RefreshCw,
 } from 'lucide-react'
 import {
   Container,
@@ -32,6 +34,7 @@ import {
   Text,
   Button,
   Input,
+  Select,
   Spinner,
 } from '@/lib/design-system'
 import { useCart, CartLineItem } from '@/hooks/useCart'
@@ -116,11 +119,106 @@ function CartItem({
 // MAIN CART PAGE
 // =============================================================================
 
+// =============================================================================
+// US STATES + CANADIAN PROVINCES
+// =============================================================================
+
+const US_STATES = [
+  { code: 'AL', name: 'Alabama' }, { code: 'AK', name: 'Alaska' }, { code: 'AZ', name: 'Arizona' },
+  { code: 'AR', name: 'Arkansas' }, { code: 'CA', name: 'California' }, { code: 'CO', name: 'Colorado' },
+  { code: 'CT', name: 'Connecticut' }, { code: 'DE', name: 'Delaware' }, { code: 'DC', name: 'District of Columbia' },
+  { code: 'FL', name: 'Florida' }, { code: 'GA', name: 'Georgia' }, { code: 'HI', name: 'Hawaii' },
+  { code: 'ID', name: 'Idaho' }, { code: 'IL', name: 'Illinois' }, { code: 'IN', name: 'Indiana' },
+  { code: 'IA', name: 'Iowa' }, { code: 'KS', name: 'Kansas' }, { code: 'KY', name: 'Kentucky' },
+  { code: 'LA', name: 'Louisiana' }, { code: 'ME', name: 'Maine' }, { code: 'MD', name: 'Maryland' },
+  { code: 'MA', name: 'Massachusetts' }, { code: 'MI', name: 'Michigan' }, { code: 'MN', name: 'Minnesota' },
+  { code: 'MS', name: 'Mississippi' }, { code: 'MO', name: 'Missouri' }, { code: 'MT', name: 'Montana' },
+  { code: 'NE', name: 'Nebraska' }, { code: 'NV', name: 'Nevada' }, { code: 'NH', name: 'New Hampshire' },
+  { code: 'NJ', name: 'New Jersey' }, { code: 'NM', name: 'New Mexico' }, { code: 'NY', name: 'New York' },
+  { code: 'NC', name: 'North Carolina' }, { code: 'ND', name: 'North Dakota' }, { code: 'OH', name: 'Ohio' },
+  { code: 'OK', name: 'Oklahoma' }, { code: 'OR', name: 'Oregon' }, { code: 'PA', name: 'Pennsylvania' },
+  { code: 'PR', name: 'Puerto Rico' }, { code: 'RI', name: 'Rhode Island' }, { code: 'SC', name: 'South Carolina' },
+  { code: 'SD', name: 'South Dakota' }, { code: 'TN', name: 'Tennessee' }, { code: 'TX', name: 'Texas' },
+  { code: 'UT', name: 'Utah' }, { code: 'VT', name: 'Vermont' }, { code: 'VA', name: 'Virginia' },
+  { code: 'WA', name: 'Washington' }, { code: 'WV', name: 'West Virginia' }, { code: 'WI', name: 'Wisconsin' },
+  { code: 'WY', name: 'Wyoming' },
+]
+
+const CA_PROVINCES = [
+  { code: 'AB', name: 'Alberta' }, { code: 'BC', name: 'British Columbia' },
+  { code: 'MB', name: 'Manitoba' }, { code: 'NB', name: 'New Brunswick' },
+  { code: 'NL', name: 'Newfoundland and Labrador' }, { code: 'NS', name: 'Nova Scotia' },
+  { code: 'NT', name: 'Northwest Territories' }, { code: 'NU', name: 'Nunavut' },
+  { code: 'ON', name: 'Ontario' }, { code: 'PE', name: 'Prince Edward Island' },
+  { code: 'QC', name: 'Quebec' }, { code: 'SK', name: 'Saskatchewan' },
+  { code: 'YT', name: 'Yukon' },
+]
+
+// =============================================================================
+// MAIN CART PAGE
+// =============================================================================
+
 export default function CartPage() {
   const router = useRouter()
-  const { cart, isLoading, updateQuantity, removeItem, clearCart } = useCart()
+  const {
+    cart,
+    isLoading,
+    isCalculatingShipping,
+    shippingZoneName,
+    taxRateName,
+    updateQuantity,
+    removeItem,
+    updateShippingAddress,
+    clearCart,
+  } = useCart()
   const [promoCode, setPromoCode] = useState('')
   const [isCheckingOut, setIsCheckingOut] = useState(false)
+
+  // Shipping address form state
+  const [shipCountry, setShipCountry] = useState(cart?.shippingAddress?.country || 'US')
+  const [shipState, setShipState] = useState(cart?.shippingAddress?.state || '')
+  const [shipZip, setShipZip] = useState(cart?.shippingAddress?.zip || '')
+
+  // Sync from cart when loaded
+  useEffect(() => {
+    if (cart?.shippingAddress) {
+      setShipCountry(cart.shippingAddress.country || 'US')
+      setShipState(cart.shippingAddress.state || '')
+      setShipZip(cart.shippingAddress.zip || '')
+    }
+  }, [cart?.shippingAddress])
+
+  // Trigger shipping calculation when address changes
+  const handleAddressChange = useCallback((country: string, state: string, zip: string) => {
+    if (state) {
+      updateShippingAddress({
+        street: '',
+        city: '',
+        state,
+        zip,
+        country,
+      })
+    }
+  }, [updateShippingAddress])
+
+  const onCountryChange = (val: string) => {
+    setShipCountry(val)
+    setShipState('')
+    // Don't trigger calc yet - need state
+  }
+
+  const onStateChange = (val: string) => {
+    setShipState(val)
+    handleAddressChange(shipCountry, val, shipZip)
+  }
+
+  const onZipChange = (val: string) => {
+    setShipZip(val)
+    // Re-trigger if we already have state (zip affects tax)
+    if (shipState) {
+      handleAddressChange(shipCountry, shipState, val)
+    }
+  }
 
   // Proceed to checkout
   const handleCheckout = async () => {
@@ -331,6 +429,77 @@ export default function CartPage() {
 
               {/* Order Summary */}
               <div>
+                {/* Shipping Address */}
+                <Card variant="elevated" className="!p-6 mb-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <MapPin className="w-5 h-5 text-[#003365]" />
+                    <Heading level={3} className="!mb-0">Shipping Address</Heading>
+                  </div>
+
+                  <Stack gap="sm">
+                    <div>
+                      <label className="text-xs font-medium text-gray-600 mb-1 block">Country</label>
+                      <Select
+                        value={shipCountry}
+                        onChange={(val) => onCountryChange(val)}
+                        options={[
+                          { value: 'US', label: 'United States' },
+                          { value: 'CA', label: 'Canada' },
+                          { value: 'GB', label: 'United Kingdom' },
+                          { value: 'AU', label: 'Australia' },
+                          { value: 'OTHER', label: 'Other' },
+                        ]}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-medium text-gray-600 mb-1 block">
+                        {shipCountry === 'CA' ? 'Province' : 'State'}
+                      </label>
+                      {shipCountry === 'US' || shipCountry === 'CA' ? (
+                        <Select
+                          value={shipState}
+                          onChange={(val) => onStateChange(val)}
+                          placeholder={`Select ${shipCountry === 'CA' ? 'province' : 'state'}...`}
+                          options={(shipCountry === 'US' ? US_STATES : CA_PROVINCES).map(s => ({
+                            value: s.code,
+                            label: s.name,
+                          }))}
+                        />
+                      ) : (
+                        <Input
+                          placeholder="State/Province"
+                          value={shipState}
+                          onChange={(e) => onStateChange(e.target.value)}
+                        />
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-medium text-gray-600 mb-1 block">
+                        {shipCountry === 'CA' ? 'Postal Code' : 'ZIP Code'}
+                      </label>
+                      <Input
+                        placeholder={shipCountry === 'CA' ? 'A1A 1A1' : '12345'}
+                        value={shipZip}
+                        onChange={(e) => onZipChange(e.target.value)}
+                      />
+                    </div>
+                  </Stack>
+
+                  {shippingZoneName && (
+                    <div className="mt-3 px-3 py-2 bg-[#003365]/5 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <Truck className="w-4 h-4 text-[#003365]" />
+                        <Text size="sm" className="text-[#003365] font-medium !mb-0">
+                          Shipping zone: {shippingZoneName}
+                        </Text>
+                      </div>
+                    </div>
+                  )}
+                </Card>
+
+                {/* Order Totals */}
                 <Card variant="elevated" className="!p-6">
                   <Heading level={3} className="!mb-4">Order Summary</Heading>
 
@@ -341,16 +510,40 @@ export default function CartPage() {
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Shipping</span>
-                      <span className="text-gray-500 italic">Calculated at checkout</span>
+                      {isCalculatingShipping ? (
+                        <span className="flex items-center gap-1 text-gray-500">
+                          <RefreshCw className="w-3 h-3 animate-spin" />
+                          Calculating...
+                        </span>
+                      ) : cart.shipping > 0 ? (
+                        <span className="font-medium text-gray-900">${cart.shipping.toFixed(2)}</span>
+                      ) : shipState ? (
+                        <span className="font-medium text-gray-900">$0.00</span>
+                      ) : (
+                        <span className="text-gray-500 italic text-xs">Enter address above</span>
+                      )}
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Tax</span>
-                      <span className="text-gray-500 italic">Calculated at checkout</span>
+                      <span className="text-gray-600">Tax{taxRateName && taxRateName !== 'No tax' ? ` (${taxRateName})` : ''}</span>
+                      {isCalculatingShipping ? (
+                        <span className="flex items-center gap-1 text-gray-500">
+                          <RefreshCw className="w-3 h-3 animate-spin" />
+                          Calculating...
+                        </span>
+                      ) : cart.tax > 0 ? (
+                        <span className="font-medium text-gray-900">${cart.tax.toFixed(2)}</span>
+                      ) : shipState ? (
+                        <span className="font-medium text-gray-900">$0.00</span>
+                      ) : (
+                        <span className="text-gray-500 italic text-xs">Enter address above</span>
+                      )}
                     </div>
                     <div className="border-t border-gray-200 pt-2 mt-2">
                       <div className="flex justify-between">
-                        <span className="font-semibold text-gray-900">Subtotal</span>
-                        <span className="text-2xl font-bold text-[#406517]">${cart.subtotal.toFixed(2)}</span>
+                        <span className="font-semibold text-gray-900">Total</span>
+                        <span className="text-2xl font-bold text-[#406517]">
+                          ${(cart.subtotal + cart.shipping + cart.tax).toFixed(2)}
+                        </span>
                       </div>
                     </div>
                   </Stack>
@@ -375,13 +568,18 @@ export default function CartPage() {
                       variant="primary"
                       size="lg"
                       onClick={handleCheckout}
-                      disabled={isCheckingOut}
+                      disabled={isCheckingOut || isCalculatingShipping || !shipState}
                       className="w-full"
                     >
                       {isCheckingOut ? (
                         <>
                           <Spinner size="sm" className="mr-2" />
                           Processing...
+                        </>
+                      ) : !shipState ? (
+                        <>
+                          <MapPin className="w-5 h-5 mr-2" />
+                          Enter Shipping Address
                         </>
                       ) : (
                         <>
@@ -401,7 +599,7 @@ export default function CartPage() {
                       </div>
                       <div className="flex items-center gap-2 text-sm text-gray-600">
                         <Truck className="w-4 h-4 text-[#406517]" />
-                        <span>Shipping calculated based on order</span>
+                        <span>Shipping calculated by destination</span>
                       </div>
                     </Stack>
                   </div>

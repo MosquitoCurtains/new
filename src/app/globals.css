@@ -91,7 +91,8 @@
 
 /* Base Styles */
 html {
-  scroll-behavior: smooth;
+  /* scroll-behavior: smooth causes visible scroll animation on page navigation */
+  /* Use scroll-smooth class on specific containers if needed for anchor links */
 }
 
 body {

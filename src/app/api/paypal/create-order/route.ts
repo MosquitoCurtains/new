@@ -2,11 +2,15 @@
  * PayPal Create Order API
  * 
  * Creates a PayPal order from the shopping cart.
+ * Server-side validates shipping and tax before sending to PayPal.
  */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createPayPalOrder } from '@/lib/paypal'
 import { createClient } from '@/lib/supabase/server'
+import { calculateShipping } from '@/lib/pricing/shipping'
+import { calculateTax } from '@/lib/pricing/tax'
+import { getShippingClassForItem } from '@/lib/pricing/types'
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,6 +35,51 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Server-side shipping/tax validation
+    const address = cartData.shippingAddress
+    let shipping = cartData.shipping || 0
+    let tax = cartData.tax || 0
+
+    if (address?.country && address?.state) {
+      // Detect shipping classes from cart items
+      let hasVinyl = false
+      let hasTrack = false
+      for (const item of cartData.items) {
+        const cls = getShippingClassForItem({ type: item.type, productSku: item.productSku })
+        if (cls === 'clear_vinyl') hasVinyl = true
+        if (cls === 'straight_track') hasTrack = true
+      }
+
+      // Recalculate server-side to prevent tampering
+      const shippingResult = await calculateShipping({
+        address: {
+          country: address.country,
+          state: address.state,
+          zip: address.zip,
+          city: address.city,
+        },
+        hasVinyl,
+        hasTrack,
+        subtotal: cartData.subtotal,
+      })
+
+      const taxResult = await calculateTax(
+        {
+          country: address.country,
+          state: address.state,
+          zip: address.zip,
+          city: address.city,
+        },
+        cartData.subtotal,
+        shippingResult.total
+      )
+
+      shipping = shippingResult.total
+      tax = taxResult.taxAmount
+    }
+
+    const total = cartData.subtotal + shipping + tax
+
     // Convert cart items to PayPal format
     const paypalItems = cartData.items.map((item: {
       name: string
@@ -54,13 +103,13 @@ export async function POST(request: NextRequest) {
     const baseUrl = request.headers.get('origin') || 
                    `${request.headers.get('x-forwarded-proto') || 'https'}://${request.headers.get('host')}`
 
-    // Create PayPal order
+    // Create PayPal order with validated amounts
     const { orderId, approvalUrl } = await createPayPalOrder({
       items: paypalItems,
       subtotal: cartData.subtotal,
-      shipping: cartData.shipping,
-      tax: cartData.tax || 0,
-      total: cartData.total,
+      shipping,
+      tax,
+      total,
       returnUrl: `${baseUrl}/api/paypal/capture?orderId=${cartId || 'cart'}`,
       cancelUrl: `${baseUrl}/cart?cancelled=true`,
       reference: cartId || `cart-${Date.now()}`,

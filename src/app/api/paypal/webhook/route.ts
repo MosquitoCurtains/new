@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyWebhookSignature } from '@/lib/paypal'
 import { createClient } from '@/lib/supabase/server'
+import { sendRefundNotification } from '@/lib/email/notifications'
 
 const WEBHOOK_ID = process.env.PAYPAL_WEBHOOK_ID
 
@@ -72,7 +73,8 @@ export async function POST(request: NextRequest) {
         const paypalOrderId = resource.supplementary_data?.related_ids?.order_id
 
         if (paypalOrderId) {
-          await supabase
+          // Update order status
+          const { data: refundedOrder } = await supabase
             .from('orders')
             .update({
               payment_status: 'refunded',
@@ -80,6 +82,21 @@ export async function POST(request: NextRequest) {
               updated_at: new Date().toISOString(),
             })
             .eq('paypal_order_id', paypalOrderId)
+            .select('id, order_number, customer_email, customer_first_name, customer_last_name, total_amount')
+            .single()
+
+          // Send refund notification to customer (fire-and-forget)
+          if (refundedOrder) {
+            const refundAmount = parseFloat(resource.amount?.value || refundedOrder.total_amount || '0')
+            sendRefundNotification({
+              orderNumber: refundedOrder.order_number || paypalOrderId,
+              orderId: refundedOrder.id,
+              customerFirstName: refundedOrder.customer_first_name || '',
+              customerLastName: refundedOrder.customer_last_name || '',
+              customerEmail: refundedOrder.customer_email || '',
+              refundAmount,
+            }).catch(console.error)
+          }
         }
         break
       }

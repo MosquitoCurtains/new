@@ -12,19 +12,19 @@ interface HeadingProps extends React.HTMLAttributes<HTMLHeadingElement> {
 export const Heading = React.forwardRef<HTMLHeadingElement, HeadingProps>(
   ({ children, level = 1, className = '', ...props }, ref) => {
     const sizes = {
-      1: 'text-2xl md:text-5xl lg:text-6xl',      // Hero titles
-      2: 'text-xl md:text-4xl lg:text-5xl',       // Section titles
-      3: 'text-lg md:text-3xl lg:text-4xl',       // Subsection titles
-      4: 'text-lg md:text-2xl',                   // Card titles
-      5: 'text-base md:text-lg',                  // Small headings
-      6: 'text-sm md:text-base'                   // Smallest headings
+      1: 'text-2xl md:text-3xl',                  // Page titles (24px → 30px)
+      2: 'text-xl md:text-2xl',                   // Section titles (20px → 24px)
+      3: 'text-lg md:text-xl',                    // Subsection titles (18px → 20px)
+      4: 'text-base md:text-lg',                  // Card titles (16px → 18px)
+      5: 'text-sm md:text-base',                  // Small headings (14px → 16px)
+      6: 'text-xs md:text-sm'                     // Smallest headings (12px → 14px)
     }
     
     const margins = {
-      1: 'mb-4 md:mb-6',
-      2: 'mb-3 md:mb-4',
-      3: 'mb-2 md:mb-3',
-      4: 'mb-2',
+      1: 'mb-3 md:mb-4',
+      2: 'mb-2 md:mb-3',
+      3: 'mb-2',
+      4: 'mb-1.5',
       5: 'mb-1',
       6: 'mb-1'
     }

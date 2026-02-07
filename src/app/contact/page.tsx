@@ -27,12 +27,41 @@ export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
+  const [submitError, setSubmitError] = useState('')
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    setSubmitted(true)
-    setIsSubmitting(false)
+    setSubmitError('')
+
+    try {
+      const response = await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: formState.email,
+          firstName: formState.firstName,
+          lastName: formState.lastName,
+          phone: formState.phone || undefined,
+          interest: formState.interest,
+          projectType: formState.projectType,
+          message: formState.message,
+          source: 'contact_form',
+          referrer: document.referrer || undefined,
+          landing_page: window.location.href,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to send message')
+      }
+
+      setSubmitted(true)
+    } catch {
+      setSubmitError('Something went wrong. Please try again or call us at (770) 645-4745.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   if (submitted) {
@@ -230,6 +259,11 @@ export default function ContactPage() {
                     required
                   />
                 </div>
+                {submitError && (
+                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                    {submitError}
+                  </div>
+                )}
                 <Button type="submit" variant="primary" size="lg" disabled={isSubmitting}>
                   {isSubmitting ? 'Sending...' : 'Send Message'}
                   <Send className="ml-2 w-5 h-5" />

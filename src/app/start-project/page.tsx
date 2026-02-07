@@ -25,7 +25,6 @@ import {
   Calculator,
   Phone,
   Mail,
-  Sparkles,
   Bug,
   Snowflake,
   MessageSquare,
@@ -48,7 +47,7 @@ import {
   Spinner,
   Badge,
 } from '@/lib/design-system'
-import { EmailGateModal, PhotoUploader, UploadedPhoto, DIYBuilder, DIYProject, FabricConfigurator, FabricOrder, QuickSetup, QuickSetupOptions, MeshOptions, VinylOptions, RawMaterialOptions } from '@/components/project'
+import { PhotoUploader, UploadedPhoto, DIYBuilder, DIYProject, FabricConfigurator, FabricOrder, QuickSetup, QuickSetupOptions, MeshOptions, VinylOptions, RawMaterialOptions } from '@/components/project'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 
@@ -129,7 +128,7 @@ const PRODUCT_TYPES = [
     title: 'Mosquito Curtains',
     subtitle: 'Insect Protection',
     description: 'Custom screen panels - sewn to your measurements',
-    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/Square-Mosquito-Netting-500x500.jpg',
+    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/00-Mosquito-Netting-Various-Projects-1200-768x576.jpg',
     icon: Bug,
     color: '#406517',
   },
@@ -138,7 +137,7 @@ const PRODUCT_TYPES = [
     title: 'Clear Vinyl Panels',
     subtitle: 'Weather Protection',
     description: 'Custom vinyl panels - block wind, rain & cold',
-    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/81-Screen-Patio-Enclosure-1200-400x300-1.jpg',
+    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/00-Clear-Plastic-Winter-Panels-Porch-Gray-1200-768x576.jpg',
     icon: Snowflake,
     color: '#003365',
   },
@@ -214,11 +213,7 @@ function calculateQuickPrice(specs: QuickSpecs, options: QuickSetupOptions) {
 
 function ProductTypeStep({ value, onChange }: { value: ProductType; onChange: (value: ProductType) => void }) {
   return (
-    <div className="space-y-6">
-      <div className="text-center">
-        <Heading level={2} className="!mb-2">What Are You Looking For?</Heading>
-        <Text className="text-gray-600">Select your product type to get started</Text>
-      </div>
+    <div>
       <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="md">
         {PRODUCT_TYPES.map((product) => {
           const Icon = product.icon
@@ -233,11 +228,11 @@ function ProductTypeStep({ value, onChange }: { value: ProductType; onChange: (v
                 isSelected ? 'border-[#406517] ring-2 ring-[#406517]/20' : 'border-gray-200 hover:border-gray-300'
               )}
             >
-              <Frame ratio="4/3">
+              <Frame ratio="16/10">
                 <img src={product.image} alt={product.title} className="w-full h-full object-cover" />
               </Frame>
-              <div className="p-4">
-                <div className="flex items-center gap-2 mb-1">
+              <div className="p-3">
+                <div className="flex items-center gap-2 mb-0.5">
                   <Icon className="w-4 h-4" style={{ color: product.color }} />
                   <Text size="xs" className="font-semibold uppercase tracking-wider !mb-0" style={{ color: product.color }}>
                     {product.subtitle}
@@ -247,7 +242,7 @@ function ProductTypeStep({ value, onChange }: { value: ProductType; onChange: (v
                   <Heading level={4} className="!mb-0 text-gray-900">{product.title}</Heading>
                   {isSelected && <CheckCircle className="w-5 h-5 text-[#406517]" />}
                 </div>
-                <Text size="sm" className="text-gray-600 !mb-0 mt-1">{product.description}</Text>
+                <Text size="sm" className="text-gray-600 !mb-0 mt-0.5">{product.description}</Text>
               </div>
             </button>
           )
@@ -259,10 +254,10 @@ function ProductTypeStep({ value, onChange }: { value: ProductType; onChange: (v
 
 function ChoosePathStep({ value, onChange, onSelect }: { value: ProjectMode; onChange: (mode: ProjectMode) => void; onSelect: (mode: ProjectMode) => void }) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="text-center">
-        <Heading level={2} className="!mb-2">How Can We Help?</Heading>
-        <Text className="text-gray-600">Choose the approach that works best for you</Text>
+        <Heading level={2} className="!mb-1 !text-xl md:!text-2xl">How Can We Help?</Heading>
+        <Text size="sm" className="text-gray-600 !mb-0">Choose the approach that works best for you</Text>
       </div>
       <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="md">
         {PATH_OPTIONS.map((path) => {
@@ -276,7 +271,7 @@ function ChoosePathStep({ value, onChange, onSelect }: { value: ProjectMode; onC
                 onSelect(path.id)
               }}
               className={cn(
-                'relative text-left p-6 rounded-2xl border-2 transition-all bg-white',
+                'relative text-left p-5 rounded-2xl border-2 transition-all bg-white',
                 'hover:transform hover:-translate-y-1 hover:shadow-lg',
                 isSelected ? 'border-[#406517] bg-[#406517]/5 ring-4 ring-[#406517]/20' : 'border-gray-200 hover:border-gray-300'
               )}
@@ -284,15 +279,15 @@ function ChoosePathStep({ value, onChange, onSelect }: { value: ProjectMode; onC
               <Badge className="absolute -top-3 right-4 !text-white" style={{ backgroundColor: path.color, borderColor: path.color }}>
                 {path.badge}
               </Badge>
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ backgroundColor: `${path.color}15` }}>
-                <Icon className="w-6 h-6" style={{ color: path.color }} />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ backgroundColor: `${path.color}15` }}>
+                <Icon className="w-5 h-5" style={{ color: path.color }} />
               </div>
               <Heading level={4} className={cn('!mb-1', isSelected && 'text-[#406517]')}>{path.title}</Heading>
-              <Text size="sm" className="text-gray-600 !mb-3">{path.description}</Text>
+              <Text size="sm" className="text-gray-600 !mb-2">{path.description}</Text>
               <ul className="space-y-1">
                 {path.features.map((feature, i) => (
                   <li key={i} className="flex items-center gap-2 text-sm text-gray-700">
-                    <Check className="w-4 h-4 text-[#406517] flex-shrink-0" />
+                    <Check className="w-3.5 h-3.5 text-[#406517] flex-shrink-0" />
                     {feature}
                   </li>
                 ))}
@@ -307,13 +302,13 @@ function ChoosePathStep({ value, onChange, onSelect }: { value: ProjectMode; onC
 
 function ContactStep({ data, onChange }: { data: ContactInfo; onChange: (data: ContactInfo) => void }) {
   return (
-    <Stack gap="lg">
+    <Stack gap="md">
       <div className="text-center">
-        <div className="w-16 h-16 bg-[#406517]/10 rounded-full mx-auto mb-4 flex items-center justify-center">
-          <User className="w-8 h-8 text-[#406517]" />
+        <div className="w-12 h-12 bg-[#406517]/10 rounded-full mx-auto mb-3 flex items-center justify-center">
+          <User className="w-6 h-6 text-[#406517]" />
         </div>
-        <Heading level={2}>Your Contact Information</Heading>
-        <Text className="text-gray-600">So we can reach you about your project.</Text>
+        <Heading level={2} className="!text-xl md:!text-2xl">Your Contact Information</Heading>
+        <Text size="sm" className="text-gray-600 !mb-0">So we can reach you about your project.</Text>
       </div>
       <Card variant="elevated" className="!p-6 max-w-xl mx-auto w-full">
         <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="md">
@@ -341,13 +336,13 @@ function ContactStep({ data, onChange }: { data: ContactInfo; onChange: (data: C
 
 function PhotosStep({ photos, onPhotosChange, sessionId }: { photos: UploadedPhoto[]; onPhotosChange: (photos: UploadedPhoto[]) => void; sessionId: string }) {
   return (
-    <Stack gap="lg">
+    <Stack gap="md">
       <div className="text-center">
-        <div className="w-16 h-16 bg-[#FFA501]/10 rounded-full mx-auto mb-4 flex items-center justify-center">
-          <Camera className="w-8 h-8 text-[#FFA501]" />
+        <div className="w-12 h-12 bg-[#FFA501]/10 rounded-full mx-auto mb-3 flex items-center justify-center">
+          <Camera className="w-6 h-6 text-[#FFA501]" />
         </div>
-        <Heading level={2}>Upload Photos of Your Space</Heading>
-        <Text className="text-gray-600">Photos help us understand your project and give you an accurate quote.</Text>
+        <Heading level={2} className="!text-xl md:!text-2xl">Upload Photos of Your Space</Heading>
+        <Text size="sm" className="text-gray-600 !mb-0">Photos help us understand your project and give you an accurate quote.</Text>
       </div>
       <PhotoUploader sessionId={sessionId} maxFiles={10} onUploadComplete={onPhotosChange} />
       <Card variant="outlined" className="!p-4 !bg-[#003365]/5 !border-[#003365]/20 max-w-2xl mx-auto">
@@ -365,11 +360,11 @@ function QuickSpecsStep({ specs, options, onChange, price }: { specs: QuickSpecs
       <div className="md:col-span-2">
         <Stack gap="lg">
           <div className="text-center md:text-left">
-            <div className="w-16 h-16 bg-[#B30158]/10 rounded-full mx-auto md:mx-0 mb-4 flex items-center justify-center">
-              <Ruler className="w-8 h-8 text-[#B30158]" />
+            <div className="w-12 h-12 bg-[#B30158]/10 rounded-full mx-auto md:mx-0 mb-3 flex items-center justify-center">
+              <Ruler className="w-6 h-6 text-[#B30158]" />
             </div>
-            <Heading level={2}>Project Dimensions</Heading>
-            <Text className="text-gray-600">Tell us about your project size.</Text>
+            <Heading level={2} className="!text-xl md:!text-2xl">Project Dimensions</Heading>
+            <Text size="sm" className="text-gray-600 !mb-0">Tell us about your project size.</Text>
           </div>
           <Card variant="elevated" className="!p-4">
             <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="md">
@@ -411,13 +406,13 @@ function QuickSpecsStep({ specs, options, onChange, price }: { specs: QuickSpecs
 
 function ReviewStep({ state, price }: { state: WizardState; price: { subtotal: number; shipping: number; total: number } }) {
   return (
-    <Stack gap="lg">
+    <Stack gap="md">
       <div className="text-center">
-        <div className="w-16 h-16 bg-[#406517]/10 rounded-full mx-auto mb-4 flex items-center justify-center">
-          <CheckCircle className="w-8 h-8 text-[#406517]" />
+        <div className="w-12 h-12 bg-[#406517]/10 rounded-full mx-auto mb-3 flex items-center justify-center">
+          <CheckCircle className="w-6 h-6 text-[#406517]" />
         </div>
-        <Heading level={2}>Review Your Project</Heading>
-        <Text className="text-gray-600">Confirm your details before submitting.</Text>
+        <Heading level={2} className="!text-xl md:!text-2xl">Review Your Project</Heading>
+        <Text size="sm" className="text-gray-600 !mb-0">Confirm your details before submitting.</Text>
       </div>
       <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg" className="max-w-3xl mx-auto">
         <Card variant="elevated" className="!p-6">
@@ -459,7 +454,6 @@ export default function StartProjectPage() {
   const [state, setState] = useState<WizardState>(initialState)
   const [wizardStep, setWizardStep] = useState<WizardStep>('product')
   const [modeStep, setModeStep] = useState(0)
-  const [showEmailGate, setShowEmailGate] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
@@ -480,30 +474,11 @@ export default function StartProjectPage() {
     router.push('/cart')
   }
 
-  // Handle email capture
-  const handleEmailSubmit = (data: { email: string; firstName?: string }) => {
-    setState(prev => ({ ...prev, email: data.email, contact: { ...prev.contact, email: data.email, firstName: data.firstName || '' } }))
-    setShowEmailGate(false)
-    setWizardStep('mode-steps')
-    setModeStep(1)
-  }
-
-  // Handle path selection - immediately proceed based on mode
+  // Handle path selection - immediately proceed to mode steps
   const handlePathSelect = (mode: ProjectMode) => {
     setState(prev => ({ ...prev, mode }))
-    
-    // Expert path - show email gate then go straight to photos
-    if (mode === 'planner') {
-      setShowEmailGate(true)
-    }
-    // Quote path - show email gate then go to options
-    else if (mode === 'quote') {
-      setShowEmailGate(true)
-    }
-    // DIY path - show email gate then go to builder
-    else if (mode === 'diy') {
-      setShowEmailGate(true)
-    }
+    setWizardStep('mode-steps')
+    setModeStep(1)
   }
 
   // Can proceed to next mode step?
@@ -611,51 +586,42 @@ export default function StartProjectPage() {
             <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#003365]/10 rounded-full blur-3xl" />
           </div>
           
-          <div className="bg-gradient-to-br from-[#406517]/5 via-white to-[#003365]/5 border-[#406517]/20 border-2 rounded-3xl p-6 md:p-8 lg:p-10">
+          <div className="bg-gradient-to-br from-[#406517]/5 via-white to-[#003365]/5 border-[#406517]/20 border-2 rounded-3xl p-5 md:p-6 lg:p-8">
             {/* Header */}
-            <div className="flex flex-col items-center text-center space-y-4 mb-6">
-              <Badge variant="primary" className="!bg-[#406517]/10 !text-[#406517] !border-[#406517]/30">
-                <Sparkles className="w-4 h-4 mr-2" />
-                We are here to help
-              </Badge>
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-gray-900">
+            <div className="flex flex-col items-center text-center space-y-2 mb-4">
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-gray-900">
                 Start Your Project Today
               </h1>
+              <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto">
+                Custom-crafted to your exact measurements. Marine-grade quality.
+              </p>
             </div>
 
-            {/* Progress - Initial Steps */}
+            {/* Divider - shown on initial steps */}
             {wizardStep !== 'mode-steps' && (
-              <div className="flex justify-center gap-2 mb-6">
-                {['product', 'path'].map((step, idx) => (
-                  <div key={step} className="flex items-center">
-                    <div className={cn(
-                      'w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all',
-                      wizardStep === step ? 'bg-[#406517] text-white' :
-                      ['product', 'path'].indexOf(wizardStep) > idx ? 'bg-[#406517]/20 text-[#406517]' :
-                      'bg-gray-100 text-gray-400'
-                    )}>
-                      {idx + 1}
-                    </div>
-                    {idx < 1 && <div className={cn('w-12 h-0.5 mx-2', ['product', 'path'].indexOf(wizardStep) > idx ? 'bg-[#406517]' : 'bg-gray-200')} />}
-                  </div>
-                ))}
+              <div className="flex items-center gap-4 mb-4">
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent to-gray-300" />
+                <div className="text-center px-4">
+                  <Heading level={3} className="!text-base !mb-0 text-gray-900">Choose Your Solution</Heading>
+                </div>
+                <div className="h-px flex-1 bg-gradient-to-l from-transparent to-gray-300" />
               </div>
             )}
 
             {/* Progress - Mode Steps */}
             {wizardStep === 'mode-steps' && state.mode !== 'diy' && (
-              <div className="flex justify-center gap-2 mb-6">
+              <div className="flex justify-center gap-2 mb-4">
                 {modeInfo.steps.map((step, idx) => {
                   const Icon = modeInfo.icons[idx]
                   return (
                     <div key={step} className="flex items-center">
                       <div className={cn(
-                        'w-8 h-8 rounded-full flex items-center justify-center transition-all',
+                        'w-7 h-7 rounded-full flex items-center justify-center transition-all',
                         modeStep === idx + 1 ? 'bg-[#406517] text-white' :
                         modeStep > idx + 1 ? 'bg-[#406517]/20 text-[#406517]' :
                         'bg-gray-100 text-gray-400'
                       )}>
-                        <Icon className="w-4 h-4" />
+                        <Icon className="w-3.5 h-3.5" />
                       </div>
                       {idx < modeInfo.steps.length - 1 && (
                         <div className={cn('w-8 h-0.5 mx-1', modeStep > idx + 1 ? 'bg-[#406517]' : 'bg-gray-200')} />
@@ -667,7 +633,7 @@ export default function StartProjectPage() {
             )}
 
             {/* Step Content */}
-            <div className="min-h-[400px]">
+            <div className="min-h-[300px]">
               {/* Initial Steps */}
               {wizardStep === 'product' && (
                 <ProductTypeStep 
@@ -728,7 +694,7 @@ export default function StartProjectPage() {
 
             {/* Navigation - Initial Steps */}
             {wizardStep !== 'mode-steps' && wizardStep !== 'path' && (
-              <div className="flex justify-between items-center pt-6 border-t border-gray-200 mt-6">
+              <div className="flex justify-between items-center pt-4 border-t border-gray-200 mt-4">
                 <Button variant="ghost" disabled={wizardStep === 'product'}>
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back
@@ -744,7 +710,7 @@ export default function StartProjectPage() {
 
             {/* Navigation - Mode Steps (not DIY) */}
             {wizardStep === 'mode-steps' && state.mode !== 'diy' && (
-              <div className="flex justify-between items-center pt-6 border-t border-gray-200 mt-6">
+              <div className="flex justify-between items-center pt-4 border-t border-gray-200 mt-4">
                 <Button variant="ghost" onClick={() => {
                   if (modeStep === 1) { setWizardStep('path'); setModeStep(0) }
                   else setModeStep(modeStep - 1)
@@ -767,8 +733,6 @@ export default function StartProjectPage() {
           </div>
         </section>
 
-        {/* Email Gate Modal */}
-        <EmailGateModal isOpen={showEmailGate} onClose={() => setShowEmailGate(false)} onSubmit={handleEmailSubmit} />
       </Stack>
     </Container>
   )

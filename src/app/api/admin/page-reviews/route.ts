@@ -1,14 +1,16 @@
 /**
- * Page Reviews API
+ * Page Reviews & Audit API
  * 
- * Uses site_pages table from migration 4, with review columns from migration 7.
+ * Uses site_pages table from migration 4, with review columns from migration 7/8.
+ * Supports fetching detailed SEO and AI audit data via ?type= parameter.
  * 
- * GET  - Fetch all pages with review status
+ * GET  - Fetch pages (type=reviews|seo|ai)
  * PATCH - Update a page's review status and notes
+ * POST - Create a new page
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 export type ReviewStatus = 'pending' | 'complete' | 'needs_revision'
 export type MigrationStatus = 'not_started' | 'content_extracted' | 'in_progress' | 'review' | 'approved' | 'live' | 'redirect_only' | 'deprecated'
@@ -29,62 +31,116 @@ export interface PageReview {
   reviewed_by: string | null
   created_at: string
   updated_at: string
-  // SEO audit data (if available)
   seo_score?: number | null
-  // AI audit data (if available)
   ai_score?: number | null
-  // Performance audit data (if available)
   performance_score?: number | null
 }
 
 // =============================================================================
-// GET - Fetch all pages with review status
+// GET - Fetch pages with review status, or detailed audit data
 // =============================================================================
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient()
-    
-    // Try to use the dashboard view first (includes audit scores)
-    let data: PageReview[] | null = null
-    let error = null
-    
-    // First try the view
-    const viewResult = await supabase
-      .from('page_audit_dashboard')
-      .select('*')
-      .order('migration_priority', { ascending: false })
-      .order('title', { ascending: true })
-    
-    if (viewResult.error) {
-      // If view doesn't exist, fall back to site_pages table
-      const tableResult = await supabase
-        .from('site_pages')
-        .select('*')
-        .order('migration_priority', { ascending: false })
-        .order('title', { ascending: true })
-      
-      data = tableResult.data as PageReview[] | null
-      error = tableResult.error
-    } else {
-      data = viewResult.data as PageReview[] | null
+    // Use admin client (service role) to bypass RLS -- this is an admin endpoint
+    const supabase = createAdminClient()
+    const { searchParams } = new URL(request.url)
+    const type = searchParams.get('type') || 'reviews'
+
+    // ----- SEO Audit Details -----
+    if (type === 'seo') {
+      const { data, error } = await supabase
+        .from('seo_audits')
+        .select(`
+          *,
+          site_pages!inner (
+            id, slug, title, page_type, migration_status, migration_priority
+          )
+        `)
+        .order('seo_score', { ascending: true, nullsFirst: true })
+
+      if (error) {
+        if (error.code === '42P01' || error.message?.includes('does not exist')) {
+          return NextResponse.json({ audits: [], message: 'SEO audit table not found. Run migration 20260205000004.' })
+        }
+        throw error
+      }
+
+      // Flatten the nested site_pages into each audit row
+      const audits = (data || []).map((row: Record<string, unknown>) => {
+        const page = row.site_pages as Record<string, unknown> | null
+        const { site_pages: _removed, ...audit } = row
+        return { ...audit, ...(page || {}) }
+      })
+
+      return NextResponse.json({ audits })
     }
 
-    if (error) {
-      // If table doesn't exist yet
-      if (error.code === '42P01') {
+    // ----- AI Audit Details -----
+    if (type === 'ai') {
+      const { data, error } = await supabase
+        .from('ai_readiness_audits')
+        .select(`
+          *,
+          site_pages!inner (
+            id, slug, title, page_type, migration_status, migration_priority
+          )
+        `)
+        .order('ai_score', { ascending: true, nullsFirst: true })
+
+      if (error) {
+        if (error.code === '42P01' || error.message?.includes('does not exist')) {
+          return NextResponse.json({ audits: [], message: 'AI audit table not found. Run migration 20260205000004.' })
+        }
+        throw error
+      }
+
+      const audits = (data || []).map((row: Record<string, unknown>) => {
+        const page = row.site_pages as Record<string, unknown> | null
+        const { site_pages: _removed, ...audit } = row
+        return { ...audit, ...(page || {}) }
+      })
+
+      return NextResponse.json({ audits })
+    }
+
+    // ----- Default: Page Reviews -----
+    // Query site_pages directly with embedded audit scores
+    // (the page_audit_dashboard view is missing wordpress_url and other useful fields)
+    const { data: sitePages, error: pagesError } = await supabase
+      .from('site_pages')
+      .select(`
+        *,
+        seo_audits ( seo_score, seo_rating ),
+        ai_readiness_audits ( ai_score, ai_rating )
+      `)
+      .order('migration_priority', { ascending: false })
+      .order('title', { ascending: true })
+
+    if (pagesError) {
+      if (pagesError.code === '42P01') {
         return NextResponse.json({ 
           pages: [],
           stats: { total: 0, pending: 0, complete: 0, needs_revision: 0, built: 0 },
           message: 'Table not found. Run migrations 20260205000004 and 20260205000007.'
         })
       }
-      throw error
+      throw pagesError
     }
 
-    const pages = data || []
+    // Flatten embedded audit scores into page objects
+    const pages = (sitePages || []).map((row: Record<string, unknown>) => {
+      const seoAudit = row.seo_audits as Record<string, unknown> | null
+      const aiAudit = row.ai_readiness_audits as Record<string, unknown> | null
+      const { seo_audits: _s, ai_readiness_audits: _a, ...page } = row
+      return {
+        ...page,
+        seo_score: seoAudit?.seo_score ?? null,
+        ai_score: aiAudit?.ai_score ?? null,
+        performance_score: null, // No performance audit yet
+      }
+    }) as PageReview[]
     
-    // Calculate stats
     const stats = {
       total: pages.length,
       pending: pages.filter(p => p.review_status === 'pending' || !p.review_status).length,
@@ -116,7 +172,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Missing page id' }, { status: 400 })
     }
 
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Build update object
     const updates: Record<string, unknown> = {
@@ -163,7 +219,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { data, error } = await supabase
       .from('site_pages')

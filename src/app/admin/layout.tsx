@@ -1,0 +1,293 @@
+'use client'
+
+import React, { useState, useEffect } from 'react'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import {
+  LayoutGrid,
+  ChevronLeft,
+  Menu,
+  X,
+  ExternalLink,
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { adminNavSections, isNavItemActive, type NavItem } from '@/lib/navigation'
+
+// =============================================================================
+// ADMIN LAYOUT
+// Persistent sidebar on desktop, slide-out drawer on mobile
+// =============================================================================
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname()
+  const [collapsed, setCollapsed] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+
+  // Close mobile drawer on navigation
+  useEffect(() => {
+    setMobileOpen(false)
+  }, [pathname])
+
+  // Lock body scroll when mobile drawer is open
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => { document.body.style.overflow = '' }
+  }, [mobileOpen])
+
+  return (
+    <div className="flex min-h-screen bg-gray-50">
+      {/* ================================================================= */}
+      {/* DESKTOP SIDEBAR                                                    */}
+      {/* ================================================================= */}
+      <aside
+        className={cn(
+          'hidden md:flex flex-col fixed inset-y-0 left-0 z-30',
+          'bg-white border-r border-gray-200',
+          'transition-[width] duration-300 ease-in-out',
+          collapsed ? 'w-[52px]' : 'w-48',
+        )}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between h-12 px-2.5 border-b border-gray-100 shrink-0">
+          {!collapsed && (
+            <Link href="/admin" className="flex items-center gap-2 group">
+              <div className="w-7 h-7 rounded-md bg-[#406517] flex items-center justify-center shrink-0">
+                <span className="text-white text-[10px] font-bold">MC</span>
+              </div>
+              <span className="text-xs font-bold text-gray-900 group-hover:text-[#406517] transition-colors">
+                Admin
+              </span>
+            </Link>
+          )}
+          {collapsed && (
+            <button
+              onClick={() => setCollapsed(false)}
+              className="mx-auto p-1 rounded-md hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+              title="Expand sidebar"
+            >
+              <div className="w-7 h-7 rounded-md bg-[#406517] flex items-center justify-center">
+                <span className="text-white text-[10px] font-bold">MC</span>
+              </div>
+            </button>
+          )}
+          {!collapsed && (
+            <button
+              onClick={() => setCollapsed(true)}
+              className="p-1 rounded-md hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+              title="Collapse sidebar"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+
+        {/* Dashboard link */}
+        <div className="px-2 pt-2 pb-0.5 shrink-0">
+          <NavLink
+            item={{ name: 'Dashboard', href: '/admin', icon: LayoutGrid }}
+            pathname={pathname}
+            collapsed={collapsed}
+          />
+        </div>
+
+        {/* Scrollable nav sections */}
+        <nav className="flex-1 overflow-y-auto px-2 py-1.5 space-y-3">
+          {adminNavSections.map((section) => (
+            <div key={section.label}>
+              {!collapsed && (
+                <p className="px-2 mb-1 text-[9px] font-semibold uppercase tracking-widest text-gray-400">
+                  {section.label}
+                </p>
+              )}
+              {collapsed && (
+                <div className="mx-auto w-5 border-t border-gray-200 mb-1.5" />
+              )}
+              <div className="space-y-px">
+                {section.items.map((item) => (
+                  <NavLink
+                    key={item.href}
+                    item={item}
+                    pathname={pathname}
+                    collapsed={collapsed}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
+        </nav>
+
+        {/* Footer */}
+        <div className="px-2 py-2 border-t border-gray-100 shrink-0">
+          {!collapsed ? (
+            <Link
+              href="/"
+              className="flex items-center gap-1.5 px-2 py-1.5 text-[11px] text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-50 transition-colors"
+            >
+              <ExternalLink className="w-3 h-3" />
+              View site
+            </Link>
+          ) : (
+            <Link
+              href="/"
+              className="flex items-center justify-center py-1.5 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-50 transition-colors"
+              title="View live site"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+            </Link>
+          )}
+        </div>
+      </aside>
+
+      {/* ================================================================= */}
+      {/* MOBILE TOP BAR                                                     */}
+      {/* ================================================================= */}
+      <div className="md:hidden fixed top-0 inset-x-0 z-30 h-14 bg-white border-b border-gray-200 flex items-center px-4 gap-3">
+        <button
+          onClick={() => setMobileOpen(true)}
+          className="p-2 -ml-2 rounded-lg hover:bg-gray-100 transition-colors"
+        >
+          <Menu className="w-5 h-5 text-gray-700" />
+        </button>
+        <Link href="/admin" className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-md bg-[#406517] flex items-center justify-center">
+            <span className="text-white text-[10px] font-bold">MC</span>
+          </div>
+          <span className="text-sm font-bold text-gray-900">Admin</span>
+        </Link>
+      </div>
+
+      {/* ================================================================= */}
+      {/* MOBILE DRAWER OVERLAY                                              */}
+      {/* ================================================================= */}
+      {mobileOpen && (
+        <div className="md:hidden fixed inset-0 z-40">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+            onClick={() => setMobileOpen(false)}
+          />
+          {/* Drawer */}
+          <aside className="absolute inset-y-0 left-0 w-72 bg-white shadow-xl flex flex-col animate-in slide-in-from-left duration-200">
+            {/* Drawer header */}
+            <div className="flex items-center justify-between h-14 px-4 border-b border-gray-100 shrink-0">
+              <Link href="/admin" className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-[#406517] flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">MC</span>
+                </div>
+                <span className="text-sm font-bold text-gray-900">Admin</span>
+              </Link>
+              <button
+                onClick={() => setMobileOpen(false)}
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            {/* Dashboard */}
+            <div className="px-3 pt-3 pb-1 shrink-0">
+              <NavLink
+                item={{ name: 'Dashboard', href: '/admin', icon: LayoutGrid }}
+                pathname={pathname}
+                collapsed={false}
+              />
+            </div>
+
+            {/* Sections */}
+            <nav className="flex-1 overflow-y-auto px-3 py-2 space-y-4">
+              {adminNavSections.map((section) => (
+                <div key={section.label}>
+                  <p className="px-3 mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+                    {section.label}
+                  </p>
+                  <div className="space-y-0.5">
+                    {section.items.map((item) => (
+                      <NavLink
+                        key={item.href}
+                        item={item}
+                        pathname={pathname}
+                        collapsed={false}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </nav>
+
+            {/* Footer */}
+            <div className="px-3 py-3 border-t border-gray-100 shrink-0">
+              <Link
+                href="/"
+                className="flex items-center gap-2 px-3 py-2 text-xs text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                View live site
+              </Link>
+            </div>
+          </aside>
+        </div>
+      )}
+
+      {/* ================================================================= */}
+      {/* MAIN CONTENT                                                       */}
+      {/* ================================================================= */}
+      <main
+        className={cn(
+          'flex-1 min-h-screen transition-[margin] duration-300 ease-in-out',
+          // Desktop: offset for sidebar width
+          collapsed ? 'md:ml-[52px]' : 'md:ml-48',
+          // Mobile: offset for top bar
+          'pt-14 md:pt-0',
+        )}
+      >
+        {children}
+      </main>
+    </div>
+  )
+}
+
+
+// =============================================================================
+// NAV LINK COMPONENT
+// =============================================================================
+
+function NavLink({
+  item,
+  pathname,
+  collapsed,
+}: {
+  item: NavItem
+  pathname: string
+  collapsed: boolean
+}) {
+  const Icon = item.icon
+  const isActive = isNavItemActive(item, pathname)
+
+  return (
+    <Link
+      href={item.href}
+      title={collapsed ? item.name : undefined}
+      className={cn(
+        'flex items-center gap-2 rounded-md text-xs font-medium transition-all duration-150',
+        collapsed ? 'justify-center px-1.5 py-2' : 'px-2 py-1.5',
+        isActive
+          ? 'bg-[#406517]/10 text-[#406517]'
+          : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
+      )}
+    >
+      {Icon && (
+        <Icon
+          className={cn(
+            'shrink-0 w-4 h-4',
+            isActive ? 'text-[#406517]' : 'text-gray-400',
+          )}
+        />
+      )}
+      {!collapsed && <span className="truncate">{item.name}</span>}
+    </Link>
+  )
+}

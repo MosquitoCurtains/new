@@ -6,6 +6,21 @@
  */
 
 // =============================================================================
+// Database-Driven Pricing
+// =============================================================================
+
+/**
+ * Map of pricing IDs to their numeric values.
+ * Populated from the `product_pricing` database table.
+ * Keys are the `id` column from the table (e.g. 'mesh_heavy_mosquito').
+ * Values are the `value` column (numeric price/rate/multiplier).
+ * 
+ * When passed to formula functions, DB values take precedence.
+ * When a key is missing, the formula falls back to its hardcoded default.
+ */
+export type PricingMap = Record<string, number>
+
+// =============================================================================
 // Product Types
 // =============================================================================
 
@@ -201,7 +216,7 @@ export interface AttachmentConfig {
 
 export interface RawMeshConfig {
   materialType: MeshType | 'scrim'
-  rollWidth: 54 | 72 | 96
+  rollWidth: 101 | 120 | 123 | 138 | 140
   color: PanelColor
   lengthFeet: number
 }
@@ -234,4 +249,30 @@ export interface LineItemPrice {
   lineTotal: number
   breakdown: PriceBreakdown
   options: Record<string, string>
+}
+
+// =============================================================================
+// Shipping & Tax Types
+// =============================================================================
+
+/** Shipping class determines which shipping rate to use */
+export type ShippingClass = 'default' | 'clear_vinyl' | 'straight_track'
+
+/** Maps product SKU prefixes to their shipping class */
+export function getShippingClassForItem(item: { type: string; productSku: string }): ShippingClass {
+  // Clear vinyl panels
+  if (item.productSku.startsWith('vinyl_') || item.productSku === 'clear_vinyl_panel') {
+    return 'clear_vinyl'
+  }
+  // Track and track hardware
+  if (
+    item.type === 'track' ||
+    item.productSku.startsWith('track_') ||
+    item.productSku === 'heavy_track' ||
+    item.productSku === 'standard_track'
+  ) {
+    return 'straight_track'
+  }
+  // Everything else uses default shipping
+  return 'default'
 }

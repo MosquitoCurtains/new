@@ -13,6 +13,8 @@ import { Plus, ShoppingCart, Calculator, Package, Wrench } from 'lucide-react'
 import { Card, Grid, Stack, Heading, Text, Button } from '@/lib/design-system'
 import { PanelEditor, PanelConfig } from './PanelEditor'
 import { calculateMeshPanelPrice } from '@/lib/pricing/formulas'
+import { usePricing } from '@/hooks/usePricing'
+import type { PricingMap } from '@/lib/pricing/types'
 
 // =============================================================================
 // TYPES
@@ -72,10 +74,9 @@ function createDefaultPanel(): PanelConfig {
 }
 
 /**
- * Calculate panel price based on Gravity Forms formula:
- * (width_feet + width_inches/12) * mesh_rate + panel_fee
+ * Calculate panel price using database-driven pricing.
  */
-function calculatePanelPrice(panel: PanelConfig): number {
+function calculatePanelPrice(panel: PanelConfig, prices: PricingMap): number {
   return calculateMeshPanelPrice({
     widthFeet: panel.widthFeet,
     widthInches: panel.widthInches,
@@ -84,7 +85,7 @@ function calculatePanelPrice(panel: PanelConfig): number {
     meshColor: panel.color,
     topAttachment: panel.topAttachment,
     velcroColor: panel.velcroColor,
-  }).total
+  }, prices).total
 }
 
 function calculateHardwarePrice(hardware: TrackHardware): number {
@@ -111,6 +112,7 @@ function calculateHardwarePrice(hardware: TrackHardware): number {
 // =============================================================================
 
 export function DIYBuilder({ onAddToCart }: DIYBuilderProps) {
+  const { prices, isLoading: pricingLoading, error: pricingError } = usePricing()
   const [panels, setPanels] = useState<PanelConfig[]>([createDefaultPanel()])
   const [hardware, setHardware] = useState<TrackHardware>({
     straightTrack: 3,
@@ -130,13 +132,14 @@ export function DIYBuilder({ onAddToCart }: DIYBuilderProps) {
 
   // Calculate totals
   const totals = useMemo<ProjectTotals>(() => {
-    const panelsSubtotal = panels.reduce((sum, panel) => sum + calculatePanelPrice(panel), 0)
+    if (!prices) return { panelsSubtotal: 0, hardwareSubtotal: 0, addOnsSubtotal: 0, subtotal: 0, estimatedShipping: 0, total: 0 }
+    const panelsSubtotal = panels.reduce((sum, panel) => sum + calculatePanelPrice(panel, prices), 0)
     const hardwareSubtotal = calculateHardwarePrice(hardware)
     const addOnsSubtotal = (addOns.snapTool ? 130 : 0) + (addOns.magnetDoorway * 75)
     const subtotal = panelsSubtotal + hardwareSubtotal + addOnsSubtotal
     const estimatedShipping = 0 // Calculated at checkout
     return { panelsSubtotal, hardwareSubtotal, addOnsSubtotal, subtotal, estimatedShipping, total: subtotal }
-  }, [panels, hardware, addOns])
+  }, [panels, hardware, addOns, prices])
 
   // Estimate recommended hardware
   const recommendedHardware = useMemo(() => {
@@ -197,7 +200,7 @@ export function DIYBuilder({ onAddToCart }: DIYBuilderProps) {
                   index={index}
                   onUpdate={(p) => updatePanel(index, p)}
                   onRemove={() => removePanel(index)}
-                  calculatedPrice={calculatePanelPrice(panel)}
+                  calculatedPrice={prices ? calculatePanelPrice(panel, prices) : 0}
                 />
               ))}
             </Stack>

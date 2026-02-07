@@ -14,6 +14,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { capturePayPalOrder } from '@/lib/paypal'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { sendOrderConfirmation, sendNewOrderAlert } from '@/lib/email/notifications'
 
 export async function GET(request: NextRequest) {
   try {
@@ -166,6 +167,23 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // ---------------------------------------------------------------------------
+    // Send email notifications (fire-and-forget)
+    // ---------------------------------------------------------------------------
+    if (order) {
+      const emailData = {
+        orderNumber: order.order_number || `MC-${(order.id as string).slice(0, 8).toUpperCase()}`,
+        orderId: order.id,
+        customerFirstName: order.customer_first_name || '',
+        customerLastName: order.customer_last_name || '',
+        customerEmail: order.customer_email || '',
+        totalAmount: order.total_amount || parseFloat(captureResult.amount),
+        createdAt: order.created_at || new Date().toISOString(),
+      }
+      sendOrderConfirmation(emailData).catch(console.error)
+      sendNewOrderAlert(emailData).catch(console.error)
+    }
+
     // Redirect to order confirmation
     const confirmationOrderId = order?.id || token
     return NextResponse.redirect(new URL(`/order/${confirmationOrderId}?success=true`, request.url))
@@ -283,6 +301,21 @@ export async function POST(request: NextRequest) {
           payment_method: 'paypal'
         }
       })
+    }
+
+    // Send email notifications (fire-and-forget)
+    if (order) {
+      const emailData = {
+        orderNumber: order.order_number || `MC-${(order.id as string).slice(0, 8).toUpperCase()}`,
+        orderId: order.id,
+        customerFirstName: order.customer_first_name || '',
+        customerLastName: order.customer_last_name || '',
+        customerEmail: order.customer_email || '',
+        totalAmount: order.total_amount || parseFloat(captureResult.amount),
+        createdAt: order.created_at || new Date().toISOString(),
+      }
+      sendOrderConfirmation(emailData).catch(console.error)
+      sendNewOrderAlert(emailData).catch(console.error)
     }
 
     return NextResponse.json({

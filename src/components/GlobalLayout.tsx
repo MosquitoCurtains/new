@@ -29,6 +29,15 @@ export function GlobalLayout({ children }: GlobalLayoutProps) {
     return <>{children}</>
   }
   
+  // Admin routes: PageLayout only, no Header/Footer
+  if (pathname?.startsWith('/admin')) {
+    return (
+      <PageLayout className="pt-8 pb-12 px-4 sm:px-6 lg:px-8">
+        {children}
+      </PageLayout>
+    )
+  }
+  
   // All pages: Header + PageLayout + Footer
   // pt-8 matches Stack gap="lg" (gap-8 = 32px) for consistent spacing
   return (

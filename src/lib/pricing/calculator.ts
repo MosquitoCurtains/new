@@ -1,14 +1,22 @@
 /**
- * Main Price Calculator
+ * Main Price Calculator — Single Source of Truth (Database)
  * 
- * High-level API for calculating prices across all product types.
- * Used by the checkout system and quote wizard.
+ * Requires a PricingMap from the database. No hardcoded fallbacks.
+ * 
+ * Server-side:
+ *   const prices = await getPricingMap()
+ *   const calc = new PriceCalculator(prices)
+ * 
+ * Client-side:
+ *   const { prices } = usePricing()
+ *   if (prices) {
+ *     const calc = new PriceCalculator(prices)
+ *   }
  */
 
 import {
   calculateMeshPanelPrice,
   calculateVinylPanelPrice,
-  calculateScrimPanelPrice,
   calculateRollupPanelPrice,
   calculateStraightTrackPrice,
   calculateCurvePrice,
@@ -26,21 +34,19 @@ import {
   calculateStuccoStripPrice,
   calculateRawMeshPrice,
   getSnapToolPrice,
-  calculateShipping,
   round,
 } from './formulas'
 
 import type {
+  PanelColor,
+  TrackWeight,
+  LineItemPrice,
+  PricingMap,
   MeshPanelConfig,
   VinylPanelConfig,
   ScrimPanelConfig,
   RollupPanelConfig,
   RawMeshConfig,
-  LineItemPrice,
-  MeshType,
-  PanelColor,
-  TopAttachment,
-  TrackWeight,
 } from './types'
 
 // =============================================================================
@@ -160,6 +166,16 @@ export interface AdjustmentCartItem extends BaseCartItem {
 // =============================================================================
 
 export class PriceCalculator {
+  private prices: PricingMap
+
+  /**
+   * Create a calculator with database-driven pricing.
+   * @param prices — REQUIRED. The PricingMap from the database.
+   */
+  constructor(prices: PricingMap) {
+    this.prices = prices
+  }
+
   /**
    * Calculate price for a single cart item
    */
@@ -202,17 +218,11 @@ export class PriceCalculator {
   } {
     const pricedItems = items.map(item => this.calculateItem(item))
     const subtotal = round(pricedItems.reduce((sum, item) => sum + item.lineTotal, 0))
-    const shipping = calculateShipping(subtotal)
-    const tax = 0 // Tax calculated at checkout based on shipping address
+    const shipping = 0
+    const tax = 0
     const total = round(subtotal + shipping + tax)
 
-    return {
-      items: pricedItems,
-      subtotal,
-      shipping,
-      tax,
-      total,
-    }
+    return { items: pricedItems, subtotal, shipping, tax, total }
   }
 
   // ==========================================================================
@@ -220,9 +230,8 @@ export class PriceCalculator {
   // ==========================================================================
 
   private calculateMeshPanel(item: MeshPanelCartItem): LineItemPrice {
-    const breakdown = calculateMeshPanelPrice(item.config)
+    const breakdown = calculateMeshPanelPrice(item.config, this.prices)
     const lineTotal = round(breakdown.total * item.quantity)
-
     return {
       productSku: 'mesh_panel',
       productName: `Mosquito Netting Panel (${item.config.widthInches}" × ${item.config.heightInches}")`,
@@ -239,9 +248,8 @@ export class PriceCalculator {
   }
 
   private calculateVinylPanel(item: VinylPanelCartItem): LineItemPrice {
-    const breakdown = calculateVinylPanelPrice(item.config)
+    const breakdown = calculateVinylPanelPrice(item.config, this.prices)
     const lineTotal = round(breakdown.total * item.quantity)
-
     return {
       productSku: 'vinyl_panel',
       productName: `Clear Vinyl Panel (${item.config.widthInches}" × ${item.config.heightInches}")`,
@@ -260,9 +268,17 @@ export class PriceCalculator {
   }
 
   private calculateScrimPanel(item: ScrimPanelCartItem): LineItemPrice {
-    const breakdown = calculateScrimPanelPrice(item.config)
+    // Scrim now uses the standard mesh formula with meshType = 'scrim'
+    const meshConfig: MeshPanelConfig = {
+      widthFeet: item.config.widthFeet,
+      widthInches: item.config.widthInches,
+      heightInches: item.config.heightInches,
+      meshType: 'scrim',
+      meshColor: item.config.color,
+      topAttachment: item.config.topAttachment,
+    }
+    const breakdown = calculateMeshPanelPrice(meshConfig, this.prices)
     const lineTotal = round(breakdown.total * item.quantity)
-
     return {
       productSku: 'scrim_panel',
       productName: `Scrim Netting Panel (${item.config.widthInches}" × ${item.config.heightInches}")`,
@@ -270,17 +286,13 @@ export class PriceCalculator {
       quantity: item.quantity,
       lineTotal,
       breakdown,
-      options: {
-        color: item.config.color,
-        top_attachment: item.config.topAttachment,
-      },
+      options: { color: item.config.color, top_attachment: item.config.topAttachment },
     }
   }
 
   private calculateRollupPanel(item: RollupPanelCartItem): LineItemPrice {
-    const breakdown = calculateRollupPanelPrice(item.config)
+    const breakdown = calculateRollupPanelPrice(item.config, this.prices)
     const lineTotal = round(breakdown.total * item.quantity)
-
     return {
       productSku: 'rollup_panel',
       productName: `Roll-Up Shade Screen (${item.config.widthInches}" × ${item.config.heightInches}")`,
@@ -288,10 +300,7 @@ export class PriceCalculator {
       quantity: item.quantity,
       lineTotal,
       breakdown,
-      options: {
-        mesh_type: item.config.meshType,
-        color: item.config.color,
-      },
+      options: { mesh_type: item.config.meshType, color: item.config.color },
     }
   }
 
@@ -305,27 +314,27 @@ export class PriceCalculator {
 
     switch (item.trackType) {
       case 'straight':
-        unitPrice = calculateStraightTrackPrice(item.lengthFeet || 7, item.weight, 1)
+        unitPrice = calculateStraightTrackPrice(item.lengthFeet || 7, item.weight, 1, this.prices)
         productName = `${item.weight === 'heavy' ? 'Heavy' : 'Standard'} Straight Track (${item.lengthFeet || 7}ft)`
         break
       case 'curve_90':
-        unitPrice = calculateCurvePrice(90, item.weight, 1)
+        unitPrice = calculateCurvePrice(90, item.weight, 1, this.prices)
         productName = `${item.weight === 'heavy' ? 'Heavy' : 'Standard'} 90° Curve`
         break
       case 'curve_135':
-        unitPrice = calculateCurvePrice(135, item.weight, 1)
+        unitPrice = calculateCurvePrice(135, item.weight, 1, this.prices)
         productName = `${item.weight === 'heavy' ? 'Heavy' : 'Standard'} 135° Curve`
         break
       case 'splice':
-        unitPrice = calculateSplicePrice(item.weight, 1)
+        unitPrice = calculateSplicePrice(item.weight, 1, this.prices)
         productName = `${item.weight === 'heavy' ? 'Heavy' : 'Standard'} Track Splice`
         break
       case 'endcap':
-        unitPrice = calculateEndCapPrice(item.weight, 1)
+        unitPrice = calculateEndCapPrice(item.weight, 1, this.prices)
         productName = `${item.weight === 'heavy' ? 'Heavy' : 'Standard'} End Cap`
         break
       case 'carriers':
-        unitPrice = calculateCarriersPrice(item.weight, 1)
+        unitPrice = calculateCarriersPrice(item.weight, 1, this.prices)
         productName = `${item.weight === 'heavy' ? 'Heavy' : 'Standard'} Snap Carriers`
         break
       default:
@@ -333,7 +342,6 @@ export class PriceCalculator {
     }
 
     const lineTotal = round(unitPrice * item.quantity)
-
     return {
       productSku: item.trackType === 'straight' ? 'straight_track' :
                   item.trackType === 'curve_90' ? 'curve_90' :
@@ -364,33 +372,31 @@ export class PriceCalculator {
 
     switch (item.attachmentType) {
       case 'marine_snap':
-        unitPrice = calculateMarineSnapPrice(1, item.color as 'black' | 'white')
+        unitPrice = calculateMarineSnapPrice(1, item.color as 'black' | 'white', this.prices)
         productName = `Marine Snaps (${item.color || 'black'})`
         break
       case 'adhesive_snap':
-        unitPrice = calculateAdhesiveSnapPrice(1, item.color as 'black' | 'white' | 'clear')
+        unitPrice = calculateAdhesiveSnapPrice(1, item.color as 'black' | 'white' | 'clear', this.prices)
         productName = `Adhesive Marine Snaps (${item.color || 'black'})`
         break
       case 'block_magnet':
-        unitPrice = calculateBlockMagnetPrice(1)
+        unitPrice = calculateBlockMagnetPrice(1, this.prices)
         productName = 'Block Shaped Magnets'
         break
       case 'fiberglass_rod':
-        unitPrice = calculateFiberglassRodPrice(1)
+        unitPrice = calculateFiberglassRodPrice(1, this.prices)
         productName = 'Fiberglass Rod Set'
         break
       case 'elastic_cord':
-        unitPrice = calculateElasticCordPrice(1, item.color as 'black' | 'white')
+        unitPrice = calculateElasticCordPrice(1, item.color as 'black' | 'white', this.prices)
         productName = `Elastic Cord & D-Rings (${item.color || 'black'})`
         break
-      // Add other attachment types...
       default:
         unitPrice = this.getAttachmentPrice(item.attachmentType)
         productName = this.getAttachmentName(item.attachmentType)
     }
 
     const lineTotal = round(unitPrice * item.quantity)
-
     return {
       productSku: sku,
       productName,
@@ -416,27 +422,27 @@ export class PriceCalculator {
 
     switch (item.accessoryType) {
       case 'adhesive_velcro':
-        unitPrice = calculateVelcroPrice(item.lengthFeet || 10)
+        unitPrice = calculateVelcroPrice(item.lengthFeet || 10, this.prices)
         productName = `Adhesive Hook Velcro (${item.lengthFeet || 10}ft, ${item.color || 'black'})`
         break
       case 'webbing':
-        unitPrice = calculateWebbingPrice(item.lengthFeet || 10)
+        unitPrice = calculateWebbingPrice(item.lengthFeet || 10, this.prices)
         productName = `2" Webbing (${item.lengthFeet || 10}ft, ${item.color || 'black'})`
         break
       case 'snap_tape':
-        unitPrice = calculateSnapTapePrice(item.lengthFeet || 5)
+        unitPrice = calculateSnapTapePrice(item.lengthFeet || 5, this.prices)
         productName = `Snap Tape (${item.lengthFeet || 5}ft, ${item.color || 'black'})`
         break
       case 'stucco_strip':
-        unitPrice = calculateStuccoStripPrice(1, item.zippered || false)
+        unitPrice = calculateStuccoStripPrice(1, item.zippered || false, this.prices)
         productName = `Stucco Strip (${item.zippered ? 'Zippered' : 'Standard'})`
         break
       case 'tieup_strap':
-        unitPrice = 2.00
+        unitPrice = this.prices['tieup_strap'] ?? 0
         productName = 'Tie-Up Strap'
         break
       case 'fastwax_cleaner':
-        unitPrice = 15.00
+        unitPrice = this.prices['fastwax'] ?? 0
         productName = 'Fastwax Cleaner'
         break
       default:
@@ -445,7 +451,6 @@ export class PriceCalculator {
     }
 
     const lineTotal = round(unitPrice * item.quantity)
-
     return {
       productSku: item.accessoryType,
       productName,
@@ -466,9 +471,8 @@ export class PriceCalculator {
   // ==========================================================================
 
   private calculateTool(item: ToolCartItem): LineItemPrice {
-    const unitPrice = getSnapToolPrice()
+    const unitPrice = getSnapToolPrice(this.prices)
     const lineTotal = round(unitPrice * item.quantity)
-
     return {
       productSku: 'industrial_snap_tool',
       productName: 'Industrial Snap Tool (Fully Refundable)',
@@ -485,9 +489,8 @@ export class PriceCalculator {
   // ==========================================================================
 
   private calculateRawMaterial(item: RawMaterialCartItem): LineItemPrice {
-    const unitPrice = calculateRawMeshPrice(item.config)
+    const unitPrice = calculateRawMeshPrice(item.config, this.prices)
     const lineTotal = round(unitPrice * item.quantity)
-
     return {
       productSku: 'raw_mesh',
       productName: `Raw ${item.config.materialType.replace('_', ' ')} (${item.config.rollWidth}" × ${item.config.lengthFeet}ft)`,
@@ -546,20 +549,12 @@ export class PriceCalculator {
     }
   }
 
+  /** Look up attachment price from DB */
   private getAttachmentPrice(type: string): number {
-    const prices: Record<string, number> = {
-      chrome_snap: 0.50,
-      panel_snap: 1.67,
-      ring_magnet: 1.50,
-      fiberglass_clip: 2.00,
-      tether_clip: 10.00,
-      belted_rib: 15.00,
-      screw_stud: 0.15,
-      l_screw: 0.25,
-      rubber_washer: 0.20,
-      rod_clip: 2.00,
-    }
-    return prices[type] || 0
+    const val = this.prices[type]
+    if (val !== undefined) return val
+    console.error(`[Pricing] MISSING attachment price for '${type}' in product_pricing table.`)
+    return 0
   }
 
   private getAttachmentName(type: string): string {
@@ -578,9 +573,3 @@ export class PriceCalculator {
     return names[type] || type
   }
 }
-
-// =============================================================================
-// SINGLETON EXPORT
-// =============================================================================
-
-export const priceCalculator = new PriceCalculator()
