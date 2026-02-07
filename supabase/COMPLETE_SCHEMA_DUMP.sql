@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict enc0gd62NqvJSIFMPWmXRNWcZqHacv56BoQqLUAmt5FAiVHt2ocPMJmZfq3cq0S
+\restrict 4pF0wdWdtG8mKlJau0wuzboNsQIYIJer0Zgh1gfNAhROat36rV0vVtKNhhXHEBT
 
 -- Dumped from database version 17.6
 -- Dumped by pg_dump version 17.7 (Homebrew)
@@ -20,702 +20,169 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: auth; Type: SCHEMA; Schema: -; Owner: -
+-- Name: public; Type: SCHEMA; Schema: -; Owner: -
 --
 
-CREATE SCHEMA auth;
-
-
---
--- Name: extensions; Type: SCHEMA; Schema: -; Owner: -
---
-
-CREATE SCHEMA extensions;
+CREATE SCHEMA public;
 
 
 --
--- Name: graphql; Type: SCHEMA; Schema: -; Owner: -
+-- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: -
 --
 
-CREATE SCHEMA graphql;
-
-
---
--- Name: graphql_public; Type: SCHEMA; Schema: -; Owner: -
---
-
-CREATE SCHEMA graphql_public;
+COMMENT ON SCHEMA public IS 'standard public schema';
 
 
 --
--- Name: pgbouncer; Type: SCHEMA; Schema: -; Owner: -
+-- Name: approval_status; Type: TYPE; Schema: public; Owner: -
 --
 
-CREATE SCHEMA pgbouncer;
-
-
---
--- Name: realtime; Type: SCHEMA; Schema: -; Owner: -
---
-
-CREATE SCHEMA realtime;
-
-
---
--- Name: storage; Type: SCHEMA; Schema: -; Owner: -
---
-
-CREATE SCHEMA storage;
-
-
---
--- Name: vault; Type: SCHEMA; Schema: -; Owner: -
---
-
-CREATE SCHEMA vault;
-
-
---
--- Name: pg_graphql; Type: EXTENSION; Schema: -; Owner: -
---
-
-CREATE EXTENSION IF NOT EXISTS pg_graphql WITH SCHEMA graphql;
-
-
---
--- Name: EXTENSION pg_graphql; Type: COMMENT; Schema: -; Owner: -
---
-
-COMMENT ON EXTENSION pg_graphql IS 'pg_graphql: GraphQL support';
-
-
---
--- Name: pg_stat_statements; Type: EXTENSION; Schema: -; Owner: -
---
-
-CREATE EXTENSION IF NOT EXISTS pg_stat_statements WITH SCHEMA extensions;
-
-
---
--- Name: EXTENSION pg_stat_statements; Type: COMMENT; Schema: -; Owner: -
---
-
-COMMENT ON EXTENSION pg_stat_statements IS 'track planning and execution statistics of all SQL statements executed';
-
-
---
--- Name: pgcrypto; Type: EXTENSION; Schema: -; Owner: -
---
-
-CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA extensions;
-
-
---
--- Name: EXTENSION pgcrypto; Type: COMMENT; Schema: -; Owner: -
---
-
-COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
-
-
---
--- Name: supabase_vault; Type: EXTENSION; Schema: -; Owner: -
---
-
-CREATE EXTENSION IF NOT EXISTS supabase_vault WITH SCHEMA vault;
-
-
---
--- Name: EXTENSION supabase_vault; Type: COMMENT; Schema: -; Owner: -
---
-
-COMMENT ON EXTENSION supabase_vault IS 'Supabase Vault Extension';
-
-
---
--- Name: uuid-ossp; Type: EXTENSION; Schema: -; Owner: -
---
-
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA extensions;
-
-
---
--- Name: EXTENSION "uuid-ossp"; Type: COMMENT; Schema: -; Owner: -
---
-
-COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UUIDs)';
-
-
---
--- Name: aal_level; Type: TYPE; Schema: auth; Owner: -
---
-
-CREATE TYPE auth.aal_level AS ENUM (
-    'aal1',
-    'aal2',
-    'aal3'
-);
-
-
---
--- Name: code_challenge_method; Type: TYPE; Schema: auth; Owner: -
---
-
-CREATE TYPE auth.code_challenge_method AS ENUM (
-    's256',
-    'plain'
-);
-
-
---
--- Name: factor_status; Type: TYPE; Schema: auth; Owner: -
---
-
-CREATE TYPE auth.factor_status AS ENUM (
-    'unverified',
-    'verified'
-);
-
-
---
--- Name: factor_type; Type: TYPE; Schema: auth; Owner: -
---
-
-CREATE TYPE auth.factor_type AS ENUM (
-    'totp',
-    'webauthn',
-    'phone'
-);
-
-
---
--- Name: oauth_authorization_status; Type: TYPE; Schema: auth; Owner: -
---
-
-CREATE TYPE auth.oauth_authorization_status AS ENUM (
-    'pending',
+CREATE TYPE public.approval_status AS ENUM (
+    'draft',
+    'pending_review',
+    'changes_requested',
     'approved',
-    'denied',
-    'expired'
+    'published'
 );
 
 
 --
--- Name: oauth_client_type; Type: TYPE; Schema: auth; Owner: -
+-- Name: audit_rating; Type: TYPE; Schema: public; Owner: -
 --
 
-CREATE TYPE auth.oauth_client_type AS ENUM (
-    'public',
-    'confidential'
+CREATE TYPE public.audit_rating AS ENUM (
+    'excellent',
+    'good',
+    'needs_work',
+    'poor',
+    'not_audited'
 );
 
 
 --
--- Name: oauth_registration_type; Type: TYPE; Schema: auth; Owner: -
+-- Name: issue_category; Type: TYPE; Schema: public; Owner: -
 --
 
-CREATE TYPE auth.oauth_registration_type AS ENUM (
-    'dynamic',
-    'manual'
+CREATE TYPE public.issue_category AS ENUM (
+    'assets',
+    'content',
+    'seo',
+    'performance',
+    'accessibility',
+    'design',
+    'functionality',
+    'mobile',
+    'ai_readiness',
+    'legal',
+    'other'
 );
 
 
 --
--- Name: oauth_response_type; Type: TYPE; Schema: auth; Owner: -
+-- Name: issue_severity; Type: TYPE; Schema: public; Owner: -
 --
 
-CREATE TYPE auth.oauth_response_type AS ENUM (
-    'code'
+CREATE TYPE public.issue_severity AS ENUM (
+    'critical',
+    'high',
+    'medium',
+    'low',
+    'info'
 );
 
 
 --
--- Name: one_time_token_type; Type: TYPE; Schema: auth; Owner: -
+-- Name: issue_status; Type: TYPE; Schema: public; Owner: -
 --
 
-CREATE TYPE auth.one_time_token_type AS ENUM (
-    'confirmation_token',
-    'reauthentication_token',
-    'recovery_token',
-    'email_change_token_new',
-    'email_change_token_current',
-    'phone_change_token'
+CREATE TYPE public.issue_status AS ENUM (
+    'open',
+    'acknowledged',
+    'in_progress',
+    'blocked',
+    'resolved',
+    'wont_fix',
+    'duplicate'
 );
 
 
 --
--- Name: action; Type: TYPE; Schema: realtime; Owner: -
+-- Name: page_migration_status; Type: TYPE; Schema: public; Owner: -
 --
 
-CREATE TYPE realtime.action AS ENUM (
-    'INSERT',
-    'UPDATE',
-    'DELETE',
-    'TRUNCATE',
-    'ERROR'
+CREATE TYPE public.page_migration_status AS ENUM (
+    'not_started',
+    'content_extracted',
+    'in_progress',
+    'review',
+    'approved',
+    'live',
+    'redirect_only',
+    'deprecated'
 );
 
 
 --
--- Name: equality_op; Type: TYPE; Schema: realtime; Owner: -
+-- Name: page_type; Type: TYPE; Schema: public; Owner: -
 --
 
-CREATE TYPE realtime.equality_op AS ENUM (
-    'eq',
-    'neq',
-    'lt',
-    'lte',
-    'gt',
-    'gte',
-    'in'
+CREATE TYPE public.page_type AS ENUM (
+    'homepage',
+    'product_landing',
+    'seo_landing',
+    'category',
+    'informational',
+    'legal',
+    'support',
+    'marketing',
+    'ecommerce',
+    'admin',
+    'utility'
 );
 
 
 --
--- Name: user_defined_filter; Type: TYPE; Schema: realtime; Owner: -
+-- Name: simple_review_status; Type: TYPE; Schema: public; Owner: -
 --
 
-CREATE TYPE realtime.user_defined_filter AS (
-	column_name text,
-	op realtime.equality_op,
-	value text
+CREATE TYPE public.simple_review_status AS ENUM (
+    'pending',
+    'complete',
+    'needs_revision'
 );
 
 
 --
--- Name: wal_column; Type: TYPE; Schema: realtime; Owner: -
+-- Name: add_issue_from_template(uuid, text, text); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE TYPE realtime.wal_column AS (
-	name text,
-	type_name text,
-	type_oid oid,
-	value jsonb,
-	is_pkey boolean,
-	is_selectable boolean
-);
-
-
---
--- Name: wal_rls; Type: TYPE; Schema: realtime; Owner: -
---
-
-CREATE TYPE realtime.wal_rls AS (
-	wal jsonb,
-	is_rls_enabled boolean,
-	subscription_ids uuid[],
-	errors text[]
-);
-
-
---
--- Name: buckettype; Type: TYPE; Schema: storage; Owner: -
---
-
-CREATE TYPE storage.buckettype AS ENUM (
-    'STANDARD',
-    'ANALYTICS',
-    'VECTOR'
-);
-
-
---
--- Name: email(); Type: FUNCTION; Schema: auth; Owner: -
---
-
-CREATE FUNCTION auth.email() RETURNS text
-    LANGUAGE sql STABLE
-    AS $$
-  select 
-  coalesce(
-    nullif(current_setting('request.jwt.claim.email', true), ''),
-    (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'email')
-  )::text
-$$;
-
-
---
--- Name: FUNCTION email(); Type: COMMENT; Schema: auth; Owner: -
---
-
-COMMENT ON FUNCTION auth.email() IS 'Deprecated. Use auth.jwt() -> ''email'' instead.';
-
-
---
--- Name: jwt(); Type: FUNCTION; Schema: auth; Owner: -
---
-
-CREATE FUNCTION auth.jwt() RETURNS jsonb
-    LANGUAGE sql STABLE
-    AS $$
-  select 
-    coalesce(
-        nullif(current_setting('request.jwt.claim', true), ''),
-        nullif(current_setting('request.jwt.claims', true), '')
-    )::jsonb
-$$;
-
-
---
--- Name: role(); Type: FUNCTION; Schema: auth; Owner: -
---
-
-CREATE FUNCTION auth.role() RETURNS text
-    LANGUAGE sql STABLE
-    AS $$
-  select 
-  coalesce(
-    nullif(current_setting('request.jwt.claim.role', true), ''),
-    (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'role')
-  )::text
-$$;
-
-
---
--- Name: FUNCTION role(); Type: COMMENT; Schema: auth; Owner: -
---
-
-COMMENT ON FUNCTION auth.role() IS 'Deprecated. Use auth.jwt() -> ''role'' instead.';
-
-
---
--- Name: uid(); Type: FUNCTION; Schema: auth; Owner: -
---
-
-CREATE FUNCTION auth.uid() RETURNS uuid
-    LANGUAGE sql STABLE
-    AS $$
-  select 
-  coalesce(
-    nullif(current_setting('request.jwt.claim.sub', true), ''),
-    (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub')
-  )::uuid
-$$;
-
-
---
--- Name: FUNCTION uid(); Type: COMMENT; Schema: auth; Owner: -
---
-
-COMMENT ON FUNCTION auth.uid() IS 'Deprecated. Use auth.jwt() -> ''sub'' instead.';
-
-
---
--- Name: grant_pg_cron_access(); Type: FUNCTION; Schema: extensions; Owner: -
---
-
-CREATE FUNCTION extensions.grant_pg_cron_access() RETURNS event_trigger
+CREATE FUNCTION public.add_issue_from_template(p_page_id uuid, p_template_shortcode text, p_notes text DEFAULT NULL::text) RETURNS uuid
     LANGUAGE plpgsql
     AS $$
+DECLARE
+  v_template issue_templates%ROWTYPE;
+  v_issue_id UUID;
 BEGIN
-  IF EXISTS (
-    SELECT
-    FROM pg_event_trigger_ddl_commands() AS ev
-    JOIN pg_extension AS ext
-    ON ev.objid = ext.oid
-    WHERE ext.extname = 'pg_cron'
-  )
-  THEN
-    grant usage on schema cron to postgres with grant option;
-
-    alter default privileges in schema cron grant all on tables to postgres with grant option;
-    alter default privileges in schema cron grant all on functions to postgres with grant option;
-    alter default privileges in schema cron grant all on sequences to postgres with grant option;
-
-    alter default privileges for user supabase_admin in schema cron grant all
-        on sequences to postgres with grant option;
-    alter default privileges for user supabase_admin in schema cron grant all
-        on tables to postgres with grant option;
-    alter default privileges for user supabase_admin in schema cron grant all
-        on functions to postgres with grant option;
-
-    grant all privileges on all tables in schema cron to postgres with grant option;
-    revoke all on table cron.job from postgres;
-    grant select on table cron.job to postgres with grant option;
+  SELECT * INTO v_template FROM issue_templates WHERE shortcode = p_template_shortcode;
+  
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Template not found: %', p_template_shortcode;
   END IF;
+  
+  INSERT INTO page_issues (page_id, category, severity, title, description, action_required, notes)
+  VALUES (p_page_id, v_template.category, v_template.severity, v_template.title, v_template.description, v_template.action_required, p_notes)
+  RETURNING id INTO v_issue_id;
+  
+  RETURN v_issue_id;
 END;
 $$;
 
 
 --
--- Name: FUNCTION grant_pg_cron_access(); Type: COMMENT; Schema: extensions; Owner: -
+-- Name: FUNCTION add_issue_from_template(p_page_id uuid, p_template_shortcode text, p_notes text); Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON FUNCTION extensions.grant_pg_cron_access() IS 'Grants access to pg_cron';
-
-
---
--- Name: grant_pg_graphql_access(); Type: FUNCTION; Schema: extensions; Owner: -
---
-
-CREATE FUNCTION extensions.grant_pg_graphql_access() RETURNS event_trigger
-    LANGUAGE plpgsql
-    AS $_$
-DECLARE
-    func_is_graphql_resolve bool;
-BEGIN
-    func_is_graphql_resolve = (
-        SELECT n.proname = 'resolve'
-        FROM pg_event_trigger_ddl_commands() AS ev
-        LEFT JOIN pg_catalog.pg_proc AS n
-        ON ev.objid = n.oid
-    );
-
-    IF func_is_graphql_resolve
-    THEN
-        -- Update public wrapper to pass all arguments through to the pg_graphql resolve func
-        DROP FUNCTION IF EXISTS graphql_public.graphql;
-        create or replace function graphql_public.graphql(
-            "operationName" text default null,
-            query text default null,
-            variables jsonb default null,
-            extensions jsonb default null
-        )
-            returns jsonb
-            language sql
-        as $$
-            select graphql.resolve(
-                query := query,
-                variables := coalesce(variables, '{}'),
-                "operationName" := "operationName",
-                extensions := extensions
-            );
-        $$;
-
-        -- This hook executes when `graphql.resolve` is created. That is not necessarily the last
-        -- function in the extension so we need to grant permissions on existing entities AND
-        -- update default permissions to any others that are created after `graphql.resolve`
-        grant usage on schema graphql to postgres, anon, authenticated, service_role;
-        grant select on all tables in schema graphql to postgres, anon, authenticated, service_role;
-        grant execute on all functions in schema graphql to postgres, anon, authenticated, service_role;
-        grant all on all sequences in schema graphql to postgres, anon, authenticated, service_role;
-        alter default privileges in schema graphql grant all on tables to postgres, anon, authenticated, service_role;
-        alter default privileges in schema graphql grant all on functions to postgres, anon, authenticated, service_role;
-        alter default privileges in schema graphql grant all on sequences to postgres, anon, authenticated, service_role;
-
-        -- Allow postgres role to allow granting usage on graphql and graphql_public schemas to custom roles
-        grant usage on schema graphql_public to postgres with grant option;
-        grant usage on schema graphql to postgres with grant option;
-    END IF;
-
-END;
-$_$;
-
-
---
--- Name: FUNCTION grant_pg_graphql_access(); Type: COMMENT; Schema: extensions; Owner: -
---
-
-COMMENT ON FUNCTION extensions.grant_pg_graphql_access() IS 'Grants access to pg_graphql';
-
-
---
--- Name: grant_pg_net_access(); Type: FUNCTION; Schema: extensions; Owner: -
---
-
-CREATE FUNCTION extensions.grant_pg_net_access() RETURNS event_trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-  IF EXISTS (
-    SELECT 1
-    FROM pg_event_trigger_ddl_commands() AS ev
-    JOIN pg_extension AS ext
-    ON ev.objid = ext.oid
-    WHERE ext.extname = 'pg_net'
-  )
-  THEN
-    IF NOT EXISTS (
-      SELECT 1
-      FROM pg_roles
-      WHERE rolname = 'supabase_functions_admin'
-    )
-    THEN
-      CREATE USER supabase_functions_admin NOINHERIT CREATEROLE LOGIN NOREPLICATION;
-    END IF;
-
-    GRANT USAGE ON SCHEMA net TO supabase_functions_admin, postgres, anon, authenticated, service_role;
-
-    IF EXISTS (
-      SELECT FROM pg_extension
-      WHERE extname = 'pg_net'
-      -- all versions in use on existing projects as of 2025-02-20
-      -- version 0.12.0 onwards don't need these applied
-      AND extversion IN ('0.2', '0.6', '0.7', '0.7.1', '0.8', '0.10.0', '0.11.0')
-    ) THEN
-      ALTER function net.http_get(url text, params jsonb, headers jsonb, timeout_milliseconds integer) SECURITY DEFINER;
-      ALTER function net.http_post(url text, body jsonb, params jsonb, headers jsonb, timeout_milliseconds integer) SECURITY DEFINER;
-
-      ALTER function net.http_get(url text, params jsonb, headers jsonb, timeout_milliseconds integer) SET search_path = net;
-      ALTER function net.http_post(url text, body jsonb, params jsonb, headers jsonb, timeout_milliseconds integer) SET search_path = net;
-
-      REVOKE ALL ON FUNCTION net.http_get(url text, params jsonb, headers jsonb, timeout_milliseconds integer) FROM PUBLIC;
-      REVOKE ALL ON FUNCTION net.http_post(url text, body jsonb, params jsonb, headers jsonb, timeout_milliseconds integer) FROM PUBLIC;
-
-      GRANT EXECUTE ON FUNCTION net.http_get(url text, params jsonb, headers jsonb, timeout_milliseconds integer) TO supabase_functions_admin, postgres, anon, authenticated, service_role;
-      GRANT EXECUTE ON FUNCTION net.http_post(url text, body jsonb, params jsonb, headers jsonb, timeout_milliseconds integer) TO supabase_functions_admin, postgres, anon, authenticated, service_role;
-    END IF;
-  END IF;
-END;
-$$;
-
-
---
--- Name: FUNCTION grant_pg_net_access(); Type: COMMENT; Schema: extensions; Owner: -
---
-
-COMMENT ON FUNCTION extensions.grant_pg_net_access() IS 'Grants access to pg_net';
-
-
---
--- Name: pgrst_ddl_watch(); Type: FUNCTION; Schema: extensions; Owner: -
---
-
-CREATE FUNCTION extensions.pgrst_ddl_watch() RETURNS event_trigger
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-  cmd record;
-BEGIN
-  FOR cmd IN SELECT * FROM pg_event_trigger_ddl_commands()
-  LOOP
-    IF cmd.command_tag IN (
-      'CREATE SCHEMA', 'ALTER SCHEMA'
-    , 'CREATE TABLE', 'CREATE TABLE AS', 'SELECT INTO', 'ALTER TABLE'
-    , 'CREATE FOREIGN TABLE', 'ALTER FOREIGN TABLE'
-    , 'CREATE VIEW', 'ALTER VIEW'
-    , 'CREATE MATERIALIZED VIEW', 'ALTER MATERIALIZED VIEW'
-    , 'CREATE FUNCTION', 'ALTER FUNCTION'
-    , 'CREATE TRIGGER'
-    , 'CREATE TYPE', 'ALTER TYPE'
-    , 'CREATE RULE'
-    , 'COMMENT'
-    )
-    -- don't notify in case of CREATE TEMP table or other objects created on pg_temp
-    AND cmd.schema_name is distinct from 'pg_temp'
-    THEN
-      NOTIFY pgrst, 'reload schema';
-    END IF;
-  END LOOP;
-END; $$;
-
-
---
--- Name: pgrst_drop_watch(); Type: FUNCTION; Schema: extensions; Owner: -
---
-
-CREATE FUNCTION extensions.pgrst_drop_watch() RETURNS event_trigger
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-  obj record;
-BEGIN
-  FOR obj IN SELECT * FROM pg_event_trigger_dropped_objects()
-  LOOP
-    IF obj.object_type IN (
-      'schema'
-    , 'table'
-    , 'foreign table'
-    , 'view'
-    , 'materialized view'
-    , 'function'
-    , 'trigger'
-    , 'type'
-    , 'rule'
-    )
-    AND obj.is_temporary IS false -- no pg_temp objects
-    THEN
-      NOTIFY pgrst, 'reload schema';
-    END IF;
-  END LOOP;
-END; $$;
-
-
---
--- Name: set_graphql_placeholder(); Type: FUNCTION; Schema: extensions; Owner: -
---
-
-CREATE FUNCTION extensions.set_graphql_placeholder() RETURNS event_trigger
-    LANGUAGE plpgsql
-    AS $_$
-    DECLARE
-    graphql_is_dropped bool;
-    BEGIN
-    graphql_is_dropped = (
-        SELECT ev.schema_name = 'graphql_public'
-        FROM pg_event_trigger_dropped_objects() AS ev
-        WHERE ev.schema_name = 'graphql_public'
-    );
-
-    IF graphql_is_dropped
-    THEN
-        create or replace function graphql_public.graphql(
-            "operationName" text default null,
-            query text default null,
-            variables jsonb default null,
-            extensions jsonb default null
-        )
-            returns jsonb
-            language plpgsql
-        as $$
-            DECLARE
-                server_version float;
-            BEGIN
-                server_version = (SELECT (SPLIT_PART((select version()), ' ', 2))::float);
-
-                IF server_version >= 14 THEN
-                    RETURN jsonb_build_object(
-                        'errors', jsonb_build_array(
-                            jsonb_build_object(
-                                'message', 'pg_graphql extension is not enabled.'
-                            )
-                        )
-                    );
-                ELSE
-                    RETURN jsonb_build_object(
-                        'errors', jsonb_build_array(
-                            jsonb_build_object(
-                                'message', 'pg_graphql is only available on projects running Postgres 14 onwards.'
-                            )
-                        )
-                    );
-                END IF;
-            END;
-        $$;
-    END IF;
-
-    END;
-$_$;
-
-
---
--- Name: FUNCTION set_graphql_placeholder(); Type: COMMENT; Schema: extensions; Owner: -
---
-
-COMMENT ON FUNCTION extensions.set_graphql_placeholder() IS 'Reintroduces placeholder function for graphql_public.graphql';
-
-
---
--- Name: get_auth(text); Type: FUNCTION; Schema: pgbouncer; Owner: -
---
-
-CREATE FUNCTION pgbouncer.get_auth(p_usename text) RETURNS TABLE(username text, password text)
-    LANGUAGE plpgsql SECURITY DEFINER
-    SET search_path TO ''
-    AS $_$
-  BEGIN
-      RAISE DEBUG 'PgBouncer auth request: %', p_usename;
-
-      RETURN QUERY
-      SELECT
-          rolname::text,
-          CASE WHEN rolvaliduntil < now()
-              THEN null
-              ELSE rolpassword::text
-          END
-      FROM pg_authid
-      WHERE rolname=$1 and rolcanlogin;
-  END;
-  $_$;
+COMMENT ON FUNCTION public.add_issue_from_template(p_page_id uuid, p_template_shortcode text, p_notes text) IS 'Quickly create an issue from a template shortcode';
 
 
 --
@@ -759,6 +226,88 @@ $$;
 
 
 --
+-- Name: calculate_seo_score(uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.calculate_seo_score(audit_id uuid) RETURNS integer
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+  score INTEGER := 0;
+  audit_row seo_audits%ROWTYPE;
+BEGIN
+  SELECT * INTO audit_row FROM seo_audits WHERE id = audit_id;
+  
+  -- Meta title (15 points)
+  IF audit_row.has_meta_title AND audit_row.meta_title_ok THEN
+    score := score + 15;
+  ELSIF audit_row.has_meta_title THEN
+    score := score + 8;
+  END IF;
+  
+  -- Meta description (15 points)
+  IF audit_row.has_meta_description AND audit_row.meta_description_ok THEN
+    score := score + 15;
+  ELSIF audit_row.has_meta_description THEN
+    score := score + 8;
+  END IF;
+  
+  -- H1 (10 points)
+  IF audit_row.has_h1 AND audit_row.h1_count = 1 THEN
+    score := score + 10;
+  ELSIF audit_row.has_h1 THEN
+    score := score + 5;
+  END IF;
+  
+  -- Heading hierarchy (10 points)
+  IF audit_row.heading_hierarchy_ok THEN
+    score := score + 10;
+  END IF;
+  
+  -- Open Graph (10 points)
+  IF audit_row.has_og_title AND audit_row.has_og_description AND audit_row.has_og_image THEN
+    score := score + 10;
+  ELSIF audit_row.has_og_title OR audit_row.has_og_description THEN
+    score := score + 5;
+  END IF;
+  
+  -- Images with alt (10 points)
+  IF audit_row.images_have_alt THEN
+    score := score + 10;
+  ELSIF audit_row.images_missing_alt = 0 THEN
+    score := score + 10;
+  ELSIF audit_row.images_missing_alt < 3 THEN
+    score := score + 5;
+  END IF;
+  
+  -- Internal links (10 points)
+  IF audit_row.internal_links_count >= 3 THEN
+    score := score + 10;
+  ELSIF audit_row.internal_links_count >= 1 THEN
+    score := score + 5;
+  END IF;
+  
+  -- No broken links (10 points)
+  IF audit_row.broken_links_count = 0 THEN
+    score := score + 10;
+  END IF;
+  
+  -- Mobile friendly (5 points)
+  IF audit_row.is_mobile_friendly THEN
+    score := score + 5;
+  END IF;
+  
+  -- Canonical URL (5 points)
+  IF audit_row.has_canonical THEN
+    score := score + 5;
+  END IF;
+  
+  RETURN score;
+END;
+$$;
+
+
+--
 -- Name: generate_order_number(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -788,6 +337,107 @@ BEGIN
   RETURN new_number;
 END;
 $_$;
+
+
+--
+-- Name: get_page_health(uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.get_page_health(p_page_id uuid) RETURNS TABLE(total_issues integer, critical_count integer, high_count integer, medium_count integer, low_count integer, open_count integer, resolved_count integer, oldest_open_issue timestamp with time zone, last_updated timestamp with time zone)
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    COUNT(*)::INTEGER as total_issues,
+    COUNT(*) FILTER (WHERE severity = 'critical')::INTEGER as critical_count,
+    COUNT(*) FILTER (WHERE severity = 'high')::INTEGER as high_count,
+    COUNT(*) FILTER (WHERE severity = 'medium')::INTEGER as medium_count,
+    COUNT(*) FILTER (WHERE severity = 'low')::INTEGER as low_count,
+    COUNT(*) FILTER (WHERE status IN ('open', 'acknowledged', 'in_progress'))::INTEGER as open_count,
+    COUNT(*) FILTER (WHERE status = 'resolved')::INTEGER as resolved_count,
+    MIN(created_at) FILTER (WHERE status IN ('open', 'acknowledged', 'in_progress')) as oldest_open_issue,
+    MAX(updated_at) as last_updated
+  FROM page_issues
+  WHERE page_id = p_page_id;
+END;
+$$;
+
+
+--
+-- Name: FUNCTION get_page_health(p_page_id uuid); Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON FUNCTION public.get_page_health(p_page_id uuid) IS 'Returns issue counts and health metrics for a page';
+
+
+--
+-- Name: handle_updated_at(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.handle_updated_at() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: log_pricing_change(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.log_pricing_change() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  IF OLD.value IS DISTINCT FROM NEW.value THEN
+    INSERT INTO product_pricing_history (pricing_id, old_value, new_value)
+    VALUES (NEW.id, OLD.value, NEW.value);
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: log_shipping_rate_change(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.log_shipping_rate_change() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  IF OLD.flat_cost IS DISTINCT FROM NEW.flat_cost THEN
+    INSERT INTO shipping_tax_history (table_name, record_id, field_name, old_value, new_value)
+    VALUES ('shipping_rates', NEW.id, 'flat_cost', OLD.flat_cost::TEXT, NEW.flat_cost::TEXT);
+  END IF;
+  IF OLD.fee_percent IS DISTINCT FROM NEW.fee_percent THEN
+    INSERT INTO shipping_tax_history (table_name, record_id, field_name, old_value, new_value)
+    VALUES ('shipping_rates', NEW.id, 'fee_percent', OLD.fee_percent::TEXT, NEW.fee_percent::TEXT);
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: log_tax_rate_change(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.log_tax_rate_change() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  IF OLD.rate IS DISTINCT FROM NEW.rate THEN
+    INSERT INTO shipping_tax_history (table_name, record_id, field_name, old_value, new_value)
+    VALUES ('tax_rates', NEW.id, 'rate', OLD.rate::TEXT, NEW.rate::TEXT);
+  END IF;
+  RETURN NEW;
+END;
+$$;
 
 
 --
@@ -827,6 +477,185 @@ $$;
 
 
 --
+-- Name: update_customer_on_event(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.update_customer_on_event() RETURNS trigger
+    LANGUAGE plpgsql SECURITY DEFINER
+    AS $$
+BEGIN
+  -- Only proceed if we have a customer_id
+  IF NEW.customer_id IS NOT NULL THEN
+    CASE NEW.event_type
+      WHEN 'quote_submitted' THEN
+        UPDATE public.customers
+        SET 
+          customer_status = CASE WHEN customer_status = 'lead' THEN 'quoted' ELSE customer_status END,
+          first_quote_at = COALESCE(first_quote_at, NEW.created_at),
+          updated_at = NOW()
+        WHERE id = NEW.customer_id;
+        
+      WHEN 'purchase_completed' THEN
+        UPDATE public.customers
+        SET 
+          customer_status = CASE 
+            WHEN customer_status IN ('lead', 'quoted') THEN 'customer' 
+            WHEN customer_status = 'customer' THEN 'repeat'
+            ELSE customer_status 
+          END,
+          first_purchase_at = COALESCE(first_purchase_at, NEW.created_at),
+          updated_at = NOW()
+        WHERE id = NEW.customer_id;
+        
+      ELSE
+        -- No status change for other events
+        NULL;
+    END CASE;
+  END IF;
+  
+  RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: update_notification_settings_timestamp(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.update_notification_settings_timestamp() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: update_page_issues_timestamp(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.update_page_issues_timestamp() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  -- Auto-set resolved_at when status changes to resolved
+  IF NEW.status = 'resolved' AND OLD.status != 'resolved' THEN
+    NEW.resolved_at = NOW();
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: update_page_reviews_timestamp(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.update_page_reviews_timestamp() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  -- Track when status changes
+  IF NEW.status != OLD.status THEN
+    NEW.reviewed_at = NOW();
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: update_product_pricing_timestamp(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.update_product_pricing_timestamp() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: update_shipping_rates_timestamp(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.update_shipping_rates_timestamp() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: update_shipping_zones_timestamp(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.update_shipping_zones_timestamp() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: update_site_pages_review(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.update_site_pages_review() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  IF NEW.review_status IS DISTINCT FROM OLD.review_status THEN
+    NEW.reviewed_at = NOW();
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: update_site_pages_updated_at(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.update_site_pages_updated_at() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: update_tax_rates_timestamp(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.update_tax_rates_timestamp() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$;
+
+
+--
 -- Name: update_updated_at_column(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -841,1636 +670,52 @@ $$;
 
 
 --
--- Name: apply_rls(jsonb, integer); Type: FUNCTION; Schema: realtime; Owner: -
+-- Name: update_visitor_on_session(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION realtime.apply_rls(wal jsonb, max_record_bytes integer DEFAULT (1024 * 1024)) RETURNS SETOF realtime.wal_rls
-    LANGUAGE plpgsql
-    AS $$
-declare
--- Regclass of the table e.g. public.notes
-entity_ regclass = (quote_ident(wal ->> 'schema') || '.' || quote_ident(wal ->> 'table'))::regclass;
-
--- I, U, D, T: insert, update ...
-action realtime.action = (
-    case wal ->> 'action'
-        when 'I' then 'INSERT'
-        when 'U' then 'UPDATE'
-        when 'D' then 'DELETE'
-        else 'ERROR'
-    end
-);
-
--- Is row level security enabled for the table
-is_rls_enabled bool = relrowsecurity from pg_class where oid = entity_;
-
-subscriptions realtime.subscription[] = array_agg(subs)
-    from
-        realtime.subscription subs
-    where
-        subs.entity = entity_
-        -- Filter by action early - only get subscriptions interested in this action
-        -- action_filter column can be: '*' (all), 'INSERT', 'UPDATE', or 'DELETE'
-        and (subs.action_filter = '*' or subs.action_filter = action::text);
-
--- Subscription vars
-roles regrole[] = array_agg(distinct us.claims_role::text)
-    from
-        unnest(subscriptions) us;
-
-working_role regrole;
-claimed_role regrole;
-claims jsonb;
-
-subscription_id uuid;
-subscription_has_access bool;
-visible_to_subscription_ids uuid[] = '{}';
-
--- structured info for wal's columns
-columns realtime.wal_column[];
--- previous identity values for update/delete
-old_columns realtime.wal_column[];
-
-error_record_exceeds_max_size boolean = octet_length(wal::text) > max_record_bytes;
-
--- Primary jsonb output for record
-output jsonb;
-
-begin
-perform set_config('role', null, true);
-
-columns =
-    array_agg(
-        (
-            x->>'name',
-            x->>'type',
-            x->>'typeoid',
-            realtime.cast(
-                (x->'value') #>> '{}',
-                coalesce(
-                    (x->>'typeoid')::regtype, -- null when wal2json version <= 2.4
-                    (x->>'type')::regtype
-                )
-            ),
-            (pks ->> 'name') is not null,
-            true
-        )::realtime.wal_column
-    )
-    from
-        jsonb_array_elements(wal -> 'columns') x
-        left join jsonb_array_elements(wal -> 'pk') pks
-            on (x ->> 'name') = (pks ->> 'name');
-
-old_columns =
-    array_agg(
-        (
-            x->>'name',
-            x->>'type',
-            x->>'typeoid',
-            realtime.cast(
-                (x->'value') #>> '{}',
-                coalesce(
-                    (x->>'typeoid')::regtype, -- null when wal2json version <= 2.4
-                    (x->>'type')::regtype
-                )
-            ),
-            (pks ->> 'name') is not null,
-            true
-        )::realtime.wal_column
-    )
-    from
-        jsonb_array_elements(wal -> 'identity') x
-        left join jsonb_array_elements(wal -> 'pk') pks
-            on (x ->> 'name') = (pks ->> 'name');
-
-for working_role in select * from unnest(roles) loop
-
-    -- Update `is_selectable` for columns and old_columns
-    columns =
-        array_agg(
-            (
-                c.name,
-                c.type_name,
-                c.type_oid,
-                c.value,
-                c.is_pkey,
-                pg_catalog.has_column_privilege(working_role, entity_, c.name, 'SELECT')
-            )::realtime.wal_column
-        )
-        from
-            unnest(columns) c;
-
-    old_columns =
-            array_agg(
-                (
-                    c.name,
-                    c.type_name,
-                    c.type_oid,
-                    c.value,
-                    c.is_pkey,
-                    pg_catalog.has_column_privilege(working_role, entity_, c.name, 'SELECT')
-                )::realtime.wal_column
-            )
-            from
-                unnest(old_columns) c;
-
-    if action <> 'DELETE' and count(1) = 0 from unnest(columns) c where c.is_pkey then
-        return next (
-            jsonb_build_object(
-                'schema', wal ->> 'schema',
-                'table', wal ->> 'table',
-                'type', action
-            ),
-            is_rls_enabled,
-            -- subscriptions is already filtered by entity
-            (select array_agg(s.subscription_id) from unnest(subscriptions) as s where claims_role = working_role),
-            array['Error 400: Bad Request, no primary key']
-        )::realtime.wal_rls;
-
-    -- The claims role does not have SELECT permission to the primary key of entity
-    elsif action <> 'DELETE' and sum(c.is_selectable::int) <> count(1) from unnest(columns) c where c.is_pkey then
-        return next (
-            jsonb_build_object(
-                'schema', wal ->> 'schema',
-                'table', wal ->> 'table',
-                'type', action
-            ),
-            is_rls_enabled,
-            (select array_agg(s.subscription_id) from unnest(subscriptions) as s where claims_role = working_role),
-            array['Error 401: Unauthorized']
-        )::realtime.wal_rls;
-
-    else
-        output = jsonb_build_object(
-            'schema', wal ->> 'schema',
-            'table', wal ->> 'table',
-            'type', action,
-            'commit_timestamp', to_char(
-                ((wal ->> 'timestamp')::timestamptz at time zone 'utc'),
-                'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'
-            ),
-            'columns', (
-                select
-                    jsonb_agg(
-                        jsonb_build_object(
-                            'name', pa.attname,
-                            'type', pt.typname
-                        )
-                        order by pa.attnum asc
-                    )
-                from
-                    pg_attribute pa
-                    join pg_type pt
-                        on pa.atttypid = pt.oid
-                where
-                    attrelid = entity_
-                    and attnum > 0
-                    and pg_catalog.has_column_privilege(working_role, entity_, pa.attname, 'SELECT')
-            )
-        )
-        -- Add "record" key for insert and update
-        || case
-            when action in ('INSERT', 'UPDATE') then
-                jsonb_build_object(
-                    'record',
-                    (
-                        select
-                            jsonb_object_agg(
-                                -- if unchanged toast, get column name and value from old record
-                                coalesce((c).name, (oc).name),
-                                case
-                                    when (c).name is null then (oc).value
-                                    else (c).value
-                                end
-                            )
-                        from
-                            unnest(columns) c
-                            full outer join unnest(old_columns) oc
-                                on (c).name = (oc).name
-                        where
-                            coalesce((c).is_selectable, (oc).is_selectable)
-                            and ( not error_record_exceeds_max_size or (octet_length((c).value::text) <= 64))
-                    )
-                )
-            else '{}'::jsonb
-        end
-        -- Add "old_record" key for update and delete
-        || case
-            when action = 'UPDATE' then
-                jsonb_build_object(
-                        'old_record',
-                        (
-                            select jsonb_object_agg((c).name, (c).value)
-                            from unnest(old_columns) c
-                            where
-                                (c).is_selectable
-                                and ( not error_record_exceeds_max_size or (octet_length((c).value::text) <= 64))
-                        )
-                    )
-            when action = 'DELETE' then
-                jsonb_build_object(
-                    'old_record',
-                    (
-                        select jsonb_object_agg((c).name, (c).value)
-                        from unnest(old_columns) c
-                        where
-                            (c).is_selectable
-                            and ( not error_record_exceeds_max_size or (octet_length((c).value::text) <= 64))
-                            and ( not is_rls_enabled or (c).is_pkey ) -- if RLS enabled, we can't secure deletes so filter to pkey
-                    )
-                )
-            else '{}'::jsonb
-        end;
-
-        -- Create the prepared statement
-        if is_rls_enabled and action <> 'DELETE' then
-            if (select 1 from pg_prepared_statements where name = 'walrus_rls_stmt' limit 1) > 0 then
-                deallocate walrus_rls_stmt;
-            end if;
-            execute realtime.build_prepared_statement_sql('walrus_rls_stmt', entity_, columns);
-        end if;
-
-        visible_to_subscription_ids = '{}';
-
-        for subscription_id, claims in (
-                select
-                    subs.subscription_id,
-                    subs.claims
-                from
-                    unnest(subscriptions) subs
-                where
-                    subs.entity = entity_
-                    and subs.claims_role = working_role
-                    and (
-                        realtime.is_visible_through_filters(columns, subs.filters)
-                        or (
-                          action = 'DELETE'
-                          and realtime.is_visible_through_filters(old_columns, subs.filters)
-                        )
-                    )
-        ) loop
-
-            if not is_rls_enabled or action = 'DELETE' then
-                visible_to_subscription_ids = visible_to_subscription_ids || subscription_id;
-            else
-                -- Check if RLS allows the role to see the record
-                perform
-                    -- Trim leading and trailing quotes from working_role because set_config
-                    -- doesn't recognize the role as valid if they are included
-                    set_config('role', trim(both '"' from working_role::text), true),
-                    set_config('request.jwt.claims', claims::text, true);
-
-                execute 'execute walrus_rls_stmt' into subscription_has_access;
-
-                if subscription_has_access then
-                    visible_to_subscription_ids = visible_to_subscription_ids || subscription_id;
-                end if;
-            end if;
-        end loop;
-
-        perform set_config('role', null, true);
-
-        return next (
-            output,
-            is_rls_enabled,
-            visible_to_subscription_ids,
-            case
-                when error_record_exceeds_max_size then array['Error 413: Payload Too Large']
-                else '{}'
-            end
-        )::realtime.wal_rls;
-
-    end if;
-end loop;
-
-perform set_config('role', null, true);
-end;
-$$;
-
-
---
--- Name: broadcast_changes(text, text, text, text, text, record, record, text); Type: FUNCTION; Schema: realtime; Owner: -
---
-
-CREATE FUNCTION realtime.broadcast_changes(topic_name text, event_name text, operation text, table_name text, table_schema text, new record, old record, level text DEFAULT 'ROW'::text) RETURNS void
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-    -- Declare a variable to hold the JSONB representation of the row
-    row_data jsonb := '{}'::jsonb;
-BEGIN
-    IF level = 'STATEMENT' THEN
-        RAISE EXCEPTION 'function can only be triggered for each row, not for each statement';
-    END IF;
-    -- Check the operation type and handle accordingly
-    IF operation = 'INSERT' OR operation = 'UPDATE' OR operation = 'DELETE' THEN
-        row_data := jsonb_build_object('old_record', OLD, 'record', NEW, 'operation', operation, 'table', table_name, 'schema', table_schema);
-        PERFORM realtime.send (row_data, event_name, topic_name);
-    ELSE
-        RAISE EXCEPTION 'Unexpected operation type: %', operation;
-    END IF;
-EXCEPTION
-    WHEN OTHERS THEN
-        RAISE EXCEPTION 'Failed to process the row: %', SQLERRM;
-END;
-
-$$;
-
-
---
--- Name: build_prepared_statement_sql(text, regclass, realtime.wal_column[]); Type: FUNCTION; Schema: realtime; Owner: -
---
-
-CREATE FUNCTION realtime.build_prepared_statement_sql(prepared_statement_name text, entity regclass, columns realtime.wal_column[]) RETURNS text
-    LANGUAGE sql
-    AS $$
-      /*
-      Builds a sql string that, if executed, creates a prepared statement to
-      tests retrive a row from *entity* by its primary key columns.
-      Example
-          select realtime.build_prepared_statement_sql('public.notes', '{"id"}'::text[], '{"bigint"}'::text[])
-      */
-          select
-      'prepare ' || prepared_statement_name || ' as
-          select
-              exists(
-                  select
-                      1
-                  from
-                      ' || entity || '
-                  where
-                      ' || string_agg(quote_ident(pkc.name) || '=' || quote_nullable(pkc.value #>> '{}') , ' and ') || '
-              )'
-          from
-              unnest(columns) pkc
-          where
-              pkc.is_pkey
-          group by
-              entity
-      $$;
-
-
---
--- Name: cast(text, regtype); Type: FUNCTION; Schema: realtime; Owner: -
---
-
-CREATE FUNCTION realtime."cast"(val text, type_ regtype) RETURNS jsonb
-    LANGUAGE plpgsql IMMUTABLE
-    AS $$
-    declare
-      res jsonb;
-    begin
-      execute format('select to_jsonb(%L::'|| type_::text || ')', val)  into res;
-      return res;
-    end
-    $$;
-
-
---
--- Name: check_equality_op(realtime.equality_op, regtype, text, text); Type: FUNCTION; Schema: realtime; Owner: -
---
-
-CREATE FUNCTION realtime.check_equality_op(op realtime.equality_op, type_ regtype, val_1 text, val_2 text) RETURNS boolean
-    LANGUAGE plpgsql IMMUTABLE
-    AS $$
-      /*
-      Casts *val_1* and *val_2* as type *type_* and check the *op* condition for truthiness
-      */
-      declare
-          op_symbol text = (
-              case
-                  when op = 'eq' then '='
-                  when op = 'neq' then '!='
-                  when op = 'lt' then '<'
-                  when op = 'lte' then '<='
-                  when op = 'gt' then '>'
-                  when op = 'gte' then '>='
-                  when op = 'in' then '= any'
-                  else 'UNKNOWN OP'
-              end
-          );
-          res boolean;
-      begin
-          execute format(
-              'select %L::'|| type_::text || ' ' || op_symbol
-              || ' ( %L::'
-              || (
-                  case
-                      when op = 'in' then type_::text || '[]'
-                      else type_::text end
-              )
-              || ')', val_1, val_2) into res;
-          return res;
-      end;
-      $$;
-
-
---
--- Name: is_visible_through_filters(realtime.wal_column[], realtime.user_defined_filter[]); Type: FUNCTION; Schema: realtime; Owner: -
---
-
-CREATE FUNCTION realtime.is_visible_through_filters(columns realtime.wal_column[], filters realtime.user_defined_filter[]) RETURNS boolean
-    LANGUAGE sql IMMUTABLE
-    AS $_$
-    /*
-    Should the record be visible (true) or filtered out (false) after *filters* are applied
-    */
-        select
-            -- Default to allowed when no filters present
-            $2 is null -- no filters. this should not happen because subscriptions has a default
-            or array_length($2, 1) is null -- array length of an empty array is null
-            or bool_and(
-                coalesce(
-                    realtime.check_equality_op(
-                        op:=f.op,
-                        type_:=coalesce(
-                            col.type_oid::regtype, -- null when wal2json version <= 2.4
-                            col.type_name::regtype
-                        ),
-                        -- cast jsonb to text
-                        val_1:=col.value #>> '{}',
-                        val_2:=f.value
-                    ),
-                    false -- if null, filter does not match
-                )
-            )
-        from
-            unnest(filters) f
-            join unnest(columns) col
-                on f.column_name = col.name;
-    $_$;
-
-
---
--- Name: list_changes(name, name, integer, integer); Type: FUNCTION; Schema: realtime; Owner: -
---
-
-CREATE FUNCTION realtime.list_changes(publication name, slot_name name, max_changes integer, max_record_bytes integer) RETURNS SETOF realtime.wal_rls
-    LANGUAGE sql
-    SET log_min_messages TO 'fatal'
-    AS $$
-      with pub as (
-        select
-          concat_ws(
-            ',',
-            case when bool_or(pubinsert) then 'insert' else null end,
-            case when bool_or(pubupdate) then 'update' else null end,
-            case when bool_or(pubdelete) then 'delete' else null end
-          ) as w2j_actions,
-          coalesce(
-            string_agg(
-              realtime.quote_wal2json(format('%I.%I', schemaname, tablename)::regclass),
-              ','
-            ) filter (where ppt.tablename is not null and ppt.tablename not like '% %'),
-            ''
-          ) w2j_add_tables
-        from
-          pg_publication pp
-          left join pg_publication_tables ppt
-            on pp.pubname = ppt.pubname
-        where
-          pp.pubname = publication
-        group by
-          pp.pubname
-        limit 1
-      ),
-      w2j as (
-        select
-          x.*, pub.w2j_add_tables
-        from
-          pub,
-          pg_logical_slot_get_changes(
-            slot_name, null, max_changes,
-            'include-pk', 'true',
-            'include-transaction', 'false',
-            'include-timestamp', 'true',
-            'include-type-oids', 'true',
-            'format-version', '2',
-            'actions', pub.w2j_actions,
-            'add-tables', pub.w2j_add_tables
-          ) x
-      )
-      select
-        xyz.wal,
-        xyz.is_rls_enabled,
-        xyz.subscription_ids,
-        xyz.errors
-      from
-        w2j,
-        realtime.apply_rls(
-          wal := w2j.data::jsonb,
-          max_record_bytes := max_record_bytes
-        ) xyz(wal, is_rls_enabled, subscription_ids, errors)
-      where
-        w2j.w2j_add_tables <> ''
-        and xyz.subscription_ids[1] is not null
-    $$;
-
-
---
--- Name: quote_wal2json(regclass); Type: FUNCTION; Schema: realtime; Owner: -
---
-
-CREATE FUNCTION realtime.quote_wal2json(entity regclass) RETURNS text
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $$
-      select
-        (
-          select string_agg('' || ch,'')
-          from unnest(string_to_array(nsp.nspname::text, null)) with ordinality x(ch, idx)
-          where
-            not (x.idx = 1 and x.ch = '"')
-            and not (
-              x.idx = array_length(string_to_array(nsp.nspname::text, null), 1)
-              and x.ch = '"'
-            )
-        )
-        || '.'
-        || (
-          select string_agg('' || ch,'')
-          from unnest(string_to_array(pc.relname::text, null)) with ordinality x(ch, idx)
-          where
-            not (x.idx = 1 and x.ch = '"')
-            and not (
-              x.idx = array_length(string_to_array(nsp.nspname::text, null), 1)
-              and x.ch = '"'
-            )
-          )
-      from
-        pg_class pc
-        join pg_namespace nsp
-          on pc.relnamespace = nsp.oid
-      where
-        pc.oid = entity
-    $$;
-
-
---
--- Name: send(jsonb, text, text, boolean); Type: FUNCTION; Schema: realtime; Owner: -
---
-
-CREATE FUNCTION realtime.send(payload jsonb, event text, topic text, private boolean DEFAULT true) RETURNS void
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-  generated_id uuid;
-  final_payload jsonb;
-BEGIN
-  BEGIN
-    -- Generate a new UUID for the id
-    generated_id := gen_random_uuid();
-
-    -- Check if payload has an 'id' key, if not, add the generated UUID
-    IF payload ? 'id' THEN
-      final_payload := payload;
-    ELSE
-      final_payload := jsonb_set(payload, '{id}', to_jsonb(generated_id));
-    END IF;
-
-    -- Set the topic configuration
-    EXECUTE format('SET LOCAL realtime.topic TO %L', topic);
-
-    -- Attempt to insert the message
-    INSERT INTO realtime.messages (id, payload, event, topic, private, extension)
-    VALUES (generated_id, final_payload, event, topic, private, 'broadcast');
-  EXCEPTION
-    WHEN OTHERS THEN
-      -- Capture and notify the error
-      RAISE WARNING 'ErrorSendingBroadcastMessage: %', SQLERRM;
-  END;
-END;
-$$;
-
-
---
--- Name: subscription_check_filters(); Type: FUNCTION; Schema: realtime; Owner: -
---
-
-CREATE FUNCTION realtime.subscription_check_filters() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-    /*
-    Validates that the user defined filters for a subscription:
-    - refer to valid columns that the claimed role may access
-    - values are coercable to the correct column type
-    */
-    declare
-        col_names text[] = coalesce(
-                array_agg(c.column_name order by c.ordinal_position),
-                '{}'::text[]
-            )
-            from
-                information_schema.columns c
-            where
-                format('%I.%I', c.table_schema, c.table_name)::regclass = new.entity
-                and pg_catalog.has_column_privilege(
-                    (new.claims ->> 'role'),
-                    format('%I.%I', c.table_schema, c.table_name)::regclass,
-                    c.column_name,
-                    'SELECT'
-                );
-        filter realtime.user_defined_filter;
-        col_type regtype;
-
-        in_val jsonb;
-    begin
-        for filter in select * from unnest(new.filters) loop
-            -- Filtered column is valid
-            if not filter.column_name = any(col_names) then
-                raise exception 'invalid column for filter %', filter.column_name;
-            end if;
-
-            -- Type is sanitized and safe for string interpolation
-            col_type = (
-                select atttypid::regtype
-                from pg_catalog.pg_attribute
-                where attrelid = new.entity
-                      and attname = filter.column_name
-            );
-            if col_type is null then
-                raise exception 'failed to lookup type for column %', filter.column_name;
-            end if;
-
-            -- Set maximum number of entries for in filter
-            if filter.op = 'in'::realtime.equality_op then
-                in_val = realtime.cast(filter.value, (col_type::text || '[]')::regtype);
-                if coalesce(jsonb_array_length(in_val), 0) > 100 then
-                    raise exception 'too many values for `in` filter. Maximum 100';
-                end if;
-            else
-                -- raises an exception if value is not coercable to type
-                perform realtime.cast(filter.value, col_type);
-            end if;
-
-        end loop;
-
-        -- Apply consistent order to filters so the unique constraint on
-        -- (subscription_id, entity, filters) can't be tricked by a different filter order
-        new.filters = coalesce(
-            array_agg(f order by f.column_name, f.op, f.value),
-            '{}'
-        ) from unnest(new.filters) f;
-
-        return new;
-    end;
-    $$;
-
-
---
--- Name: to_regrole(text); Type: FUNCTION; Schema: realtime; Owner: -
---
-
-CREATE FUNCTION realtime.to_regrole(role_name text) RETURNS regrole
-    LANGUAGE sql IMMUTABLE
-    AS $$ select role_name::regrole $$;
-
-
---
--- Name: topic(); Type: FUNCTION; Schema: realtime; Owner: -
---
-
-CREATE FUNCTION realtime.topic() RETURNS text
-    LANGUAGE sql STABLE
-    AS $$
-select nullif(current_setting('realtime.topic', true), '')::text;
-$$;
-
-
---
--- Name: add_prefixes(text, text); Type: FUNCTION; Schema: storage; Owner: -
---
-
-CREATE FUNCTION storage.add_prefixes(_bucket_id text, _name text) RETURNS void
-    LANGUAGE plpgsql SECURITY DEFINER
-    AS $$
-DECLARE
-    prefixes text[];
-BEGIN
-    prefixes := "storage"."get_prefixes"("_name");
-
-    IF array_length(prefixes, 1) > 0 THEN
-        INSERT INTO storage.prefixes (name, bucket_id)
-        SELECT UNNEST(prefixes) as name, "_bucket_id" ON CONFLICT DO NOTHING;
-    END IF;
-END;
-$$;
-
-
---
--- Name: can_insert_object(text, text, uuid, jsonb); Type: FUNCTION; Schema: storage; Owner: -
---
-
-CREATE FUNCTION storage.can_insert_object(bucketid text, name text, owner uuid, metadata jsonb) RETURNS void
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-  INSERT INTO "storage"."objects" ("bucket_id", "name", "owner", "metadata") VALUES (bucketid, name, owner, metadata);
-  -- hack to rollback the successful insert
-  RAISE sqlstate 'PT200' using
-  message = 'ROLLBACK',
-  detail = 'rollback successful insert';
-END
-$$;
-
-
---
--- Name: delete_leaf_prefixes(text[], text[]); Type: FUNCTION; Schema: storage; Owner: -
---
-
-CREATE FUNCTION storage.delete_leaf_prefixes(bucket_ids text[], names text[]) RETURNS void
-    LANGUAGE plpgsql SECURITY DEFINER
-    AS $$
-DECLARE
-    v_rows_deleted integer;
-BEGIN
-    LOOP
-        WITH candidates AS (
-            SELECT DISTINCT
-                t.bucket_id,
-                unnest(storage.get_prefixes(t.name)) AS name
-            FROM unnest(bucket_ids, names) AS t(bucket_id, name)
-        ),
-        uniq AS (
-             SELECT
-                 bucket_id,
-                 name,
-                 storage.get_level(name) AS level
-             FROM candidates
-             WHERE name <> ''
-             GROUP BY bucket_id, name
-        ),
-        leaf AS (
-             SELECT
-                 p.bucket_id,
-                 p.name,
-                 p.level
-             FROM storage.prefixes AS p
-                  JOIN uniq AS u
-                       ON u.bucket_id = p.bucket_id
-                           AND u.name = p.name
-                           AND u.level = p.level
-             WHERE NOT EXISTS (
-                 SELECT 1
-                 FROM storage.objects AS o
-                 WHERE o.bucket_id = p.bucket_id
-                   AND o.level = p.level + 1
-                   AND o.name COLLATE "C" LIKE p.name || '/%'
-             )
-             AND NOT EXISTS (
-                 SELECT 1
-                 FROM storage.prefixes AS c
-                 WHERE c.bucket_id = p.bucket_id
-                   AND c.level = p.level + 1
-                   AND c.name COLLATE "C" LIKE p.name || '/%'
-             )
-        )
-        DELETE
-        FROM storage.prefixes AS p
-            USING leaf AS l
-        WHERE p.bucket_id = l.bucket_id
-          AND p.name = l.name
-          AND p.level = l.level;
-
-        GET DIAGNOSTICS v_rows_deleted = ROW_COUNT;
-        EXIT WHEN v_rows_deleted = 0;
-    END LOOP;
-END;
-$$;
-
-
---
--- Name: delete_prefix(text, text); Type: FUNCTION; Schema: storage; Owner: -
---
-
-CREATE FUNCTION storage.delete_prefix(_bucket_id text, _name text) RETURNS boolean
+CREATE FUNCTION public.update_visitor_on_session() RETURNS trigger
     LANGUAGE plpgsql SECURITY DEFINER
     AS $$
 BEGIN
-    -- Check if we can delete the prefix
-    IF EXISTS(
-        SELECT FROM "storage"."prefixes"
-        WHERE "prefixes"."bucket_id" = "_bucket_id"
-          AND level = "storage"."get_level"("_name") + 1
-          AND "prefixes"."name" COLLATE "C" LIKE "_name" || '/%'
-        LIMIT 1
-    )
-    OR EXISTS(
-        SELECT FROM "storage"."objects"
-        WHERE "objects"."bucket_id" = "_bucket_id"
-          AND "storage"."get_level"("objects"."name") = "storage"."get_level"("_name") + 1
-          AND "objects"."name" COLLATE "C" LIKE "_name" || '/%'
-        LIMIT 1
-    ) THEN
-    -- There are sub-objects, skip deletion
-    RETURN false;
-    ELSE
-        DELETE FROM "storage"."prefixes"
-        WHERE "prefixes"."bucket_id" = "_bucket_id"
-          AND level = "storage"."get_level"("_name")
-          AND "prefixes"."name" = "_name";
-        RETURN true;
-    END IF;
+  UPDATE public.visitors
+  SET 
+    last_seen_at = NEW.started_at,
+    last_landing_page = NEW.landing_page,
+    last_utm_source = NEW.utm_source,
+    last_utm_medium = NEW.utm_medium,
+    last_utm_campaign = NEW.utm_campaign,
+    session_count = session_count + 1,
+    updated_at = NOW()
+  WHERE id = NEW.visitor_id;
+  
+  RETURN NEW;
 END;
 $$;
 
 
 --
--- Name: delete_prefix_hierarchy_trigger(); Type: FUNCTION; Schema: storage; Owner: -
+-- Name: update_visitor_pageview_count(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION storage.delete_prefix_hierarchy_trigger() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-    prefix text;
-BEGIN
-    prefix := "storage"."get_prefix"(OLD."name");
-
-    IF coalesce(prefix, '') != '' THEN
-        PERFORM "storage"."delete_prefix"(OLD."bucket_id", prefix);
-    END IF;
-
-    RETURN OLD;
-END;
-$$;
-
-
---
--- Name: enforce_bucket_name_length(); Type: FUNCTION; Schema: storage; Owner: -
---
-
-CREATE FUNCTION storage.enforce_bucket_name_length() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-begin
-    if length(new.name) > 100 then
-        raise exception 'bucket name "%" is too long (% characters). Max is 100.', new.name, length(new.name);
-    end if;
-    return new;
-end;
-$$;
-
-
---
--- Name: extension(text); Type: FUNCTION; Schema: storage; Owner: -
---
-
-CREATE FUNCTION storage.extension(name text) RETURNS text
-    LANGUAGE plpgsql IMMUTABLE
-    AS $$
-DECLARE
-    _parts text[];
-    _filename text;
-BEGIN
-    SELECT string_to_array(name, '/') INTO _parts;
-    SELECT _parts[array_length(_parts,1)] INTO _filename;
-    RETURN reverse(split_part(reverse(_filename), '.', 1));
-END
-$$;
-
-
---
--- Name: filename(text); Type: FUNCTION; Schema: storage; Owner: -
---
-
-CREATE FUNCTION storage.filename(name text) RETURNS text
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-_parts text[];
-BEGIN
-	select string_to_array(name, '/') into _parts;
-	return _parts[array_length(_parts,1)];
-END
-$$;
-
-
---
--- Name: foldername(text); Type: FUNCTION; Schema: storage; Owner: -
---
-
-CREATE FUNCTION storage.foldername(name text) RETURNS text[]
-    LANGUAGE plpgsql IMMUTABLE
-    AS $$
-DECLARE
-    _parts text[];
-BEGIN
-    -- Split on "/" to get path segments
-    SELECT string_to_array(name, '/') INTO _parts;
-    -- Return everything except the last segment
-    RETURN _parts[1 : array_length(_parts,1) - 1];
-END
-$$;
-
-
---
--- Name: get_level(text); Type: FUNCTION; Schema: storage; Owner: -
---
-
-CREATE FUNCTION storage.get_level(name text) RETURNS integer
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $$
-SELECT array_length(string_to_array("name", '/'), 1);
-$$;
-
-
---
--- Name: get_prefix(text); Type: FUNCTION; Schema: storage; Owner: -
---
-
-CREATE FUNCTION storage.get_prefix(name text) RETURNS text
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-SELECT
-    CASE WHEN strpos("name", '/') > 0 THEN
-             regexp_replace("name", '[\/]{1}[^\/]+\/?$', '')
-         ELSE
-             ''
-        END;
-$_$;
-
-
---
--- Name: get_prefixes(text); Type: FUNCTION; Schema: storage; Owner: -
---
-
-CREATE FUNCTION storage.get_prefixes(name text) RETURNS text[]
-    LANGUAGE plpgsql IMMUTABLE STRICT
-    AS $$
-DECLARE
-    parts text[];
-    prefixes text[];
-    prefix text;
-BEGIN
-    -- Split the name into parts by '/'
-    parts := string_to_array("name", '/');
-    prefixes := '{}';
-
-    -- Construct the prefixes, stopping one level below the last part
-    FOR i IN 1..array_length(parts, 1) - 1 LOOP
-            prefix := array_to_string(parts[1:i], '/');
-            prefixes := array_append(prefixes, prefix);
-    END LOOP;
-
-    RETURN prefixes;
-END;
-$$;
-
-
---
--- Name: get_size_by_bucket(); Type: FUNCTION; Schema: storage; Owner: -
---
-
-CREATE FUNCTION storage.get_size_by_bucket() RETURNS TABLE(size bigint, bucket_id text)
-    LANGUAGE plpgsql STABLE
-    AS $$
-BEGIN
-    return query
-        select sum((metadata->>'size')::bigint) as size, obj.bucket_id
-        from "storage".objects as obj
-        group by obj.bucket_id;
-END
-$$;
-
-
---
--- Name: list_multipart_uploads_with_delimiter(text, text, text, integer, text, text); Type: FUNCTION; Schema: storage; Owner: -
---
-
-CREATE FUNCTION storage.list_multipart_uploads_with_delimiter(bucket_id text, prefix_param text, delimiter_param text, max_keys integer DEFAULT 100, next_key_token text DEFAULT ''::text, next_upload_token text DEFAULT ''::text) RETURNS TABLE(key text, id text, created_at timestamp with time zone)
-    LANGUAGE plpgsql
-    AS $_$
-BEGIN
-    RETURN QUERY EXECUTE
-        'SELECT DISTINCT ON(key COLLATE "C") * from (
-            SELECT
-                CASE
-                    WHEN position($2 IN substring(key from length($1) + 1)) > 0 THEN
-                        substring(key from 1 for length($1) + position($2 IN substring(key from length($1) + 1)))
-                    ELSE
-                        key
-                END AS key, id, created_at
-            FROM
-                storage.s3_multipart_uploads
-            WHERE
-                bucket_id = $5 AND
-                key ILIKE $1 || ''%'' AND
-                CASE
-                    WHEN $4 != '''' AND $6 = '''' THEN
-                        CASE
-                            WHEN position($2 IN substring(key from length($1) + 1)) > 0 THEN
-                                substring(key from 1 for length($1) + position($2 IN substring(key from length($1) + 1))) COLLATE "C" > $4
-                            ELSE
-                                key COLLATE "C" > $4
-                            END
-                    ELSE
-                        true
-                END AND
-                CASE
-                    WHEN $6 != '''' THEN
-                        id COLLATE "C" > $6
-                    ELSE
-                        true
-                    END
-            ORDER BY
-                key COLLATE "C" ASC, created_at ASC) as e order by key COLLATE "C" LIMIT $3'
-        USING prefix_param, delimiter_param, max_keys, next_key_token, bucket_id, next_upload_token;
-END;
-$_$;
-
-
---
--- Name: list_objects_with_delimiter(text, text, text, integer, text, text); Type: FUNCTION; Schema: storage; Owner: -
---
-
-CREATE FUNCTION storage.list_objects_with_delimiter(bucket_id text, prefix_param text, delimiter_param text, max_keys integer DEFAULT 100, start_after text DEFAULT ''::text, next_token text DEFAULT ''::text) RETURNS TABLE(name text, id uuid, metadata jsonb, updated_at timestamp with time zone)
-    LANGUAGE plpgsql
-    AS $_$
-BEGIN
-    RETURN QUERY EXECUTE
-        'SELECT DISTINCT ON(name COLLATE "C") * from (
-            SELECT
-                CASE
-                    WHEN position($2 IN substring(name from length($1) + 1)) > 0 THEN
-                        substring(name from 1 for length($1) + position($2 IN substring(name from length($1) + 1)))
-                    ELSE
-                        name
-                END AS name, id, metadata, updated_at
-            FROM
-                storage.objects
-            WHERE
-                bucket_id = $5 AND
-                name ILIKE $1 || ''%'' AND
-                CASE
-                    WHEN $6 != '''' THEN
-                    name COLLATE "C" > $6
-                ELSE true END
-                AND CASE
-                    WHEN $4 != '''' THEN
-                        CASE
-                            WHEN position($2 IN substring(name from length($1) + 1)) > 0 THEN
-                                substring(name from 1 for length($1) + position($2 IN substring(name from length($1) + 1))) COLLATE "C" > $4
-                            ELSE
-                                name COLLATE "C" > $4
-                            END
-                    ELSE
-                        true
-                END
-            ORDER BY
-                name COLLATE "C" ASC) as e order by name COLLATE "C" LIMIT $3'
-        USING prefix_param, delimiter_param, max_keys, next_token, bucket_id, start_after;
-END;
-$_$;
-
-
---
--- Name: lock_top_prefixes(text[], text[]); Type: FUNCTION; Schema: storage; Owner: -
---
-
-CREATE FUNCTION storage.lock_top_prefixes(bucket_ids text[], names text[]) RETURNS void
+CREATE FUNCTION public.update_visitor_pageview_count() RETURNS trigger
     LANGUAGE plpgsql SECURITY DEFINER
     AS $$
-DECLARE
-    v_bucket text;
-    v_top text;
 BEGIN
-    FOR v_bucket, v_top IN
-        SELECT DISTINCT t.bucket_id,
-            split_part(t.name, '/', 1) AS top
-        FROM unnest(bucket_ids, names) AS t(bucket_id, name)
-        WHERE t.name <> ''
-        ORDER BY 1, 2
-        LOOP
-            PERFORM pg_advisory_xact_lock(hashtextextended(v_bucket || '/' || v_top, 0));
-        END LOOP;
-END;
-$$;
-
-
---
--- Name: objects_delete_cleanup(); Type: FUNCTION; Schema: storage; Owner: -
---
-
-CREATE FUNCTION storage.objects_delete_cleanup() RETURNS trigger
-    LANGUAGE plpgsql SECURITY DEFINER
-    AS $$
-DECLARE
-    v_bucket_ids text[];
-    v_names      text[];
-BEGIN
-    IF current_setting('storage.gc.prefixes', true) = '1' THEN
-        RETURN NULL;
-    END IF;
-
-    PERFORM set_config('storage.gc.prefixes', '1', true);
-
-    SELECT COALESCE(array_agg(d.bucket_id), '{}'),
-           COALESCE(array_agg(d.name), '{}')
-    INTO v_bucket_ids, v_names
-    FROM deleted AS d
-    WHERE d.name <> '';
-
-    PERFORM storage.lock_top_prefixes(v_bucket_ids, v_names);
-    PERFORM storage.delete_leaf_prefixes(v_bucket_ids, v_names);
-
-    RETURN NULL;
-END;
-$$;
-
-
---
--- Name: objects_insert_prefix_trigger(); Type: FUNCTION; Schema: storage; Owner: -
---
-
-CREATE FUNCTION storage.objects_insert_prefix_trigger() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-    PERFORM "storage"."add_prefixes"(NEW."bucket_id", NEW."name");
-    NEW.level := "storage"."get_level"(NEW."name");
-
-    RETURN NEW;
-END;
-$$;
-
-
---
--- Name: objects_update_cleanup(); Type: FUNCTION; Schema: storage; Owner: -
---
-
-CREATE FUNCTION storage.objects_update_cleanup() RETURNS trigger
-    LANGUAGE plpgsql SECURITY DEFINER
-    AS $$
-DECLARE
-    -- NEW - OLD (destinations to create prefixes for)
-    v_add_bucket_ids text[];
-    v_add_names      text[];
-
-    -- OLD - NEW (sources to prune)
-    v_src_bucket_ids text[];
-    v_src_names      text[];
-BEGIN
-    IF TG_OP <> 'UPDATE' THEN
-        RETURN NULL;
-    END IF;
-
-    -- 1) Compute NEW−OLD (added paths) and OLD−NEW (moved-away paths)
-    WITH added AS (
-        SELECT n.bucket_id, n.name
-        FROM new_rows n
-        WHERE n.name <> '' AND position('/' in n.name) > 0
-        EXCEPT
-        SELECT o.bucket_id, o.name FROM old_rows o WHERE o.name <> ''
-    ),
-    moved AS (
-         SELECT o.bucket_id, o.name
-         FROM old_rows o
-         WHERE o.name <> ''
-         EXCEPT
-         SELECT n.bucket_id, n.name FROM new_rows n WHERE n.name <> ''
-    )
-    SELECT
-        -- arrays for ADDED (dest) in stable order
-        COALESCE( (SELECT array_agg(a.bucket_id ORDER BY a.bucket_id, a.name) FROM added a), '{}' ),
-        COALESCE( (SELECT array_agg(a.name      ORDER BY a.bucket_id, a.name) FROM added a), '{}' ),
-        -- arrays for MOVED (src) in stable order
-        COALESCE( (SELECT array_agg(m.bucket_id ORDER BY m.bucket_id, m.name) FROM moved m), '{}' ),
-        COALESCE( (SELECT array_agg(m.name      ORDER BY m.bucket_id, m.name) FROM moved m), '{}' )
-    INTO v_add_bucket_ids, v_add_names, v_src_bucket_ids, v_src_names;
-
-    -- Nothing to do?
-    IF (array_length(v_add_bucket_ids, 1) IS NULL) AND (array_length(v_src_bucket_ids, 1) IS NULL) THEN
-        RETURN NULL;
-    END IF;
-
-    -- 2) Take per-(bucket, top) locks: ALL prefixes in consistent global order to prevent deadlocks
-    DECLARE
-        v_all_bucket_ids text[];
-        v_all_names text[];
-    BEGIN
-        -- Combine source and destination arrays for consistent lock ordering
-        v_all_bucket_ids := COALESCE(v_src_bucket_ids, '{}') || COALESCE(v_add_bucket_ids, '{}');
-        v_all_names := COALESCE(v_src_names, '{}') || COALESCE(v_add_names, '{}');
-
-        -- Single lock call ensures consistent global ordering across all transactions
-        IF array_length(v_all_bucket_ids, 1) IS NOT NULL THEN
-            PERFORM storage.lock_top_prefixes(v_all_bucket_ids, v_all_names);
-        END IF;
-    END;
-
-    -- 3) Create destination prefixes (NEW−OLD) BEFORE pruning sources
-    IF array_length(v_add_bucket_ids, 1) IS NOT NULL THEN
-        WITH candidates AS (
-            SELECT DISTINCT t.bucket_id, unnest(storage.get_prefixes(t.name)) AS name
-            FROM unnest(v_add_bucket_ids, v_add_names) AS t(bucket_id, name)
-            WHERE name <> ''
-        )
-        INSERT INTO storage.prefixes (bucket_id, name)
-        SELECT c.bucket_id, c.name
-        FROM candidates c
-        ON CONFLICT DO NOTHING;
-    END IF;
-
-    -- 4) Prune source prefixes bottom-up for OLD−NEW
-    IF array_length(v_src_bucket_ids, 1) IS NOT NULL THEN
-        -- re-entrancy guard so DELETE on prefixes won't recurse
-        IF current_setting('storage.gc.prefixes', true) <> '1' THEN
-            PERFORM set_config('storage.gc.prefixes', '1', true);
-        END IF;
-
-        PERFORM storage.delete_leaf_prefixes(v_src_bucket_ids, v_src_names);
-    END IF;
-
-    RETURN NULL;
-END;
-$$;
-
-
---
--- Name: objects_update_level_trigger(); Type: FUNCTION; Schema: storage; Owner: -
---
-
-CREATE FUNCTION storage.objects_update_level_trigger() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-    -- Ensure this is an update operation and the name has changed
-    IF TG_OP = 'UPDATE' AND (NEW."name" <> OLD."name" OR NEW."bucket_id" <> OLD."bucket_id") THEN
-        -- Set the new level
-        NEW."level" := "storage"."get_level"(NEW."name");
-    END IF;
-    RETURN NEW;
-END;
-$$;
-
-
---
--- Name: objects_update_prefix_trigger(); Type: FUNCTION; Schema: storage; Owner: -
---
-
-CREATE FUNCTION storage.objects_update_prefix_trigger() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-    old_prefixes TEXT[];
-BEGIN
-    -- Ensure this is an update operation and the name has changed
-    IF TG_OP = 'UPDATE' AND (NEW."name" <> OLD."name" OR NEW."bucket_id" <> OLD."bucket_id") THEN
-        -- Retrieve old prefixes
-        old_prefixes := "storage"."get_prefixes"(OLD."name");
-
-        -- Remove old prefixes that are only used by this object
-        WITH all_prefixes as (
-            SELECT unnest(old_prefixes) as prefix
-        ),
-        can_delete_prefixes as (
-             SELECT prefix
-             FROM all_prefixes
-             WHERE NOT EXISTS (
-                 SELECT 1 FROM "storage"."objects"
-                 WHERE "bucket_id" = OLD."bucket_id"
-                   AND "name" <> OLD."name"
-                   AND "name" LIKE (prefix || '%')
-             )
-         )
-        DELETE FROM "storage"."prefixes" WHERE name IN (SELECT prefix FROM can_delete_prefixes);
-
-        -- Add new prefixes
-        PERFORM "storage"."add_prefixes"(NEW."bucket_id", NEW."name");
-    END IF;
-    -- Set the new level
-    NEW."level" := "storage"."get_level"(NEW."name");
-
-    RETURN NEW;
-END;
-$$;
-
-
---
--- Name: operation(); Type: FUNCTION; Schema: storage; Owner: -
---
-
-CREATE FUNCTION storage.operation() RETURNS text
-    LANGUAGE plpgsql STABLE
-    AS $$
-BEGIN
-    RETURN current_setting('storage.operation', true);
-END;
-$$;
-
-
---
--- Name: prefixes_delete_cleanup(); Type: FUNCTION; Schema: storage; Owner: -
---
-
-CREATE FUNCTION storage.prefixes_delete_cleanup() RETURNS trigger
-    LANGUAGE plpgsql SECURITY DEFINER
-    AS $$
-DECLARE
-    v_bucket_ids text[];
-    v_names      text[];
-BEGIN
-    IF current_setting('storage.gc.prefixes', true) = '1' THEN
-        RETURN NULL;
-    END IF;
-
-    PERFORM set_config('storage.gc.prefixes', '1', true);
-
-    SELECT COALESCE(array_agg(d.bucket_id), '{}'),
-           COALESCE(array_agg(d.name), '{}')
-    INTO v_bucket_ids, v_names
-    FROM deleted AS d
-    WHERE d.name <> '';
-
-    PERFORM storage.lock_top_prefixes(v_bucket_ids, v_names);
-    PERFORM storage.delete_leaf_prefixes(v_bucket_ids, v_names);
-
-    RETURN NULL;
-END;
-$$;
-
-
---
--- Name: prefixes_insert_trigger(); Type: FUNCTION; Schema: storage; Owner: -
---
-
-CREATE FUNCTION storage.prefixes_insert_trigger() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-    PERFORM "storage"."add_prefixes"(NEW."bucket_id", NEW."name");
-    RETURN NEW;
-END;
-$$;
-
-
---
--- Name: search(text, text, integer, integer, integer, text, text, text); Type: FUNCTION; Schema: storage; Owner: -
---
-
-CREATE FUNCTION storage.search(prefix text, bucketname text, limits integer DEFAULT 100, levels integer DEFAULT 1, offsets integer DEFAULT 0, search text DEFAULT ''::text, sortcolumn text DEFAULT 'name'::text, sortorder text DEFAULT 'asc'::text) RETURNS TABLE(name text, id uuid, updated_at timestamp with time zone, created_at timestamp with time zone, last_accessed_at timestamp with time zone, metadata jsonb)
-    LANGUAGE plpgsql
-    AS $$
-declare
-    can_bypass_rls BOOLEAN;
-begin
-    SELECT rolbypassrls
-    INTO can_bypass_rls
-    FROM pg_roles
-    WHERE rolname = coalesce(nullif(current_setting('role', true), 'none'), current_user);
-
-    IF can_bypass_rls THEN
-        RETURN QUERY SELECT * FROM storage.search_v1_optimised(prefix, bucketname, limits, levels, offsets, search, sortcolumn, sortorder);
-    ELSE
-        RETURN QUERY SELECT * FROM storage.search_legacy_v1(prefix, bucketname, limits, levels, offsets, search, sortcolumn, sortorder);
-    END IF;
-end;
-$$;
-
-
---
--- Name: search_legacy_v1(text, text, integer, integer, integer, text, text, text); Type: FUNCTION; Schema: storage; Owner: -
---
-
-CREATE FUNCTION storage.search_legacy_v1(prefix text, bucketname text, limits integer DEFAULT 100, levels integer DEFAULT 1, offsets integer DEFAULT 0, search text DEFAULT ''::text, sortcolumn text DEFAULT 'name'::text, sortorder text DEFAULT 'asc'::text) RETURNS TABLE(name text, id uuid, updated_at timestamp with time zone, created_at timestamp with time zone, last_accessed_at timestamp with time zone, metadata jsonb)
-    LANGUAGE plpgsql STABLE
-    AS $_$
-declare
-    v_order_by text;
-    v_sort_order text;
-begin
-    case
-        when sortcolumn = 'name' then
-            v_order_by = 'name';
-        when sortcolumn = 'updated_at' then
-            v_order_by = 'updated_at';
-        when sortcolumn = 'created_at' then
-            v_order_by = 'created_at';
-        when sortcolumn = 'last_accessed_at' then
-            v_order_by = 'last_accessed_at';
-        else
-            v_order_by = 'name';
-        end case;
-
-    case
-        when sortorder = 'asc' then
-            v_sort_order = 'asc';
-        when sortorder = 'desc' then
-            v_sort_order = 'desc';
-        else
-            v_sort_order = 'asc';
-        end case;
-
-    v_order_by = v_order_by || ' ' || v_sort_order;
-
-    return query execute
-        'with folders as (
-           select path_tokens[$1] as folder
-           from storage.objects
-             where objects.name ilike $2 || $3 || ''%''
-               and bucket_id = $4
-               and array_length(objects.path_tokens, 1) <> $1
-           group by folder
-           order by folder ' || v_sort_order || '
-     )
-     (select folder as "name",
-            null as id,
-            null as updated_at,
-            null as created_at,
-            null as last_accessed_at,
-            null as metadata from folders)
-     union all
-     (select path_tokens[$1] as "name",
-            id,
-            updated_at,
-            created_at,
-            last_accessed_at,
-            metadata
-     from storage.objects
-     where objects.name ilike $2 || $3 || ''%''
-       and bucket_id = $4
-       and array_length(objects.path_tokens, 1) = $1
-     order by ' || v_order_by || ')
-     limit $5
-     offset $6' using levels, prefix, search, bucketname, limits, offsets;
-end;
-$_$;
-
-
---
--- Name: search_v1_optimised(text, text, integer, integer, integer, text, text, text); Type: FUNCTION; Schema: storage; Owner: -
---
-
-CREATE FUNCTION storage.search_v1_optimised(prefix text, bucketname text, limits integer DEFAULT 100, levels integer DEFAULT 1, offsets integer DEFAULT 0, search text DEFAULT ''::text, sortcolumn text DEFAULT 'name'::text, sortorder text DEFAULT 'asc'::text) RETURNS TABLE(name text, id uuid, updated_at timestamp with time zone, created_at timestamp with time zone, last_accessed_at timestamp with time zone, metadata jsonb)
-    LANGUAGE plpgsql STABLE
-    AS $_$
-declare
-    v_order_by text;
-    v_sort_order text;
-begin
-    case
-        when sortcolumn = 'name' then
-            v_order_by = 'name';
-        when sortcolumn = 'updated_at' then
-            v_order_by = 'updated_at';
-        when sortcolumn = 'created_at' then
-            v_order_by = 'created_at';
-        when sortcolumn = 'last_accessed_at' then
-            v_order_by = 'last_accessed_at';
-        else
-            v_order_by = 'name';
-        end case;
-
-    case
-        when sortorder = 'asc' then
-            v_sort_order = 'asc';
-        when sortorder = 'desc' then
-            v_sort_order = 'desc';
-        else
-            v_sort_order = 'asc';
-        end case;
-
-    v_order_by = v_order_by || ' ' || v_sort_order;
-
-    return query execute
-        'with folders as (
-           select (string_to_array(name, ''/''))[level] as name
-           from storage.prefixes
-             where lower(prefixes.name) like lower($2 || $3) || ''%''
-               and bucket_id = $4
-               and level = $1
-           order by name ' || v_sort_order || '
-     )
-     (select name,
-            null as id,
-            null as updated_at,
-            null as created_at,
-            null as last_accessed_at,
-            null as metadata from folders)
-     union all
-     (select path_tokens[level] as "name",
-            id,
-            updated_at,
-            created_at,
-            last_accessed_at,
-            metadata
-     from storage.objects
-     where lower(objects.name) like lower($2 || $3) || ''%''
-       and bucket_id = $4
-       and level = $1
-     order by ' || v_order_by || ')
-     limit $5
-     offset $6' using levels, prefix, search, bucketname, limits, offsets;
-end;
-$_$;
-
-
---
--- Name: search_v2(text, text, integer, integer, text, text, text, text); Type: FUNCTION; Schema: storage; Owner: -
---
-
-CREATE FUNCTION storage.search_v2(prefix text, bucket_name text, limits integer DEFAULT 100, levels integer DEFAULT 1, start_after text DEFAULT ''::text, sort_order text DEFAULT 'asc'::text, sort_column text DEFAULT 'name'::text, sort_column_after text DEFAULT ''::text) RETURNS TABLE(key text, name text, id uuid, updated_at timestamp with time zone, created_at timestamp with time zone, last_accessed_at timestamp with time zone, metadata jsonb)
-    LANGUAGE plpgsql STABLE
-    AS $_$
-DECLARE
-    sort_col text;
-    sort_ord text;
-    cursor_op text;
-    cursor_expr text;
-    sort_expr text;
-BEGIN
-    -- Validate sort_order
-    sort_ord := lower(sort_order);
-    IF sort_ord NOT IN ('asc', 'desc') THEN
-        sort_ord := 'asc';
-    END IF;
-
-    -- Determine cursor comparison operator
-    IF sort_ord = 'asc' THEN
-        cursor_op := '>';
-    ELSE
-        cursor_op := '<';
-    END IF;
-    
-    sort_col := lower(sort_column);
-    -- Validate sort column  
-    IF sort_col IN ('updated_at', 'created_at') THEN
-        cursor_expr := format(
-            '($5 = '''' OR ROW(date_trunc(''milliseconds'', %I), name COLLATE "C") %s ROW(COALESCE(NULLIF($6, '''')::timestamptz, ''epoch''::timestamptz), $5))',
-            sort_col, cursor_op
-        );
-        sort_expr := format(
-            'COALESCE(date_trunc(''milliseconds'', %I), ''epoch''::timestamptz) %s, name COLLATE "C" %s',
-            sort_col, sort_ord, sort_ord
-        );
-    ELSE
-        cursor_expr := format('($5 = '''' OR name COLLATE "C" %s $5)', cursor_op);
-        sort_expr := format('name COLLATE "C" %s', sort_ord);
-    END IF;
-
-    RETURN QUERY EXECUTE format(
-        $sql$
-        SELECT * FROM (
-            (
-                SELECT
-                    split_part(name, '/', $4) AS key,
-                    name,
-                    NULL::uuid AS id,
-                    updated_at,
-                    created_at,
-                    NULL::timestamptz AS last_accessed_at,
-                    NULL::jsonb AS metadata
-                FROM storage.prefixes
-                WHERE name COLLATE "C" LIKE $1 || '%%'
-                    AND bucket_id = $2
-                    AND level = $4
-                    AND %s
-                ORDER BY %s
-                LIMIT $3
-            )
-            UNION ALL
-            (
-                SELECT
-                    split_part(name, '/', $4) AS key,
-                    name,
-                    id,
-                    updated_at,
-                    created_at,
-                    last_accessed_at,
-                    metadata
-                FROM storage.objects
-                WHERE name COLLATE "C" LIKE $1 || '%%'
-                    AND bucket_id = $2
-                    AND level = $4
-                    AND %s
-                ORDER BY %s
-                LIMIT $3
-            )
-        ) obj
-        ORDER BY %s
-        LIMIT $3
-        $sql$,
-        cursor_expr,    -- prefixes WHERE
-        sort_expr,      -- prefixes ORDER BY
-        cursor_expr,    -- objects WHERE
-        sort_expr,      -- objects ORDER BY
-        sort_expr       -- final ORDER BY
-    )
-    USING prefix, bucket_name, limits, levels, start_after, sort_column_after;
-END;
-$_$;
-
-
---
--- Name: update_updated_at_column(); Type: FUNCTION; Schema: storage; Owner: -
---
-
-CREATE FUNCTION storage.update_updated_at_column() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-    NEW.updated_at = now();
-    RETURN NEW; 
+  UPDATE public.visitors
+  SET 
+    total_pageviews = total_pageviews + 1,
+    updated_at = NOW()
+  WHERE id = NEW.visitor_id;
+  
+  -- Also update session pageview count
+  UPDATE public.sessions
+  SET 
+    pageview_count = pageview_count + 1,
+    last_activity_at = NEW.viewed_at,
+    updated_at = NOW()
+  WHERE id = NEW.session_id;
+  
+  RETURN NEW;
 END;
 $$;
 
@@ -2480,555 +725,79 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- Name: audit_log_entries; Type: TABLE; Schema: auth; Owner: -
+-- Name: ai_readiness_audits; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE auth.audit_log_entries (
-    instance_id uuid,
-    id uuid NOT NULL,
-    payload json,
-    created_at timestamp with time zone,
-    ip_address character varying(64) DEFAULT ''::character varying NOT NULL
+CREATE TABLE public.ai_readiness_audits (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    page_id uuid NOT NULL,
+    ai_score integer,
+    ai_rating public.audit_rating DEFAULT 'not_audited'::public.audit_rating NOT NULL,
+    has_structured_data boolean DEFAULT false,
+    structured_data_types text[],
+    structured_data_valid boolean,
+    structured_data_errors jsonb DEFAULT '[]'::jsonb,
+    has_clear_headings boolean DEFAULT false,
+    has_faq_section boolean DEFAULT false,
+    has_how_to_content boolean DEFAULT false,
+    content_is_factual boolean,
+    has_specific_details boolean,
+    uses_semantic_html boolean DEFAULT false,
+    has_main_element boolean DEFAULT false,
+    has_article_element boolean DEFAULT false,
+    has_nav_element boolean DEFAULT false,
+    has_header_footer boolean DEFAULT false,
+    has_aria_labels boolean DEFAULT false,
+    has_skip_links boolean DEFAULT false,
+    form_labels_ok boolean,
+    content_in_html boolean DEFAULT true,
+    avoids_infinite_scroll boolean DEFAULT true,
+    has_clear_content_boundaries boolean,
+    has_ai_txt boolean DEFAULT false,
+    allows_ai_training boolean DEFAULT true,
+    has_author_info boolean DEFAULT false,
+    has_publish_date boolean DEFAULT false,
+    has_last_updated boolean DEFAULT false,
+    has_sources_citations boolean DEFAULT false,
+    issues jsonb DEFAULT '[]'::jsonb,
+    recommendations jsonb DEFAULT '[]'::jsonb,
+    audited_at timestamp with time zone DEFAULT now() NOT NULL,
+    audited_by uuid,
+    CONSTRAINT ai_readiness_audits_ai_score_check CHECK (((ai_score >= 0) AND (ai_score <= 100)))
 );
 
 
 --
--- Name: TABLE audit_log_entries; Type: COMMENT; Schema: auth; Owner: -
+-- Name: TABLE ai_readiness_audits; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON TABLE auth.audit_log_entries IS 'Auth: Audit trail for user actions.';
+COMMENT ON TABLE public.ai_readiness_audits IS 'AI/LLM readiness audit results';
 
 
 --
--- Name: flow_state; Type: TABLE; Schema: auth; Owner: -
+-- Name: analytics_sync_log; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE auth.flow_state (
-    id uuid NOT NULL,
-    user_id uuid,
-    auth_code text NOT NULL,
-    code_challenge_method auth.code_challenge_method NOT NULL,
-    code_challenge text NOT NULL,
-    provider_type text NOT NULL,
-    provider_access_token text,
-    provider_refresh_token text,
-    created_at timestamp with time zone,
-    updated_at timestamp with time zone,
-    authentication_method text NOT NULL,
-    auth_code_issued_at timestamp with time zone
+CREATE TABLE public.analytics_sync_log (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    sync_date date NOT NULL,
+    sync_type text DEFAULT 'daily'::text,
+    records_synced integer DEFAULT 0,
+    pages_synced integer DEFAULT 0,
+    status text DEFAULT 'success'::text,
+    error_message text,
+    started_at timestamp with time zone DEFAULT now(),
+    completed_at timestamp with time zone,
+    duration_ms integer,
+    created_at timestamp with time zone DEFAULT now()
 );
 
 
 --
--- Name: TABLE flow_state; Type: COMMENT; Schema: auth; Owner: -
+-- Name: TABLE analytics_sync_log; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON TABLE auth.flow_state IS 'stores metadata for pkce logins';
-
-
---
--- Name: identities; Type: TABLE; Schema: auth; Owner: -
---
-
-CREATE TABLE auth.identities (
-    provider_id text NOT NULL,
-    user_id uuid NOT NULL,
-    identity_data jsonb NOT NULL,
-    provider text NOT NULL,
-    last_sign_in_at timestamp with time zone,
-    created_at timestamp with time zone,
-    updated_at timestamp with time zone,
-    email text GENERATED ALWAYS AS (lower((identity_data ->> 'email'::text))) STORED,
-    id uuid DEFAULT gen_random_uuid() NOT NULL
-);
-
-
---
--- Name: TABLE identities; Type: COMMENT; Schema: auth; Owner: -
---
-
-COMMENT ON TABLE auth.identities IS 'Auth: Stores identities associated to a user.';
-
-
---
--- Name: COLUMN identities.email; Type: COMMENT; Schema: auth; Owner: -
---
-
-COMMENT ON COLUMN auth.identities.email IS 'Auth: Email is a generated column that references the optional email property in the identity_data';
-
-
---
--- Name: instances; Type: TABLE; Schema: auth; Owner: -
---
-
-CREATE TABLE auth.instances (
-    id uuid NOT NULL,
-    uuid uuid,
-    raw_base_config text,
-    created_at timestamp with time zone,
-    updated_at timestamp with time zone
-);
-
-
---
--- Name: TABLE instances; Type: COMMENT; Schema: auth; Owner: -
---
-
-COMMENT ON TABLE auth.instances IS 'Auth: Manages users across multiple sites.';
-
-
---
--- Name: mfa_amr_claims; Type: TABLE; Schema: auth; Owner: -
---
-
-CREATE TABLE auth.mfa_amr_claims (
-    session_id uuid NOT NULL,
-    created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL,
-    authentication_method text NOT NULL,
-    id uuid NOT NULL
-);
-
-
---
--- Name: TABLE mfa_amr_claims; Type: COMMENT; Schema: auth; Owner: -
---
-
-COMMENT ON TABLE auth.mfa_amr_claims IS 'auth: stores authenticator method reference claims for multi factor authentication';
-
-
---
--- Name: mfa_challenges; Type: TABLE; Schema: auth; Owner: -
---
-
-CREATE TABLE auth.mfa_challenges (
-    id uuid NOT NULL,
-    factor_id uuid NOT NULL,
-    created_at timestamp with time zone NOT NULL,
-    verified_at timestamp with time zone,
-    ip_address inet NOT NULL,
-    otp_code text,
-    web_authn_session_data jsonb
-);
-
-
---
--- Name: TABLE mfa_challenges; Type: COMMENT; Schema: auth; Owner: -
---
-
-COMMENT ON TABLE auth.mfa_challenges IS 'auth: stores metadata about challenge requests made';
-
-
---
--- Name: mfa_factors; Type: TABLE; Schema: auth; Owner: -
---
-
-CREATE TABLE auth.mfa_factors (
-    id uuid NOT NULL,
-    user_id uuid NOT NULL,
-    friendly_name text,
-    factor_type auth.factor_type NOT NULL,
-    status auth.factor_status NOT NULL,
-    created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL,
-    secret text,
-    phone text,
-    last_challenged_at timestamp with time zone,
-    web_authn_credential jsonb,
-    web_authn_aaguid uuid,
-    last_webauthn_challenge_data jsonb
-);
-
-
---
--- Name: TABLE mfa_factors; Type: COMMENT; Schema: auth; Owner: -
---
-
-COMMENT ON TABLE auth.mfa_factors IS 'auth: stores metadata about factors';
-
-
---
--- Name: COLUMN mfa_factors.last_webauthn_challenge_data; Type: COMMENT; Schema: auth; Owner: -
---
-
-COMMENT ON COLUMN auth.mfa_factors.last_webauthn_challenge_data IS 'Stores the latest WebAuthn challenge data including attestation/assertion for customer verification';
-
-
---
--- Name: oauth_authorizations; Type: TABLE; Schema: auth; Owner: -
---
-
-CREATE TABLE auth.oauth_authorizations (
-    id uuid NOT NULL,
-    authorization_id text NOT NULL,
-    client_id uuid NOT NULL,
-    user_id uuid,
-    redirect_uri text NOT NULL,
-    scope text NOT NULL,
-    state text,
-    resource text,
-    code_challenge text,
-    code_challenge_method auth.code_challenge_method,
-    response_type auth.oauth_response_type DEFAULT 'code'::auth.oauth_response_type NOT NULL,
-    status auth.oauth_authorization_status DEFAULT 'pending'::auth.oauth_authorization_status NOT NULL,
-    authorization_code text,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    expires_at timestamp with time zone DEFAULT (now() + '00:03:00'::interval) NOT NULL,
-    approved_at timestamp with time zone,
-    nonce text,
-    CONSTRAINT oauth_authorizations_authorization_code_length CHECK ((char_length(authorization_code) <= 255)),
-    CONSTRAINT oauth_authorizations_code_challenge_length CHECK ((char_length(code_challenge) <= 128)),
-    CONSTRAINT oauth_authorizations_expires_at_future CHECK ((expires_at > created_at)),
-    CONSTRAINT oauth_authorizations_nonce_length CHECK ((char_length(nonce) <= 255)),
-    CONSTRAINT oauth_authorizations_redirect_uri_length CHECK ((char_length(redirect_uri) <= 2048)),
-    CONSTRAINT oauth_authorizations_resource_length CHECK ((char_length(resource) <= 2048)),
-    CONSTRAINT oauth_authorizations_scope_length CHECK ((char_length(scope) <= 4096)),
-    CONSTRAINT oauth_authorizations_state_length CHECK ((char_length(state) <= 4096))
-);
-
-
---
--- Name: oauth_client_states; Type: TABLE; Schema: auth; Owner: -
---
-
-CREATE TABLE auth.oauth_client_states (
-    id uuid NOT NULL,
-    provider_type text NOT NULL,
-    code_verifier text,
-    created_at timestamp with time zone NOT NULL
-);
-
-
---
--- Name: TABLE oauth_client_states; Type: COMMENT; Schema: auth; Owner: -
---
-
-COMMENT ON TABLE auth.oauth_client_states IS 'Stores OAuth states for third-party provider authentication flows where Supabase acts as the OAuth client.';
-
-
---
--- Name: oauth_clients; Type: TABLE; Schema: auth; Owner: -
---
-
-CREATE TABLE auth.oauth_clients (
-    id uuid NOT NULL,
-    client_secret_hash text,
-    registration_type auth.oauth_registration_type NOT NULL,
-    redirect_uris text NOT NULL,
-    grant_types text NOT NULL,
-    client_name text,
-    client_uri text,
-    logo_uri text,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    deleted_at timestamp with time zone,
-    client_type auth.oauth_client_type DEFAULT 'confidential'::auth.oauth_client_type NOT NULL,
-    CONSTRAINT oauth_clients_client_name_length CHECK ((char_length(client_name) <= 1024)),
-    CONSTRAINT oauth_clients_client_uri_length CHECK ((char_length(client_uri) <= 2048)),
-    CONSTRAINT oauth_clients_logo_uri_length CHECK ((char_length(logo_uri) <= 2048))
-);
-
-
---
--- Name: oauth_consents; Type: TABLE; Schema: auth; Owner: -
---
-
-CREATE TABLE auth.oauth_consents (
-    id uuid NOT NULL,
-    user_id uuid NOT NULL,
-    client_id uuid NOT NULL,
-    scopes text NOT NULL,
-    granted_at timestamp with time zone DEFAULT now() NOT NULL,
-    revoked_at timestamp with time zone,
-    CONSTRAINT oauth_consents_revoked_after_granted CHECK (((revoked_at IS NULL) OR (revoked_at >= granted_at))),
-    CONSTRAINT oauth_consents_scopes_length CHECK ((char_length(scopes) <= 2048)),
-    CONSTRAINT oauth_consents_scopes_not_empty CHECK ((char_length(TRIM(BOTH FROM scopes)) > 0))
-);
-
-
---
--- Name: one_time_tokens; Type: TABLE; Schema: auth; Owner: -
---
-
-CREATE TABLE auth.one_time_tokens (
-    id uuid NOT NULL,
-    user_id uuid NOT NULL,
-    token_type auth.one_time_token_type NOT NULL,
-    token_hash text NOT NULL,
-    relates_to text NOT NULL,
-    created_at timestamp without time zone DEFAULT now() NOT NULL,
-    updated_at timestamp without time zone DEFAULT now() NOT NULL,
-    CONSTRAINT one_time_tokens_token_hash_check CHECK ((char_length(token_hash) > 0))
-);
-
-
---
--- Name: refresh_tokens; Type: TABLE; Schema: auth; Owner: -
---
-
-CREATE TABLE auth.refresh_tokens (
-    instance_id uuid,
-    id bigint NOT NULL,
-    token character varying(255),
-    user_id character varying(255),
-    revoked boolean,
-    created_at timestamp with time zone,
-    updated_at timestamp with time zone,
-    parent character varying(255),
-    session_id uuid
-);
-
-
---
--- Name: TABLE refresh_tokens; Type: COMMENT; Schema: auth; Owner: -
---
-
-COMMENT ON TABLE auth.refresh_tokens IS 'Auth: Store of tokens used to refresh JWT tokens once they expire.';
-
-
---
--- Name: refresh_tokens_id_seq; Type: SEQUENCE; Schema: auth; Owner: -
---
-
-CREATE SEQUENCE auth.refresh_tokens_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: refresh_tokens_id_seq; Type: SEQUENCE OWNED BY; Schema: auth; Owner: -
---
-
-ALTER SEQUENCE auth.refresh_tokens_id_seq OWNED BY auth.refresh_tokens.id;
-
-
---
--- Name: saml_providers; Type: TABLE; Schema: auth; Owner: -
---
-
-CREATE TABLE auth.saml_providers (
-    id uuid NOT NULL,
-    sso_provider_id uuid NOT NULL,
-    entity_id text NOT NULL,
-    metadata_xml text NOT NULL,
-    metadata_url text,
-    attribute_mapping jsonb,
-    created_at timestamp with time zone,
-    updated_at timestamp with time zone,
-    name_id_format text,
-    CONSTRAINT "entity_id not empty" CHECK ((char_length(entity_id) > 0)),
-    CONSTRAINT "metadata_url not empty" CHECK (((metadata_url = NULL::text) OR (char_length(metadata_url) > 0))),
-    CONSTRAINT "metadata_xml not empty" CHECK ((char_length(metadata_xml) > 0))
-);
-
-
---
--- Name: TABLE saml_providers; Type: COMMENT; Schema: auth; Owner: -
---
-
-COMMENT ON TABLE auth.saml_providers IS 'Auth: Manages SAML Identity Provider connections.';
-
-
---
--- Name: saml_relay_states; Type: TABLE; Schema: auth; Owner: -
---
-
-CREATE TABLE auth.saml_relay_states (
-    id uuid NOT NULL,
-    sso_provider_id uuid NOT NULL,
-    request_id text NOT NULL,
-    for_email text,
-    redirect_to text,
-    created_at timestamp with time zone,
-    updated_at timestamp with time zone,
-    flow_state_id uuid,
-    CONSTRAINT "request_id not empty" CHECK ((char_length(request_id) > 0))
-);
-
-
---
--- Name: TABLE saml_relay_states; Type: COMMENT; Schema: auth; Owner: -
---
-
-COMMENT ON TABLE auth.saml_relay_states IS 'Auth: Contains SAML Relay State information for each Service Provider initiated login.';
-
-
---
--- Name: schema_migrations; Type: TABLE; Schema: auth; Owner: -
---
-
-CREATE TABLE auth.schema_migrations (
-    version character varying(255) NOT NULL
-);
-
-
---
--- Name: TABLE schema_migrations; Type: COMMENT; Schema: auth; Owner: -
---
-
-COMMENT ON TABLE auth.schema_migrations IS 'Auth: Manages updates to the auth system.';
-
-
---
--- Name: sessions; Type: TABLE; Schema: auth; Owner: -
---
-
-CREATE TABLE auth.sessions (
-    id uuid NOT NULL,
-    user_id uuid NOT NULL,
-    created_at timestamp with time zone,
-    updated_at timestamp with time zone,
-    factor_id uuid,
-    aal auth.aal_level,
-    not_after timestamp with time zone,
-    refreshed_at timestamp without time zone,
-    user_agent text,
-    ip inet,
-    tag text,
-    oauth_client_id uuid,
-    refresh_token_hmac_key text,
-    refresh_token_counter bigint,
-    scopes text,
-    CONSTRAINT sessions_scopes_length CHECK ((char_length(scopes) <= 4096))
-);
-
-
---
--- Name: TABLE sessions; Type: COMMENT; Schema: auth; Owner: -
---
-
-COMMENT ON TABLE auth.sessions IS 'Auth: Stores session data associated to a user.';
-
-
---
--- Name: COLUMN sessions.not_after; Type: COMMENT; Schema: auth; Owner: -
---
-
-COMMENT ON COLUMN auth.sessions.not_after IS 'Auth: Not after is a nullable column that contains a timestamp after which the session should be regarded as expired.';
-
-
---
--- Name: COLUMN sessions.refresh_token_hmac_key; Type: COMMENT; Schema: auth; Owner: -
---
-
-COMMENT ON COLUMN auth.sessions.refresh_token_hmac_key IS 'Holds a HMAC-SHA256 key used to sign refresh tokens for this session.';
-
-
---
--- Name: COLUMN sessions.refresh_token_counter; Type: COMMENT; Schema: auth; Owner: -
---
-
-COMMENT ON COLUMN auth.sessions.refresh_token_counter IS 'Holds the ID (counter) of the last issued refresh token.';
-
-
---
--- Name: sso_domains; Type: TABLE; Schema: auth; Owner: -
---
-
-CREATE TABLE auth.sso_domains (
-    id uuid NOT NULL,
-    sso_provider_id uuid NOT NULL,
-    domain text NOT NULL,
-    created_at timestamp with time zone,
-    updated_at timestamp with time zone,
-    CONSTRAINT "domain not empty" CHECK ((char_length(domain) > 0))
-);
-
-
---
--- Name: TABLE sso_domains; Type: COMMENT; Schema: auth; Owner: -
---
-
-COMMENT ON TABLE auth.sso_domains IS 'Auth: Manages SSO email address domain mapping to an SSO Identity Provider.';
-
-
---
--- Name: sso_providers; Type: TABLE; Schema: auth; Owner: -
---
-
-CREATE TABLE auth.sso_providers (
-    id uuid NOT NULL,
-    resource_id text,
-    created_at timestamp with time zone,
-    updated_at timestamp with time zone,
-    disabled boolean,
-    CONSTRAINT "resource_id not empty" CHECK (((resource_id = NULL::text) OR (char_length(resource_id) > 0)))
-);
-
-
---
--- Name: TABLE sso_providers; Type: COMMENT; Schema: auth; Owner: -
---
-
-COMMENT ON TABLE auth.sso_providers IS 'Auth: Manages SSO identity provider information; see saml_providers for SAML.';
-
-
---
--- Name: COLUMN sso_providers.resource_id; Type: COMMENT; Schema: auth; Owner: -
---
-
-COMMENT ON COLUMN auth.sso_providers.resource_id IS 'Auth: Uniquely identifies a SSO provider according to a user-chosen resource ID (case insensitive), useful in infrastructure as code.';
-
-
---
--- Name: users; Type: TABLE; Schema: auth; Owner: -
---
-
-CREATE TABLE auth.users (
-    instance_id uuid,
-    id uuid NOT NULL,
-    aud character varying(255),
-    role character varying(255),
-    email character varying(255),
-    encrypted_password character varying(255),
-    email_confirmed_at timestamp with time zone,
-    invited_at timestamp with time zone,
-    confirmation_token character varying(255),
-    confirmation_sent_at timestamp with time zone,
-    recovery_token character varying(255),
-    recovery_sent_at timestamp with time zone,
-    email_change_token_new character varying(255),
-    email_change character varying(255),
-    email_change_sent_at timestamp with time zone,
-    last_sign_in_at timestamp with time zone,
-    raw_app_meta_data jsonb,
-    raw_user_meta_data jsonb,
-    is_super_admin boolean,
-    created_at timestamp with time zone,
-    updated_at timestamp with time zone,
-    phone text DEFAULT NULL::character varying,
-    phone_confirmed_at timestamp with time zone,
-    phone_change text DEFAULT ''::character varying,
-    phone_change_token character varying(255) DEFAULT ''::character varying,
-    phone_change_sent_at timestamp with time zone,
-    confirmed_at timestamp with time zone GENERATED ALWAYS AS (LEAST(email_confirmed_at, phone_confirmed_at)) STORED,
-    email_change_token_current character varying(255) DEFAULT ''::character varying,
-    email_change_confirm_status smallint DEFAULT 0,
-    banned_until timestamp with time zone,
-    reauthentication_token character varying(255) DEFAULT ''::character varying,
-    reauthentication_sent_at timestamp with time zone,
-    is_sso_user boolean DEFAULT false NOT NULL,
-    deleted_at timestamp with time zone,
-    is_anonymous boolean DEFAULT false NOT NULL,
-    CONSTRAINT users_email_change_confirm_status_check CHECK (((email_change_confirm_status >= 0) AND (email_change_confirm_status <= 2)))
-);
-
-
---
--- Name: TABLE users; Type: COMMENT; Schema: auth; Owner: -
---
-
-COMMENT ON TABLE auth.users IS 'Auth: Stores user login data within a secure schema.';
-
-
---
--- Name: COLUMN users.is_sso_user; Type: COMMENT; Schema: auth; Owner: -
---
-
-COMMENT ON COLUMN auth.users.is_sso_user IS 'Auth: Set this column to true when the account comes from SSO. These accounts can have duplicate emails.';
+COMMENT ON TABLE public.analytics_sync_log IS 'Log of GA4 sync operations for monitoring.';
 
 
 --
@@ -3118,6 +887,33 @@ COMMENT ON VIEW public.attribution_analysis IS 'Marketing attribution analysis f
 
 
 --
+-- Name: audit_history; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.audit_history (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    page_id uuid NOT NULL,
+    audit_type text NOT NULL,
+    seo_score integer,
+    ai_score integer,
+    performance_score integer,
+    overall_score integer,
+    issues_found integer DEFAULT 0,
+    issues_fixed integer DEFAULT 0,
+    audit_data jsonb,
+    audited_at timestamp with time zone DEFAULT now() NOT NULL,
+    audited_by uuid
+);
+
+
+--
+-- Name: TABLE audit_history; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.audit_history IS 'Historical audit snapshots for trend analysis';
+
+
+--
 -- Name: audit_log; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -3139,28 +935,95 @@ CREATE TABLE public.audit_log (
 
 
 --
--- Name: carts; Type: TABLE; Schema: public; Owner: -
+-- Name: page_audit_sequence; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.carts (
+CREATE TABLE public.page_audit_sequence (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
+    page_id uuid NOT NULL,
+    sequence_name text NOT NULL,
+    checks jsonb DEFAULT '{"seo_audit": {"notes": null, "status": "pending", "completed_at": null}, "mobile_test": {"notes": null, "status": "pending", "completed_at": null}, "ai_readiness": {"notes": null, "status": "pending", "completed_at": null}, "final_review": {"notes": null, "status": "pending", "completed_at": null}, "content_review": {"notes": null, "status": "pending", "completed_at": null}, "assets_complete": {"notes": null, "status": "pending", "completed_at": null}, "performance_check": {"notes": null, "status": "pending", "completed_at": null}}'::jsonb NOT NULL,
+    is_complete boolean DEFAULT false,
+    completed_at timestamp with time zone,
+    started_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: TABLE page_audit_sequence; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.page_audit_sequence IS 'Tracks audit checklist progress per page';
+
+
+--
+-- Name: site_pages; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.site_pages (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    slug text NOT NULL,
+    wordpress_url text,
+    title text NOT NULL,
+    page_type public.page_type DEFAULT 'informational'::public.page_type NOT NULL,
+    migration_status public.page_migration_status DEFAULT 'not_started'::public.page_migration_status NOT NULL,
+    migration_priority integer DEFAULT 50,
+    migration_batch text,
+    migration_notes text,
+    has_content_extraction boolean DEFAULT false,
+    content_extraction_path text,
+    word_count integer,
+    has_images boolean DEFAULT false,
+    image_count integer DEFAULT 0,
+    has_video boolean DEFAULT false,
+    video_count integer DEFAULT 0,
+    approval_status public.approval_status DEFAULT 'draft'::public.approval_status NOT NULL,
+    approved_by uuid,
+    approved_at timestamp with time zone,
+    review_notes text,
+    monthly_pageviews integer DEFAULT 0,
+    monthly_sessions integer DEFAULT 0,
+    organic_sessions integer DEFAULT 0,
+    bounce_rate numeric(5,2),
+    avg_time_on_page integer,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    customer_id uuid,
-    session_id text,
-    email text,
-    status text DEFAULT 'active'::text NOT NULL,
-    subtotal numeric(10,2) DEFAULT 0,
-    tax_amount numeric(10,2) DEFAULT 0,
-    shipping_amount numeric(10,2) DEFAULT 0,
-    total numeric(10,2) DEFAULT 0,
-    utm_source text,
-    utm_medium text,
-    utm_campaign text,
-    referrer text,
-    project_id uuid,
-    CONSTRAINT carts_status_check CHECK ((status = ANY (ARRAY['active'::text, 'checkout'::text, 'abandoned'::text, 'converted'::text])))
+    last_audited_at timestamp with time zone,
+    went_live_at timestamp with time zone,
+    review_status public.simple_review_status DEFAULT 'pending'::public.simple_review_status,
+    revision_items text,
+    reviewed_at timestamp with time zone,
+    reviewed_by text
 );
+
+
+--
+-- Name: TABLE site_pages; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.site_pages IS 'Master inventory of all site pages with migration and audit status';
+
+
+--
+-- Name: audit_sequence_progress; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.audit_sequence_progress AS
+ SELECT sp.slug,
+    sp.title,
+    pas.sequence_name,
+    pas.is_complete,
+    ( SELECT count(*) AS count
+           FROM jsonb_object_keys(pas.checks) jsonb_object_keys(jsonb_object_keys)) AS total_checks,
+    ( SELECT count(*) AS count
+           FROM jsonb_each(pas.checks) c(key, value)
+          WHERE ((c.value ->> 'status'::text) = 'complete'::text)) AS completed_checks,
+    pas.started_at,
+    pas.updated_at
+   FROM (public.page_audit_sequence pas
+     JOIN public.site_pages sp ON ((sp.id = pas.page_id)))
+  ORDER BY pas.is_complete, pas.updated_at DESC;
 
 
 --
@@ -3192,11 +1055,363 @@ CREATE TABLE public.customers (
     state text,
     zip text,
     notes text,
+    first_utm_source text,
+    first_utm_medium text,
+    first_utm_campaign text,
+    first_utm_term text,
+    first_utm_content text,
+    first_landing_page text,
+    first_referrer text,
+    first_seen_at timestamp with time zone,
+    email_captured_at timestamp with time zone,
+    first_quote_at timestamp with time zone,
+    first_purchase_at timestamp with time zone,
+    customer_status text DEFAULT 'lead'::text,
     CONSTRAINT customers_ltv_tier_check CHECK ((ltv_tier = ANY (ARRAY['vip'::text, 'high'::text, 'medium'::text, 'low'::text, 'new'::text]))),
     CONSTRAINT customers_rfm_frequency_score_check CHECK (((rfm_frequency_score >= 1) AND (rfm_frequency_score <= 5))),
     CONSTRAINT customers_rfm_monetary_score_check CHECK (((rfm_monetary_score >= 1) AND (rfm_monetary_score <= 5))),
-    CONSTRAINT customers_rfm_recency_score_check CHECK (((rfm_recency_score >= 1) AND (rfm_recency_score <= 5)))
+    CONSTRAINT customers_rfm_recency_score_check CHECK (((rfm_recency_score >= 1) AND (rfm_recency_score <= 5))),
+    CONSTRAINT customers_status_check CHECK ((customer_status = ANY (ARRAY['lead'::text, 'quoted'::text, 'customer'::text, 'repeat'::text, 'churned'::text])))
 );
+
+
+--
+-- Name: campaign_attribution; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.campaign_attribution AS
+ SELECT COALESCE(first_utm_source, '(direct)'::text) AS source,
+    COALESCE(first_utm_campaign, '(none)'::text) AS campaign,
+    count(DISTINCT id) AS total_customers,
+    count(DISTINCT
+        CASE
+            WHEN (customer_status = 'lead'::text) THEN id
+            ELSE NULL::uuid
+        END) AS leads,
+    count(DISTINCT
+        CASE
+            WHEN (customer_status = 'quoted'::text) THEN id
+            ELSE NULL::uuid
+        END) AS quoted,
+    count(DISTINCT
+        CASE
+            WHEN (customer_status = ANY (ARRAY['customer'::text, 'repeat'::text])) THEN id
+            ELSE NULL::uuid
+        END) AS purchasers,
+    sum(total_spent) AS total_revenue,
+    avg(total_spent) FILTER (WHERE (total_spent > (0)::numeric)) AS avg_customer_value,
+    avg(average_order_value) FILTER (WHERE (average_order_value > (0)::numeric)) AS avg_order_value,
+    round((((count(DISTINCT
+        CASE
+            WHEN (customer_status = ANY (ARRAY['customer'::text, 'repeat'::text])) THEN id
+            ELSE NULL::uuid
+        END))::numeric / (NULLIF(count(DISTINCT id), 0))::numeric) * (100)::numeric), 2) AS conversion_rate_pct
+   FROM public.customers
+  GROUP BY COALESCE(first_utm_source, '(direct)'::text), COALESCE(first_utm_campaign, '(none)'::text)
+  ORDER BY (sum(total_spent)) DESC NULLS LAST;
+
+
+--
+-- Name: VIEW campaign_attribution; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON VIEW public.campaign_attribution IS 'Campaign performance aggregated by source and campaign.';
+
+
+--
+-- Name: google_ads_campaigns; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.google_ads_campaigns (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    campaign_id text NOT NULL,
+    campaign_name text NOT NULL,
+    campaign_status text,
+    campaign_type text,
+    date date NOT NULL,
+    cost_micros bigint DEFAULT 0,
+    impressions bigint DEFAULT 0,
+    clicks bigint DEFAULT 0,
+    conversions numeric(10,2) DEFAULT 0,
+    conversion_value numeric(10,2) DEFAULT 0,
+    ctr numeric(5,4) DEFAULT 0,
+    avg_cpc_micros bigint DEFAULT 0,
+    synced_at timestamp with time zone DEFAULT now()
+);
+
+
+--
+-- Name: TABLE google_ads_campaigns; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.google_ads_campaigns IS 'Daily Google Ads campaign performance metrics synced via API';
+
+
+--
+-- Name: campaign_performance; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.campaign_performance AS
+ SELECT campaign_id,
+    campaign_name,
+    campaign_type,
+    min(date) AS first_date,
+    max(date) AS last_date,
+    (sum(cost_micros) / 1000000.0) AS total_spend,
+    sum(clicks) AS total_clicks,
+    sum(impressions) AS total_impressions,
+    sum(conversions) AS total_conversions,
+    sum(conversion_value) AS total_conversion_value,
+        CASE
+            WHEN (sum(impressions) > (0)::numeric) THEN round(((sum(clicks) / sum(impressions)) * (100)::numeric), 2)
+            ELSE (0)::numeric
+        END AS ctr_percent,
+        CASE
+            WHEN (sum(clicks) > (0)::numeric) THEN round(((sum(cost_micros) / 1000000.0) / sum(clicks)), 2)
+            ELSE (0)::numeric
+        END AS avg_cpc
+   FROM public.google_ads_campaigns
+  GROUP BY campaign_id, campaign_name, campaign_type
+  ORDER BY (sum(cost_micros) / 1000000.0) DESC;
+
+
+--
+-- Name: VIEW campaign_performance; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON VIEW public.campaign_performance IS 'Campaign-level aggregate performance metrics';
+
+
+--
+-- Name: campaign_roas; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.campaign_roas AS
+ WITH campaign_spend AS (
+         SELECT google_ads_campaigns.date,
+            (sum(google_ads_campaigns.cost_micros) / 1000000.0) AS total_spend,
+            sum(google_ads_campaigns.clicks) AS total_clicks,
+            sum(google_ads_campaigns.impressions) AS total_impressions,
+            sum(google_ads_campaigns.conversions) AS total_conversions
+           FROM public.google_ads_campaigns
+          GROUP BY google_ads_campaigns.date
+        ), order_revenue AS (
+         SELECT date(legacy_orders.order_date) AS date,
+            sum(legacy_orders.total) AS total_revenue,
+            count(*) AS order_count
+           FROM public.legacy_orders
+          WHERE (legacy_orders.order_date IS NOT NULL)
+          GROUP BY (date(legacy_orders.order_date))
+        )
+ SELECT COALESCE(cs.date, orv.date) AS date,
+    cs.total_spend,
+    cs.total_clicks,
+    cs.total_impressions,
+    cs.total_conversions,
+    orv.total_revenue,
+    orv.order_count,
+        CASE
+            WHEN (cs.total_spend > (0)::numeric) THEN round((orv.total_revenue / cs.total_spend), 2)
+            ELSE NULL::numeric
+        END AS roas,
+        CASE
+            WHEN (orv.order_count > 0) THEN round((cs.total_spend / (orv.order_count)::numeric), 2)
+            ELSE NULL::numeric
+        END AS cost_per_order
+   FROM (campaign_spend cs
+     FULL JOIN order_revenue orv ON ((cs.date = orv.date)))
+  ORDER BY COALESCE(cs.date, orv.date) DESC;
+
+
+--
+-- Name: VIEW campaign_roas; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON VIEW public.campaign_roas IS 'Join campaign spend with order revenue for ROAS calculation';
+
+
+--
+-- Name: carts; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.carts (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    customer_id uuid,
+    session_id text,
+    email text,
+    status text DEFAULT 'active'::text NOT NULL,
+    subtotal numeric(10,2) DEFAULT 0,
+    tax_amount numeric(10,2) DEFAULT 0,
+    shipping_amount numeric(10,2) DEFAULT 0,
+    total numeric(10,2) DEFAULT 0,
+    utm_source text,
+    utm_medium text,
+    utm_campaign text,
+    referrer text,
+    project_id uuid,
+    CONSTRAINT carts_status_check CHECK ((status = ANY (ARRAY['active'::text, 'checkout'::text, 'abandoned'::text, 'converted'::text])))
+);
+
+
+--
+-- Name: visitors; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.visitors (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    fingerprint text NOT NULL,
+    first_landing_page text,
+    first_referrer text,
+    first_utm_source text,
+    first_utm_medium text,
+    first_utm_campaign text,
+    first_utm_term text,
+    first_utm_content text,
+    last_landing_page text,
+    last_utm_source text,
+    last_utm_medium text,
+    last_utm_campaign text,
+    first_seen_at timestamp with time zone DEFAULT now(),
+    last_seen_at timestamp with time zone DEFAULT now(),
+    session_count integer DEFAULT 1,
+    total_pageviews integer DEFAULT 0,
+    customer_id uuid,
+    created_at timestamp with time zone DEFAULT now(),
+    updated_at timestamp with time zone DEFAULT now()
+);
+
+
+--
+-- Name: TABLE visitors; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.visitors IS 'Anonymous visitor tracking with first-touch attribution. Cookie-based identification until email capture.';
+
+
+--
+-- Name: customer_journey; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.customer_journey AS
+ SELECT c.id AS customer_id,
+    c.email,
+    c.first_name,
+    c.last_name,
+    c.phone,
+    c.customer_status,
+    c.first_utm_source,
+    c.first_utm_medium,
+    c.first_utm_campaign,
+    c.first_landing_page,
+    c.first_referrer,
+    c.first_seen_at,
+    c.email_captured_at,
+    c.first_quote_at,
+    c.first_purchase_at,
+    c.created_at AS customer_created_at,
+    c.total_orders,
+    c.total_spent,
+    c.average_order_value,
+    c.ltv_tier,
+    v.session_count,
+    v.total_pageviews,
+    v.last_seen_at AS visitor_last_seen,
+    EXTRACT(day FROM (c.email_captured_at - c.first_seen_at)) AS days_to_email,
+    EXTRACT(day FROM (c.first_purchase_at - c.first_seen_at)) AS days_to_purchase,
+    EXTRACT(day FROM (c.first_purchase_at - c.email_captured_at)) AS days_email_to_purchase
+   FROM (public.customers c
+     LEFT JOIN public.visitors v ON ((v.customer_id = c.id)));
+
+
+--
+-- Name: VIEW customer_journey; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON VIEW public.customer_journey IS 'Full customer journey with attribution, lifecycle stages, and metrics.';
+
+
+--
+-- Name: email_messages; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.email_messages (
+    id uuid DEFAULT extensions.uuid_generate_v4() NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    lead_id uuid,
+    from_email text NOT NULL,
+    to_email text NOT NULL,
+    cc_emails text[],
+    bcc_emails text[],
+    subject text NOT NULL,
+    body_text text,
+    body_html text,
+    direction text NOT NULL,
+    status text DEFAULT 'sent'::text,
+    ses_message_id text,
+    imap_message_id text,
+    imap_uid integer,
+    is_reply boolean DEFAULT false,
+    reply_to_message_id uuid,
+    thread_id text,
+    has_attachments boolean DEFAULT false,
+    attachment_urls text[],
+    sent_at timestamp with time zone,
+    delivered_at timestamp with time zone,
+    opened_at timestamp with time zone,
+    CONSTRAINT email_messages_direction_check CHECK ((direction = ANY (ARRAY['inbound'::text, 'outbound'::text]))),
+    CONSTRAINT email_messages_status_check CHECK ((status = ANY (ARRAY['sent'::text, 'delivered'::text, 'failed'::text, 'bounced'::text, 'opened'::text, 'received'::text])))
+);
+
+
+--
+-- Name: funnel_metrics; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.funnel_metrics AS
+ SELECT 'visitors'::text AS stage,
+    1 AS stage_order,
+    count(*) AS count,
+    100.0 AS conversion_rate
+   FROM public.visitors
+  WHERE (visitors.first_seen_at >= (now() - '30 days'::interval))
+UNION ALL
+ SELECT 'email_captured'::text AS stage,
+    2 AS stage_order,
+    count(*) AS count,
+    round((((count(*))::numeric / (NULLIF(( SELECT count(*) AS count
+           FROM public.visitors
+          WHERE (visitors.first_seen_at >= (now() - '30 days'::interval))), 0))::numeric) * (100)::numeric), 2) AS conversion_rate
+   FROM public.visitors v
+  WHERE ((v.customer_id IS NOT NULL) AND (v.first_seen_at >= (now() - '30 days'::interval)))
+UNION ALL
+ SELECT 'quoted'::text AS stage,
+    3 AS stage_order,
+    count(*) AS count,
+    round((((count(*))::numeric / (NULLIF(( SELECT count(*) AS count
+           FROM public.visitors
+          WHERE (visitors.first_seen_at >= (now() - '30 days'::interval))), 0))::numeric) * (100)::numeric), 2) AS conversion_rate
+   FROM public.customers c
+  WHERE ((c.customer_status = ANY (ARRAY['quoted'::text, 'customer'::text, 'repeat'::text])) AND (c.created_at >= (now() - '30 days'::interval)))
+UNION ALL
+ SELECT 'purchased'::text AS stage,
+    4 AS stage_order,
+    count(*) AS count,
+    round((((count(*))::numeric / (NULLIF(( SELECT count(*) AS count
+           FROM public.visitors
+          WHERE (visitors.first_seen_at >= (now() - '30 days'::interval))), 0))::numeric) * (100)::numeric), 2) AS conversion_rate
+   FROM public.customers c
+  WHERE ((c.customer_status = ANY (ARRAY['customer'::text, 'repeat'::text])) AND (c.first_purchase_at >= (now() - '30 days'::interval)))
+  ORDER BY 2;
+
+
+--
+-- Name: VIEW funnel_metrics; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON VIEW public.funnel_metrics IS 'Conversion funnel metrics for last 30 days.';
 
 
 --
@@ -3258,6 +1473,111 @@ CREATE TABLE public.gallery_images (
 
 
 --
+-- Name: google_ads_keywords; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.google_ads_keywords (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    campaign_id text NOT NULL,
+    ad_group_id text NOT NULL,
+    keyword_id text NOT NULL,
+    keyword_text text NOT NULL,
+    match_type text,
+    date date NOT NULL,
+    cost_micros bigint DEFAULT 0,
+    impressions bigint DEFAULT 0,
+    clicks bigint DEFAULT 0,
+    conversions numeric(10,2) DEFAULT 0,
+    conversion_value numeric(10,2) DEFAULT 0,
+    quality_score integer,
+    synced_at timestamp with time zone DEFAULT now()
+);
+
+
+--
+-- Name: TABLE google_ads_keywords; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.google_ads_keywords IS 'Optional keyword-level performance data for detailed analysis';
+
+
+--
+-- Name: google_ads_sync_log; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.google_ads_sync_log (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    sync_date date NOT NULL,
+    sync_type text DEFAULT 'daily'::text NOT NULL,
+    status text DEFAULT 'pending'::text NOT NULL,
+    campaigns_synced integer DEFAULT 0,
+    keywords_synced integer DEFAULT 0,
+    total_cost_micros bigint DEFAULT 0,
+    started_at timestamp with time zone DEFAULT now(),
+    completed_at timestamp with time zone,
+    duration_ms integer,
+    error_message text,
+    created_at timestamp with time zone DEFAULT now()
+);
+
+
+--
+-- Name: TABLE google_ads_sync_log; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.google_ads_sync_log IS 'Audit log of Google Ads API sync operations';
+
+
+--
+-- Name: issue_templates; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.issue_templates (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    category public.issue_category NOT NULL,
+    severity public.issue_severity DEFAULT 'medium'::public.issue_severity NOT NULL,
+    title text NOT NULL,
+    description text,
+    action_required text,
+    shortcode text,
+    sort_order integer DEFAULT 0,
+    is_active boolean DEFAULT true,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: TABLE issue_templates; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.issue_templates IS 'Pre-defined issue templates for quick issue creation';
+
+
+--
+-- Name: journey_events; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.journey_events (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    visitor_id uuid NOT NULL,
+    session_id uuid,
+    customer_id uuid,
+    event_type text NOT NULL,
+    event_data jsonb DEFAULT '{}'::jsonb,
+    page_path text,
+    created_at timestamp with time zone DEFAULT now(),
+    CONSTRAINT journey_events_event_type_check CHECK ((event_type = ANY (ARRAY['email_captured'::text, 'quote_started'::text, 'quote_submitted'::text, 'photos_uploaded'::text, 'cart_created'::text, 'cart_updated'::text, 'cart_sent'::text, 'checkout_started'::text, 'payment_initiated'::text, 'purchase_completed'::text, 'project_created'::text, 'project_updated'::text])))
+);
+
+
+--
+-- Name: TABLE journey_events; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.journey_events IS 'Conversion and milestone events (email capture, quote, purchase, etc).';
+
+
+--
 -- Name: leads; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -3281,9 +1601,246 @@ CREATE TABLE public.leads (
     referrer text,
     landing_page text,
     session_id text,
-    status text DEFAULT 'new'::text NOT NULL,
-    assigned_to uuid
+    status text DEFAULT 'open'::text NOT NULL,
+    assigned_to uuid,
+    pipeline_order integer DEFAULT 0,
+    CONSTRAINT leads_status_check CHECK ((status = ANY (ARRAY['open'::text, 'pending'::text, 'need_photos'::text, 'invitation_to_plan'::text, 'need_measurements'::text, 'working_on_quote'::text, 'quote_sent'::text, 'need_decision'::text, 'order_placed'::text, 'order_on_hold'::text, 'difficult'::text, 'closed'::text])))
 );
+
+
+--
+-- Name: legacy_leads; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.legacy_leads (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    imported_at timestamp with time zone DEFAULT now() NOT NULL,
+    gravity_form_entry_id integer NOT NULL,
+    entry_date timestamp with time zone NOT NULL,
+    date_updated timestamp with time zone,
+    email text NOT NULL,
+    first_name text,
+    last_name text,
+    phone text,
+    interest text,
+    project_type text,
+    message text,
+    installation_method text,
+    has_photos boolean DEFAULT false,
+    photo_urls text[],
+    worked_with_before boolean DEFAULT false,
+    previous_salesperson text,
+    source_url text,
+    landing_page text,
+    gclid text,
+    user_agent text,
+    user_ip text,
+    raw_csv_row jsonb,
+    customer_id uuid,
+    converted_to_order boolean DEFAULT false,
+    first_order_id uuid,
+    fbclid text,
+    lead_source text
+);
+
+
+--
+-- Name: TABLE legacy_leads; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.legacy_leads IS 'Historical leads imported from Gravity Forms contact forms.';
+
+
+--
+-- Name: legacy_lead_by_interest; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.legacy_lead_by_interest AS
+ SELECT COALESCE(ll.interest, '(not specified)'::text) AS interest,
+    count(*) AS total_leads,
+    count(
+        CASE
+            WHEN (lo.email IS NOT NULL) THEN 1
+            ELSE NULL::integer
+        END) AS converted_leads,
+    round((((count(
+        CASE
+            WHEN (lo.email IS NOT NULL) THEN 1
+            ELSE NULL::integer
+        END))::numeric / (NULLIF(count(*), 0))::numeric) * (100)::numeric), 2) AS conversion_rate_pct,
+    COALESCE(sum(lo.total), (0)::numeric) AS total_revenue,
+    round(avg(lo.total) FILTER (WHERE (lo.total > (0)::numeric)), 2) AS avg_order_value
+   FROM (public.legacy_leads ll
+     LEFT JOIN public.legacy_orders lo ON (((lower(ll.email) = lower(lo.email)) AND (lo.order_date >= ll.entry_date))))
+  GROUP BY COALESCE(ll.interest, '(not specified)'::text)
+  ORDER BY (count(*)) DESC;
+
+
+--
+-- Name: VIEW legacy_lead_by_interest; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON VIEW public.legacy_lead_by_interest IS 'Lead performance aggregated by product interest.';
+
+
+--
+-- Name: legacy_lead_by_landing_page; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.legacy_lead_by_landing_page AS
+ SELECT COALESCE(ll.landing_page, '(unknown)'::text) AS landing_page,
+    count(*) AS total_leads,
+    count(
+        CASE
+            WHEN (lo.email IS NOT NULL) THEN 1
+            ELSE NULL::integer
+        END) AS converted_leads,
+    round((((count(
+        CASE
+            WHEN (lo.email IS NOT NULL) THEN 1
+            ELSE NULL::integer
+        END))::numeric / (NULLIF(count(*), 0))::numeric) * (100)::numeric), 2) AS conversion_rate_pct,
+    COALESCE(sum(lo.total), (0)::numeric) AS total_revenue,
+    round(avg(lo.total) FILTER (WHERE (lo.total > (0)::numeric)), 2) AS avg_order_value,
+    count(
+        CASE
+            WHEN ll.has_photos THEN 1
+            ELSE NULL::integer
+        END) AS leads_with_photos
+   FROM (public.legacy_leads ll
+     LEFT JOIN public.legacy_orders lo ON (((lower(ll.email) = lower(lo.email)) AND (lo.order_date >= ll.entry_date))))
+  GROUP BY COALESCE(ll.landing_page, '(unknown)'::text)
+  ORDER BY (count(*)) DESC;
+
+
+--
+-- Name: VIEW legacy_lead_by_landing_page; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON VIEW public.legacy_lead_by_landing_page IS 'Lead performance aggregated by landing page.';
+
+
+--
+-- Name: legacy_lead_by_salesperson; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.legacy_lead_by_salesperson AS
+ SELECT COALESCE(ll.previous_salesperson, '(no previous contact)'::text) AS salesperson,
+    count(*) AS returning_leads,
+    count(
+        CASE
+            WHEN (lo.email IS NOT NULL) THEN 1
+            ELSE NULL::integer
+        END) AS converted_leads,
+    round((((count(
+        CASE
+            WHEN (lo.email IS NOT NULL) THEN 1
+            ELSE NULL::integer
+        END))::numeric / (NULLIF(count(*), 0))::numeric) * (100)::numeric), 2) AS conversion_rate_pct,
+    COALESCE(sum(lo.total), (0)::numeric) AS total_revenue,
+    round(avg(lo.total) FILTER (WHERE (lo.total > (0)::numeric)), 2) AS avg_order_value
+   FROM (public.legacy_leads ll
+     LEFT JOIN public.legacy_orders lo ON (((lower(ll.email) = lower(lo.email)) AND (lo.order_date >= ll.entry_date))))
+  WHERE (ll.worked_with_before = true)
+  GROUP BY COALESCE(ll.previous_salesperson, '(no previous contact)'::text)
+  ORDER BY (count(*)) DESC;
+
+
+--
+-- Name: VIEW legacy_lead_by_salesperson; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON VIEW public.legacy_lead_by_salesperson IS 'Returning customer lead performance by previous salesperson.';
+
+
+--
+-- Name: legacy_lead_conversion; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.legacy_lead_conversion AS
+ SELECT ll.id AS lead_id,
+    ll.email,
+    ll.first_name,
+    ll.last_name,
+    ll.entry_date AS lead_date,
+    ll.interest,
+    ll.project_type,
+    ll.landing_page,
+    ll.previous_salesperson,
+    ll.has_photos,
+    min(lo.order_date) AS first_order_date,
+        CASE
+            WHEN (count(lo.id) > 0) THEN true
+            ELSE false
+        END AS converted,
+    EXTRACT(day FROM (min(lo.order_date) - ll.entry_date)) AS days_to_conversion,
+    count(lo.id) AS order_count,
+    COALESCE(sum(lo.total), (0)::numeric) AS total_revenue
+   FROM (public.legacy_leads ll
+     LEFT JOIN public.legacy_orders lo ON (((lower(ll.email) = lower(lo.email)) AND (lo.order_date >= ll.entry_date))))
+  GROUP BY ll.id, ll.email, ll.first_name, ll.last_name, ll.entry_date, ll.interest, ll.project_type, ll.landing_page, ll.previous_salesperson, ll.has_photos;
+
+
+--
+-- Name: VIEW legacy_lead_conversion; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON VIEW public.legacy_lead_conversion IS 'Individual lead conversion tracking with order matching.';
+
+
+--
+-- Name: legacy_lead_monthly; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.legacy_lead_monthly AS
+ SELECT date_trunc('month'::text, ll.entry_date) AS month,
+    count(*) AS total_leads,
+    count(
+        CASE
+            WHEN (ll.interest ~~* '%vinyl%'::text) THEN 1
+            ELSE NULL::integer
+        END) AS vinyl_leads,
+    count(
+        CASE
+            WHEN (ll.interest ~~* '%curtain%'::text) THEN 1
+            ELSE NULL::integer
+        END) AS curtain_leads,
+    count(
+        CASE
+            WHEN (ll.interest ~~* '%both%'::text) THEN 1
+            ELSE NULL::integer
+        END) AS both_leads,
+    count(
+        CASE
+            WHEN ll.has_photos THEN 1
+            ELSE NULL::integer
+        END) AS leads_with_photos,
+    count(
+        CASE
+            WHEN ll.worked_with_before THEN 1
+            ELSE NULL::integer
+        END) AS returning_leads,
+    count(
+        CASE
+            WHEN (lo.email IS NOT NULL) THEN 1
+            ELSE NULL::integer
+        END) AS converted_leads,
+    round((((count(
+        CASE
+            WHEN (lo.email IS NOT NULL) THEN 1
+            ELSE NULL::integer
+        END))::numeric / (NULLIF(count(*), 0))::numeric) * (100)::numeric), 2) AS conversion_rate_pct
+   FROM (public.legacy_leads ll
+     LEFT JOIN public.legacy_orders lo ON (((lower(ll.email) = lower(lo.email)) AND (lo.order_date >= ll.entry_date))))
+  GROUP BY (date_trunc('month'::text, ll.entry_date))
+  ORDER BY (date_trunc('month'::text, ll.entry_date)) DESC;
+
+
+--
+-- Name: VIEW legacy_lead_monthly; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON VIEW public.legacy_lead_monthly IS 'Monthly lead volume and conversion trends.';
 
 
 --
@@ -3349,6 +1906,7 @@ CREATE TABLE public.products (
     sort_order integer DEFAULT 0,
     image_url text,
     meta jsonb DEFAULT '{}'::jsonb,
+    admin_only boolean DEFAULT false,
     CONSTRAINT products_pricing_type_check CHECK ((pricing_type = ANY (ARRAY['sqft'::text, 'linear_ft'::text, 'each'::text, 'set'::text, 'fixed'::text, 'calculated'::text]))),
     CONSTRAINT products_product_type_check CHECK ((product_type = ANY (ARRAY['panel'::text, 'track'::text, 'attachment'::text, 'raw_material'::text, 'tool'::text, 'accessory'::text, 'adjustment'::text])))
 );
@@ -3459,6 +2017,28 @@ CREATE TABLE public.line_items (
 
 
 --
+-- Name: migration_progress; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.migration_progress AS
+ SELECT migration_status,
+    page_type,
+    count(*) AS page_count,
+    round(avg(migration_priority)) AS avg_priority,
+    sum(monthly_pageviews) AS total_pageviews
+   FROM public.site_pages
+  GROUP BY migration_status, page_type
+  ORDER BY migration_status, page_type;
+
+
+--
+-- Name: VIEW migration_progress; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON VIEW public.migration_progress IS 'Aggregated migration progress by status and type';
+
+
+--
 -- Name: monthly_revenue_by_product_type; Type: VIEW; Schema: public; Owner: -
 --
 
@@ -3481,6 +2061,190 @@ COMMENT ON VIEW public.monthly_revenue_by_product_type IS 'Monthly revenue break
 
 
 --
+-- Name: monthly_roas; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.monthly_roas AS
+ WITH monthly_spend AS (
+         SELECT date_trunc('month'::text, (google_ads_campaigns.date)::timestamp with time zone) AS month,
+            (sum(google_ads_campaigns.cost_micros) / 1000000.0) AS total_spend,
+            sum(google_ads_campaigns.clicks) AS total_clicks,
+            sum(google_ads_campaigns.impressions) AS total_impressions
+           FROM public.google_ads_campaigns
+          GROUP BY (date_trunc('month'::text, (google_ads_campaigns.date)::timestamp with time zone))
+        ), monthly_revenue AS (
+         SELECT date_trunc('month'::text, legacy_orders.order_date) AS month,
+            sum(legacy_orders.total) AS total_revenue,
+            count(*) AS order_count
+           FROM public.legacy_orders
+          WHERE (legacy_orders.order_date IS NOT NULL)
+          GROUP BY (date_trunc('month'::text, legacy_orders.order_date))
+        )
+ SELECT COALESCE(ms.month, mr.month) AS month,
+    ms.total_spend,
+    ms.total_clicks,
+    ms.total_impressions,
+    mr.total_revenue,
+    mr.order_count,
+        CASE
+            WHEN (ms.total_spend > (0)::numeric) THEN round((mr.total_revenue / ms.total_spend), 2)
+            ELSE NULL::numeric
+        END AS roas,
+        CASE
+            WHEN (mr.order_count > 0) THEN round((ms.total_spend / (mr.order_count)::numeric), 2)
+            ELSE NULL::numeric
+        END AS cost_per_order
+   FROM (monthly_spend ms
+     FULL JOIN monthly_revenue mr ON ((ms.month = mr.month)))
+  ORDER BY COALESCE(ms.month, mr.month) DESC;
+
+
+--
+-- Name: VIEW monthly_roas; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON VIEW public.monthly_roas IS 'Monthly aggregated ROAS metrics';
+
+
+--
+-- Name: notification_log; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.notification_log (
+    id integer NOT NULL,
+    notification_type text NOT NULL,
+    recipient text NOT NULL,
+    subject text NOT NULL,
+    reference_id text,
+    status text DEFAULT 'sent'::text NOT NULL,
+    error_message text,
+    metadata jsonb DEFAULT '{}'::jsonb,
+    sent_at timestamp with time zone DEFAULT now(),
+    CONSTRAINT notification_log_status_check CHECK ((status = ANY (ARRAY['sent'::text, 'failed'::text, 'bounced'::text])))
+);
+
+
+--
+-- Name: TABLE notification_log; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.notification_log IS 'Audit trail of all email notifications sent';
+
+
+--
+-- Name: notification_log_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.notification_log_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: notification_log_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.notification_log_id_seq OWNED BY public.notification_log.id;
+
+
+--
+-- Name: notification_settings; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.notification_settings (
+    id text NOT NULL,
+    label text NOT NULL,
+    description text,
+    recipient_emails text[] DEFAULT '{}'::text[] NOT NULL,
+    is_enabled boolean DEFAULT true NOT NULL,
+    created_at timestamp with time zone DEFAULT now(),
+    updated_at timestamp with time zone DEFAULT now()
+);
+
+
+--
+-- Name: TABLE notification_settings; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.notification_settings IS 'Configurable notification recipients and enable/disable per type';
+
+
+--
+-- Name: COLUMN notification_settings.recipient_emails; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.notification_settings.recipient_emails IS 'Array of email addresses. Empty array means customer-only (uses order/lead email).';
+
+
+--
+-- Name: page_issues; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.page_issues (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    page_id uuid NOT NULL,
+    category public.issue_category NOT NULL,
+    severity public.issue_severity DEFAULT 'medium'::public.issue_severity NOT NULL,
+    status public.issue_status DEFAULT 'open'::public.issue_status NOT NULL,
+    title text NOT NULL,
+    description text,
+    action_required text,
+    notes text,
+    affected_assets jsonb DEFAULT '[]'::jsonb,
+    related_issue_id uuid,
+    audit_id uuid,
+    assigned_to text,
+    resolution_notes text,
+    resolved_at timestamp with time zone,
+    resolved_by text,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    sort_order integer DEFAULT 0
+);
+
+
+--
+-- Name: TABLE page_issues; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.page_issues IS 'Tracks specific issues per page with severity, status, and resolution workflow';
+
+
+--
+-- Name: open_issues_summary; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.open_issues_summary AS
+ SELECT pi.id AS issue_id,
+    sp.slug,
+    sp.title AS page_title,
+    pi.category,
+    pi.severity,
+    pi.status,
+    pi.title AS issue_title,
+    pi.action_required,
+    pi.assigned_to,
+    pi.created_at,
+    pi.updated_at,
+    (EXTRACT(day FROM (now() - pi.created_at)))::integer AS days_open
+   FROM (public.page_issues pi
+     JOIN public.site_pages sp ON ((sp.id = pi.page_id)))
+  WHERE (pi.status = ANY (ARRAY['open'::public.issue_status, 'acknowledged'::public.issue_status, 'in_progress'::public.issue_status, 'blocked'::public.issue_status]))
+  ORDER BY
+        CASE pi.severity
+            WHEN 'critical'::public.issue_severity THEN 1
+            WHEN 'high'::public.issue_severity THEN 2
+            WHEN 'medium'::public.issue_severity THEN 3
+            WHEN 'low'::public.issue_severity THEN 4
+            ELSE 5
+        END, pi.created_at;
+
+
+--
 -- Name: option_values; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -3494,7 +2258,8 @@ CREATE TABLE public.option_values (
     price_multiplier numeric(10,4) DEFAULT 1,
     is_default boolean DEFAULT false,
     sort_order integer DEFAULT 0,
-    meta jsonb DEFAULT '{}'::jsonb
+    meta jsonb DEFAULT '{}'::jsonb,
+    admin_only boolean DEFAULT false
 );
 
 
@@ -3555,10 +2320,426 @@ CREATE TABLE public.orders (
     legacy_woo_order_id integer,
     legacy_woo_order_key text,
     legacy_raw_data jsonb,
+    visitor_id uuid,
+    session_id uuid,
+    first_utm_source text,
+    first_utm_campaign text,
+    converting_utm_source text,
+    converting_utm_campaign text,
+    salesperson_id text,
+    salesperson_name text,
+    order_source text DEFAULT 'online_self'::text,
     CONSTRAINT orders_payment_status_check CHECK ((payment_status = ANY (ARRAY['pending'::text, 'paid'::text, 'refunded'::text, 'failed'::text]))),
     CONSTRAINT orders_source_check CHECK ((source = ANY (ARRAY['website'::text, 'admin'::text, 'import'::text, 'api'::text]))),
     CONSTRAINT orders_status_check CHECK ((status = ANY (ARRAY['pending'::text, 'processing'::text, 'on_hold'::text, 'completed'::text, 'cancelled'::text, 'refunded'::text, 'failed'::text])))
 );
+
+
+--
+-- Name: page_analytics; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.page_analytics (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    page_path text NOT NULL,
+    date date NOT NULL,
+    pageviews integer DEFAULT 0,
+    unique_pageviews integer DEFAULT 0,
+    sessions integer DEFAULT 0,
+    organic_sessions integer DEFAULT 0,
+    new_users integer DEFAULT 0,
+    avg_time_on_page numeric(10,2),
+    bounce_rate numeric(5,4),
+    exit_rate numeric(5,4),
+    created_at timestamp with time zone DEFAULT now(),
+    updated_at timestamp with time zone DEFAULT now()
+);
+
+
+--
+-- Name: TABLE page_analytics; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.page_analytics IS 'Daily aggregated page metrics synced from GA4.';
+
+
+--
+-- Name: page_approvals; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.page_approvals (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    page_id uuid NOT NULL,
+    requested_by uuid,
+    requested_at timestamp with time zone DEFAULT now() NOT NULL,
+    request_notes text,
+    reviewed_by uuid,
+    reviewed_at timestamp with time zone,
+    decision text,
+    decision_notes text,
+    checklist jsonb DEFAULT '{"links_working": null, "seo_optimized": null, "content_accurate": null, "images_optimized": null, "mobile_responsive": null, "performance_acceptable": null, "design_system_compliant": null}'::jsonb,
+    is_complete boolean DEFAULT false,
+    CONSTRAINT page_approvals_decision_check CHECK ((decision = ANY (ARRAY['approved'::text, 'changes_requested'::text, 'rejected'::text])))
+);
+
+
+--
+-- Name: TABLE page_approvals; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.page_approvals IS 'Approval workflow requests and reviews';
+
+
+--
+-- Name: performance_audits; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.performance_audits (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    page_id uuid NOT NULL,
+    performance_score integer,
+    performance_rating public.audit_rating DEFAULT 'not_audited'::public.audit_rating NOT NULL,
+    lcp_ms integer,
+    lcp_rating public.audit_rating,
+    fid_ms integer,
+    fid_rating public.audit_rating,
+    cls_score numeric(5,3),
+    cls_rating public.audit_rating,
+    inp_ms integer,
+    inp_rating public.audit_rating,
+    ttfb_ms integer,
+    fcp_ms integer,
+    tti_ms integer,
+    speed_index integer,
+    total_blocking_time_ms integer,
+    total_page_size_kb integer,
+    html_size_kb integer,
+    css_size_kb integer,
+    js_size_kb integer,
+    image_size_kb integer,
+    font_size_kb integer,
+    total_requests integer,
+    js_requests integer,
+    css_requests integer,
+    image_requests integer,
+    font_requests integer,
+    third_party_requests integer,
+    lighthouse_performance integer,
+    lighthouse_accessibility integer,
+    lighthouse_best_practices integer,
+    lighthouse_seo integer,
+    device_type text DEFAULT 'mobile'::text,
+    issues jsonb DEFAULT '[]'::jsonb,
+    recommendations jsonb DEFAULT '[]'::jsonb,
+    audited_at timestamp with time zone DEFAULT now() NOT NULL,
+    audited_by uuid,
+    CONSTRAINT performance_audits_performance_score_check CHECK (((performance_score >= 0) AND (performance_score <= 100)))
+);
+
+
+--
+-- Name: TABLE performance_audits; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.performance_audits IS 'Core Web Vitals and performance metrics';
+
+
+--
+-- Name: seo_audits; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.seo_audits (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    page_id uuid NOT NULL,
+    seo_score integer,
+    seo_rating public.audit_rating DEFAULT 'not_audited'::public.audit_rating NOT NULL,
+    has_meta_title boolean DEFAULT false,
+    meta_title text,
+    meta_title_length integer,
+    meta_title_ok boolean,
+    has_meta_description boolean DEFAULT false,
+    meta_description text,
+    meta_description_length integer,
+    meta_description_ok boolean,
+    has_canonical boolean DEFAULT false,
+    canonical_url text,
+    has_og_title boolean DEFAULT false,
+    has_og_description boolean DEFAULT false,
+    has_og_image boolean DEFAULT false,
+    og_image_url text,
+    has_twitter_card boolean DEFAULT false,
+    has_h1 boolean DEFAULT false,
+    h1_count integer DEFAULT 0,
+    h1_text text,
+    heading_hierarchy_ok boolean,
+    images_have_alt boolean,
+    images_missing_alt integer DEFAULT 0,
+    internal_links_count integer DEFAULT 0,
+    external_links_count integer DEFAULT 0,
+    broken_links_count integer DEFAULT 0,
+    has_robots_meta boolean DEFAULT false,
+    is_indexable boolean DEFAULT true,
+    has_sitemap_entry boolean DEFAULT false,
+    is_mobile_friendly boolean,
+    viewport_configured boolean DEFAULT false,
+    issues jsonb DEFAULT '[]'::jsonb,
+    recommendations jsonb DEFAULT '[]'::jsonb,
+    audited_at timestamp with time zone DEFAULT now() NOT NULL,
+    audited_by uuid,
+    CONSTRAINT seo_audits_seo_score_check CHECK (((seo_score >= 0) AND (seo_score <= 100)))
+);
+
+
+--
+-- Name: TABLE seo_audits; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.seo_audits IS 'SEO audit results for each page';
+
+
+--
+-- Name: page_audit_dashboard; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.page_audit_dashboard AS
+ SELECT sp.id,
+    sp.slug,
+    sp.title,
+    sp.page_type,
+    sp.migration_status,
+    sp.migration_priority,
+    sp.migration_batch,
+    sp.approval_status,
+    sp.monthly_pageviews,
+    sp.organic_sessions,
+    sp.review_status,
+    sp.review_notes,
+    sp.revision_items,
+    sp.reviewed_at,
+    sa.seo_score,
+    sa.seo_rating,
+    sa.has_meta_title,
+    sa.has_meta_description,
+    sa.has_h1,
+    ar.ai_score,
+    ar.ai_rating,
+    ar.has_structured_data,
+    ar.uses_semantic_html,
+    pa.performance_score,
+    pa.performance_rating,
+    pa.lcp_ms,
+    pa.cls_score,
+    round(((((COALESCE(sa.seo_score, 0))::numeric * 0.35) + ((COALESCE(ar.ai_score, 0))::numeric * 0.25)) + ((COALESCE(pa.performance_score, 0))::numeric * 0.40))) AS overall_score,
+    sp.updated_at,
+    sp.last_audited_at
+   FROM (((public.site_pages sp
+     LEFT JOIN public.seo_audits sa ON ((sa.page_id = sp.id)))
+     LEFT JOIN public.ai_readiness_audits ar ON ((ar.page_id = sp.id)))
+     LEFT JOIN LATERAL ( SELECT performance_audits.id,
+            performance_audits.page_id,
+            performance_audits.performance_score,
+            performance_audits.performance_rating,
+            performance_audits.lcp_ms,
+            performance_audits.lcp_rating,
+            performance_audits.fid_ms,
+            performance_audits.fid_rating,
+            performance_audits.cls_score,
+            performance_audits.cls_rating,
+            performance_audits.inp_ms,
+            performance_audits.inp_rating,
+            performance_audits.ttfb_ms,
+            performance_audits.fcp_ms,
+            performance_audits.tti_ms,
+            performance_audits.speed_index,
+            performance_audits.total_blocking_time_ms,
+            performance_audits.total_page_size_kb,
+            performance_audits.html_size_kb,
+            performance_audits.css_size_kb,
+            performance_audits.js_size_kb,
+            performance_audits.image_size_kb,
+            performance_audits.font_size_kb,
+            performance_audits.total_requests,
+            performance_audits.js_requests,
+            performance_audits.css_requests,
+            performance_audits.image_requests,
+            performance_audits.font_requests,
+            performance_audits.third_party_requests,
+            performance_audits.lighthouse_performance,
+            performance_audits.lighthouse_accessibility,
+            performance_audits.lighthouse_best_practices,
+            performance_audits.lighthouse_seo,
+            performance_audits.device_type,
+            performance_audits.issues,
+            performance_audits.recommendations,
+            performance_audits.audited_at,
+            performance_audits.audited_by
+           FROM public.performance_audits
+          WHERE (performance_audits.page_id = sp.id)
+          ORDER BY performance_audits.audited_at DESC
+         LIMIT 1) pa ON (true));
+
+
+--
+-- Name: page_issues_summary; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.page_issues_summary AS
+ SELECT sp.id AS page_id,
+    sp.slug,
+    sp.title,
+    sp.migration_status,
+    count(pi.id) FILTER (WHERE (pi.status = ANY (ARRAY['open'::public.issue_status, 'acknowledged'::public.issue_status, 'in_progress'::public.issue_status, 'blocked'::public.issue_status]))) AS open_issues,
+    count(pi.id) FILTER (WHERE ((pi.severity = 'critical'::public.issue_severity) AND (pi.status <> 'resolved'::public.issue_status))) AS critical_issues,
+    count(pi.id) FILTER (WHERE ((pi.severity = 'high'::public.issue_severity) AND (pi.status <> 'resolved'::public.issue_status))) AS high_issues,
+    count(pi.id) FILTER (WHERE (pi.status = 'resolved'::public.issue_status)) AS resolved_issues,
+    max(pi.updated_at) AS last_issue_update,
+    bool_or(((pi.category = 'assets'::public.issue_category) AND (pi.status <> 'resolved'::public.issue_status))) AS has_asset_issues
+   FROM (public.site_pages sp
+     LEFT JOIN public.page_issues pi ON ((pi.page_id = sp.id)))
+  GROUP BY sp.id, sp.slug, sp.title, sp.migration_status
+  ORDER BY (count(pi.id) FILTER (WHERE ((pi.severity = 'critical'::public.issue_severity) AND (pi.status <> 'resolved'::public.issue_status)))) DESC, (count(pi.id) FILTER (WHERE (pi.status = ANY (ARRAY['open'::public.issue_status, 'acknowledged'::public.issue_status, 'in_progress'::public.issue_status, 'blocked'::public.issue_status])))) DESC;
+
+
+--
+-- Name: page_notes; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.page_notes (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    page_id uuid NOT NULL,
+    note text NOT NULL,
+    note_type text DEFAULT 'general'::text,
+    author text,
+    is_pinned boolean DEFAULT false,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: TABLE page_notes; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.page_notes IS 'General notes and comments on pages';
+
+
+--
+-- Name: page_views; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.page_views (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    session_id uuid NOT NULL,
+    visitor_id uuid NOT NULL,
+    page_path text NOT NULL,
+    page_title text,
+    page_url text,
+    viewed_at timestamp with time zone DEFAULT now(),
+    time_on_page_seconds integer,
+    scroll_depth integer,
+    view_order integer DEFAULT 1,
+    created_at timestamp with time zone DEFAULT now()
+);
+
+
+--
+-- Name: TABLE page_views; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.page_views IS 'Individual page views within sessions for detailed journey tracking.';
+
+
+--
+-- Name: pages_needing_attention; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.pages_needing_attention AS
+ SELECT sp.slug,
+    sp.title,
+    sp.page_type,
+    sa.seo_score,
+    ar.ai_score,
+    pa.performance_score,
+        CASE
+            WHEN (sa.seo_score < 50) THEN 'Poor SEO'::text
+            WHEN (ar.ai_score < 50) THEN 'Poor AI Readiness'::text
+            WHEN (pa.performance_score < 50) THEN 'Poor Performance'::text
+            WHEN (sp.approval_status = 'changes_requested'::public.approval_status) THEN 'Changes Requested'::text
+            ELSE 'Needs Review'::text
+        END AS attention_reason
+   FROM (((public.site_pages sp
+     LEFT JOIN public.seo_audits sa ON ((sa.page_id = sp.id)))
+     LEFT JOIN public.ai_readiness_audits ar ON ((ar.page_id = sp.id)))
+     LEFT JOIN LATERAL ( SELECT performance_audits.id,
+            performance_audits.page_id,
+            performance_audits.performance_score,
+            performance_audits.performance_rating,
+            performance_audits.lcp_ms,
+            performance_audits.lcp_rating,
+            performance_audits.fid_ms,
+            performance_audits.fid_rating,
+            performance_audits.cls_score,
+            performance_audits.cls_rating,
+            performance_audits.inp_ms,
+            performance_audits.inp_rating,
+            performance_audits.ttfb_ms,
+            performance_audits.fcp_ms,
+            performance_audits.tti_ms,
+            performance_audits.speed_index,
+            performance_audits.total_blocking_time_ms,
+            performance_audits.total_page_size_kb,
+            performance_audits.html_size_kb,
+            performance_audits.css_size_kb,
+            performance_audits.js_size_kb,
+            performance_audits.image_size_kb,
+            performance_audits.font_size_kb,
+            performance_audits.total_requests,
+            performance_audits.js_requests,
+            performance_audits.css_requests,
+            performance_audits.image_requests,
+            performance_audits.font_requests,
+            performance_audits.third_party_requests,
+            performance_audits.lighthouse_performance,
+            performance_audits.lighthouse_accessibility,
+            performance_audits.lighthouse_best_practices,
+            performance_audits.lighthouse_seo,
+            performance_audits.device_type,
+            performance_audits.issues,
+            performance_audits.recommendations,
+            performance_audits.audited_at,
+            performance_audits.audited_by
+           FROM public.performance_audits
+          WHERE (performance_audits.page_id = sp.id)
+          ORDER BY performance_audits.audited_at DESC
+         LIMIT 1) pa ON (true))
+  WHERE ((sp.migration_status = 'live'::public.page_migration_status) AND ((sa.seo_score < 50) OR (ar.ai_score < 50) OR (pa.performance_score < 50) OR (sp.approval_status = 'changes_requested'::public.approval_status)))
+  ORDER BY LEAST(COALESCE(sa.seo_score, 100), COALESCE(ar.ai_score, 100), COALESCE(pa.performance_score, 100));
+
+
+--
+-- Name: VIEW pages_needing_attention; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON VIEW public.pages_needing_attention IS 'Pages with low scores that need work';
+
+
+--
+-- Name: pages_needing_revision; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.pages_needing_revision AS
+ SELECT id,
+    slug,
+    title,
+    page_type,
+    migration_status,
+    review_notes,
+    revision_items,
+    reviewed_at,
+    updated_at
+   FROM public.site_pages
+  WHERE (review_status = 'needs_revision'::public.simple_review_status)
+  ORDER BY migration_priority DESC, updated_at DESC;
 
 
 --
@@ -3575,8 +2756,77 @@ CREATE TABLE public.product_options (
     is_required boolean DEFAULT true,
     sort_order integer DEFAULT 0,
     meta jsonb DEFAULT '{}'::jsonb,
+    admin_only boolean DEFAULT false,
     CONSTRAINT product_options_option_type_check CHECK ((option_type = ANY (ARRAY['select'::text, 'color'::text, 'number'::text, 'dimension'::text])))
 );
+
+
+--
+-- Name: product_pricing; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.product_pricing (
+    id text NOT NULL,
+    category text NOT NULL,
+    label text NOT NULL,
+    value numeric(10,4) NOT NULL,
+    unit text NOT NULL,
+    description text,
+    is_multiplier boolean DEFAULT false,
+    base_price_id text,
+    created_at timestamp with time zone DEFAULT now(),
+    updated_at timestamp with time zone DEFAULT now(),
+    admin_only boolean DEFAULT false
+);
+
+
+--
+-- Name: TABLE product_pricing; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.product_pricing IS 'Product pricing that can be edited via admin panel';
+
+
+--
+-- Name: product_pricing_history; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.product_pricing_history (
+    id integer NOT NULL,
+    pricing_id text NOT NULL,
+    old_value numeric(10,4),
+    new_value numeric(10,4) NOT NULL,
+    changed_by text,
+    changed_at timestamp with time zone DEFAULT now(),
+    reason text
+);
+
+
+--
+-- Name: TABLE product_pricing_history; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.product_pricing_history IS 'Audit trail of all pricing changes';
+
+
+--
+-- Name: product_pricing_history_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.product_pricing_history_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: product_pricing_history_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.product_pricing_history_id_seq OWNED BY public.product_pricing_history.id;
 
 
 --
@@ -3654,8 +2904,23 @@ CREATE TABLE public.projects (
     utm_term text,
     referrer text,
     landing_page text,
-    session_id text
+    session_id text,
+    cart_data jsonb DEFAULT '[]'::jsonb,
+    lead_id uuid
 );
+
+
+--
+-- Name: review_summary; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.review_summary AS
+ SELECT count(*) AS total_pages,
+    count(*) FILTER (WHERE (migration_status = 'live'::public.page_migration_status)) AS pages_live,
+    count(*) FILTER (WHERE ((review_status = 'pending'::public.simple_review_status) OR (review_status IS NULL))) AS pending_review,
+    count(*) FILTER (WHERE (review_status = 'complete'::public.simple_review_status)) AS complete,
+    count(*) FILTER (WHERE (review_status = 'needs_revision'::public.simple_review_status)) AS needs_revision
+   FROM public.site_pages;
 
 
 --
@@ -3684,6 +2949,237 @@ COMMENT ON VIEW public.salesperson_performance IS 'Sales metrics by salesperson'
 
 
 --
+-- Name: sessions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.sessions (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    visitor_id uuid NOT NULL,
+    landing_page text NOT NULL,
+    referrer text,
+    utm_source text,
+    utm_medium text,
+    utm_campaign text,
+    utm_term text,
+    utm_content text,
+    device_type text,
+    browser text,
+    os text,
+    country text,
+    region text,
+    city text,
+    started_at timestamp with time zone DEFAULT now(),
+    ended_at timestamp with time zone,
+    last_activity_at timestamp with time zone DEFAULT now(),
+    pageview_count integer DEFAULT 0,
+    duration_seconds integer,
+    converted boolean DEFAULT false,
+    conversion_type text,
+    conversion_at timestamp with time zone,
+    created_at timestamp with time zone DEFAULT now(),
+    updated_at timestamp with time zone DEFAULT now()
+);
+
+
+--
+-- Name: TABLE sessions; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.sessions IS 'Individual browsing sessions linked to visitors. Each visit creates a new session.';
+
+
+--
+-- Name: shipping_rates; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.shipping_rates (
+    id integer NOT NULL,
+    zone_id integer NOT NULL,
+    shipping_class text NOT NULL,
+    flat_cost numeric(10,2) DEFAULT 0 NOT NULL,
+    fee_percent numeric(5,2) DEFAULT 0 NOT NULL,
+    is_active boolean DEFAULT true NOT NULL,
+    created_at timestamp with time zone DEFAULT now(),
+    updated_at timestamp with time zone DEFAULT now(),
+    CONSTRAINT shipping_rates_shipping_class_check CHECK ((shipping_class = ANY (ARRAY['default'::text, 'clear_vinyl'::text, 'straight_track'::text])))
+);
+
+
+--
+-- Name: TABLE shipping_rates; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.shipping_rates IS 'Per-zone shipping rates by class. Clear Vinyl replaces base; Track adds on top.';
+
+
+--
+-- Name: shipping_rates_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.shipping_rates_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: shipping_rates_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.shipping_rates_id_seq OWNED BY public.shipping_rates.id;
+
+
+--
+-- Name: shipping_tax_history; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.shipping_tax_history (
+    id integer NOT NULL,
+    table_name text NOT NULL,
+    record_id integer NOT NULL,
+    field_name text NOT NULL,
+    old_value text,
+    new_value text NOT NULL,
+    changed_by text,
+    changed_at timestamp with time zone DEFAULT now()
+);
+
+
+--
+-- Name: TABLE shipping_tax_history; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.shipping_tax_history IS 'Audit trail for shipping rate and tax rate changes.';
+
+
+--
+-- Name: shipping_tax_history_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.shipping_tax_history_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: shipping_tax_history_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.shipping_tax_history_id_seq OWNED BY public.shipping_tax_history.id;
+
+
+--
+-- Name: shipping_zone_regions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.shipping_zone_regions (
+    id integer NOT NULL,
+    zone_id integer NOT NULL,
+    country_code text NOT NULL,
+    state_code text,
+    created_at timestamp with time zone DEFAULT now()
+);
+
+
+--
+-- Name: TABLE shipping_zone_regions; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.shipping_zone_regions IS 'Maps country/state pairs to shipping zones. Non-overlapping regions.';
+
+
+--
+-- Name: shipping_zone_regions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.shipping_zone_regions_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: shipping_zone_regions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.shipping_zone_regions_id_seq OWNED BY public.shipping_zone_regions.id;
+
+
+--
+-- Name: shipping_zones; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.shipping_zones (
+    id integer NOT NULL,
+    name text NOT NULL,
+    slug text NOT NULL,
+    sort_order integer DEFAULT 0 NOT NULL,
+    is_fallback boolean DEFAULT false NOT NULL,
+    is_active boolean DEFAULT true NOT NULL,
+    created_at timestamp with time zone DEFAULT now(),
+    updated_at timestamp with time zone DEFAULT now()
+);
+
+
+--
+-- Name: TABLE shipping_zones; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.shipping_zones IS 'Shipping zones for rate calculation. Fallback zone used when no region matches.';
+
+
+--
+-- Name: shipping_zones_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.shipping_zones_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: shipping_zones_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.shipping_zones_id_seq OWNED BY public.shipping_zones.id;
+
+
+--
+-- Name: sms_messages; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.sms_messages (
+    id uuid DEFAULT extensions.uuid_generate_v4() NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    lead_id uuid,
+    direction text NOT NULL,
+    from_number text NOT NULL,
+    to_number text NOT NULL,
+    body text NOT NULL,
+    media_urls text[],
+    status text DEFAULT 'queued'::text,
+    error_message text,
+    twilio_sid text,
+    CONSTRAINT sms_messages_direction_check CHECK ((direction = ANY (ARRAY['inbound'::text, 'outbound'::text]))),
+    CONSTRAINT sms_messages_status_check CHECK ((status = ANY (ARRAY['queued'::text, 'sent'::text, 'delivered'::text, 'failed'::text, 'received'::text])))
+);
+
+
+--
 -- Name: staff; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -3700,458 +3196,154 @@ CREATE TABLE public.staff (
 
 
 --
--- Name: messages; Type: TABLE; Schema: realtime; Owner: -
+-- Name: tax_rates; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE realtime.messages (
-    topic text NOT NULL,
-    extension text NOT NULL,
-    payload jsonb,
-    event text,
-    private boolean DEFAULT false,
-    updated_at timestamp without time zone DEFAULT now() NOT NULL,
-    inserted_at timestamp without time zone DEFAULT now() NOT NULL,
-    id uuid DEFAULT gen_random_uuid() NOT NULL
-)
-PARTITION BY RANGE (inserted_at);
-
-
---
--- Name: schema_migrations; Type: TABLE; Schema: realtime; Owner: -
---
-
-CREATE TABLE realtime.schema_migrations (
-    version bigint NOT NULL,
-    inserted_at timestamp(0) without time zone
-);
-
-
---
--- Name: subscription; Type: TABLE; Schema: realtime; Owner: -
---
-
-CREATE TABLE realtime.subscription (
-    id bigint NOT NULL,
-    subscription_id uuid NOT NULL,
-    entity regclass NOT NULL,
-    filters realtime.user_defined_filter[] DEFAULT '{}'::realtime.user_defined_filter[] NOT NULL,
-    claims jsonb NOT NULL,
-    claims_role regrole GENERATED ALWAYS AS (realtime.to_regrole((claims ->> 'role'::text))) STORED NOT NULL,
-    created_at timestamp without time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
-    action_filter text DEFAULT '*'::text,
-    CONSTRAINT subscription_action_filter_check CHECK ((action_filter = ANY (ARRAY['*'::text, 'INSERT'::text, 'UPDATE'::text, 'DELETE'::text])))
-);
-
-
---
--- Name: subscription_id_seq; Type: SEQUENCE; Schema: realtime; Owner: -
---
-
-ALTER TABLE realtime.subscription ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME realtime.subscription_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: buckets; Type: TABLE; Schema: storage; Owner: -
---
-
-CREATE TABLE storage.buckets (
-    id text NOT NULL,
-    name text NOT NULL,
-    owner uuid,
-    created_at timestamp with time zone DEFAULT now(),
-    updated_at timestamp with time zone DEFAULT now(),
-    public boolean DEFAULT false,
-    avif_autodetection boolean DEFAULT false,
-    file_size_limit bigint,
-    allowed_mime_types text[],
-    owner_id text,
-    type storage.buckettype DEFAULT 'STANDARD'::storage.buckettype NOT NULL
-);
-
-
---
--- Name: COLUMN buckets.owner; Type: COMMENT; Schema: storage; Owner: -
---
-
-COMMENT ON COLUMN storage.buckets.owner IS 'Field is deprecated, use owner_id instead';
-
-
---
--- Name: buckets_analytics; Type: TABLE; Schema: storage; Owner: -
---
-
-CREATE TABLE storage.buckets_analytics (
-    name text NOT NULL,
-    type storage.buckettype DEFAULT 'ANALYTICS'::storage.buckettype NOT NULL,
-    format text DEFAULT 'ICEBERG'::text NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    deleted_at timestamp with time zone
-);
-
-
---
--- Name: buckets_vectors; Type: TABLE; Schema: storage; Owner: -
---
-
-CREATE TABLE storage.buckets_vectors (
-    id text NOT NULL,
-    type storage.buckettype DEFAULT 'VECTOR'::storage.buckettype NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL
-);
-
-
---
--- Name: migrations; Type: TABLE; Schema: storage; Owner: -
---
-
-CREATE TABLE storage.migrations (
+CREATE TABLE public.tax_rates (
     id integer NOT NULL,
-    name character varying(100) NOT NULL,
-    hash character varying(40) NOT NULL,
-    executed_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
---
--- Name: objects; Type: TABLE; Schema: storage; Owner: -
---
-
-CREATE TABLE storage.objects (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    bucket_id text,
-    name text,
-    owner uuid,
-    created_at timestamp with time zone DEFAULT now(),
-    updated_at timestamp with time zone DEFAULT now(),
-    last_accessed_at timestamp with time zone DEFAULT now(),
-    metadata jsonb,
-    path_tokens text[] GENERATED ALWAYS AS (string_to_array(name, '/'::text)) STORED,
-    version text,
-    owner_id text,
-    user_metadata jsonb,
-    level integer
-);
-
-
---
--- Name: COLUMN objects.owner; Type: COMMENT; Schema: storage; Owner: -
---
-
-COMMENT ON COLUMN storage.objects.owner IS 'Field is deprecated, use owner_id instead';
-
-
---
--- Name: prefixes; Type: TABLE; Schema: storage; Owner: -
---
-
-CREATE TABLE storage.prefixes (
-    bucket_id text NOT NULL,
-    name text NOT NULL COLLATE pg_catalog."C",
-    level integer GENERATED ALWAYS AS (storage.get_level(name)) STORED NOT NULL,
+    country_code text NOT NULL,
+    state_code text DEFAULT '*'::text NOT NULL,
+    postcode text DEFAULT '*'::text NOT NULL,
+    city text DEFAULT '*'::text NOT NULL,
+    rate numeric(8,4) DEFAULT 0 NOT NULL,
+    tax_name text NOT NULL,
+    priority integer DEFAULT 1 NOT NULL,
+    is_compound boolean DEFAULT false NOT NULL,
+    is_shipping_taxable boolean DEFAULT false NOT NULL,
+    is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now(),
     updated_at timestamp with time zone DEFAULT now()
 );
 
 
 --
--- Name: s3_multipart_uploads; Type: TABLE; Schema: storage; Owner: -
+-- Name: TABLE tax_rates; Type: COMMENT; Schema: public; Owner: -
 --
 
-CREATE TABLE storage.s3_multipart_uploads (
-    id text NOT NULL,
-    in_progress_size bigint DEFAULT 0 NOT NULL,
-    upload_signature text NOT NULL,
-    bucket_id text NOT NULL,
-    key text NOT NULL COLLATE pg_catalog."C",
-    version text NOT NULL,
-    owner_id text,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    user_metadata jsonb
-);
+COMMENT ON TABLE public.tax_rates IS 'Tax rates by country/state/postcode. Most specific match wins.';
 
 
 --
--- Name: s3_multipart_uploads_parts; Type: TABLE; Schema: storage; Owner: -
+-- Name: tax_rates_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE TABLE storage.s3_multipart_uploads_parts (
+CREATE SEQUENCE public.tax_rates_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: tax_rates_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.tax_rates_id_seq OWNED BY public.tax_rates.id;
+
+
+--
+-- Name: traffic_sources; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.traffic_sources (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    upload_id text NOT NULL,
-    size bigint DEFAULT 0 NOT NULL,
-    part_number integer NOT NULL,
-    bucket_id text NOT NULL,
-    key text NOT NULL COLLATE pg_catalog."C",
-    etag text NOT NULL,
-    owner_id text,
-    version text NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL
+    page_path text NOT NULL,
+    date date NOT NULL,
+    channel text NOT NULL,
+    sessions integer DEFAULT 0,
+    new_users integer DEFAULT 0,
+    created_at timestamp with time zone DEFAULT now()
 );
 
 
 --
--- Name: vector_indexes; Type: TABLE; Schema: storage; Owner: -
+-- Name: TABLE traffic_sources; Type: COMMENT; Schema: public; Owner: -
 --
 
-CREATE TABLE storage.vector_indexes (
-    id text DEFAULT gen_random_uuid() NOT NULL,
-    name text NOT NULL COLLATE pg_catalog."C",
-    bucket_id text NOT NULL,
-    data_type text NOT NULL,
-    dimension integer NOT NULL,
-    distance_metric text NOT NULL,
-    metadata_configuration jsonb,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL
-);
+COMMENT ON TABLE public.traffic_sources IS 'Traffic source breakdown by channel, synced from GA4.';
 
 
 --
--- Name: refresh_tokens id; Type: DEFAULT; Schema: auth; Owner: -
+-- Name: notification_log id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY auth.refresh_tokens ALTER COLUMN id SET DEFAULT nextval('auth.refresh_tokens_id_seq'::regclass);
-
-
---
--- Name: mfa_amr_claims amr_id_pk; Type: CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.mfa_amr_claims
-    ADD CONSTRAINT amr_id_pk PRIMARY KEY (id);
+ALTER TABLE ONLY public.notification_log ALTER COLUMN id SET DEFAULT nextval('public.notification_log_id_seq'::regclass);
 
 
 --
--- Name: audit_log_entries audit_log_entries_pkey; Type: CONSTRAINT; Schema: auth; Owner: -
+-- Name: product_pricing_history id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY auth.audit_log_entries
-    ADD CONSTRAINT audit_log_entries_pkey PRIMARY KEY (id);
-
-
---
--- Name: flow_state flow_state_pkey; Type: CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.flow_state
-    ADD CONSTRAINT flow_state_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.product_pricing_history ALTER COLUMN id SET DEFAULT nextval('public.product_pricing_history_id_seq'::regclass);
 
 
 --
--- Name: identities identities_pkey; Type: CONSTRAINT; Schema: auth; Owner: -
+-- Name: shipping_rates id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY auth.identities
-    ADD CONSTRAINT identities_pkey PRIMARY KEY (id);
-
-
---
--- Name: identities identities_provider_id_provider_unique; Type: CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.identities
-    ADD CONSTRAINT identities_provider_id_provider_unique UNIQUE (provider_id, provider);
+ALTER TABLE ONLY public.shipping_rates ALTER COLUMN id SET DEFAULT nextval('public.shipping_rates_id_seq'::regclass);
 
 
 --
--- Name: instances instances_pkey; Type: CONSTRAINT; Schema: auth; Owner: -
+-- Name: shipping_tax_history id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY auth.instances
-    ADD CONSTRAINT instances_pkey PRIMARY KEY (id);
-
-
---
--- Name: mfa_amr_claims mfa_amr_claims_session_id_authentication_method_pkey; Type: CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.mfa_amr_claims
-    ADD CONSTRAINT mfa_amr_claims_session_id_authentication_method_pkey UNIQUE (session_id, authentication_method);
+ALTER TABLE ONLY public.shipping_tax_history ALTER COLUMN id SET DEFAULT nextval('public.shipping_tax_history_id_seq'::regclass);
 
 
 --
--- Name: mfa_challenges mfa_challenges_pkey; Type: CONSTRAINT; Schema: auth; Owner: -
+-- Name: shipping_zone_regions id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY auth.mfa_challenges
-    ADD CONSTRAINT mfa_challenges_pkey PRIMARY KEY (id);
-
-
---
--- Name: mfa_factors mfa_factors_last_challenged_at_key; Type: CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.mfa_factors
-    ADD CONSTRAINT mfa_factors_last_challenged_at_key UNIQUE (last_challenged_at);
+ALTER TABLE ONLY public.shipping_zone_regions ALTER COLUMN id SET DEFAULT nextval('public.shipping_zone_regions_id_seq'::regclass);
 
 
 --
--- Name: mfa_factors mfa_factors_pkey; Type: CONSTRAINT; Schema: auth; Owner: -
+-- Name: shipping_zones id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY auth.mfa_factors
-    ADD CONSTRAINT mfa_factors_pkey PRIMARY KEY (id);
-
-
---
--- Name: oauth_authorizations oauth_authorizations_authorization_code_key; Type: CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.oauth_authorizations
-    ADD CONSTRAINT oauth_authorizations_authorization_code_key UNIQUE (authorization_code);
+ALTER TABLE ONLY public.shipping_zones ALTER COLUMN id SET DEFAULT nextval('public.shipping_zones_id_seq'::regclass);
 
 
 --
--- Name: oauth_authorizations oauth_authorizations_authorization_id_key; Type: CONSTRAINT; Schema: auth; Owner: -
+-- Name: tax_rates id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY auth.oauth_authorizations
-    ADD CONSTRAINT oauth_authorizations_authorization_id_key UNIQUE (authorization_id);
-
-
---
--- Name: oauth_authorizations oauth_authorizations_pkey; Type: CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.oauth_authorizations
-    ADD CONSTRAINT oauth_authorizations_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.tax_rates ALTER COLUMN id SET DEFAULT nextval('public.tax_rates_id_seq'::regclass);
 
 
 --
--- Name: oauth_client_states oauth_client_states_pkey; Type: CONSTRAINT; Schema: auth; Owner: -
+-- Name: ai_readiness_audits ai_readiness_audits_page_id_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY auth.oauth_client_states
-    ADD CONSTRAINT oauth_client_states_pkey PRIMARY KEY (id);
-
-
---
--- Name: oauth_clients oauth_clients_pkey; Type: CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.oauth_clients
-    ADD CONSTRAINT oauth_clients_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.ai_readiness_audits
+    ADD CONSTRAINT ai_readiness_audits_page_id_key UNIQUE (page_id);
 
 
 --
--- Name: oauth_consents oauth_consents_pkey; Type: CONSTRAINT; Schema: auth; Owner: -
+-- Name: ai_readiness_audits ai_readiness_audits_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY auth.oauth_consents
-    ADD CONSTRAINT oauth_consents_pkey PRIMARY KEY (id);
-
-
---
--- Name: oauth_consents oauth_consents_user_client_unique; Type: CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.oauth_consents
-    ADD CONSTRAINT oauth_consents_user_client_unique UNIQUE (user_id, client_id);
+ALTER TABLE ONLY public.ai_readiness_audits
+    ADD CONSTRAINT ai_readiness_audits_pkey PRIMARY KEY (id);
 
 
 --
--- Name: one_time_tokens one_time_tokens_pkey; Type: CONSTRAINT; Schema: auth; Owner: -
+-- Name: analytics_sync_log analytics_sync_log_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY auth.one_time_tokens
-    ADD CONSTRAINT one_time_tokens_pkey PRIMARY KEY (id);
-
-
---
--- Name: refresh_tokens refresh_tokens_pkey; Type: CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.refresh_tokens
-    ADD CONSTRAINT refresh_tokens_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.analytics_sync_log
+    ADD CONSTRAINT analytics_sync_log_pkey PRIMARY KEY (id);
 
 
 --
--- Name: refresh_tokens refresh_tokens_token_unique; Type: CONSTRAINT; Schema: auth; Owner: -
+-- Name: audit_history audit_history_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY auth.refresh_tokens
-    ADD CONSTRAINT refresh_tokens_token_unique UNIQUE (token);
-
-
---
--- Name: saml_providers saml_providers_entity_id_key; Type: CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.saml_providers
-    ADD CONSTRAINT saml_providers_entity_id_key UNIQUE (entity_id);
-
-
---
--- Name: saml_providers saml_providers_pkey; Type: CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.saml_providers
-    ADD CONSTRAINT saml_providers_pkey PRIMARY KEY (id);
-
-
---
--- Name: saml_relay_states saml_relay_states_pkey; Type: CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.saml_relay_states
-    ADD CONSTRAINT saml_relay_states_pkey PRIMARY KEY (id);
-
-
---
--- Name: schema_migrations schema_migrations_pkey; Type: CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.schema_migrations
-    ADD CONSTRAINT schema_migrations_pkey PRIMARY KEY (version);
-
-
---
--- Name: sessions sessions_pkey; Type: CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.sessions
-    ADD CONSTRAINT sessions_pkey PRIMARY KEY (id);
-
-
---
--- Name: sso_domains sso_domains_pkey; Type: CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.sso_domains
-    ADD CONSTRAINT sso_domains_pkey PRIMARY KEY (id);
-
-
---
--- Name: sso_providers sso_providers_pkey; Type: CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.sso_providers
-    ADD CONSTRAINT sso_providers_pkey PRIMARY KEY (id);
-
-
---
--- Name: users users_phone_key; Type: CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.users
-    ADD CONSTRAINT users_phone_key UNIQUE (phone);
-
-
---
--- Name: users users_pkey; Type: CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.users
-    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.audit_history
+    ADD CONSTRAINT audit_history_pkey PRIMARY KEY (id);
 
 
 --
@@ -4184,6 +3376,14 @@ ALTER TABLE ONLY public.customers
 
 ALTER TABLE ONLY public.customers
     ADD CONSTRAINT customers_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: email_messages email_messages_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.email_messages
+    ADD CONSTRAINT email_messages_pkey PRIMARY KEY (id);
 
 
 --
@@ -4227,11 +3427,91 @@ ALTER TABLE ONLY public.gallery_images
 
 
 --
+-- Name: google_ads_campaigns google_ads_campaigns_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.google_ads_campaigns
+    ADD CONSTRAINT google_ads_campaigns_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: google_ads_campaigns google_ads_campaigns_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.google_ads_campaigns
+    ADD CONSTRAINT google_ads_campaigns_unique UNIQUE (campaign_id, date);
+
+
+--
+-- Name: google_ads_keywords google_ads_keywords_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.google_ads_keywords
+    ADD CONSTRAINT google_ads_keywords_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: google_ads_keywords google_ads_keywords_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.google_ads_keywords
+    ADD CONSTRAINT google_ads_keywords_unique UNIQUE (keyword_id, date);
+
+
+--
+-- Name: google_ads_sync_log google_ads_sync_log_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.google_ads_sync_log
+    ADD CONSTRAINT google_ads_sync_log_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: issue_templates issue_templates_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.issue_templates
+    ADD CONSTRAINT issue_templates_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: issue_templates issue_templates_shortcode_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.issue_templates
+    ADD CONSTRAINT issue_templates_shortcode_key UNIQUE (shortcode);
+
+
+--
+-- Name: journey_events journey_events_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.journey_events
+    ADD CONSTRAINT journey_events_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: leads leads_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.leads
     ADD CONSTRAINT leads_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: legacy_leads legacy_leads_gravity_form_entry_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.legacy_leads
+    ADD CONSTRAINT legacy_leads_gravity_form_entry_id_key UNIQUE (gravity_form_entry_id);
+
+
+--
+-- Name: legacy_leads legacy_leads_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.legacy_leads
+    ADD CONSTRAINT legacy_leads_pkey PRIMARY KEY (id);
 
 
 --
@@ -4307,6 +3587,22 @@ ALTER TABLE ONLY public.line_items
 
 
 --
+-- Name: notification_log notification_log_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.notification_log
+    ADD CONSTRAINT notification_log_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: notification_settings notification_settings_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.notification_settings
+    ADD CONSTRAINT notification_settings_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: option_values option_values_option_id_value_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4339,6 +3635,78 @@ ALTER TABLE ONLY public.orders
 
 
 --
+-- Name: page_analytics page_analytics_page_path_date_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.page_analytics
+    ADD CONSTRAINT page_analytics_page_path_date_key UNIQUE (page_path, date);
+
+
+--
+-- Name: page_analytics page_analytics_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.page_analytics
+    ADD CONSTRAINT page_analytics_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: page_approvals page_approvals_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.page_approvals
+    ADD CONSTRAINT page_approvals_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: page_audit_sequence page_audit_sequence_page_id_sequence_name_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.page_audit_sequence
+    ADD CONSTRAINT page_audit_sequence_page_id_sequence_name_key UNIQUE (page_id, sequence_name);
+
+
+--
+-- Name: page_audit_sequence page_audit_sequence_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.page_audit_sequence
+    ADD CONSTRAINT page_audit_sequence_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: page_issues page_issues_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.page_issues
+    ADD CONSTRAINT page_issues_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: page_notes page_notes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.page_notes
+    ADD CONSTRAINT page_notes_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: page_views page_views_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.page_views
+    ADD CONSTRAINT page_views_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: performance_audits performance_audits_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.performance_audits
+    ADD CONSTRAINT performance_audits_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: product_options product_options_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4352,6 +3720,22 @@ ALTER TABLE ONLY public.product_options
 
 ALTER TABLE ONLY public.product_options
     ADD CONSTRAINT product_options_product_id_name_key UNIQUE (product_id, name);
+
+
+--
+-- Name: product_pricing_history product_pricing_history_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.product_pricing_history
+    ADD CONSTRAINT product_pricing_history_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: product_pricing product_pricing_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.product_pricing
+    ADD CONSTRAINT product_pricing_pkey PRIMARY KEY (id);
 
 
 --
@@ -4395,6 +3779,102 @@ ALTER TABLE ONLY public.projects
 
 
 --
+-- Name: seo_audits seo_audits_page_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.seo_audits
+    ADD CONSTRAINT seo_audits_page_id_key UNIQUE (page_id);
+
+
+--
+-- Name: seo_audits seo_audits_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.seo_audits
+    ADD CONSTRAINT seo_audits_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sessions sessions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sessions
+    ADD CONSTRAINT sessions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: shipping_rates shipping_rates_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.shipping_rates
+    ADD CONSTRAINT shipping_rates_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: shipping_rates shipping_rates_zone_id_shipping_class_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.shipping_rates
+    ADD CONSTRAINT shipping_rates_zone_id_shipping_class_key UNIQUE (zone_id, shipping_class);
+
+
+--
+-- Name: shipping_tax_history shipping_tax_history_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.shipping_tax_history
+    ADD CONSTRAINT shipping_tax_history_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: shipping_zone_regions shipping_zone_regions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.shipping_zone_regions
+    ADD CONSTRAINT shipping_zone_regions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: shipping_zones shipping_zones_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.shipping_zones
+    ADD CONSTRAINT shipping_zones_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: shipping_zones shipping_zones_slug_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.shipping_zones
+    ADD CONSTRAINT shipping_zones_slug_key UNIQUE (slug);
+
+
+--
+-- Name: site_pages site_pages_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.site_pages
+    ADD CONSTRAINT site_pages_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: site_pages site_pages_slug_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.site_pages
+    ADD CONSTRAINT site_pages_slug_key UNIQUE (slug);
+
+
+--
+-- Name: sms_messages sms_messages_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sms_messages
+    ADD CONSTRAINT sms_messages_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: staff staff_email_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4411,443 +3891,64 @@ ALTER TABLE ONLY public.staff
 
 
 --
--- Name: messages messages_pkey; Type: CONSTRAINT; Schema: realtime; Owner: -
+-- Name: tax_rates tax_rates_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY realtime.messages
-    ADD CONSTRAINT messages_pkey PRIMARY KEY (id, inserted_at);
+ALTER TABLE ONLY public.tax_rates
+    ADD CONSTRAINT tax_rates_pkey PRIMARY KEY (id);
 
 
 --
--- Name: subscription pk_subscription; Type: CONSTRAINT; Schema: realtime; Owner: -
+-- Name: traffic_sources traffic_sources_page_path_date_channel_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY realtime.subscription
-    ADD CONSTRAINT pk_subscription PRIMARY KEY (id);
+ALTER TABLE ONLY public.traffic_sources
+    ADD CONSTRAINT traffic_sources_page_path_date_channel_key UNIQUE (page_path, date, channel);
 
 
 --
--- Name: schema_migrations schema_migrations_pkey; Type: CONSTRAINT; Schema: realtime; Owner: -
+-- Name: traffic_sources traffic_sources_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY realtime.schema_migrations
-    ADD CONSTRAINT schema_migrations_pkey PRIMARY KEY (version);
+ALTER TABLE ONLY public.traffic_sources
+    ADD CONSTRAINT traffic_sources_pkey PRIMARY KEY (id);
 
 
 --
--- Name: buckets_analytics buckets_analytics_pkey; Type: CONSTRAINT; Schema: storage; Owner: -
+-- Name: visitors visitors_fingerprint_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY storage.buckets_analytics
-    ADD CONSTRAINT buckets_analytics_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.visitors
+    ADD CONSTRAINT visitors_fingerprint_key UNIQUE (fingerprint);
 
 
 --
--- Name: buckets buckets_pkey; Type: CONSTRAINT; Schema: storage; Owner: -
+-- Name: visitors visitors_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY storage.buckets
-    ADD CONSTRAINT buckets_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.visitors
+    ADD CONSTRAINT visitors_pkey PRIMARY KEY (id);
 
 
 --
--- Name: buckets_vectors buckets_vectors_pkey; Type: CONSTRAINT; Schema: storage; Owner: -
+-- Name: idx_analytics_sync_log_date; Type: INDEX; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY storage.buckets_vectors
-    ADD CONSTRAINT buckets_vectors_pkey PRIMARY KEY (id);
+CREATE INDEX idx_analytics_sync_log_date ON public.analytics_sync_log USING btree (sync_date DESC);
 
 
 --
--- Name: migrations migrations_name_key; Type: CONSTRAINT; Schema: storage; Owner: -
+-- Name: idx_analytics_sync_log_status; Type: INDEX; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY storage.migrations
-    ADD CONSTRAINT migrations_name_key UNIQUE (name);
+CREATE INDEX idx_analytics_sync_log_status ON public.analytics_sync_log USING btree (status);
 
 
 --
--- Name: migrations migrations_pkey; Type: CONSTRAINT; Schema: storage; Owner: -
+-- Name: idx_audit_history_page; Type: INDEX; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY storage.migrations
-    ADD CONSTRAINT migrations_pkey PRIMARY KEY (id);
-
-
---
--- Name: objects objects_pkey; Type: CONSTRAINT; Schema: storage; Owner: -
---
-
-ALTER TABLE ONLY storage.objects
-    ADD CONSTRAINT objects_pkey PRIMARY KEY (id);
-
-
---
--- Name: prefixes prefixes_pkey; Type: CONSTRAINT; Schema: storage; Owner: -
---
-
-ALTER TABLE ONLY storage.prefixes
-    ADD CONSTRAINT prefixes_pkey PRIMARY KEY (bucket_id, level, name);
-
-
---
--- Name: s3_multipart_uploads_parts s3_multipart_uploads_parts_pkey; Type: CONSTRAINT; Schema: storage; Owner: -
---
-
-ALTER TABLE ONLY storage.s3_multipart_uploads_parts
-    ADD CONSTRAINT s3_multipart_uploads_parts_pkey PRIMARY KEY (id);
-
-
---
--- Name: s3_multipart_uploads s3_multipart_uploads_pkey; Type: CONSTRAINT; Schema: storage; Owner: -
---
-
-ALTER TABLE ONLY storage.s3_multipart_uploads
-    ADD CONSTRAINT s3_multipart_uploads_pkey PRIMARY KEY (id);
-
-
---
--- Name: vector_indexes vector_indexes_pkey; Type: CONSTRAINT; Schema: storage; Owner: -
---
-
-ALTER TABLE ONLY storage.vector_indexes
-    ADD CONSTRAINT vector_indexes_pkey PRIMARY KEY (id);
-
-
---
--- Name: audit_logs_instance_id_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX audit_logs_instance_id_idx ON auth.audit_log_entries USING btree (instance_id);
-
-
---
--- Name: confirmation_token_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE UNIQUE INDEX confirmation_token_idx ON auth.users USING btree (confirmation_token) WHERE ((confirmation_token)::text !~ '^[0-9 ]*$'::text);
-
-
---
--- Name: email_change_token_current_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE UNIQUE INDEX email_change_token_current_idx ON auth.users USING btree (email_change_token_current) WHERE ((email_change_token_current)::text !~ '^[0-9 ]*$'::text);
-
-
---
--- Name: email_change_token_new_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE UNIQUE INDEX email_change_token_new_idx ON auth.users USING btree (email_change_token_new) WHERE ((email_change_token_new)::text !~ '^[0-9 ]*$'::text);
-
-
---
--- Name: factor_id_created_at_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX factor_id_created_at_idx ON auth.mfa_factors USING btree (user_id, created_at);
-
-
---
--- Name: flow_state_created_at_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX flow_state_created_at_idx ON auth.flow_state USING btree (created_at DESC);
-
-
---
--- Name: identities_email_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX identities_email_idx ON auth.identities USING btree (email text_pattern_ops);
-
-
---
--- Name: INDEX identities_email_idx; Type: COMMENT; Schema: auth; Owner: -
---
-
-COMMENT ON INDEX auth.identities_email_idx IS 'Auth: Ensures indexed queries on the email column';
-
-
---
--- Name: identities_user_id_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX identities_user_id_idx ON auth.identities USING btree (user_id);
-
-
---
--- Name: idx_auth_code; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX idx_auth_code ON auth.flow_state USING btree (auth_code);
-
-
---
--- Name: idx_oauth_client_states_created_at; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX idx_oauth_client_states_created_at ON auth.oauth_client_states USING btree (created_at);
-
-
---
--- Name: idx_user_id_auth_method; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX idx_user_id_auth_method ON auth.flow_state USING btree (user_id, authentication_method);
-
-
---
--- Name: mfa_challenge_created_at_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX mfa_challenge_created_at_idx ON auth.mfa_challenges USING btree (created_at DESC);
-
-
---
--- Name: mfa_factors_user_friendly_name_unique; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE UNIQUE INDEX mfa_factors_user_friendly_name_unique ON auth.mfa_factors USING btree (friendly_name, user_id) WHERE (TRIM(BOTH FROM friendly_name) <> ''::text);
-
-
---
--- Name: mfa_factors_user_id_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX mfa_factors_user_id_idx ON auth.mfa_factors USING btree (user_id);
-
-
---
--- Name: oauth_auth_pending_exp_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX oauth_auth_pending_exp_idx ON auth.oauth_authorizations USING btree (expires_at) WHERE (status = 'pending'::auth.oauth_authorization_status);
-
-
---
--- Name: oauth_clients_deleted_at_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX oauth_clients_deleted_at_idx ON auth.oauth_clients USING btree (deleted_at);
-
-
---
--- Name: oauth_consents_active_client_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX oauth_consents_active_client_idx ON auth.oauth_consents USING btree (client_id) WHERE (revoked_at IS NULL);
-
-
---
--- Name: oauth_consents_active_user_client_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX oauth_consents_active_user_client_idx ON auth.oauth_consents USING btree (user_id, client_id) WHERE (revoked_at IS NULL);
-
-
---
--- Name: oauth_consents_user_order_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX oauth_consents_user_order_idx ON auth.oauth_consents USING btree (user_id, granted_at DESC);
-
-
---
--- Name: one_time_tokens_relates_to_hash_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX one_time_tokens_relates_to_hash_idx ON auth.one_time_tokens USING hash (relates_to);
-
-
---
--- Name: one_time_tokens_token_hash_hash_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX one_time_tokens_token_hash_hash_idx ON auth.one_time_tokens USING hash (token_hash);
-
-
---
--- Name: one_time_tokens_user_id_token_type_key; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE UNIQUE INDEX one_time_tokens_user_id_token_type_key ON auth.one_time_tokens USING btree (user_id, token_type);
-
-
---
--- Name: reauthentication_token_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE UNIQUE INDEX reauthentication_token_idx ON auth.users USING btree (reauthentication_token) WHERE ((reauthentication_token)::text !~ '^[0-9 ]*$'::text);
-
-
---
--- Name: recovery_token_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE UNIQUE INDEX recovery_token_idx ON auth.users USING btree (recovery_token) WHERE ((recovery_token)::text !~ '^[0-9 ]*$'::text);
-
-
---
--- Name: refresh_tokens_instance_id_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX refresh_tokens_instance_id_idx ON auth.refresh_tokens USING btree (instance_id);
-
-
---
--- Name: refresh_tokens_instance_id_user_id_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX refresh_tokens_instance_id_user_id_idx ON auth.refresh_tokens USING btree (instance_id, user_id);
-
-
---
--- Name: refresh_tokens_parent_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX refresh_tokens_parent_idx ON auth.refresh_tokens USING btree (parent);
-
-
---
--- Name: refresh_tokens_session_id_revoked_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX refresh_tokens_session_id_revoked_idx ON auth.refresh_tokens USING btree (session_id, revoked);
-
-
---
--- Name: refresh_tokens_updated_at_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX refresh_tokens_updated_at_idx ON auth.refresh_tokens USING btree (updated_at DESC);
-
-
---
--- Name: saml_providers_sso_provider_id_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX saml_providers_sso_provider_id_idx ON auth.saml_providers USING btree (sso_provider_id);
-
-
---
--- Name: saml_relay_states_created_at_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX saml_relay_states_created_at_idx ON auth.saml_relay_states USING btree (created_at DESC);
-
-
---
--- Name: saml_relay_states_for_email_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX saml_relay_states_for_email_idx ON auth.saml_relay_states USING btree (for_email);
-
-
---
--- Name: saml_relay_states_sso_provider_id_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX saml_relay_states_sso_provider_id_idx ON auth.saml_relay_states USING btree (sso_provider_id);
-
-
---
--- Name: sessions_not_after_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX sessions_not_after_idx ON auth.sessions USING btree (not_after DESC);
-
-
---
--- Name: sessions_oauth_client_id_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX sessions_oauth_client_id_idx ON auth.sessions USING btree (oauth_client_id);
-
-
---
--- Name: sessions_user_id_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX sessions_user_id_idx ON auth.sessions USING btree (user_id);
-
-
---
--- Name: sso_domains_domain_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE UNIQUE INDEX sso_domains_domain_idx ON auth.sso_domains USING btree (lower(domain));
-
-
---
--- Name: sso_domains_sso_provider_id_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX sso_domains_sso_provider_id_idx ON auth.sso_domains USING btree (sso_provider_id);
-
-
---
--- Name: sso_providers_resource_id_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE UNIQUE INDEX sso_providers_resource_id_idx ON auth.sso_providers USING btree (lower(resource_id));
-
-
---
--- Name: sso_providers_resource_id_pattern_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX sso_providers_resource_id_pattern_idx ON auth.sso_providers USING btree (resource_id text_pattern_ops);
-
-
---
--- Name: unique_phone_factor_per_user; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE UNIQUE INDEX unique_phone_factor_per_user ON auth.mfa_factors USING btree (user_id, phone);
-
-
---
--- Name: user_id_created_at_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX user_id_created_at_idx ON auth.sessions USING btree (user_id, created_at);
-
-
---
--- Name: users_email_partial_key; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE UNIQUE INDEX users_email_partial_key ON auth.users USING btree (email) WHERE (is_sso_user = false);
-
-
---
--- Name: INDEX users_email_partial_key; Type: COMMENT; Schema: auth; Owner: -
---
-
-COMMENT ON INDEX auth.users_email_partial_key IS 'Auth: A partial unique index that applies only when is_sso_user is false';
-
-
---
--- Name: users_instance_id_email_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX users_instance_id_email_idx ON auth.users USING btree (instance_id, lower((email)::text));
-
-
---
--- Name: users_instance_id_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX users_instance_id_idx ON auth.users USING btree (instance_id);
-
-
---
--- Name: users_is_anonymous_idx; Type: INDEX; Schema: auth; Owner: -
---
-
-CREATE INDEX users_is_anonymous_idx ON auth.users USING btree (is_anonymous);
+CREATE INDEX idx_audit_history_page ON public.audit_history USING btree (page_id, audited_at DESC);
 
 
 --
@@ -4914,10 +4015,38 @@ CREATE INDEX idx_customers_auth_user ON public.customers USING btree (auth_user_
 
 
 --
+-- Name: idx_customers_customer_status; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_customers_customer_status ON public.customers USING btree (customer_status);
+
+
+--
 -- Name: idx_customers_email; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX idx_customers_email ON public.customers USING btree (email);
+
+
+--
+-- Name: idx_customers_first_seen_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_customers_first_seen_at ON public.customers USING btree (first_seen_at DESC);
+
+
+--
+-- Name: idx_customers_first_utm_campaign; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_customers_first_utm_campaign ON public.customers USING btree (first_utm_campaign);
+
+
+--
+-- Name: idx_customers_first_utm_source; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_customers_first_utm_source ON public.customers USING btree (first_utm_source);
 
 
 --
@@ -4932,6 +4061,69 @@ CREATE INDEX idx_customers_ltv ON public.customers USING btree (ltv_tier);
 --
 
 CREATE INDEX idx_customers_state ON public.customers USING btree (state);
+
+
+--
+-- Name: idx_email_messages_created; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_email_messages_created ON public.email_messages USING btree (created_at DESC);
+
+
+--
+-- Name: idx_email_messages_direction; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_email_messages_direction ON public.email_messages USING btree (direction);
+
+
+--
+-- Name: idx_email_messages_from; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_email_messages_from ON public.email_messages USING btree (from_email);
+
+
+--
+-- Name: idx_email_messages_imap_id_unique; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX idx_email_messages_imap_id_unique ON public.email_messages USING btree (imap_message_id) WHERE (imap_message_id IS NOT NULL);
+
+
+--
+-- Name: idx_email_messages_lead; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_email_messages_lead ON public.email_messages USING btree (lead_id);
+
+
+--
+-- Name: idx_email_messages_ses_id_unique; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX idx_email_messages_ses_id_unique ON public.email_messages USING btree (ses_message_id) WHERE (ses_message_id IS NOT NULL);
+
+
+--
+-- Name: idx_email_messages_status; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_email_messages_status ON public.email_messages USING btree (status);
+
+
+--
+-- Name: idx_email_messages_thread; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_email_messages_thread ON public.email_messages USING btree (thread_id);
+
+
+--
+-- Name: idx_email_messages_to; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_email_messages_to ON public.email_messages USING btree (to_email);
 
 
 --
@@ -4984,6 +4176,76 @@ CREATE INDEX idx_gallery_images_project_type ON public.gallery_images USING btre
 
 
 --
+-- Name: idx_google_ads_campaigns_campaign_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_google_ads_campaigns_campaign_id ON public.google_ads_campaigns USING btree (campaign_id);
+
+
+--
+-- Name: idx_google_ads_campaigns_date; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_google_ads_campaigns_date ON public.google_ads_campaigns USING btree (date);
+
+
+--
+-- Name: idx_google_ads_keywords_campaign; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_google_ads_keywords_campaign ON public.google_ads_keywords USING btree (campaign_id);
+
+
+--
+-- Name: idx_google_ads_keywords_date; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_google_ads_keywords_date ON public.google_ads_keywords USING btree (date);
+
+
+--
+-- Name: idx_google_ads_sync_log_date; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_google_ads_sync_log_date ON public.google_ads_sync_log USING btree (sync_date);
+
+
+--
+-- Name: idx_journey_events_created_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_journey_events_created_at ON public.journey_events USING btree (created_at DESC);
+
+
+--
+-- Name: idx_journey_events_customer_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_journey_events_customer_id ON public.journey_events USING btree (customer_id);
+
+
+--
+-- Name: idx_journey_events_event_type; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_journey_events_event_type ON public.journey_events USING btree (event_type);
+
+
+--
+-- Name: idx_journey_events_session_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_journey_events_session_id ON public.journey_events USING btree (session_id);
+
+
+--
+-- Name: idx_journey_events_visitor_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_journey_events_visitor_id ON public.journey_events USING btree (visitor_id);
+
+
+--
 -- Name: idx_leads_assigned; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -5005,10 +4267,59 @@ CREATE INDEX idx_leads_email ON public.leads USING btree (email);
 
 
 --
+-- Name: idx_leads_pipeline; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_leads_pipeline ON public.leads USING btree (pipeline_order, status);
+
+
+--
 -- Name: idx_leads_status; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX idx_leads_status ON public.leads USING btree (status);
+
+
+--
+-- Name: idx_legacy_leads_email; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_legacy_leads_email ON public.legacy_leads USING btree (email);
+
+
+--
+-- Name: idx_legacy_leads_entry_date; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_legacy_leads_entry_date ON public.legacy_leads USING btree (entry_date DESC);
+
+
+--
+-- Name: idx_legacy_leads_entry_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_legacy_leads_entry_id ON public.legacy_leads USING btree (gravity_form_entry_id);
+
+
+--
+-- Name: idx_legacy_leads_interest; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_legacy_leads_interest ON public.legacy_leads USING btree (interest);
+
+
+--
+-- Name: idx_legacy_leads_landing_page; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_legacy_leads_landing_page ON public.legacy_leads USING btree (landing_page);
+
+
+--
+-- Name: idx_legacy_leads_salesperson; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_legacy_leads_salesperson ON public.legacy_leads USING btree (previous_salesperson);
 
 
 --
@@ -5124,6 +4435,27 @@ CREATE INDEX idx_line_items_product ON public.line_items USING btree (product_id
 
 
 --
+-- Name: idx_notification_log_reference; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_notification_log_reference ON public.notification_log USING btree (reference_id);
+
+
+--
+-- Name: idx_notification_log_sent_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_notification_log_sent_at ON public.notification_log USING btree (sent_at DESC);
+
+
+--
+-- Name: idx_notification_log_type; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_notification_log_type ON public.notification_log USING btree (notification_type);
+
+
+--
 -- Name: idx_option_values_option; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -5152,10 +4484,24 @@ CREATE INDEX idx_orders_email ON public.orders USING btree (email);
 
 
 --
+-- Name: idx_orders_first_utm_source; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_orders_first_utm_source ON public.orders USING btree (first_utm_source);
+
+
+--
 -- Name: idx_orders_number; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX idx_orders_number ON public.orders USING btree (order_number);
+
+
+--
+-- Name: idx_orders_order_source; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_orders_order_source ON public.orders USING btree (order_source);
 
 
 --
@@ -5166,6 +4512,20 @@ CREATE INDEX idx_orders_salesperson ON public.orders USING btree (salesperson_us
 
 
 --
+-- Name: idx_orders_salesperson_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_orders_salesperson_id ON public.orders USING btree (salesperson_id);
+
+
+--
+-- Name: idx_orders_session_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_orders_session_id ON public.orders USING btree (session_id);
+
+
+--
 -- Name: idx_orders_status; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -5173,10 +4533,178 @@ CREATE INDEX idx_orders_status ON public.orders USING btree (status);
 
 
 --
+-- Name: idx_orders_visitor_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_orders_visitor_id ON public.orders USING btree (visitor_id);
+
+
+--
+-- Name: idx_page_analytics_date; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_page_analytics_date ON public.page_analytics USING btree (date DESC);
+
+
+--
+-- Name: idx_page_analytics_organic; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_page_analytics_organic ON public.page_analytics USING btree (organic_sessions DESC);
+
+
+--
+-- Name: idx_page_analytics_page_path; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_page_analytics_page_path ON public.page_analytics USING btree (page_path);
+
+
+--
+-- Name: idx_page_approvals_page; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_page_approvals_page ON public.page_approvals USING btree (page_id, requested_at DESC);
+
+
+--
+-- Name: idx_page_approvals_pending; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_page_approvals_pending ON public.page_approvals USING btree (is_complete) WHERE (is_complete = false);
+
+
+--
+-- Name: idx_page_audit_sequence_incomplete; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_page_audit_sequence_incomplete ON public.page_audit_sequence USING btree (page_id) WHERE (is_complete = false);
+
+
+--
+-- Name: idx_page_audit_sequence_page; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_page_audit_sequence_page ON public.page_audit_sequence USING btree (page_id);
+
+
+--
+-- Name: idx_page_issues_category; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_page_issues_category ON public.page_issues USING btree (category);
+
+
+--
+-- Name: idx_page_issues_open; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_page_issues_open ON public.page_issues USING btree (page_id) WHERE (status = ANY (ARRAY['open'::public.issue_status, 'acknowledged'::public.issue_status, 'in_progress'::public.issue_status]));
+
+
+--
+-- Name: idx_page_issues_page; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_page_issues_page ON public.page_issues USING btree (page_id);
+
+
+--
+-- Name: idx_page_issues_severity; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_page_issues_severity ON public.page_issues USING btree (severity);
+
+
+--
+-- Name: idx_page_issues_status; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_page_issues_status ON public.page_issues USING btree (status);
+
+
+--
+-- Name: idx_page_issues_updated; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_page_issues_updated ON public.page_issues USING btree (updated_at DESC);
+
+
+--
+-- Name: idx_page_notes_page; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_page_notes_page ON public.page_notes USING btree (page_id);
+
+
+--
+-- Name: idx_page_notes_pinned; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_page_notes_pinned ON public.page_notes USING btree (page_id) WHERE (is_pinned = true);
+
+
+--
+-- Name: idx_page_views_page_path; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_page_views_page_path ON public.page_views USING btree (page_path);
+
+
+--
+-- Name: idx_page_views_session_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_page_views_session_id ON public.page_views USING btree (session_id);
+
+
+--
+-- Name: idx_page_views_viewed_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_page_views_viewed_at ON public.page_views USING btree (viewed_at DESC);
+
+
+--
+-- Name: idx_page_views_visitor_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_page_views_visitor_id ON public.page_views USING btree (visitor_id);
+
+
+--
+-- Name: idx_performance_audits_page_latest; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_performance_audits_page_latest ON public.performance_audits USING btree (page_id, audited_at DESC);
+
+
+--
+-- Name: idx_pricing_history_changed_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_pricing_history_changed_at ON public.product_pricing_history USING btree (changed_at);
+
+
+--
+-- Name: idx_pricing_history_pricing_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_pricing_history_pricing_id ON public.product_pricing_history USING btree (pricing_id);
+
+
+--
 -- Name: idx_product_options_product; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX idx_product_options_product ON public.product_options USING btree (product_id);
+
+
+--
+-- Name: idx_product_pricing_category; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_product_pricing_category ON public.product_pricing USING btree (category);
 
 
 --
@@ -5229,6 +4757,13 @@ CREATE INDEX idx_projects_email ON public.projects USING btree (email);
 
 
 --
+-- Name: idx_projects_lead; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_projects_lead ON public.projects USING btree (lead_id);
+
+
+--
 -- Name: idx_projects_share_token; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -5240,6 +4775,160 @@ CREATE INDEX idx_projects_share_token ON public.projects USING btree (share_toke
 --
 
 CREATE INDEX idx_projects_status ON public.projects USING btree (status);
+
+
+--
+-- Name: idx_sessions_converted; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_sessions_converted ON public.sessions USING btree (converted) WHERE (converted = true);
+
+
+--
+-- Name: idx_sessions_landing_page; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_sessions_landing_page ON public.sessions USING btree (landing_page);
+
+
+--
+-- Name: idx_sessions_started_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_sessions_started_at ON public.sessions USING btree (started_at DESC);
+
+
+--
+-- Name: idx_sessions_utm_campaign; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_sessions_utm_campaign ON public.sessions USING btree (utm_campaign);
+
+
+--
+-- Name: idx_sessions_utm_source; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_sessions_utm_source ON public.sessions USING btree (utm_source);
+
+
+--
+-- Name: idx_sessions_visitor_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_sessions_visitor_id ON public.sessions USING btree (visitor_id);
+
+
+--
+-- Name: idx_shipping_rates_zone; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_shipping_rates_zone ON public.shipping_rates USING btree (zone_id);
+
+
+--
+-- Name: idx_shipping_tax_history_date; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_shipping_tax_history_date ON public.shipping_tax_history USING btree (changed_at);
+
+
+--
+-- Name: idx_shipping_tax_history_record; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_shipping_tax_history_record ON public.shipping_tax_history USING btree (table_name, record_id);
+
+
+--
+-- Name: idx_shipping_zones_sort; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_shipping_zones_sort ON public.shipping_zones USING btree (sort_order);
+
+
+--
+-- Name: idx_site_pages_approval; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_site_pages_approval ON public.site_pages USING btree (approval_status);
+
+
+--
+-- Name: idx_site_pages_batch; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_site_pages_batch ON public.site_pages USING btree (migration_batch);
+
+
+--
+-- Name: idx_site_pages_priority; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_site_pages_priority ON public.site_pages USING btree (migration_priority DESC);
+
+
+--
+-- Name: idx_site_pages_review_status; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_site_pages_review_status ON public.site_pages USING btree (review_status);
+
+
+--
+-- Name: idx_site_pages_status; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_site_pages_status ON public.site_pages USING btree (migration_status);
+
+
+--
+-- Name: idx_site_pages_type; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_site_pages_type ON public.site_pages USING btree (page_type);
+
+
+--
+-- Name: idx_sms_messages_created; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_sms_messages_created ON public.sms_messages USING btree (created_at DESC);
+
+
+--
+-- Name: idx_sms_messages_direction; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_sms_messages_direction ON public.sms_messages USING btree (direction);
+
+
+--
+-- Name: idx_sms_messages_from; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_sms_messages_from ON public.sms_messages USING btree (from_number);
+
+
+--
+-- Name: idx_sms_messages_lead; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_sms_messages_lead ON public.sms_messages USING btree (lead_id);
+
+
+--
+-- Name: idx_sms_messages_to; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_sms_messages_to ON public.sms_messages USING btree (to_number);
+
+
+--
+-- Name: idx_sms_messages_twilio_sid_unique; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX idx_sms_messages_twilio_sid_unique ON public.sms_messages USING btree (twilio_sid) WHERE (twilio_sid IS NOT NULL);
 
 
 --
@@ -5257,101 +4946,87 @@ CREATE INDEX idx_staff_auth_user ON public.staff USING btree (auth_user_id);
 
 
 --
--- Name: ix_realtime_subscription_entity; Type: INDEX; Schema: realtime; Owner: -
+-- Name: idx_tax_rates_lookup; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_realtime_subscription_entity ON realtime.subscription USING btree (entity);
-
-
---
--- Name: messages_inserted_at_topic_index; Type: INDEX; Schema: realtime; Owner: -
---
-
-CREATE INDEX messages_inserted_at_topic_index ON ONLY realtime.messages USING btree (inserted_at DESC, topic) WHERE ((extension = 'broadcast'::text) AND (private IS TRUE));
+CREATE INDEX idx_tax_rates_lookup ON public.tax_rates USING btree (country_code, state_code, postcode);
 
 
 --
--- Name: subscription_subscription_id_entity_filters_action_filter_key; Type: INDEX; Schema: realtime; Owner: -
+-- Name: idx_traffic_sources_channel; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX subscription_subscription_id_entity_filters_action_filter_key ON realtime.subscription USING btree (subscription_id, entity, filters, action_filter);
-
-
---
--- Name: bname; Type: INDEX; Schema: storage; Owner: -
---
-
-CREATE UNIQUE INDEX bname ON storage.buckets USING btree (name);
+CREATE INDEX idx_traffic_sources_channel ON public.traffic_sources USING btree (channel);
 
 
 --
--- Name: bucketid_objname; Type: INDEX; Schema: storage; Owner: -
+-- Name: idx_traffic_sources_date; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX bucketid_objname ON storage.objects USING btree (bucket_id, name);
-
-
---
--- Name: buckets_analytics_unique_name_idx; Type: INDEX; Schema: storage; Owner: -
---
-
-CREATE UNIQUE INDEX buckets_analytics_unique_name_idx ON storage.buckets_analytics USING btree (name) WHERE (deleted_at IS NULL);
+CREATE INDEX idx_traffic_sources_date ON public.traffic_sources USING btree (date DESC);
 
 
 --
--- Name: idx_multipart_uploads_list; Type: INDEX; Schema: storage; Owner: -
+-- Name: idx_traffic_sources_page_path; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_multipart_uploads_list ON storage.s3_multipart_uploads USING btree (bucket_id, key, created_at);
-
-
---
--- Name: idx_name_bucket_level_unique; Type: INDEX; Schema: storage; Owner: -
---
-
-CREATE UNIQUE INDEX idx_name_bucket_level_unique ON storage.objects USING btree (name COLLATE "C", bucket_id, level);
+CREATE INDEX idx_traffic_sources_page_path ON public.traffic_sources USING btree (page_path);
 
 
 --
--- Name: idx_objects_bucket_id_name; Type: INDEX; Schema: storage; Owner: -
+-- Name: idx_visitors_customer_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_objects_bucket_id_name ON storage.objects USING btree (bucket_id, name COLLATE "C");
-
-
---
--- Name: idx_objects_lower_name; Type: INDEX; Schema: storage; Owner: -
---
-
-CREATE INDEX idx_objects_lower_name ON storage.objects USING btree ((path_tokens[level]), lower(name) text_pattern_ops, bucket_id, level);
+CREATE INDEX idx_visitors_customer_id ON public.visitors USING btree (customer_id);
 
 
 --
--- Name: idx_prefixes_lower_name; Type: INDEX; Schema: storage; Owner: -
+-- Name: idx_visitors_fingerprint; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_prefixes_lower_name ON storage.prefixes USING btree (bucket_id, level, ((string_to_array(name, '/'::text))[level]), lower(name) text_pattern_ops);
-
-
---
--- Name: name_prefix_search; Type: INDEX; Schema: storage; Owner: -
---
-
-CREATE INDEX name_prefix_search ON storage.objects USING btree (name text_pattern_ops);
+CREATE INDEX idx_visitors_fingerprint ON public.visitors USING btree (fingerprint);
 
 
 --
--- Name: objects_bucket_id_level_idx; Type: INDEX; Schema: storage; Owner: -
+-- Name: idx_visitors_first_seen; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX objects_bucket_id_level_idx ON storage.objects USING btree (bucket_id, level, name COLLATE "C");
+CREATE INDEX idx_visitors_first_seen ON public.visitors USING btree (first_seen_at DESC);
 
 
 --
--- Name: vector_indexes_name_bucket_id_idx; Type: INDEX; Schema: storage; Owner: -
+-- Name: idx_visitors_first_utm_campaign; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX vector_indexes_name_bucket_id_idx ON storage.vector_indexes USING btree (name, bucket_id);
+CREATE INDEX idx_visitors_first_utm_campaign ON public.visitors USING btree (first_utm_campaign);
+
+
+--
+-- Name: idx_visitors_first_utm_source; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_visitors_first_utm_source ON public.visitors USING btree (first_utm_source);
+
+
+--
+-- Name: idx_visitors_last_seen; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_visitors_last_seen ON public.visitors USING btree (last_seen_at DESC);
+
+
+--
+-- Name: idx_zone_regions_lookup; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_zone_regions_lookup ON public.shipping_zone_regions USING btree (country_code, state_code);
+
+
+--
+-- Name: idx_zone_regions_zone; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_zone_regions_zone ON public.shipping_zone_regions USING btree (zone_id);
 
 
 --
@@ -5376,6 +5051,132 @@ CREATE TRIGGER audit_products AFTER INSERT OR DELETE OR UPDATE ON public.product
 
 
 --
+-- Name: notification_settings notification_settings_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER notification_settings_updated_at BEFORE UPDATE ON public.notification_settings FOR EACH ROW EXECUTE FUNCTION public.update_notification_settings_timestamp();
+
+
+--
+-- Name: page_audit_sequence page_audit_sequence_updated; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER page_audit_sequence_updated BEFORE UPDATE ON public.page_audit_sequence FOR EACH ROW EXECUTE FUNCTION public.update_page_issues_timestamp();
+
+
+--
+-- Name: page_issues page_issues_updated; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER page_issues_updated BEFORE UPDATE ON public.page_issues FOR EACH ROW EXECUTE FUNCTION public.update_page_issues_timestamp();
+
+
+--
+-- Name: page_notes page_notes_updated; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER page_notes_updated BEFORE UPDATE ON public.page_notes FOR EACH ROW EXECUTE FUNCTION public.update_page_issues_timestamp();
+
+
+--
+-- Name: product_pricing pricing_change_log; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER pricing_change_log AFTER UPDATE ON public.product_pricing FOR EACH ROW EXECUTE FUNCTION public.log_pricing_change();
+
+
+--
+-- Name: product_pricing product_pricing_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER product_pricing_updated_at BEFORE UPDATE ON public.product_pricing FOR EACH ROW EXECUTE FUNCTION public.update_product_pricing_timestamp();
+
+
+--
+-- Name: page_analytics set_page_analytics_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_page_analytics_updated_at BEFORE UPDATE ON public.page_analytics FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+
+
+--
+-- Name: sessions set_sessions_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_sessions_updated_at BEFORE UPDATE ON public.sessions FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+
+
+--
+-- Name: visitors set_visitors_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_visitors_updated_at BEFORE UPDATE ON public.visitors FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+
+
+--
+-- Name: shipping_rates shipping_rate_change_log; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER shipping_rate_change_log AFTER UPDATE ON public.shipping_rates FOR EACH ROW EXECUTE FUNCTION public.log_shipping_rate_change();
+
+
+--
+-- Name: shipping_rates shipping_rates_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER shipping_rates_updated_at BEFORE UPDATE ON public.shipping_rates FOR EACH ROW EXECUTE FUNCTION public.update_shipping_rates_timestamp();
+
+
+--
+-- Name: shipping_zones shipping_zones_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER shipping_zones_updated_at BEFORE UPDATE ON public.shipping_zones FOR EACH ROW EXECUTE FUNCTION public.update_shipping_zones_timestamp();
+
+
+--
+-- Name: site_pages site_pages_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER site_pages_updated_at BEFORE UPDATE ON public.site_pages FOR EACH ROW EXECUTE FUNCTION public.update_site_pages_review();
+
+
+--
+-- Name: tax_rates tax_rate_change_log; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER tax_rate_change_log AFTER UPDATE ON public.tax_rates FOR EACH ROW EXECUTE FUNCTION public.log_tax_rate_change();
+
+
+--
+-- Name: tax_rates tax_rates_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER tax_rates_updated_at BEFORE UPDATE ON public.tax_rates FOR EACH ROW EXECUTE FUNCTION public.update_tax_rates_timestamp();
+
+
+--
+-- Name: journey_events trigger_update_customer_on_event; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER trigger_update_customer_on_event AFTER INSERT ON public.journey_events FOR EACH ROW EXECUTE FUNCTION public.update_customer_on_event();
+
+
+--
+-- Name: page_views trigger_update_pageview_counts; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER trigger_update_pageview_counts AFTER INSERT ON public.page_views FOR EACH ROW EXECUTE FUNCTION public.update_visitor_pageview_count();
+
+
+--
+-- Name: sessions trigger_update_visitor_on_session; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER trigger_update_visitor_on_session AFTER INSERT ON public.sessions FOR EACH ROW EXECUTE FUNCTION public.update_visitor_on_session();
+
+
+--
 -- Name: carts update_carts_updated_at; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -5394,6 +5195,13 @@ CREATE TRIGGER update_customer_on_order AFTER INSERT OR UPDATE ON public.orders 
 --
 
 CREATE TRIGGER update_customers_updated_at BEFORE UPDATE ON public.customers FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+
+--
+-- Name: email_messages update_email_messages_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER update_email_messages_updated_at BEFORE UPDATE ON public.email_messages FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 
 --
@@ -5453,187 +5261,35 @@ CREATE TRIGGER update_staff_updated_at BEFORE UPDATE ON public.staff FOR EACH RO
 
 
 --
--- Name: subscription tr_check_filters; Type: TRIGGER; Schema: realtime; Owner: -
+-- Name: ai_readiness_audits ai_readiness_audits_audited_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-CREATE TRIGGER tr_check_filters BEFORE INSERT OR UPDATE ON realtime.subscription FOR EACH ROW EXECUTE FUNCTION realtime.subscription_check_filters();
-
-
---
--- Name: buckets enforce_bucket_name_length_trigger; Type: TRIGGER; Schema: storage; Owner: -
---
-
-CREATE TRIGGER enforce_bucket_name_length_trigger BEFORE INSERT OR UPDATE OF name ON storage.buckets FOR EACH ROW EXECUTE FUNCTION storage.enforce_bucket_name_length();
+ALTER TABLE ONLY public.ai_readiness_audits
+    ADD CONSTRAINT ai_readiness_audits_audited_by_fkey FOREIGN KEY (audited_by) REFERENCES auth.users(id);
 
 
 --
--- Name: objects objects_delete_delete_prefix; Type: TRIGGER; Schema: storage; Owner: -
+-- Name: ai_readiness_audits ai_readiness_audits_page_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-CREATE TRIGGER objects_delete_delete_prefix AFTER DELETE ON storage.objects FOR EACH ROW EXECUTE FUNCTION storage.delete_prefix_hierarchy_trigger();
-
-
---
--- Name: objects objects_insert_create_prefix; Type: TRIGGER; Schema: storage; Owner: -
---
-
-CREATE TRIGGER objects_insert_create_prefix BEFORE INSERT ON storage.objects FOR EACH ROW EXECUTE FUNCTION storage.objects_insert_prefix_trigger();
+ALTER TABLE ONLY public.ai_readiness_audits
+    ADD CONSTRAINT ai_readiness_audits_page_id_fkey FOREIGN KEY (page_id) REFERENCES public.site_pages(id) ON DELETE CASCADE;
 
 
 --
--- Name: objects objects_update_create_prefix; Type: TRIGGER; Schema: storage; Owner: -
+-- Name: audit_history audit_history_audited_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-CREATE TRIGGER objects_update_create_prefix BEFORE UPDATE ON storage.objects FOR EACH ROW WHEN (((new.name <> old.name) OR (new.bucket_id <> old.bucket_id))) EXECUTE FUNCTION storage.objects_update_prefix_trigger();
-
-
---
--- Name: prefixes prefixes_create_hierarchy; Type: TRIGGER; Schema: storage; Owner: -
---
-
-CREATE TRIGGER prefixes_create_hierarchy BEFORE INSERT ON storage.prefixes FOR EACH ROW WHEN ((pg_trigger_depth() < 1)) EXECUTE FUNCTION storage.prefixes_insert_trigger();
+ALTER TABLE ONLY public.audit_history
+    ADD CONSTRAINT audit_history_audited_by_fkey FOREIGN KEY (audited_by) REFERENCES auth.users(id);
 
 
 --
--- Name: prefixes prefixes_delete_hierarchy; Type: TRIGGER; Schema: storage; Owner: -
+-- Name: audit_history audit_history_page_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-CREATE TRIGGER prefixes_delete_hierarchy AFTER DELETE ON storage.prefixes FOR EACH ROW EXECUTE FUNCTION storage.delete_prefix_hierarchy_trigger();
-
-
---
--- Name: objects update_objects_updated_at; Type: TRIGGER; Schema: storage; Owner: -
---
-
-CREATE TRIGGER update_objects_updated_at BEFORE UPDATE ON storage.objects FOR EACH ROW EXECUTE FUNCTION storage.update_updated_at_column();
-
-
---
--- Name: identities identities_user_id_fkey; Type: FK CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.identities
-    ADD CONSTRAINT identities_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-
-
---
--- Name: mfa_amr_claims mfa_amr_claims_session_id_fkey; Type: FK CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.mfa_amr_claims
-    ADD CONSTRAINT mfa_amr_claims_session_id_fkey FOREIGN KEY (session_id) REFERENCES auth.sessions(id) ON DELETE CASCADE;
-
-
---
--- Name: mfa_challenges mfa_challenges_auth_factor_id_fkey; Type: FK CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.mfa_challenges
-    ADD CONSTRAINT mfa_challenges_auth_factor_id_fkey FOREIGN KEY (factor_id) REFERENCES auth.mfa_factors(id) ON DELETE CASCADE;
-
-
---
--- Name: mfa_factors mfa_factors_user_id_fkey; Type: FK CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.mfa_factors
-    ADD CONSTRAINT mfa_factors_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-
-
---
--- Name: oauth_authorizations oauth_authorizations_client_id_fkey; Type: FK CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.oauth_authorizations
-    ADD CONSTRAINT oauth_authorizations_client_id_fkey FOREIGN KEY (client_id) REFERENCES auth.oauth_clients(id) ON DELETE CASCADE;
-
-
---
--- Name: oauth_authorizations oauth_authorizations_user_id_fkey; Type: FK CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.oauth_authorizations
-    ADD CONSTRAINT oauth_authorizations_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-
-
---
--- Name: oauth_consents oauth_consents_client_id_fkey; Type: FK CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.oauth_consents
-    ADD CONSTRAINT oauth_consents_client_id_fkey FOREIGN KEY (client_id) REFERENCES auth.oauth_clients(id) ON DELETE CASCADE;
-
-
---
--- Name: oauth_consents oauth_consents_user_id_fkey; Type: FK CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.oauth_consents
-    ADD CONSTRAINT oauth_consents_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-
-
---
--- Name: one_time_tokens one_time_tokens_user_id_fkey; Type: FK CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.one_time_tokens
-    ADD CONSTRAINT one_time_tokens_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-
-
---
--- Name: refresh_tokens refresh_tokens_session_id_fkey; Type: FK CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.refresh_tokens
-    ADD CONSTRAINT refresh_tokens_session_id_fkey FOREIGN KEY (session_id) REFERENCES auth.sessions(id) ON DELETE CASCADE;
-
-
---
--- Name: saml_providers saml_providers_sso_provider_id_fkey; Type: FK CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.saml_providers
-    ADD CONSTRAINT saml_providers_sso_provider_id_fkey FOREIGN KEY (sso_provider_id) REFERENCES auth.sso_providers(id) ON DELETE CASCADE;
-
-
---
--- Name: saml_relay_states saml_relay_states_flow_state_id_fkey; Type: FK CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.saml_relay_states
-    ADD CONSTRAINT saml_relay_states_flow_state_id_fkey FOREIGN KEY (flow_state_id) REFERENCES auth.flow_state(id) ON DELETE CASCADE;
-
-
---
--- Name: saml_relay_states saml_relay_states_sso_provider_id_fkey; Type: FK CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.saml_relay_states
-    ADD CONSTRAINT saml_relay_states_sso_provider_id_fkey FOREIGN KEY (sso_provider_id) REFERENCES auth.sso_providers(id) ON DELETE CASCADE;
-
-
---
--- Name: sessions sessions_oauth_client_id_fkey; Type: FK CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.sessions
-    ADD CONSTRAINT sessions_oauth_client_id_fkey FOREIGN KEY (oauth_client_id) REFERENCES auth.oauth_clients(id) ON DELETE CASCADE;
-
-
---
--- Name: sessions sessions_user_id_fkey; Type: FK CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.sessions
-    ADD CONSTRAINT sessions_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-
-
---
--- Name: sso_domains sso_domains_sso_provider_id_fkey; Type: FK CONSTRAINT; Schema: auth; Owner: -
---
-
-ALTER TABLE ONLY auth.sso_domains
-    ADD CONSTRAINT sso_domains_sso_provider_id_fkey FOREIGN KEY (sso_provider_id) REFERENCES auth.sso_providers(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.audit_history
+    ADD CONSTRAINT audit_history_page_id_fkey FOREIGN KEY (page_id) REFERENCES public.site_pages(id) ON DELETE CASCADE;
 
 
 --
@@ -5661,6 +5317,22 @@ ALTER TABLE ONLY public.customers
 
 
 --
+-- Name: email_messages email_messages_lead_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.email_messages
+    ADD CONSTRAINT email_messages_lead_id_fkey FOREIGN KEY (lead_id) REFERENCES public.leads(id) ON DELETE CASCADE;
+
+
+--
+-- Name: email_messages email_messages_reply_to_message_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.email_messages
+    ADD CONSTRAINT email_messages_reply_to_message_id_fkey FOREIGN KEY (reply_to_message_id) REFERENCES public.email_messages(id) ON DELETE SET NULL;
+
+
+--
 -- Name: line_items fk_line_items_order; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5685,11 +5357,43 @@ ALTER TABLE ONLY public.gallery_assignments
 
 
 --
+-- Name: journey_events journey_events_customer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.journey_events
+    ADD CONSTRAINT journey_events_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON DELETE SET NULL;
+
+
+--
+-- Name: journey_events journey_events_session_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.journey_events
+    ADD CONSTRAINT journey_events_session_id_fkey FOREIGN KEY (session_id) REFERENCES public.sessions(id) ON DELETE SET NULL;
+
+
+--
+-- Name: journey_events journey_events_visitor_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.journey_events
+    ADD CONSTRAINT journey_events_visitor_id_fkey FOREIGN KEY (visitor_id) REFERENCES public.visitors(id) ON DELETE CASCADE;
+
+
+--
 -- Name: leads leads_assigned_to_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.leads
     ADD CONSTRAINT leads_assigned_to_fkey FOREIGN KEY (assigned_to) REFERENCES public.staff(id) ON DELETE SET NULL;
+
+
+--
+-- Name: legacy_leads legacy_leads_customer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.legacy_leads
+    ADD CONSTRAINT legacy_leads_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON DELETE SET NULL;
 
 
 --
@@ -5813,11 +5517,131 @@ ALTER TABLE ONLY public.orders
 
 
 --
+-- Name: orders orders_session_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.orders
+    ADD CONSTRAINT orders_session_id_fkey FOREIGN KEY (session_id) REFERENCES public.sessions(id) ON DELETE SET NULL;
+
+
+--
+-- Name: orders orders_visitor_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.orders
+    ADD CONSTRAINT orders_visitor_id_fkey FOREIGN KEY (visitor_id) REFERENCES public.visitors(id) ON DELETE SET NULL;
+
+
+--
+-- Name: page_approvals page_approvals_page_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.page_approvals
+    ADD CONSTRAINT page_approvals_page_id_fkey FOREIGN KEY (page_id) REFERENCES public.site_pages(id) ON DELETE CASCADE;
+
+
+--
+-- Name: page_approvals page_approvals_requested_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.page_approvals
+    ADD CONSTRAINT page_approvals_requested_by_fkey FOREIGN KEY (requested_by) REFERENCES auth.users(id);
+
+
+--
+-- Name: page_approvals page_approvals_reviewed_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.page_approvals
+    ADD CONSTRAINT page_approvals_reviewed_by_fkey FOREIGN KEY (reviewed_by) REFERENCES auth.users(id);
+
+
+--
+-- Name: page_audit_sequence page_audit_sequence_page_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.page_audit_sequence
+    ADD CONSTRAINT page_audit_sequence_page_id_fkey FOREIGN KEY (page_id) REFERENCES public.site_pages(id) ON DELETE CASCADE;
+
+
+--
+-- Name: page_issues page_issues_page_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.page_issues
+    ADD CONSTRAINT page_issues_page_id_fkey FOREIGN KEY (page_id) REFERENCES public.site_pages(id) ON DELETE CASCADE;
+
+
+--
+-- Name: page_issues page_issues_related_issue_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.page_issues
+    ADD CONSTRAINT page_issues_related_issue_id_fkey FOREIGN KEY (related_issue_id) REFERENCES public.page_issues(id);
+
+
+--
+-- Name: page_notes page_notes_page_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.page_notes
+    ADD CONSTRAINT page_notes_page_id_fkey FOREIGN KEY (page_id) REFERENCES public.site_pages(id) ON DELETE CASCADE;
+
+
+--
+-- Name: page_views page_views_session_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.page_views
+    ADD CONSTRAINT page_views_session_id_fkey FOREIGN KEY (session_id) REFERENCES public.sessions(id) ON DELETE CASCADE;
+
+
+--
+-- Name: page_views page_views_visitor_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.page_views
+    ADD CONSTRAINT page_views_visitor_id_fkey FOREIGN KEY (visitor_id) REFERENCES public.visitors(id) ON DELETE CASCADE;
+
+
+--
+-- Name: performance_audits performance_audits_audited_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.performance_audits
+    ADD CONSTRAINT performance_audits_audited_by_fkey FOREIGN KEY (audited_by) REFERENCES auth.users(id);
+
+
+--
+-- Name: performance_audits performance_audits_page_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.performance_audits
+    ADD CONSTRAINT performance_audits_page_id_fkey FOREIGN KEY (page_id) REFERENCES public.site_pages(id) ON DELETE CASCADE;
+
+
+--
 -- Name: product_options product_options_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.product_options
     ADD CONSTRAINT product_options_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id) ON DELETE CASCADE;
+
+
+--
+-- Name: product_pricing product_pricing_base_price_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.product_pricing
+    ADD CONSTRAINT product_pricing_base_price_id_fkey FOREIGN KEY (base_price_id) REFERENCES public.product_pricing(id);
+
+
+--
+-- Name: product_pricing_history product_pricing_history_pricing_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.product_pricing_history
+    ADD CONSTRAINT product_pricing_history_pricing_id_fkey FOREIGN KEY (pricing_id) REFERENCES public.product_pricing(id);
 
 
 --
@@ -5845,6 +5669,70 @@ ALTER TABLE ONLY public.projects
 
 
 --
+-- Name: projects projects_lead_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.projects
+    ADD CONSTRAINT projects_lead_id_fkey FOREIGN KEY (lead_id) REFERENCES public.leads(id) ON DELETE SET NULL;
+
+
+--
+-- Name: seo_audits seo_audits_audited_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.seo_audits
+    ADD CONSTRAINT seo_audits_audited_by_fkey FOREIGN KEY (audited_by) REFERENCES auth.users(id);
+
+
+--
+-- Name: seo_audits seo_audits_page_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.seo_audits
+    ADD CONSTRAINT seo_audits_page_id_fkey FOREIGN KEY (page_id) REFERENCES public.site_pages(id) ON DELETE CASCADE;
+
+
+--
+-- Name: sessions sessions_visitor_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sessions
+    ADD CONSTRAINT sessions_visitor_id_fkey FOREIGN KEY (visitor_id) REFERENCES public.visitors(id) ON DELETE CASCADE;
+
+
+--
+-- Name: shipping_rates shipping_rates_zone_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.shipping_rates
+    ADD CONSTRAINT shipping_rates_zone_id_fkey FOREIGN KEY (zone_id) REFERENCES public.shipping_zones(id) ON DELETE CASCADE;
+
+
+--
+-- Name: shipping_zone_regions shipping_zone_regions_zone_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.shipping_zone_regions
+    ADD CONSTRAINT shipping_zone_regions_zone_id_fkey FOREIGN KEY (zone_id) REFERENCES public.shipping_zones(id) ON DELETE CASCADE;
+
+
+--
+-- Name: site_pages site_pages_approved_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.site_pages
+    ADD CONSTRAINT site_pages_approved_by_fkey FOREIGN KEY (approved_by) REFERENCES auth.users(id);
+
+
+--
+-- Name: sms_messages sms_messages_lead_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sms_messages
+    ADD CONSTRAINT sms_messages_lead_id_fkey FOREIGN KEY (lead_id) REFERENCES public.leads(id) ON DELETE CASCADE;
+
+
+--
 -- Name: staff staff_auth_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5853,148 +5741,12 @@ ALTER TABLE ONLY public.staff
 
 
 --
--- Name: objects objects_bucketId_fkey; Type: FK CONSTRAINT; Schema: storage; Owner: -
+-- Name: visitors visitors_customer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY storage.objects
-    ADD CONSTRAINT "objects_bucketId_fkey" FOREIGN KEY (bucket_id) REFERENCES storage.buckets(id);
+ALTER TABLE ONLY public.visitors
+    ADD CONSTRAINT visitors_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON DELETE SET NULL;
 
-
---
--- Name: prefixes prefixes_bucketId_fkey; Type: FK CONSTRAINT; Schema: storage; Owner: -
---
-
-ALTER TABLE ONLY storage.prefixes
-    ADD CONSTRAINT "prefixes_bucketId_fkey" FOREIGN KEY (bucket_id) REFERENCES storage.buckets(id);
-
-
---
--- Name: s3_multipart_uploads s3_multipart_uploads_bucket_id_fkey; Type: FK CONSTRAINT; Schema: storage; Owner: -
---
-
-ALTER TABLE ONLY storage.s3_multipart_uploads
-    ADD CONSTRAINT s3_multipart_uploads_bucket_id_fkey FOREIGN KEY (bucket_id) REFERENCES storage.buckets(id);
-
-
---
--- Name: s3_multipart_uploads_parts s3_multipart_uploads_parts_bucket_id_fkey; Type: FK CONSTRAINT; Schema: storage; Owner: -
---
-
-ALTER TABLE ONLY storage.s3_multipart_uploads_parts
-    ADD CONSTRAINT s3_multipart_uploads_parts_bucket_id_fkey FOREIGN KEY (bucket_id) REFERENCES storage.buckets(id);
-
-
---
--- Name: s3_multipart_uploads_parts s3_multipart_uploads_parts_upload_id_fkey; Type: FK CONSTRAINT; Schema: storage; Owner: -
---
-
-ALTER TABLE ONLY storage.s3_multipart_uploads_parts
-    ADD CONSTRAINT s3_multipart_uploads_parts_upload_id_fkey FOREIGN KEY (upload_id) REFERENCES storage.s3_multipart_uploads(id) ON DELETE CASCADE;
-
-
---
--- Name: vector_indexes vector_indexes_bucket_id_fkey; Type: FK CONSTRAINT; Schema: storage; Owner: -
---
-
-ALTER TABLE ONLY storage.vector_indexes
-    ADD CONSTRAINT vector_indexes_bucket_id_fkey FOREIGN KEY (bucket_id) REFERENCES storage.buckets_vectors(id);
-
-
---
--- Name: audit_log_entries; Type: ROW SECURITY; Schema: auth; Owner: -
---
-
-ALTER TABLE auth.audit_log_entries ENABLE ROW LEVEL SECURITY;
-
---
--- Name: flow_state; Type: ROW SECURITY; Schema: auth; Owner: -
---
-
-ALTER TABLE auth.flow_state ENABLE ROW LEVEL SECURITY;
-
---
--- Name: identities; Type: ROW SECURITY; Schema: auth; Owner: -
---
-
-ALTER TABLE auth.identities ENABLE ROW LEVEL SECURITY;
-
---
--- Name: instances; Type: ROW SECURITY; Schema: auth; Owner: -
---
-
-ALTER TABLE auth.instances ENABLE ROW LEVEL SECURITY;
-
---
--- Name: mfa_amr_claims; Type: ROW SECURITY; Schema: auth; Owner: -
---
-
-ALTER TABLE auth.mfa_amr_claims ENABLE ROW LEVEL SECURITY;
-
---
--- Name: mfa_challenges; Type: ROW SECURITY; Schema: auth; Owner: -
---
-
-ALTER TABLE auth.mfa_challenges ENABLE ROW LEVEL SECURITY;
-
---
--- Name: mfa_factors; Type: ROW SECURITY; Schema: auth; Owner: -
---
-
-ALTER TABLE auth.mfa_factors ENABLE ROW LEVEL SECURITY;
-
---
--- Name: one_time_tokens; Type: ROW SECURITY; Schema: auth; Owner: -
---
-
-ALTER TABLE auth.one_time_tokens ENABLE ROW LEVEL SECURITY;
-
---
--- Name: refresh_tokens; Type: ROW SECURITY; Schema: auth; Owner: -
---
-
-ALTER TABLE auth.refresh_tokens ENABLE ROW LEVEL SECURITY;
-
---
--- Name: saml_providers; Type: ROW SECURITY; Schema: auth; Owner: -
---
-
-ALTER TABLE auth.saml_providers ENABLE ROW LEVEL SECURITY;
-
---
--- Name: saml_relay_states; Type: ROW SECURITY; Schema: auth; Owner: -
---
-
-ALTER TABLE auth.saml_relay_states ENABLE ROW LEVEL SECURITY;
-
---
--- Name: schema_migrations; Type: ROW SECURITY; Schema: auth; Owner: -
---
-
-ALTER TABLE auth.schema_migrations ENABLE ROW LEVEL SECURITY;
-
---
--- Name: sessions; Type: ROW SECURITY; Schema: auth; Owner: -
---
-
-ALTER TABLE auth.sessions ENABLE ROW LEVEL SECURITY;
-
---
--- Name: sso_domains; Type: ROW SECURITY; Schema: auth; Owner: -
---
-
-ALTER TABLE auth.sso_domains ENABLE ROW LEVEL SECURITY;
-
---
--- Name: sso_providers; Type: ROW SECURITY; Schema: auth; Owner: -
---
-
-ALTER TABLE auth.sso_providers ENABLE ROW LEVEL SECURITY;
-
---
--- Name: users; Type: ROW SECURITY; Schema: auth; Owner: -
---
-
-ALTER TABLE auth.users ENABLE ROW LEVEL SECURITY;
 
 --
 -- Name: galleries Admins can manage galleries; Type: POLICY; Schema: public; Owner: -
@@ -6015,6 +5767,104 @@ CREATE POLICY "Admins can manage gallery assignments" ON public.gallery_assignme
 --
 
 CREATE POLICY "Admins can manage gallery images" ON public.gallery_images USING ((auth.role() = 'authenticated'::text)) WITH CHECK ((auth.role() = 'authenticated'::text));
+
+
+--
+-- Name: legacy_leads Allow anon read legacy_leads; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow anon read legacy_leads" ON public.legacy_leads FOR SELECT TO anon USING (true);
+
+
+--
+-- Name: legacy_leads Allow authenticated read legacy_leads; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow authenticated read legacy_leads" ON public.legacy_leads FOR SELECT TO authenticated USING (true);
+
+
+--
+-- Name: issue_templates Allow read for authenticated; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow read for authenticated" ON public.issue_templates FOR SELECT TO authenticated USING (true);
+
+
+--
+-- Name: page_audit_sequence Allow read for authenticated; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow read for authenticated" ON public.page_audit_sequence FOR SELECT TO authenticated USING (true);
+
+
+--
+-- Name: page_issues Allow read for authenticated; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow read for authenticated" ON public.page_issues FOR SELECT TO authenticated USING (true);
+
+
+--
+-- Name: page_notes Allow read for authenticated; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow read for authenticated" ON public.page_notes FOR SELECT TO authenticated USING (true);
+
+
+--
+-- Name: ai_readiness_audits Allow read for authenticated users; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow read for authenticated users" ON public.ai_readiness_audits FOR SELECT TO authenticated USING (true);
+
+
+--
+-- Name: audit_history Allow read for authenticated users; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow read for authenticated users" ON public.audit_history FOR SELECT TO authenticated USING (true);
+
+
+--
+-- Name: page_approvals Allow read for authenticated users; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow read for authenticated users" ON public.page_approvals FOR SELECT TO authenticated USING (true);
+
+
+--
+-- Name: performance_audits Allow read for authenticated users; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow read for authenticated users" ON public.performance_audits FOR SELECT TO authenticated USING (true);
+
+
+--
+-- Name: seo_audits Allow read for authenticated users; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow read for authenticated users" ON public.seo_audits FOR SELECT TO authenticated USING (true);
+
+
+--
+-- Name: site_pages Allow read for authenticated users; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow read for authenticated users" ON public.site_pages FOR SELECT TO authenticated USING (true);
+
+
+--
+-- Name: legacy_leads Allow read legacy_leads; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow read legacy_leads" ON public.legacy_leads FOR SELECT USING (true);
+
+
+--
+-- Name: legacy_orders Allow read legacy_orders; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow read legacy_orders" ON public.legacy_orders FOR SELECT USING (true);
 
 
 --
@@ -6078,6 +5928,34 @@ CREATE POLICY "Anyone can view projects by share token" ON public.projects FOR S
 
 
 --
+-- Name: analytics_sync_log Authenticated users can read analytics_sync_log; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Authenticated users can read analytics_sync_log" ON public.analytics_sync_log FOR SELECT USING ((auth.role() = 'authenticated'::text));
+
+
+--
+-- Name: legacy_leads Authenticated users can read legacy_leads; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Authenticated users can read legacy_leads" ON public.legacy_leads FOR SELECT TO authenticated USING (true);
+
+
+--
+-- Name: page_analytics Authenticated users can read page_analytics; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Authenticated users can read page_analytics" ON public.page_analytics FOR SELECT USING ((auth.role() = 'authenticated'::text));
+
+
+--
+-- Name: traffic_sources Authenticated users can read traffic_sources; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Authenticated users can read traffic_sources" ON public.traffic_sources FOR SELECT USING ((auth.role() = 'authenticated'::text));
+
+
+--
 -- Name: orders Customers can view own orders; Type: POLICY; Schema: public; Owner: -
 --
 
@@ -6119,6 +5997,167 @@ CREATE POLICY "Public can view published galleries" ON public.galleries FOR SELE
 
 
 --
+-- Name: email_messages Service role can insert email messages; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Service role can insert email messages" ON public.email_messages FOR INSERT WITH CHECK (true);
+
+
+--
+-- Name: sms_messages Service role can insert sms messages; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Service role can insert sms messages" ON public.sms_messages FOR INSERT WITH CHECK (true);
+
+
+--
+-- Name: ai_readiness_audits Service role full access; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Service role full access" ON public.ai_readiness_audits TO service_role USING (true) WITH CHECK (true);
+
+
+--
+-- Name: audit_history Service role full access; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Service role full access" ON public.audit_history TO service_role USING (true) WITH CHECK (true);
+
+
+--
+-- Name: issue_templates Service role full access; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Service role full access" ON public.issue_templates TO service_role USING (true) WITH CHECK (true);
+
+
+--
+-- Name: page_approvals Service role full access; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Service role full access" ON public.page_approvals TO service_role USING (true) WITH CHECK (true);
+
+
+--
+-- Name: page_audit_sequence Service role full access; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Service role full access" ON public.page_audit_sequence TO service_role USING (true) WITH CHECK (true);
+
+
+--
+-- Name: page_issues Service role full access; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Service role full access" ON public.page_issues TO service_role USING (true) WITH CHECK (true);
+
+
+--
+-- Name: page_notes Service role full access; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Service role full access" ON public.page_notes TO service_role USING (true) WITH CHECK (true);
+
+
+--
+-- Name: performance_audits Service role full access; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Service role full access" ON public.performance_audits TO service_role USING (true) WITH CHECK (true);
+
+
+--
+-- Name: seo_audits Service role full access; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Service role full access" ON public.seo_audits TO service_role USING (true) WITH CHECK (true);
+
+
+--
+-- Name: site_pages Service role full access; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Service role full access" ON public.site_pages TO service_role USING (true) WITH CHECK (true);
+
+
+--
+-- Name: google_ads_campaigns Service role full access to google_ads_campaigns; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Service role full access to google_ads_campaigns" ON public.google_ads_campaigns USING (((auth.jwt() ->> 'role'::text) = 'service_role'::text));
+
+
+--
+-- Name: google_ads_keywords Service role full access to google_ads_keywords; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Service role full access to google_ads_keywords" ON public.google_ads_keywords USING (((auth.jwt() ->> 'role'::text) = 'service_role'::text));
+
+
+--
+-- Name: google_ads_sync_log Service role full access to google_ads_sync_log; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Service role full access to google_ads_sync_log" ON public.google_ads_sync_log USING (((auth.jwt() ->> 'role'::text) = 'service_role'::text));
+
+
+--
+-- Name: legacy_leads Service role full access to legacy_leads; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Service role full access to legacy_leads" ON public.legacy_leads TO service_role USING (true) WITH CHECK (true);
+
+
+--
+-- Name: analytics_sync_log Service role has full access to analytics_sync_log; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Service role has full access to analytics_sync_log" ON public.analytics_sync_log USING ((auth.role() = 'service_role'::text));
+
+
+--
+-- Name: journey_events Service role has full access to journey_events; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Service role has full access to journey_events" ON public.journey_events USING ((auth.role() = 'service_role'::text));
+
+
+--
+-- Name: page_analytics Service role has full access to page_analytics; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Service role has full access to page_analytics" ON public.page_analytics USING ((auth.role() = 'service_role'::text));
+
+
+--
+-- Name: page_views Service role has full access to page_views; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Service role has full access to page_views" ON public.page_views USING ((auth.role() = 'service_role'::text));
+
+
+--
+-- Name: sessions Service role has full access to sessions; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Service role has full access to sessions" ON public.sessions USING ((auth.role() = 'service_role'::text));
+
+
+--
+-- Name: traffic_sources Service role has full access to traffic_sources; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Service role has full access to traffic_sources" ON public.traffic_sources USING ((auth.role() = 'service_role'::text));
+
+
+--
+-- Name: visitors Service role has full access to visitors; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Service role has full access to visitors" ON public.visitors USING ((auth.role() = 'service_role'::text));
+
+
+--
 -- Name: legacy_line_items Staff can access legacy line items; Type: POLICY; Schema: public; Owner: -
 --
 
@@ -6141,6 +6180,15 @@ CREATE POLICY "Staff can access legacy orders" ON public.legacy_orders USING ((E
 --
 
 CREATE POLICY "Staff can access legacy panel specs" ON public.legacy_panel_specs USING ((EXISTS ( SELECT 1
+   FROM public.staff
+  WHERE ((staff.auth_user_id = auth.uid()) AND (staff.is_active = true)))));
+
+
+--
+-- Name: email_messages Staff can manage email messages; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Staff can manage email messages" ON public.email_messages USING ((EXISTS ( SELECT 1
    FROM public.staff
   WHERE ((staff.auth_user_id = auth.uid()) AND (staff.is_active = true)))));
 
@@ -6177,6 +6225,15 @@ CREATE POLICY "Staff can manage product options" ON public.product_options USING
 --
 
 CREATE POLICY "Staff can manage products" ON public.products USING ((EXISTS ( SELECT 1
+   FROM public.staff
+  WHERE ((staff.auth_user_id = auth.uid()) AND (staff.is_active = true)))));
+
+
+--
+-- Name: sms_messages Staff can manage sms messages; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Staff can manage sms messages" ON public.sms_messages USING ((EXISTS ( SELECT 1
    FROM public.staff
   WHERE ((staff.auth_user_id = auth.uid()) AND (staff.is_active = true)))));
 
@@ -6284,6 +6341,24 @@ CREATE POLICY "Users can view own cart by session" ON public.carts FOR SELECT US
 
 
 --
+-- Name: ai_readiness_audits; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.ai_readiness_audits ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: analytics_sync_log; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.analytics_sync_log ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: audit_history; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.audit_history ENABLE ROW LEVEL SECURITY;
+
+--
 -- Name: audit_log; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
@@ -6300,6 +6375,12 @@ ALTER TABLE public.carts ENABLE ROW LEVEL SECURITY;
 --
 
 ALTER TABLE public.customers ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: email_messages; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.email_messages ENABLE ROW LEVEL SECURITY;
 
 --
 -- Name: galleries; Type: ROW SECURITY; Schema: public; Owner: -
@@ -6320,10 +6401,46 @@ ALTER TABLE public.gallery_assignments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.gallery_images ENABLE ROW LEVEL SECURITY;
 
 --
+-- Name: google_ads_campaigns; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.google_ads_campaigns ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: google_ads_keywords; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.google_ads_keywords ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: google_ads_sync_log; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.google_ads_sync_log ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: issue_templates; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.issue_templates ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: journey_events; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.journey_events ENABLE ROW LEVEL SECURITY;
+
+--
 -- Name: leads; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
 ALTER TABLE public.leads ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: legacy_leads; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.legacy_leads ENABLE ROW LEVEL SECURITY;
 
 --
 -- Name: legacy_line_items; Type: ROW SECURITY; Schema: public; Owner: -
@@ -6368,6 +6485,48 @@ ALTER TABLE public.option_values ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
 
 --
+-- Name: page_analytics; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.page_analytics ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: page_approvals; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.page_approvals ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: page_audit_sequence; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.page_audit_sequence ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: page_issues; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.page_issues ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: page_notes; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.page_notes ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: page_views; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.page_views ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: performance_audits; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.performance_audits ENABLE ROW LEVEL SECURITY;
+
+--
 -- Name: product_options; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
@@ -6392,133 +6551,50 @@ ALTER TABLE public.project_photos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
 
 --
+-- Name: seo_audits; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.seo_audits ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: sessions; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.sessions ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: site_pages; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.site_pages ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: sms_messages; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.sms_messages ENABLE ROW LEVEL SECURITY;
+
+--
 -- Name: staff; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
 ALTER TABLE public.staff ENABLE ROW LEVEL SECURITY;
 
 --
--- Name: messages; Type: ROW SECURITY; Schema: realtime; Owner: -
+-- Name: traffic_sources; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
-ALTER TABLE realtime.messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.traffic_sources ENABLE ROW LEVEL SECURITY;
 
 --
--- Name: buckets; Type: ROW SECURITY; Schema: storage; Owner: -
+-- Name: visitors; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
-ALTER TABLE storage.buckets ENABLE ROW LEVEL SECURITY;
-
---
--- Name: buckets_analytics; Type: ROW SECURITY; Schema: storage; Owner: -
---
-
-ALTER TABLE storage.buckets_analytics ENABLE ROW LEVEL SECURITY;
-
---
--- Name: buckets_vectors; Type: ROW SECURITY; Schema: storage; Owner: -
---
-
-ALTER TABLE storage.buckets_vectors ENABLE ROW LEVEL SECURITY;
-
---
--- Name: migrations; Type: ROW SECURITY; Schema: storage; Owner: -
---
-
-ALTER TABLE storage.migrations ENABLE ROW LEVEL SECURITY;
-
---
--- Name: objects; Type: ROW SECURITY; Schema: storage; Owner: -
---
-
-ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
-
---
--- Name: prefixes; Type: ROW SECURITY; Schema: storage; Owner: -
---
-
-ALTER TABLE storage.prefixes ENABLE ROW LEVEL SECURITY;
-
---
--- Name: s3_multipart_uploads; Type: ROW SECURITY; Schema: storage; Owner: -
---
-
-ALTER TABLE storage.s3_multipart_uploads ENABLE ROW LEVEL SECURITY;
-
---
--- Name: s3_multipart_uploads_parts; Type: ROW SECURITY; Schema: storage; Owner: -
---
-
-ALTER TABLE storage.s3_multipart_uploads_parts ENABLE ROW LEVEL SECURITY;
-
---
--- Name: vector_indexes; Type: ROW SECURITY; Schema: storage; Owner: -
---
-
-ALTER TABLE storage.vector_indexes ENABLE ROW LEVEL SECURITY;
-
---
--- Name: supabase_realtime; Type: PUBLICATION; Schema: -; Owner: -
---
-
-CREATE PUBLICATION supabase_realtime WITH (publish = 'insert, update, delete, truncate');
-
-
---
--- Name: issue_graphql_placeholder; Type: EVENT TRIGGER; Schema: -; Owner: -
---
-
-CREATE EVENT TRIGGER issue_graphql_placeholder ON sql_drop
-         WHEN TAG IN ('DROP EXTENSION')
-   EXECUTE FUNCTION extensions.set_graphql_placeholder();
-
-
---
--- Name: issue_pg_cron_access; Type: EVENT TRIGGER; Schema: -; Owner: -
---
-
-CREATE EVENT TRIGGER issue_pg_cron_access ON ddl_command_end
-         WHEN TAG IN ('CREATE EXTENSION')
-   EXECUTE FUNCTION extensions.grant_pg_cron_access();
-
-
---
--- Name: issue_pg_graphql_access; Type: EVENT TRIGGER; Schema: -; Owner: -
---
-
-CREATE EVENT TRIGGER issue_pg_graphql_access ON ddl_command_end
-         WHEN TAG IN ('CREATE FUNCTION')
-   EXECUTE FUNCTION extensions.grant_pg_graphql_access();
-
-
---
--- Name: issue_pg_net_access; Type: EVENT TRIGGER; Schema: -; Owner: -
---
-
-CREATE EVENT TRIGGER issue_pg_net_access ON ddl_command_end
-         WHEN TAG IN ('CREATE EXTENSION')
-   EXECUTE FUNCTION extensions.grant_pg_net_access();
-
-
---
--- Name: pgrst_ddl_watch; Type: EVENT TRIGGER; Schema: -; Owner: -
---
-
-CREATE EVENT TRIGGER pgrst_ddl_watch ON ddl_command_end
-   EXECUTE FUNCTION extensions.pgrst_ddl_watch();
-
-
---
--- Name: pgrst_drop_watch; Type: EVENT TRIGGER; Schema: -; Owner: -
---
-
-CREATE EVENT TRIGGER pgrst_drop_watch ON sql_drop
-   EXECUTE FUNCTION extensions.pgrst_drop_watch();
-
+ALTER TABLE public.visitors ENABLE ROW LEVEL SECURITY;
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict enc0gd62NqvJSIFMPWmXRNWcZqHacv56BoQqLUAmt5FAiVHt2ocPMJmZfq3cq0S
+\unrestrict 4pF0wdWdtG8mKlJau0wuzboNsQIYIJer0Zgh1gfNAhROat36rV0vVtKNhhXHEBT
 

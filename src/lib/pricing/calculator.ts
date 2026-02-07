@@ -108,19 +108,16 @@ export interface AttachmentCartItem extends BaseCartItem {
   attachmentType: 
     | 'marine_snap' 
     | 'adhesive_snap' 
-    | 'chrome_snap' 
     | 'panel_snap'
     | 'block_magnet' 
-    | 'ring_magnet'
-    | 'fiberglass_rod' 
-    | 'fiberglass_clip'
+    | 'fiberglass_rod'
+    | 'fiberglass_rod_clip'
     | 'elastic_cord'
     | 'tether_clip'
     | 'belted_rib'
     | 'screw_stud'
     | 'l_screw'
     | 'rubber_washer'
-    | 'rod_clip'
   color?: PanelColor
   size?: '1_inch' | '2_inch'
   quantity: number
@@ -553,22 +550,19 @@ export class PriceCalculator {
   private getAttachmentPrice(type: string): number {
     const val = this.prices[type]
     if (val !== undefined) return val
-    console.error(`[Pricing] MISSING attachment price for '${type}' in product_pricing table.`)
+    console.error(`[Pricing] MISSING attachment price for '${type}' in PricingMap.`)
     return 0
   }
 
   private getAttachmentName(type: string): string {
     const names: Record<string, string> = {
-      chrome_snap: 'Chrome Snaps',
       panel_snap: 'Panel-to-Panel Snaps',
-      ring_magnet: 'Ring Magnets',
-      fiberglass_clip: 'Fiberglass Rod Clips',
+      fiberglass_rod_clip: 'Fiberglass Rod Clips',
       tether_clip: 'Tether Clips',
       belted_rib: 'Belted Ribs',
       screw_stud: 'Screw Studs',
       l_screw: 'L Screws',
       rubber_washer: 'Rubber Washers',
-      rod_clip: 'Rod Clips',
     }
     return names[type] || type
   }

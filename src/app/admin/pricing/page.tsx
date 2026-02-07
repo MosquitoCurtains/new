@@ -4,7 +4,8 @@
  * Admin Pricing
  * 
  * View and manage product pricing from the database.
- * Shows calculations for multiplier-based prices.
+ * Shows products grouped by category with inline editing.
+ * For configurable products, shows their options with prices and fees.
  */
 
 import { useState, useEffect, useCallback } from 'react'
@@ -19,26 +20,44 @@ import {
   Sparkles,
   Save,
   RotateCcw,
-  Calculator,
   RefreshCw,
   CheckCircle,
   AlertCircle,
+  ChevronDown,
+  ChevronRight,
 } from 'lucide-react'
-import { Container, Stack, Grid, Card, Heading, Text, Button, Spinner } from '@/lib/design-system'
+import { Container, Stack, Card, Heading, Text, Button, Spinner } from '@/lib/design-system'
 
 // =============================================================================
 // TYPES
 // =============================================================================
 
-interface PriceItem {
+interface ProductItem {
   id: string
-  category: string
-  label: string
-  value: number
-  unit: string
+  sku: string
+  name: string
   description: string | null
-  is_multiplier: boolean
-  base_price_id: string | null
+  product_type: string
+  base_price: number
+  unit: string
+  pack_quantity: number
+  product_category: string | null
+  category_section: string | null
+  category_order: number
+  admin_only: boolean
+}
+
+interface OptionItem {
+  id: string
+  product_id: string
+  option_name: string
+  option_value: string
+  display_label: string
+  price: number
+  fee: number
+  pricing_key: string | null
+  admin_only: boolean
+  sort_order: number
 }
 
 interface CategoryConfig {
@@ -53,11 +72,13 @@ interface CategoryConfig {
 // =============================================================================
 
 const CATEGORIES: CategoryConfig[] = [
-  { id: 'mesh_panels', title: 'Mesh Panels', icon: Layers, color: '#406517' },
-  { id: 'vinyl_panels', title: 'Clear Vinyl Panels', icon: Sparkles, color: '#003365' },
-  { id: 'track_hardware', title: 'Track Hardware', icon: Grid3X3, color: '#B30158' },
-  { id: 'attachments', title: 'Attachment Items', icon: Wrench, color: '#FFA501' },
-  { id: 'accessories', title: 'Accessories', icon: Package, color: '#6B7280' },
+  { id: 'Panels', title: 'Panels', icon: Layers, color: '#406517' },
+  { id: 'Track Hardware', title: 'Track Hardware', icon: Grid3X3, color: '#003365' },
+  { id: 'Attachment Hardware', title: 'Attachment Hardware', icon: Wrench, color: '#B30158' },
+  { id: 'Accessories', title: 'Accessories', icon: Package, color: '#FFA501' },
+  { id: 'Tools', title: 'Tools', icon: Sparkles, color: '#6B7280' },
+  { id: 'Raw Materials', title: 'Raw Materials', icon: Package, color: '#059669' },
+  { id: 'Adjustments', title: 'Adjustments', icon: DollarSign, color: '#DC2626' },
 ]
 
 // =============================================================================
@@ -65,19 +86,9 @@ const CATEGORIES: CategoryConfig[] = [
 // =============================================================================
 
 function formatPrice(value: number, unit: string): string {
-  if (unit === 'x') {
-    return `${value}x`
-  }
-  return `$${value.toFixed(2)}${unit}`
-}
-
-function calculateDerivedPrice(item: PriceItem, allPrices: PriceItem[]): number | null {
-  if (!item.is_multiplier || !item.base_price_id) return null
-  
-  const baseItem = allPrices.find(p => p.id === item.base_price_id)
-  if (!baseItem) return null
-  
-  return baseItem.value * item.value
+  if (unit === '/ft') return `$${value.toFixed(2)}/ft`
+  if (unit === '/panel') return `$${value.toFixed(2)}/panel`
+  return `$${value.toFixed(2)}`
 }
 
 // =============================================================================
@@ -85,13 +96,15 @@ function calculateDerivedPrice(item: PriceItem, allPrices: PriceItem[]): number 
 // =============================================================================
 
 export default function AdminPricingPage() {
-  const [prices, setPrices] = useState<PriceItem[]>([])
+  const [products, setProducts] = useState<ProductItem[]>([])
+  const [options, setOptions] = useState<OptionItem[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [editMode, setEditMode] = useState(false)
-  const [editedPrices, setEditedPrices] = useState<Record<string, number>>({})
+  const [editedValues, setEditedValues] = useState<Record<string, number>>({})
+  const [expandedProducts, setExpandedProducts] = useState<Set<string>>(new Set())
 
   // Fetch prices from database
   const fetchPrices = useCallback(async () => {
@@ -106,7 +119,8 @@ export default function AdminPricingPage() {
         throw new Error(result.error || 'Failed to fetch prices')
       }
       
-      setPrices(result.data || [])
+      setProducts(result.products || [])
+      setOptions(result.options || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load pricing')
       console.error('Error fetching prices:', err)
@@ -120,37 +134,41 @@ export default function AdminPricingPage() {
   }, [fetchPrices])
 
   // Handle price change in edit mode
-  const handlePriceChange = (id: string, value: string) => {
+  const handleProductPriceChange = (id: string, value: string) => {
     const numValue = parseFloat(value)
     if (!isNaN(numValue)) {
-      setEditedPrices(prev => ({ ...prev, [id]: numValue }))
+      setEditedValues(prev => ({ ...prev, [`product:${id}:base_price`]: numValue }))
     }
   }
 
-  // Get display value (edited or original)
-  const getDisplayValue = (item: PriceItem): number => {
-    return editedPrices[item.id] ?? item.value
+  const handleOptionPriceChange = (id: string, field: 'price' | 'fee', value: string) => {
+    const numValue = parseFloat(value)
+    if (!isNaN(numValue)) {
+      setEditedValues(prev => ({ ...prev, [`option:${id}:${field}`]: numValue }))
+    }
   }
 
-  // Get prices with edited values applied (for calculations)
-  const getPricesWithEdits = (): PriceItem[] => {
-    return prices.map(p => ({
-      ...p,
-      value: editedPrices[p.id] ?? p.value
-    }))
+  const getProductPrice = (product: ProductItem): number => {
+    return editedValues[`product:${product.id}:base_price`] ?? product.base_price
   }
 
-  const hasChanges = Object.keys(editedPrices).length > 0
+  const getOptionPrice = (option: OptionItem): number => {
+    return editedValues[`option:${option.id}:price`] ?? option.price
+  }
 
-  // Reset edits
+  const getOptionFee = (option: OptionItem): number => {
+    return editedValues[`option:${option.id}:fee`] ?? option.fee
+  }
+
+  const hasChanges = Object.keys(editedValues).length > 0
+
   const handleReset = () => {
-    setEditedPrices({})
+    setEditedValues({})
     setEditMode(false)
     setSuccess(null)
     setError(null)
   }
 
-  // Save changes to database
   const handleSave = async () => {
     if (!hasChanges) return
     
@@ -159,7 +177,10 @@ export default function AdminPricingPage() {
       setError(null)
       setSuccess(null)
       
-      const updates = Object.entries(editedPrices).map(([id, value]) => ({ id, value }))
+      const updates = Object.entries(editedValues).map(([key, value]) => {
+        const [type, id, field] = key.split(':')
+        return { type, id, field, value }
+      })
       
       const response = await fetch('/api/admin/pricing', {
         method: 'POST',
@@ -173,14 +194,12 @@ export default function AdminPricingPage() {
         throw new Error(result.error || 'Failed to save prices')
       }
       
-      // Refresh prices from database
       await fetchPrices()
       
-      setEditedPrices({})
+      setEditedValues({})
       setEditMode(false)
       setSuccess(`Successfully updated ${updates.length} price${updates.length > 1 ? 's' : ''}`)
       
-      // Clear success message after 3 seconds
       setTimeout(() => setSuccess(null), 3000)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save prices')
@@ -190,11 +209,30 @@ export default function AdminPricingPage() {
     }
   }
 
-  // Group prices by category
-  const pricesByCategory = CATEGORIES.map(cat => ({
+  const toggleProductExpanded = (productId: string) => {
+    setExpandedProducts(prev => {
+      const next = new Set(prev)
+      if (next.has(productId)) {
+        next.delete(productId)
+      } else {
+        next.add(productId)
+      }
+      return next
+    })
+  }
+
+  // Group products by category
+  const productsByCategory = CATEGORIES.map(cat => ({
     ...cat,
-    items: prices.filter(p => p.category === cat.id)
+    products: products.filter(p => p.product_category === cat.id),
   }))
+
+  // Group options by product_id
+  const optionsByProduct: Record<string, OptionItem[]> = {}
+  for (const opt of options) {
+    if (!optionsByProduct[opt.product_id]) optionsByProduct[opt.product_id] = []
+    optionsByProduct[opt.product_id].push(opt)
+  }
 
   if (loading) {
     return (
@@ -232,7 +270,7 @@ export default function AdminPricingPage() {
               <div>
                 <Heading level={1} className="!mb-0">Product Pricing</Heading>
                 <Text className="text-gray-500 !mb-0">
-                  View and manage all product prices
+                  {products.length} products, {options.length} options
                 </Text>
               </div>
             </div>
@@ -300,14 +338,9 @@ export default function AdminPricingPage() {
         {editMode && hasChanges && (
           <Card variant="outlined" className="!p-4 !bg-amber-50 !border-amber-200">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
-                  <Calculator className="w-4 h-4 text-amber-600" />
-                </div>
-                <Text className="text-amber-800 !mb-0">
-                  <span className="font-semibold">{Object.keys(editedPrices).length}</span> unsaved change{Object.keys(editedPrices).length > 1 ? 's' : ''}
-                </Text>
-              </div>
+              <Text className="text-amber-800 !mb-0">
+                <span className="font-semibold">{Object.keys(editedValues).length}</span> unsaved change{Object.keys(editedValues).length > 1 ? 's' : ''}
+              </Text>
               <Button variant="outline" size="sm" onClick={handleReset}>
                 Discard
               </Button>
@@ -316,9 +349,17 @@ export default function AdminPricingPage() {
         )}
 
         {/* Pricing Categories */}
-        {pricesByCategory.map((category) => {
+        {productsByCategory.map((category) => {
           const Icon = category.icon
-          if (category.items.length === 0) return null
+          if (category.products.length === 0) return null
+
+          // Group products by section within category
+          const sections = new Map<string, ProductItem[]>()
+          for (const p of category.products) {
+            const section = p.category_section || 'General'
+            if (!sections.has(section)) sections.set(section, [])
+            sections.get(section)!.push(p)
+          }
           
           return (
             <Card key={category.id} variant="elevated" className="!p-6">
@@ -330,104 +371,150 @@ export default function AdminPricingPage() {
                   <Icon className="w-5 h-5" style={{ color: category.color }} />
                 </div>
                 <Heading level={2} className="!mb-0">{category.title}</Heading>
+                <Text size="sm" className="text-gray-400 !mb-0">({category.products.length})</Text>
               </div>
               
-              <div className="border border-gray-200 rounded-lg overflow-hidden">
-                {/* Table Header */}
-                <div className="bg-gray-50 border-b border-gray-200 px-4 py-3 grid grid-cols-[1fr_120px] md:grid-cols-[1fr_140px_180px] gap-4 text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  <div>Item</div>
-                  <div className="text-right">Price</div>
-                  <div className="hidden md:block text-right">Calculated</div>
-                </div>
-                
-                {/* Table Rows */}
-                {category.items.map((item, idx) => {
-                  const pricesWithEdits = getPricesWithEdits()
-                  const derivedPrice = calculateDerivedPrice(
-                    { ...item, value: getDisplayValue(item) }, 
-                    pricesWithEdits
-                  )
-                  const baseItem = item.base_price_id 
-                    ? pricesWithEdits.find(p => p.id === item.base_price_id) 
-                    : null
-                  
-                  return (
-                    <div 
-                      key={item.id}
-                      className={`px-4 py-3 grid grid-cols-[1fr_120px] md:grid-cols-[1fr_140px_180px] gap-4 items-center ${
-                        idx !== category.items.length - 1 ? 'border-b border-gray-100' : ''
-                      } ${editedPrices[item.id] !== undefined ? 'bg-amber-50/50' : ''}`}
-                    >
-                      <div>
-                        <Text className="font-medium text-gray-900 !mb-0">{item.label}</Text>
-                        {item.description && (
-                          <Text size="sm" className="text-gray-500 !mb-0">{item.description}</Text>
-                        )}
-                        {item.is_multiplier && baseItem && (
-                          <Text size="sm" className="text-blue-600 !mb-0">
-                            Based on: {baseItem.label}
-                          </Text>
-                        )}
-                      </div>
-                      <div className="text-right">
-                        {editMode ? (
-                          <div className="flex items-center gap-1 justify-end">
-                            {item.unit !== 'x' && (
-                              <span className="text-gray-400 text-sm">$</span>
-                            )}
-                            <input
-                              type="number"
-                              step="0.01"
-                              value={getDisplayValue(item)}
-                              onChange={(e) => handlePriceChange(item.id, e.target.value)}
-                              className="w-20 px-2 py-1.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 text-right focus:outline-none focus:ring-2 focus:ring-[#003365] focus:border-transparent"
-                            />
-                            {item.unit === 'x' && (
-                              <span className="text-gray-400 text-sm">x</span>
-                            )}
-                          </div>
-                        ) : (
-                          <Text className="font-semibold text-gray-900 !mb-0">
-                            {formatPrice(getDisplayValue(item), item.unit)}
-                          </Text>
-                        )}
-                      </div>
-                      <div className="hidden md:block text-right">
-                        {derivedPrice !== null ? (
-                          <div className="flex items-center gap-2 justify-end">
-                            <Calculator className="w-4 h-4 text-blue-500" />
-                            <Text className="font-semibold text-blue-600 !mb-0">
-                              ${derivedPrice.toFixed(2)}{baseItem?.unit || ''}
-                            </Text>
-                          </div>
-                        ) : (
-                          <Text size="sm" className="text-gray-400 !mb-0">—</Text>
-                        )}
-                      </div>
+              {Array.from(sections.entries()).map(([sectionName, sectionProducts]) => (
+                <div key={sectionName} className="mb-6 last:mb-0">
+                  {sections.size > 1 && (
+                    <Text className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2 !mb-2">{sectionName}</Text>
+                  )}
+                  <div className="border border-gray-200 rounded-lg overflow-hidden">
+                    {/* Table Header */}
+                    <div className="bg-gray-50 border-b border-gray-200 px-4 py-3 grid grid-cols-[1fr_100px_80px] gap-4 text-xs font-medium text-gray-600 uppercase tracking-wider">
+                      <div>Product</div>
+                      <div className="text-right">Price</div>
+                      <div className="text-right">Pack</div>
                     </div>
-                  )
-                })}
-              </div>
+                    
+                    {/* Product Rows */}
+                    {sectionProducts.map((product, idx) => {
+                      const productOptions = optionsByProduct[product.id] || []
+                      const hasOptions = productOptions.length > 0
+                      const isExpanded = expandedProducts.has(product.id)
+                      
+                      return (
+                        <div key={product.id}>
+                          <div 
+                            className={`px-4 py-3 grid grid-cols-[1fr_100px_80px] gap-4 items-center ${
+                              idx !== sectionProducts.length - 1 || isExpanded ? 'border-b border-gray-100' : ''
+                            } ${editedValues[`product:${product.id}:base_price`] !== undefined ? 'bg-amber-50/50' : ''}`}
+                          >
+                            <div className="flex items-center gap-2">
+                              {hasOptions && (
+                                <button
+                                  onClick={() => toggleProductExpanded(product.id)}
+                                  className="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-gray-600"
+                                >
+                                  {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                                </button>
+                              )}
+                              <div>
+                                <Text className="font-medium text-gray-900 !mb-0">{product.name}</Text>
+                                <Text size="sm" className="text-gray-400 !mb-0 font-mono text-xs">{product.sku}</Text>
+                              </div>
+                              {product.admin_only && (
+                                <span className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">admin</span>
+                              )}
+                            </div>
+                            <div className="text-right">
+                              {editMode ? (
+                                <div className="flex items-center gap-1 justify-end">
+                                  <span className="text-gray-400 text-sm">$</span>
+                                  <input
+                                    type="number"
+                                    step="0.01"
+                                    value={getProductPrice(product)}
+                                    onChange={(e) => handleProductPriceChange(product.id, e.target.value)}
+                                    className="w-20 px-2 py-1.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 text-right focus:outline-none focus:ring-2 focus:ring-[#003365] focus:border-transparent"
+                                  />
+                                </div>
+                              ) : (
+                                <Text className="font-semibold text-gray-900 !mb-0">
+                                  {formatPrice(getProductPrice(product), product.unit)}
+                                </Text>
+                              )}
+                            </div>
+                            <div className="text-right">
+                              {product.pack_quantity > 1 ? (
+                                <Text size="sm" className="text-gray-500 !mb-0">x{product.pack_quantity}</Text>
+                              ) : (
+                                <Text size="sm" className="text-gray-400 !mb-0">&mdash;</Text>
+                              )}
+                            </div>
+                          </div>
+                          
+                          {/* Expanded Options */}
+                          {hasOptions && isExpanded && (
+                            <div className="bg-gray-50/50 border-b border-gray-100">
+                              {/* Group options by option_name */}
+                              {Array.from(new Set(productOptions.map(o => o.option_name))).map(optName => {
+                                const nameOptions = productOptions.filter(o => o.option_name === optName)
+                                const hasPrice = nameOptions.some(o => o.price > 0 || o.fee > 0)
+                                
+                                return (
+                                  <div key={optName} className="px-4 py-2 ml-8 border-b border-gray-100 last:border-b-0">
+                                    <Text size="sm" className="text-gray-500 font-medium uppercase tracking-wider !mb-1">{optName.replace(/_/g, ' ')}</Text>
+                                    {nameOptions.map(opt => (
+                                      <div key={opt.id} className="flex items-center justify-between py-1">
+                                        <div className="flex items-center gap-2">
+                                          <Text size="sm" className="text-gray-700 !mb-0">{opt.display_label}</Text>
+                                          {opt.pricing_key && (
+                                            <Text size="sm" className="text-gray-400 font-mono text-[10px] !mb-0">{opt.pricing_key}</Text>
+                                          )}
+                                        </div>
+                                        {hasPrice && (
+                                          <div className="flex items-center gap-3">
+                                            {(opt.price > 0 || editMode) && (
+                                              <div className="flex items-center gap-1">
+                                                <Text size="sm" className="text-gray-400 !mb-0">rate:</Text>
+                                                {editMode ? (
+                                                  <input
+                                                    type="number"
+                                                    step="0.01"
+                                                    value={getOptionPrice(opt)}
+                                                    onChange={(e) => handleOptionPriceChange(opt.id, 'price', e.target.value)}
+                                                    className="w-16 px-1.5 py-1 bg-white border border-gray-200 rounded text-xs text-gray-700 text-right focus:outline-none focus:ring-2 focus:ring-[#003365] focus:border-transparent"
+                                                  />
+                                                ) : (
+                                                  <Text size="sm" className="font-medium text-gray-900 !mb-0">${getOptionPrice(opt).toFixed(2)}</Text>
+                                                )}
+                                              </div>
+                                            )}
+                                            {(opt.fee > 0 || (editMode && optName === 'size')) && (
+                                              <div className="flex items-center gap-1">
+                                                <Text size="sm" className="text-gray-400 !mb-0">fee:</Text>
+                                                {editMode ? (
+                                                  <input
+                                                    type="number"
+                                                    step="0.01"
+                                                    value={getOptionFee(opt)}
+                                                    onChange={(e) => handleOptionPriceChange(opt.id, 'fee', e.target.value)}
+                                                    className="w-16 px-1.5 py-1 bg-white border border-gray-200 rounded text-xs text-gray-700 text-right focus:outline-none focus:ring-2 focus:ring-[#003365] focus:border-transparent"
+                                                  />
+                                                ) : (
+                                                  <Text size="sm" className="font-medium text-gray-900 !mb-0">${getOptionFee(opt).toFixed(2)}</Text>
+                                                )}
+                                              </div>
+                                            )}
+                                          </div>
+                                        )}
+                                      </div>
+                                    ))}
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              ))}
             </Card>
           )
         })}
-
-        {/* Pricing History Link */}
-        <Card variant="outlined" className="!p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
-                <RefreshCw className="w-4 h-4 text-gray-500" />
-              </div>
-              <div>
-                <Text className="font-medium text-gray-900 !mb-0">Pricing History</Text>
-                <Text size="sm" className="text-gray-500 !mb-0">
-                  All price changes are logged automatically
-                </Text>
-              </div>
-            </div>
-          </div>
-        </Card>
 
         {/* Bottom Spacing */}
         <div className="h-8" />

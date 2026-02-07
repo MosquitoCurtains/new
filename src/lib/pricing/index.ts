@@ -1,7 +1,7 @@
 /**
  * Mosquito Curtains Pricing Engine
  * 
- * All pricing lives in the `product_pricing` database table.
+ * All pricing lives in the `products` and `product_options` database tables.
  * There are NO hardcoded constants — the DB is the single source of truth.
  * 
  * Server-side (API routes / server components):

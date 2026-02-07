@@ -1,7 +1,8 @@
 /**
  * Pricing Formulas — Database-Driven (Single Source of Truth)
  * 
- * All pricing values come from the `product_pricing` Supabase table.
+ * All pricing values come from the `products` and `product_options` tables.
+ * The PricingMap is built from product SKUs and option pricing_keys.
  * Every function REQUIRES a PricingMap — there are no hardcoded fallbacks.
  * 
  * If a required pricing key is missing from the map, the `p()` helper
@@ -30,8 +31,8 @@ function p(prices: PricingMap, id: string): number {
   const val = prices[id]
   if (val === undefined) {
     console.error(
-      `[Pricing] MISSING VALUE for '${id}' in product_pricing table. ` +
-      `Add it via /admin/pricing or the database migration.`
+      `[Pricing] MISSING VALUE for '${id}' in PricingMap. ` +
+      `Check products/product_options tables or /admin/pricing.`
     )
     return 0
   }
@@ -110,9 +111,14 @@ export function calculateMeshPanelPrice(
 /**
  * Calculate vinyl panel price
  * 
- * Formula: widthFeet × linearFootRate + panelFee + doorAdder + zipperAdder
+ * Formula: widthFeet × linearFootRate + panelFee
  * 
- * DB keys used: vinyl_{panelSize}, vinyl_panel_fee, vinyl_door_adder, zipper_per_foot
+ * Panel fee is tiered by panel size (from Gravity Forms):
+ *   short  (<48")  = vinyl_panel_fee_short
+ *   medium (48-96") = vinyl_panel_fee_medium
+ *   tall   (>96")  = vinyl_panel_fee_tall
+ * 
+ * DB keys used: vinyl_{panelSize}, vinyl_panel_fee_{panelSize}
  */
 export function calculateVinylPanelPrice(
   config: VinylPanelConfig,
@@ -120,16 +126,10 @@ export function calculateVinylPanelPrice(
 ): PriceBreakdown {
   const totalWidthFeet = config.widthFeet + (config.widthInches / 12)
   const rate = p(prices, `vinyl_${config.panelSize}`)
-  const panelFee = p(prices, 'vinyl_panel_fee')
-  
-  const doorAdder = config.hasDoor ? p(prices, 'vinyl_door_adder') : 0
-  const zipperRate = p(prices, 'zipper_per_foot')
-  const zipperAdder = config.hasZipper 
-    ? round(config.heightInches / 12 * zipperRate) 
-    : 0
+  const panelFee = p(prices, `vinyl_panel_fee_${config.panelSize}`)
   
   const basePrice = round(totalWidthFeet * rate)
-  const total = round(basePrice + panelFee + doorAdder + zipperAdder)
+  const total = round(basePrice + panelFee)
   const sqft = round((totalWidthFeet * config.heightInches) / 12)
   
   return {
@@ -137,15 +137,15 @@ export function calculateVinylPanelPrice(
     meshTypeMultiplier: 1.0,
     topAttachmentAdder: 0,
     bottomOptionAdder: 0,
-    doorAdder,
-    zipperAdder,
+    doorAdder: 0,
+    zipperAdder: 0,
     notchAdder: 0,
     squareFeet: sqft,
     quantity: 1,
     subtotal: total,
     total,
     minimumApplied: false,
-    formula: `${round(totalWidthFeet)}ft × $${rate}/ft + $${panelFee} panel fee + $${doorAdder} door + $${zipperAdder} zipper = $${total}`
+    formula: `${round(totalWidthFeet)}ft × $${rate}/ft + $${panelFee} panel fee = $${total}`
   }
 }
 

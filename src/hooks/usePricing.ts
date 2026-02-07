@@ -7,6 +7,11 @@
  * Returns a PricingMap that can be passed to formula functions
  * and the PriceCalculator.
  * 
+ * The PricingMap is built from:
+ *   - products table: sku -> base_price
+ *   - product_options table: pricing_key -> price
+ *   - Plus legacy formula-compatibility mappings
+ * 
  * There are NO hardcoded fallbacks. While loading, `prices` is null
  * and components should show a loading state.
  * 
@@ -94,7 +99,7 @@ export function usePricing() {
   }, [])
 
   /**
-   * Look up a single price by its database ID.
+   * Look up a single price by its key (product SKU or pricing_key).
    * Returns `fallback` while loading or if the key is missing.
    */
   const getPrice = (id: string, fallback: number = 0): number => {
@@ -109,7 +114,7 @@ export function usePricing() {
     isLoading,
     /** Error message if pricing could not be loaded */
     error,
-    /** Look up a single price by DB id with an optional fallback */
+    /** Look up a single price by key with an optional fallback */
     getPrice,
   }
 }

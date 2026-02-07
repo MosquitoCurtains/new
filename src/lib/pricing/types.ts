@@ -10,13 +10,14 @@
 // =============================================================================
 
 /**
- * Map of pricing IDs to their numeric values.
- * Populated from the `product_pricing` database table.
- * Keys are the `id` column from the table (e.g. 'mesh_heavy_mosquito').
- * Values are the `value` column (numeric price/rate/multiplier).
+ * Map of pricing keys to their numeric values.
+ * Built from the `products` and `product_options` tables:
+ *   - Product SKU -> base_price (for simple products)
+ *   - Option pricing_key -> price (for configurable product options)
+ *   - Plus legacy formula-compatibility mappings
  * 
  * When passed to formula functions, DB values take precedence.
- * When a key is missing, the formula falls back to its hardcoded default.
+ * When a key is missing, the `p()` helper logs an error and returns 0.
  */
 export type PricingMap = Record<string, number>
 
@@ -32,14 +33,6 @@ export type ProductType =
   | 'tool' 
   | 'accessory' 
   | 'adjustment'
-
-export type PricingType = 
-  | 'sqft' 
-  | 'linear_ft' 
-  | 'each' 
-  | 'set' 
-  | 'fixed' 
-  | 'calculated'
 
 // =============================================================================
 // Mesh Panel Types (from Gravity Form 16028)

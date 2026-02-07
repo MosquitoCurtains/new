@@ -1,51 +1,60 @@
-// @ts-nocheck — product_pricing table not in generated Supabase types yet
+// @ts-nocheck — products/product_options tables not in generated Supabase types yet
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { invalidatePricingCache } from '@/lib/pricing/service'
 
 /**
  * GET /api/admin/pricing
- * Fetch all product pricing from the database (including admin_only items).
- * 
- * Query params:
- *   ?context=public — filter out admin_only items
- *   (default)       — return everything (admin context)
+ * Fetch all products and options with prices for the admin pricing page.
+ * Returns products grouped by category with their options.
  */
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url)
-    const context = searchParams.get('context')
-
     const supabase = await createClient()
-    
-    let query = supabase
-      .from('product_pricing')
-      .select('*')
-      .order('category')
-      .order('label')
 
-    if (context === 'public') {
-      query = query.or('admin_only.is.null,admin_only.eq.false')
-    }
+    // Fetch all active products with prices
+    const { data: products, error: productsError } = await supabase
+      .from('products')
+      .select('id, sku, name, description, product_type, base_price, unit, pack_quantity, product_category, category_section, category_order, admin_only')
+      .eq('is_active', true)
+      .order('product_category')
+      .order('category_section')
+      .order('category_order')
 
-    const { data, error } = await query
-    
-    if (error) {
-      console.error('[Admin Pricing] Database error:', error.message)
+    if (productsError) {
+      console.error('[Admin Pricing] Products error:', productsError.message)
       return NextResponse.json(
-        { error: `Database error: ${error.message}` },
+        { error: `Database error: ${productsError.message}` },
         { status: 503 }
       )
     }
-    
-    if (!data || data.length === 0) {
+
+    // Fetch all options with pricing data
+    const { data: options, error: optionsError } = await supabase
+      .from('product_options')
+      .select('id, product_id, option_name, option_value, display_label, price, fee, pricing_key, admin_only, sort_order')
+      .order('sort_order')
+
+    if (optionsError) {
+      console.error('[Admin Pricing] Options error:', optionsError.message)
       return NextResponse.json(
-        { error: 'product_pricing table is empty. Run the seed migration.' },
+        { error: `Database error: ${optionsError.message}` },
         { status: 503 }
       )
     }
-    
-    return NextResponse.json({ data, source: 'database' })
+
+    if (!products || products.length === 0) {
+      return NextResponse.json(
+        { error: 'Products table is empty. Run the seed migration.' },
+        { status: 503 }
+      )
+    }
+
+    return NextResponse.json({
+      products: products || [],
+      options: options || [],
+      source: 'database',
+    })
   } catch (err) {
     console.error('[Admin Pricing] API error:', err)
     return NextResponse.json(
@@ -57,40 +66,68 @@ export async function GET(request: Request) {
 
 /**
  * PUT /api/admin/pricing
- * Update a single product price.
+ * Update a single product price or option price.
+ * Body: { type: 'product' | 'option', id: string, field: 'base_price' | 'price' | 'fee', value: number }
  */
 export async function PUT(request: Request) {
   try {
     const supabase = await createClient()
     const body = await request.json()
-    
-    const { id, value } = body
-    
-    if (!id || value === undefined) {
-      return NextResponse.json({ error: 'Missing id or value' }, { status: 400 })
+
+    const { type, id, field, value } = body
+
+    if (!type || !id || !field || value === undefined) {
+      return NextResponse.json({ error: 'Missing type, id, field, or value' }, { status: 400 })
     }
-    
+
     const numValue = parseFloat(value)
     if (isNaN(numValue)) {
       return NextResponse.json({ error: 'Invalid value' }, { status: 400 })
     }
-    
-    const { data, error } = await supabase
-      .from('product_pricing')
-      .update({ value: numValue })
-      .eq('id', id)
-      .select()
-      .single()
-    
-    if (error) {
-      console.error('Error updating pricing:', error)
-      return NextResponse.json({ error: 'Failed to update pricing' }, { status: 500 })
+
+    if (type === 'product') {
+      if (field !== 'base_price') {
+        return NextResponse.json({ error: 'Only base_price can be updated for products' }, { status: 400 })
+      }
+
+      const { data, error } = await supabase
+        .from('products')
+        .update({ base_price: numValue })
+        .eq('id', id)
+        .select()
+        .single()
+
+      if (error) {
+        console.error('Error updating product price:', error)
+        return NextResponse.json({ error: 'Failed to update product price' }, { status: 500 })
+      }
+
+      invalidatePricingCache()
+      return NextResponse.json({ data })
     }
-    
-    // Invalidate server-side cache
-    invalidatePricingCache()
-    
-    return NextResponse.json({ data })
+
+    if (type === 'option') {
+      if (field !== 'price' && field !== 'fee') {
+        return NextResponse.json({ error: 'Only price or fee can be updated for options' }, { status: 400 })
+      }
+
+      const { data, error } = await supabase
+        .from('product_options')
+        .update({ [field]: numValue })
+        .eq('id', id)
+        .select()
+        .single()
+
+      if (error) {
+        console.error('Error updating option price:', error)
+        return NextResponse.json({ error: 'Failed to update option price' }, { status: 500 })
+      }
+
+      invalidatePricingCache()
+      return NextResponse.json({ data })
+    }
+
+    return NextResponse.json({ error: 'Invalid type. Use "product" or "option".' }, { status: 400 })
   } catch (err) {
     console.error('Pricing API error:', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -99,47 +136,50 @@ export async function PUT(request: Request) {
 
 /**
  * POST /api/admin/pricing
- * Bulk update multiple prices.
+ * Bulk update multiple product/option prices.
+ * Body: { updates: Array<{ type: 'product' | 'option', id: string, field: string, value: number }> }
  */
 export async function POST(request: Request) {
   try {
     const supabase = await createClient()
     const body = await request.json()
-    
-    const { updates } = body as { updates: { id: string; value: number }[] }
-    
+
+    const { updates } = body as {
+      updates: Array<{ type: string; id: string; field: string; value: number }>
+    }
+
     if (!updates || !Array.isArray(updates) || updates.length === 0) {
       return NextResponse.json({ error: 'No updates provided' }, { status: 400 })
     }
-    
+
     const results = await Promise.all(
-      updates.map(async ({ id, value }) => {
+      updates.map(async ({ type, id, field, value }) => {
+        const table = type === 'product' ? 'products' : 'product_options'
         const { data, error } = await supabase
-          .from('product_pricing')
-          .update({ value })
+          .from(table)
+          .update({ [field]: value })
           .eq('id', id)
           .select()
           .single()
-        
-        return { id, data, error }
+
+        return { type, id, field, data, error }
       })
     )
-    
+
     const errors = results.filter(r => r.error)
     if (errors.length > 0) {
       console.error('Some pricing updates failed:', errors)
-      return NextResponse.json({ 
-        error: 'Some updates failed', 
-        failed: errors.map(e => e.id) 
+      return NextResponse.json({
+        error: 'Some updates failed',
+        failed: errors.map(e => ({ id: e.id, message: e.error?.message })),
       }, { status: 500 })
     }
-    
-    // Invalidate server-side cache
+
     invalidatePricingCache()
-    
-    return NextResponse.json({ 
-      success: true, 
-      updated: results.length 
+
+    return NextResponse.json({
+      success: true,
+      updated: results.length,
     })
   } catch (err) {
     console.error('Pricing API error:', err)
