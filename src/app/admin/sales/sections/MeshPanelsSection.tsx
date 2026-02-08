@@ -6,37 +6,46 @@ import { Plus, Minus, ShoppingCart } from 'lucide-react'
 import { Grid, Card, Heading, Text, Button } from '@/lib/design-system'
 import type { MeshColor, MeshTopAttachment, MeshType, VelcroColor } from '@/lib/pricing/types'
 import type { PricingMap } from '@/lib/pricing/types'
+import type { DBProduct } from '@/hooks/useProducts'
+import { getProductOptions, getFilteredOptions } from '@/hooks/useProducts'
 import { calculateMeshPanelPrice } from '@/lib/pricing/formulas'
 import { formatMoney, createDefaultMeshSize, type MeshPanelSize } from '../types'
 
 const IMG = 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads'
 
-const TOP_ATTACHMENTS = [
-  { id: 'standard_track', label: 'Standard Track (<10 Tall Panels)' },
-  { id: 'heavy_track', label: 'Heavy Track (>10 Tall Panels)' },
-  { id: 'velcro', label: 'Velcro\u00AE' },
-  { id: 'special_rigging', label: 'Special Rigging' },
-] as const
-
 interface MeshPanelsSectionProps {
   dbPrices: PricingMap | null
+  meshPanel: DBProduct | null
   addItem: (item: any) => void
   isLoading: boolean
 }
 
-export default function MeshPanelsSection({ dbPrices, addItem, isLoading }: MeshPanelsSectionProps) {
+export default function MeshPanelsSection({ dbPrices, meshPanel, addItem, isLoading }: MeshPanelsSectionProps) {
+  // Read options from database
+  const meshTypeOptions = getProductOptions(meshPanel, 'mesh_type', { includeAdminOnly: true })
+  const topAttachmentOptions = getProductOptions(meshPanel, 'top_attachment', { includeAdminOnly: true })
+  const velcroColorOptions = getProductOptions(meshPanel, 'velcro_color')
+
+  // Defaults from DB (is_default) or fallback to first option
+  const defaultMeshType = meshTypeOptions.find(o => o.is_default)?.option_value || meshTypeOptions[0]?.option_value || 'heavy_mosquito'
+  const defaultTopAttachment = topAttachmentOptions.find(o => o.is_default)?.option_value || topAttachmentOptions[0]?.option_value || 'velcro'
+  const defaultVelcroColor = velcroColorOptions.find(o => o.is_default)?.option_value || velcroColorOptions[0]?.option_value || 'black'
+
   const [meshOptions, setMeshOptions] = useState<{
     meshType: MeshType
     meshColor: MeshColor
     topAttachment: MeshTopAttachment
     velcroColor?: VelcroColor
   }>({
-    meshType: 'heavy_mosquito',
+    meshType: defaultMeshType as MeshType,
     meshColor: 'black',
-    topAttachment: 'velcro',
-    velcroColor: 'black',
+    topAttachment: defaultTopAttachment as MeshTopAttachment,
+    velcroColor: defaultVelcroColor as VelcroColor,
   })
   const [meshSizes, setMeshSizes] = useState<MeshPanelSize[]>([createDefaultMeshSize()])
+
+  // Colors filtered by selected mesh type using valid_for constraint
+  const colorOptions = getFilteredOptions(meshPanel, 'color', meshOptions.meshType)
 
   const meshTotals = useMemo(() => {
     if (!dbPrices) return { panelTotals: [], subtotal: 0 }
@@ -91,9 +100,9 @@ export default function MeshPanelsSection({ dbPrices, addItem, isLoading }: Mesh
     <Card variant="elevated" className="!p-6">
       <div className="flex items-center gap-4 mb-4">
         <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-gray-200">
-          <Image src={`${IMG}/2019/11/Panel-Example-700x525.jpg`} alt="Mesh Panels" width={64} height={64} className="w-full h-full object-cover" />
+          <Image src={meshPanel?.image_url || `${IMG}/2019/11/Panel-Example-700x525.jpg`} alt="Mesh Panels" width={64} height={64} className="w-full h-full object-cover" />
         </div>
-        <Heading level={2} className="!mb-0">Mesh Panels</Heading>
+        <Heading level={2} className="!mb-0">{meshPanel?.name || 'Mesh Panels'}</Heading>
       </div>
 
       <Grid responsiveCols={{ mobile: 2, tablet: 4 }} gap="md" className="mb-6">
@@ -101,43 +110,37 @@ export default function MeshPanelsSection({ dbPrices, addItem, isLoading }: Mesh
           <label className="block text-sm text-gray-600 mb-1">Mesh Type</label>
           <select value={meshOptions.meshType} onChange={(e) => {
             const nextType = e.target.value as MeshType
-            let nextColor: MeshColor = meshOptions.meshColor
-            if (nextType === 'scrim') nextColor = 'silver'
-            else if (meshOptions.meshType === 'scrim') nextColor = 'black'
-            else if (nextType !== 'heavy_mosquito' && meshOptions.meshColor === 'ivory') nextColor = 'black'
+            // Re-filter colors for new mesh type and pick first valid color
+            const validColors = getFilteredOptions(meshPanel, 'color', nextType)
+            const currentColorStillValid = validColors.some(c => c.option_value === meshOptions.meshColor)
+            const nextColor = currentColorStillValid
+              ? meshOptions.meshColor
+              : (validColors.find(c => c.is_default)?.option_value || validColors[0]?.option_value || 'black') as MeshColor
             setMeshOptions({ ...meshOptions, meshType: nextType, meshColor: nextColor })
           }} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 text-sm">
-            <option value="heavy_mosquito">Heavy Mosquito</option>
-            <option value="no_see_um">No-See-Um</option>
-            <option value="shade">Shade</option>
-            <option value="scrim">Scrim</option>
+            {meshTypeOptions.map((o) => <option key={o.option_value} value={o.option_value}>{o.display_label}</option>)}
           </select>
         </div>
         <div>
           <label className="block text-sm text-gray-600 mb-1">Mesh Color</label>
           <select value={meshOptions.meshColor} onChange={(e) => setMeshOptions({ ...meshOptions, meshColor: e.target.value as MeshColor })} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 text-sm">
-            {meshOptions.meshType === 'scrim' ? (
-              <><option value="silver">Silver</option><option value="white">White</option></>
-            ) : (
-              <><option value="black">Black</option><option value="white">White</option>{meshOptions.meshType === 'heavy_mosquito' && <option value="ivory">Ivory</option>}</>
-            )}
+            {colorOptions.map((o) => <option key={o.option_value} value={o.option_value}>{o.display_label}</option>)}
           </select>
         </div>
         <div>
           <label className="block text-sm text-gray-600 mb-1">Top Attachment</label>
           <select value={meshOptions.topAttachment} onChange={(e) => {
             const nextAttachment = e.target.value as MeshTopAttachment
-            setMeshOptions({ ...meshOptions, topAttachment: nextAttachment, velcroColor: nextAttachment === 'velcro' ? (meshOptions.velcroColor || 'black') : undefined })
+            setMeshOptions({ ...meshOptions, topAttachment: nextAttachment, velcroColor: nextAttachment === 'velcro' ? (meshOptions.velcroColor || defaultVelcroColor as VelcroColor) : undefined })
           }} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 text-sm">
-            {TOP_ATTACHMENTS.map((a) => <option key={a.id} value={a.id}>{a.label}</option>)}
+            {topAttachmentOptions.map((o) => <option key={o.option_value} value={o.option_value}>{o.display_label}</option>)}
           </select>
         </div>
-        {meshOptions.topAttachment === 'velcro' && (
+        {meshOptions.topAttachment === 'velcro' && velcroColorOptions.length > 0 && (
           <div>
             <label className="block text-sm text-gray-600 mb-1">Velcro Color</label>
-            <select value={meshOptions.velcroColor || 'black'} onChange={(e) => setMeshOptions({ ...meshOptions, velcroColor: e.target.value as VelcroColor })} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 text-sm">
-              <option value="black">Black</option>
-              <option value="white">White</option>
+            <select value={meshOptions.velcroColor || defaultVelcroColor} onChange={(e) => setMeshOptions({ ...meshOptions, velcroColor: e.target.value as VelcroColor })} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 text-sm">
+              {velcroColorOptions.map((o) => <option key={o.option_value} value={o.option_value}>{o.display_label}</option>)}
             </select>
           </div>
         )}

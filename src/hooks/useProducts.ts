@@ -29,6 +29,7 @@ export type DBProductOption = {
   sort_order: number
   admin_only: boolean
   pricing_key: string | null
+  valid_for: string[] | null
 }
 
 /** Product row from the database */
@@ -116,6 +117,42 @@ export function getPriceLabel(unit: string, packQuantity: number): string {
     case '/notch': return 'Per Notch'
     default: return 'Each'
   }
+}
+
+// =============================================================================
+// OPTION HELPERS
+// =============================================================================
+
+/**
+ * Get all options for a given option_name from a product, sorted by sort_order.
+ * Optionally filter out admin_only options (for customer-facing pages).
+ */
+export function getProductOptions(
+  product: DBProduct | null | undefined,
+  optionName: string,
+  opts?: { includeAdminOnly?: boolean }
+): DBProductOption[] {
+  if (!product?.options) return []
+  return (product.options as DBProductOption[])
+    .filter(o => o.option_name === optionName)
+    .filter(o => opts?.includeAdminOnly || !o.admin_only)
+    .sort((a, b) => a.sort_order - b.sort_order)
+}
+
+/**
+ * Get options filtered by `valid_for` constraint.
+ * If an option has valid_for set, it is only included when `filterValue`
+ * appears in the valid_for array. Options with valid_for = null are always included.
+ */
+export function getFilteredOptions(
+  product: DBProduct | null | undefined,
+  optionName: string,
+  filterValue?: string,
+  opts?: { includeAdminOnly?: boolean }
+): DBProductOption[] {
+  const options = getProductOptions(product, optionName, opts)
+  if (!filterValue) return options
+  return options.filter(o => !o.valid_for || o.valid_for.includes(filterValue))
 }
 
 // =============================================================================
@@ -214,6 +251,12 @@ export function useProducts() {
     return products.filter(p => p.product_type === 'panel')
   }, [products])
 
+  /** Mesh panel product with its options */
+  const meshPanel = useMemo(() => {
+    if (!products) return null
+    return products.find(p => p.sku === 'mesh_panel') || null
+  }, [products])
+
   /** Vinyl panel product with its options */
   const vinylPanel = useMemo(() => {
     if (!products) return null
@@ -271,6 +314,8 @@ export function useProducts() {
     adjustmentProduct,
     /** Panel products (mesh, vinyl, rollup) */
     panelProducts,
+    /** Mesh panel product with options */
+    meshPanel,
     /** Vinyl panel product with options */
     vinylPanel,
     /** Roll-up shade screen product with options */

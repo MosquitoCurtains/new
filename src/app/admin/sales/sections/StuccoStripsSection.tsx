@@ -4,30 +4,36 @@ import { useMemo, useState } from 'react'
 import Image from 'next/image'
 import { Plus, Minus, ShoppingCart } from 'lucide-react'
 import { Card, Heading, Text, Button } from '@/lib/design-system'
+import type { DBProduct } from '@/hooks/useProducts'
 import { formatMoney, createDefaultStuccoStrip, type StuccoStrip } from '../types'
 
 const IMG = 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads'
 
 interface StuccoStripsSectionProps {
   zippered?: boolean
+  stuccoProducts: DBProduct[]
   getPrice: (id: string, fallback?: number) => number
   addItem: (item: any) => void
   isLoading: boolean
 }
 
-export default function StuccoStripsSection({ zippered = false, getPrice, addItem, isLoading }: StuccoStripsSectionProps) {
+export default function StuccoStripsSection({ zippered = false, stuccoProducts, getPrice, addItem, isLoading }: StuccoStripsSectionProps) {
   const [stuccoStrips, setStuccoStrips] = useState<StuccoStrip[]>([createDefaultStuccoStrip()])
 
-  const priceKey = zippered ? 'stucco_zippered' : 'stucco_standard'
-  const fallbackPrice = 0
-  const label = zippered ? 'Zippered Stucco Strips' : 'Stucco Strips'
+  // Find the right stucco product from DB
+  const targetSku = zippered ? 'stucco_zippered' : 'stucco_standard'
+  const stuccoProduct = stuccoProducts.find(p => p.sku === targetSku) || null
+
+  // Read name, image, and price from DB product
+  const label = stuccoProduct?.name || (zippered ? 'Zippered Stucco Strips' : 'Stucco Strips')
+  const productImage = stuccoProduct?.image_url || `${IMG}/2019/11/Panel-Example-700x525.jpg`
+  const stuccoRate = stuccoProduct ? Number(stuccoProduct.base_price) : getPrice(targetSku, 0)
 
   const stuccoTotals = useMemo(() => {
-    const stuccoRate = getPrice(priceKey, fallbackPrice)
     const stripTotals = stuccoStrips.map((strip) => stuccoRate * (strip.quantity ?? 0))
     const subtotal = stripTotals.reduce((sum, value) => sum + value, 0)
     return { stripTotals, subtotal, stuccoRate }
-  }, [stuccoStrips, getPrice, priceKey, fallbackPrice])
+  }, [stuccoStrips, stuccoRate])
 
   const addStuccoStrip = () => setStuccoStrips([...stuccoStrips, createDefaultStuccoStrip()])
   const updateStuccoStrip = (index: number, strip: StuccoStrip) => {
@@ -40,14 +46,13 @@ export default function StuccoStripsSection({ zippered = false, getPrice, addIte
   }
 
   const addStuccoToCart = () => {
-    const stuccoRate = getPrice(priceKey, fallbackPrice)
     stuccoStrips.forEach((strip, index) => {
       const height = strip.heightInches ?? 0
       const qty = strip.quantity ?? 0
       addItem({
         type: 'hardware',
-        productSku: zippered ? 'stucco_zippered' : 'stucco_standard',
-        name: `${zippered ? 'Zippered ' : ''}Stucco Strip ${index + 1}`,
+        productSku: targetSku,
+        name: `${label} ${index + 1}`,
         description: `${height}in height x ${qty}`,
         quantity: qty,
         unitPrice: stuccoRate,
@@ -61,7 +66,7 @@ export default function StuccoStripsSection({ zippered = false, getPrice, addIte
     <Card variant="elevated" className="!p-6">
       <div className="flex items-center gap-4 mb-4">
         <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-gray-200">
-          <Image src={`${IMG}/2019/11/Panel-Example-700x525.jpg`} alt={label} width={64} height={64} className="w-full h-full object-cover" />
+          <Image src={productImage} alt={label} width={64} height={64} className="w-full h-full object-cover" />
         </div>
         <div>
           <Heading level={2} className="!mb-0">{label}</Heading>

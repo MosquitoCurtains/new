@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 4pF0wdWdtG8mKlJau0wuzboNsQIYIJer0Zgh1gfNAhROat36rV0vVtKNhhXHEBT
+\restrict SVZs8yFMR7gFvlKVyuzaFol1GcIdGIvICjCBaLD1K50kFohwHDXymPrR6hDtwx9
 
 -- Dumped from database version 17.6
 -- Dumped by pg_dump version 17.7 (Homebrew)
@@ -386,6 +386,27 @@ $$;
 
 
 --
+-- Name: log_option_price_change(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.log_option_price_change() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  IF OLD.price IS DISTINCT FROM NEW.price THEN
+    INSERT INTO pricing_history (table_name, record_id, field_name, old_value, new_value)
+    VALUES ('product_options', NEW.id, 'price', OLD.price, NEW.price);
+  END IF;
+  IF OLD.fee IS DISTINCT FROM NEW.fee THEN
+    INSERT INTO pricing_history (table_name, record_id, field_name, old_value, new_value)
+    VALUES ('product_options', NEW.id, 'fee', OLD.fee, NEW.fee);
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+
+--
 -- Name: log_pricing_change(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -397,6 +418,24 @@ BEGIN
     INSERT INTO product_pricing_history (pricing_id, old_value, new_value)
     VALUES (NEW.id, OLD.value, NEW.value);
   END IF;
+  RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: log_product_price_change(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.log_product_price_change() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  IF OLD.base_price IS DISTINCT FROM NEW.base_price THEN
+    INSERT INTO pricing_history (table_name, record_id, field_name, old_value, new_value)
+    VALUES ('products', NEW.id, 'base_price', OLD.base_price, NEW.base_price);
+  END IF;
+  NEW.updated_at = now();
   RETURN NEW;
 END;
 $$;
@@ -1899,15 +1938,19 @@ CREATE TABLE public.products (
     name text NOT NULL,
     description text,
     product_type text NOT NULL,
-    pricing_type text NOT NULL,
     base_price numeric(10,2) DEFAULT 0,
     is_active boolean DEFAULT true NOT NULL,
-    is_featured boolean DEFAULT false,
-    sort_order integer DEFAULT 0,
     image_url text,
     meta jsonb DEFAULT '{}'::jsonb,
     admin_only boolean DEFAULT false,
-    CONSTRAINT products_pricing_type_check CHECK ((pricing_type = ANY (ARRAY['sqft'::text, 'linear_ft'::text, 'each'::text, 'set'::text, 'fixed'::text, 'calculated'::text]))),
+    unit text DEFAULT 'each'::text NOT NULL,
+    pack_quantity integer DEFAULT 1 NOT NULL,
+    product_category text,
+    category_section text,
+    category_order integer DEFAULT 0,
+    quantity_step integer DEFAULT 1,
+    quantity_min integer DEFAULT 0,
+    quantity_max integer DEFAULT 100,
     CONSTRAINT products_product_type_check CHECK ((product_type = ANY (ARRAY['panel'::text, 'track'::text, 'attachment'::text, 'raw_material'::text, 'tool'::text, 'accessory'::text, 'adjustment'::text])))
 );
 
@@ -2242,25 +2285,6 @@ CREATE VIEW public.open_issues_summary AS
             WHEN 'low'::public.issue_severity THEN 4
             ELSE 5
         END, pi.created_at;
-
-
---
--- Name: option_values; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.option_values (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    option_id uuid NOT NULL,
-    value text NOT NULL,
-    display_value text NOT NULL,
-    price_modifier numeric(10,2) DEFAULT 0,
-    price_multiplier numeric(10,4) DEFAULT 1,
-    is_default boolean DEFAULT false,
-    sort_order integer DEFAULT 0,
-    meta jsonb DEFAULT '{}'::jsonb,
-    admin_only boolean DEFAULT false
-);
 
 
 --
@@ -2743,77 +2767,26 @@ CREATE VIEW public.pages_needing_revision AS
 
 
 --
--- Name: product_options; Type: TABLE; Schema: public; Owner: -
+-- Name: pricing_history; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.product_options (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    product_id uuid NOT NULL,
-    name text NOT NULL,
-    display_name text NOT NULL,
-    option_type text NOT NULL,
-    is_required boolean DEFAULT true,
-    sort_order integer DEFAULT 0,
-    meta jsonb DEFAULT '{}'::jsonb,
-    admin_only boolean DEFAULT false,
-    CONSTRAINT product_options_option_type_check CHECK ((option_type = ANY (ARRAY['select'::text, 'color'::text, 'number'::text, 'dimension'::text])))
-);
-
-
---
--- Name: product_pricing; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.product_pricing (
-    id text NOT NULL,
-    category text NOT NULL,
-    label text NOT NULL,
-    value numeric(10,4) NOT NULL,
-    unit text NOT NULL,
-    description text,
-    is_multiplier boolean DEFAULT false,
-    base_price_id text,
-    created_at timestamp with time zone DEFAULT now(),
-    updated_at timestamp with time zone DEFAULT now(),
-    admin_only boolean DEFAULT false
-);
-
-
---
--- Name: TABLE product_pricing; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON TABLE public.product_pricing IS 'Product pricing that can be edited via admin panel';
-
-
---
--- Name: product_pricing_history; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.product_pricing_history (
+CREATE TABLE public.pricing_history (
     id integer NOT NULL,
-    pricing_id text NOT NULL,
+    table_name text NOT NULL,
+    record_id uuid NOT NULL,
+    field_name text NOT NULL,
     old_value numeric(10,4),
     new_value numeric(10,4) NOT NULL,
-    changed_by text,
     changed_at timestamp with time zone DEFAULT now(),
-    reason text
+    changed_by text
 );
 
 
 --
--- Name: TABLE product_pricing_history; Type: COMMENT; Schema: public; Owner: -
+-- Name: pricing_history_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-COMMENT ON TABLE public.product_pricing_history IS 'Audit trail of all pricing changes';
-
-
---
--- Name: product_pricing_history_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.product_pricing_history_id_seq
+CREATE SEQUENCE public.pricing_history_id_seq
     AS integer
     START WITH 1
     INCREMENT BY 1
@@ -2823,39 +2796,30 @@ CREATE SEQUENCE public.product_pricing_history_id_seq
 
 
 --
--- Name: product_pricing_history_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: pricing_history_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE public.product_pricing_history_id_seq OWNED BY public.product_pricing_history.id;
-
-
---
--- Name: product_sales_summary; Type: VIEW; Schema: public; Owner: -
---
-
-CREATE VIEW public.product_sales_summary AS
- SELECT COALESCE(pm.new_product_sku, 'UNMAPPED'::text) AS product_sku,
-    COALESCE(p.name, li.product_name) AS product_name,
-    li.item_type,
-    count(*) AS times_sold,
-    sum(li.quantity) AS total_quantity,
-    sum(li.line_total) AS total_revenue,
-    avg(li.unit_price) AS avg_unit_price,
-    min(lo.order_date) AS first_sale,
-    max(lo.order_date) AS last_sale
-   FROM (((public.legacy_line_items li
-     JOIN public.legacy_orders lo ON ((li.legacy_order_id = lo.id)))
-     LEFT JOIN public.legacy_product_mapping pm ON ((li.product_name = pm.legacy_product_name)))
-     LEFT JOIN public.products p ON ((pm.new_product_sku = p.sku)))
-  GROUP BY COALESCE(pm.new_product_sku, 'UNMAPPED'::text), COALESCE(p.name, li.product_name), li.item_type
-  ORDER BY (sum(li.line_total)) DESC;
+ALTER SEQUENCE public.pricing_history_id_seq OWNED BY public.pricing_history.id;
 
 
 --
--- Name: VIEW product_sales_summary; Type: COMMENT; Schema: public; Owner: -
+-- Name: product_options; Type: TABLE; Schema: public; Owner: -
 --
 
-COMMENT ON VIEW public.product_sales_summary IS 'Sales summary by product (legacy data mapped to new catalog)';
+CREATE TABLE public.product_options (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    product_id uuid NOT NULL,
+    option_name text NOT NULL,
+    option_value text NOT NULL,
+    display_label text NOT NULL,
+    price numeric(10,2) DEFAULT 0,
+    fee numeric(10,2) DEFAULT 0,
+    image_url text,
+    is_default boolean DEFAULT false,
+    sort_order integer DEFAULT 0,
+    admin_only boolean DEFAULT false,
+    pricing_key text
+);
 
 
 --
@@ -3273,10 +3237,10 @@ ALTER TABLE ONLY public.notification_log ALTER COLUMN id SET DEFAULT nextval('pu
 
 
 --
--- Name: product_pricing_history id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: pricing_history id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.product_pricing_history ALTER COLUMN id SET DEFAULT nextval('public.product_pricing_history_id_seq'::regclass);
+ALTER TABLE ONLY public.pricing_history ALTER COLUMN id SET DEFAULT nextval('public.pricing_history_id_seq'::regclass);
 
 
 --
@@ -3603,22 +3567,6 @@ ALTER TABLE ONLY public.notification_settings
 
 
 --
--- Name: option_values option_values_option_id_value_key; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.option_values
-    ADD CONSTRAINT option_values_option_id_value_key UNIQUE (option_id, value);
-
-
---
--- Name: option_values option_values_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.option_values
-    ADD CONSTRAINT option_values_pkey PRIMARY KEY (id);
-
-
---
 -- Name: orders orders_order_number_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3707,6 +3655,14 @@ ALTER TABLE ONLY public.performance_audits
 
 
 --
+-- Name: pricing_history pricing_history_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.pricing_history
+    ADD CONSTRAINT pricing_history_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: product_options product_options_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3715,27 +3671,11 @@ ALTER TABLE ONLY public.product_options
 
 
 --
--- Name: product_options product_options_product_id_name_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: product_options product_options_product_id_option_name_option_value_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.product_options
-    ADD CONSTRAINT product_options_product_id_name_key UNIQUE (product_id, name);
-
-
---
--- Name: product_pricing_history product_pricing_history_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.product_pricing_history
-    ADD CONSTRAINT product_pricing_history_pkey PRIMARY KEY (id);
-
-
---
--- Name: product_pricing product_pricing_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.product_pricing
-    ADD CONSTRAINT product_pricing_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT product_options_product_id_option_name_option_value_key UNIQUE (product_id, option_name, option_value);
 
 
 --
@@ -4456,13 +4396,6 @@ CREATE INDEX idx_notification_log_type ON public.notification_log USING btree (n
 
 
 --
--- Name: idx_option_values_option; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX idx_option_values_option ON public.option_values USING btree (option_id);
-
-
---
 -- Name: idx_orders_created; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -4680,31 +4613,24 @@ CREATE INDEX idx_performance_audits_page_latest ON public.performance_audits USI
 
 
 --
--- Name: idx_pricing_history_changed_at; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_pricing_history_record; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_pricing_history_changed_at ON public.product_pricing_history USING btree (changed_at);
-
-
---
--- Name: idx_pricing_history_pricing_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX idx_pricing_history_pricing_id ON public.product_pricing_history USING btree (pricing_id);
+CREATE INDEX idx_pricing_history_record ON public.pricing_history USING btree (table_name, record_id);
 
 
 --
--- Name: idx_product_options_product; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_product_options_pricing_key; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_product_options_product ON public.product_options USING btree (product_id);
+CREATE INDEX idx_product_options_pricing_key ON public.product_options USING btree (pricing_key) WHERE (pricing_key IS NOT NULL);
 
 
 --
--- Name: idx_product_pricing_category; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_product_options_product_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_product_pricing_category ON public.product_pricing USING btree (category);
+CREATE INDEX idx_product_options_product_id ON public.product_options USING btree (product_id);
 
 
 --
@@ -5058,6 +4984,13 @@ CREATE TRIGGER notification_settings_updated_at BEFORE UPDATE ON public.notifica
 
 
 --
+-- Name: product_options options_price_audit; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER options_price_audit AFTER UPDATE ON public.product_options FOR EACH ROW EXECUTE FUNCTION public.log_option_price_change();
+
+
+--
 -- Name: page_audit_sequence page_audit_sequence_updated; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -5079,17 +5012,10 @@ CREATE TRIGGER page_notes_updated BEFORE UPDATE ON public.page_notes FOR EACH RO
 
 
 --
--- Name: product_pricing pricing_change_log; Type: TRIGGER; Schema: public; Owner: -
+-- Name: products products_price_audit; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER pricing_change_log AFTER UPDATE ON public.product_pricing FOR EACH ROW EXECUTE FUNCTION public.log_pricing_change();
-
-
---
--- Name: product_pricing product_pricing_updated_at; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER product_pricing_updated_at BEFORE UPDATE ON public.product_pricing FOR EACH ROW EXECUTE FUNCTION public.update_product_pricing_timestamp();
+CREATE TRIGGER products_price_audit BEFORE UPDATE ON public.products FOR EACH ROW EXECUTE FUNCTION public.log_product_price_change();
 
 
 --
@@ -5237,13 +5163,6 @@ CREATE TRIGGER update_line_items_updated_at BEFORE UPDATE ON public.line_items F
 --
 
 CREATE TRIGGER update_orders_updated_at BEFORE UPDATE ON public.orders FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
-
-
---
--- Name: products update_products_updated_at; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER update_products_updated_at BEFORE UPDATE ON public.products FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 
 --
@@ -5477,14 +5396,6 @@ ALTER TABLE ONLY public.line_items
 
 
 --
--- Name: option_values option_values_option_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.option_values
-    ADD CONSTRAINT option_values_option_id_fkey FOREIGN KEY (option_id) REFERENCES public.product_options(id) ON DELETE CASCADE;
-
-
---
 -- Name: orders orders_assigned_to_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5626,22 +5537,6 @@ ALTER TABLE ONLY public.performance_audits
 
 ALTER TABLE ONLY public.product_options
     ADD CONSTRAINT product_options_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id) ON DELETE CASCADE;
-
-
---
--- Name: product_pricing product_pricing_base_price_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.product_pricing
-    ADD CONSTRAINT product_pricing_base_price_id_fkey FOREIGN KEY (base_price_id) REFERENCES public.product_pricing(id);
-
-
---
--- Name: product_pricing_history product_pricing_history_pricing_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.product_pricing_history
-    ADD CONSTRAINT product_pricing_history_pricing_id_fkey FOREIGN KEY (pricing_id) REFERENCES public.product_pricing(id);
 
 
 --
@@ -5904,20 +5799,6 @@ CREATE POLICY "Anyone can view line items for accessible carts" ON public.line_i
   WHERE (carts.session_id IS NOT NULL))) OR (EXISTS ( SELECT 1
    FROM public.staff
   WHERE ((staff.auth_user_id = auth.uid()) AND (staff.is_active = true))))));
-
-
---
--- Name: option_values Anyone can view option values; Type: POLICY; Schema: public; Owner: -
---
-
-CREATE POLICY "Anyone can view option values" ON public.option_values FOR SELECT USING (true);
-
-
---
--- Name: product_options Anyone can view product options; Type: POLICY; Schema: public; Owner: -
---
-
-CREATE POLICY "Anyone can view product options" ON public.product_options FOR SELECT USING (true);
 
 
 --
@@ -6194,28 +6075,10 @@ CREATE POLICY "Staff can manage email messages" ON public.email_messages USING (
 
 
 --
--- Name: option_values Staff can manage option values; Type: POLICY; Schema: public; Owner: -
---
-
-CREATE POLICY "Staff can manage option values" ON public.option_values USING ((EXISTS ( SELECT 1
-   FROM public.staff
-  WHERE ((staff.auth_user_id = auth.uid()) AND (staff.is_active = true)))));
-
-
---
 -- Name: orders Staff can manage orders; Type: POLICY; Schema: public; Owner: -
 --
 
 CREATE POLICY "Staff can manage orders" ON public.orders USING ((EXISTS ( SELECT 1
-   FROM public.staff
-  WHERE ((staff.auth_user_id = auth.uid()) AND (staff.is_active = true)))));
-
-
---
--- Name: product_options Staff can manage product options; Type: POLICY; Schema: public; Owner: -
---
-
-CREATE POLICY "Staff can manage product options" ON public.product_options USING ((EXISTS ( SELECT 1
    FROM public.staff
   WHERE ((staff.auth_user_id = auth.uid()) AND (staff.is_active = true)))));
 
@@ -6473,12 +6336,6 @@ ALTER TABLE public.line_item_options ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.line_items ENABLE ROW LEVEL SECURITY;
 
 --
--- Name: option_values; Type: ROW SECURITY; Schema: public; Owner: -
---
-
-ALTER TABLE public.option_values ENABLE ROW LEVEL SECURITY;
-
---
 -- Name: orders; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
@@ -6527,10 +6384,30 @@ ALTER TABLE public.page_views ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.performance_audits ENABLE ROW LEVEL SECURITY;
 
 --
+-- Name: pricing_history; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.pricing_history ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: pricing_history pricing_history_public_read; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY pricing_history_public_read ON public.pricing_history FOR SELECT USING (true);
+
+
+--
 -- Name: product_options; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
 ALTER TABLE public.product_options ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: product_options product_options_public_read; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY product_options_public_read ON public.product_options FOR SELECT USING (true);
+
 
 --
 -- Name: products; Type: ROW SECURITY; Schema: public; Owner: -
@@ -6596,5 +6473,5 @@ ALTER TABLE public.visitors ENABLE ROW LEVEL SECURITY;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 4pF0wdWdtG8mKlJau0wuzboNsQIYIJer0Zgh1gfNAhROat36rV0vVtKNhhXHEBT
+\unrestrict SVZs8yFMR7gFvlKVyuzaFol1GcIdGIvICjCBaLD1K50kFohwHDXymPrR6hDtwx9
 

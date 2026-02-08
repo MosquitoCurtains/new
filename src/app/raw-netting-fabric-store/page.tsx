@@ -1,7 +1,22 @@
 'use client'
 
+/**
+ * /raw-netting-fabric-store/ — Raw Netting Landing Page
+ * 
+ * Category cards linking to individual SEO pages for each mesh type.
+ * Trust badges, overview video, and cross-links.
+ */
+
 import Link from 'next/link'
-import { ArrowRight, Ruler, Scissors, Info, ShoppingCart, Play } from 'lucide-react'
+import {
+  ArrowRight,
+  Ruler,
+  Truck,
+  ShieldCheck,
+  Layers,
+  Scissors,
+  Play,
+} from 'lucide-react'
 import {
   Container,
   Stack,
@@ -10,59 +25,85 @@ import {
   Heading,
   Text,
   Button,
-  TwoColumn,
-  Frame,
   Badge,
-  BulletedList,
-  ListItem,
+  Frame,
   YouTubeEmbed,
 } from '@/lib/design-system'
 import { FinalCTATemplate } from '@/lib/design-system/templates'
 import { VIDEOS } from '@/lib/constants/videos'
+import RawNettingFeaturesBlock from '@/app/order/components/RawNettingFeaturesBlock'
 
-// Raw mesh products
-const RAW_PRODUCTS = [
+// =============================================================================
+// MESH PRODUCT CARDS
+// =============================================================================
+
+const MESH_PRODUCTS = [
   {
-    id: 'heavy-mosquito-black',
-    name: 'Heavy Mosquito Mesh - Black',
-    price: 4.50,
-    unit: 'per linear foot',
-    width: '12 feet',
-    description: 'Our most popular mesh. Blocks mosquitoes, gnats, and black flies.',
+    name: 'Heavy Mosquito Mesh',
+    slug: '/mosquito-netting/',
+    description: 'Our most popular mesh. Best value, quality, and airflow. Stops mosquitoes, gnats, and black flies.',
     image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/Square-Mosquito-Netting-500x500.jpg',
-    inStock: true,
+    colors: 'Black, White, Ivory',
+    widths: '101", 123", 138"',
+    startingPrice: '$5.50/ft',
+    badge: 'Most Popular',
   },
   {
-    id: 'heavy-mosquito-white',
-    name: 'Heavy Mosquito Mesh - White',
-    price: 4.50,
-    unit: 'per linear foot',
-    width: '12 feet',
-    description: 'Same quality mesh in white for lighter colored spaces.',
-    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/Square-Mosquito-Netting-500x500.jpg',
-    inStock: true,
-  },
-  {
-    id: 'no-see-um-black',
-    name: 'No-See-Um Mesh - Black',
-    price: 5.50,
-    unit: 'per linear foot',
-    width: '12 feet',
-    description: 'Finer weave blocks tiny no-see-um flies common near coastal areas.',
+    name: 'No-See-Um Mesh',
+    slug: '/no-see-um-netting-screen/',
+    description: 'Dense weave with 800 holes per sq inch. Blocks tiny biting flies found near water.',
     image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/Square-Noseeum-Mosquito-Netting-500x500.jpg',
-    inStock: true,
+    colors: 'Black, White',
+    widths: '101", 123"',
+    startingPrice: '$6.00/ft',
+    badge: null,
   },
   {
-    id: 'shade-mesh-black',
-    name: 'Shade Mesh - Black',
-    price: 6.00,
-    unit: 'per linear foot',
-    width: '12 feet',
-    description: 'Provides shade, privacy, and insect protection. Also works as projection screen.',
+    name: 'Shade Mesh',
+    slug: '/shade-screen-mesh/',
+    description: 'Blocks 80% of sunlight plus insects. Clear looking out, opaque looking in. Great for projection screens.',
     image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/Sqaure-Heavy-Shade-Mesh-Mosquito-Netting-500x500.jpg',
-    inStock: true,
+    colors: 'Black, White',
+    widths: '120"',
+    startingPrice: '$7.00/ft',
+    badge: null,
+  },
+  {
+    name: 'Industrial Mesh',
+    slug: '/industrial-mesh/',
+    description: 'Incredibly strong military overrun nylon mesh. Can be zip tied on edges. Available in Olive Green.',
+    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/Square-Mosquito-Netting-500x500.jpg',
+    colors: 'Olive Green',
+    widths: '65"',
+    startingPrice: '$4.00/ft',
+    badge: 'Best Price',
+  },
+  {
+    name: 'Theatre Scrim',
+    slug: '/theatre-scrim/',
+    description: 'Marine-grade shark tooth scrim material. Suitable for outdoors. Available in white or silver.',
+    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/Square-Mosquito-Netting-500x500.jpg',
+    colors: 'White, Silver',
+    widths: '120", 140"',
+    startingPrice: '$7.00/ft',
+    badge: null,
   },
 ]
+
+// =============================================================================
+// TRUST BADGES
+// =============================================================================
+
+const TRUST_BADGES = [
+  { icon: Ruler, label: 'Custom-Size', description: 'Cut to your exact length' },
+  { icon: Truck, label: 'Fast Delivery', description: '3-7 business days' },
+  { icon: ShieldCheck, label: 'Marine-Grade', description: 'Built to last outdoors' },
+  { icon: Layers, label: 'Multi-Purpose', description: 'Limitless applications' },
+]
+
+// =============================================================================
+// PAGE
+// =============================================================================
 
 export default function RawNettingStorePage() {
   return (
@@ -75,207 +116,139 @@ export default function RawNettingStorePage() {
               <Badge className="!bg-[#406517]/10 !text-[#406517] !border-[#406517]/30 mb-4">
                 For DIY Projects & Professionals
               </Badge>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Raw Mosquito Netting & Fabric
+              <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
+                Raw Netting Fabric Store
               </h1>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                Buy our marine-grade mesh by the foot for your own custom projects. 
-                Same quality materials we use in our finished products.
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
+                Giant rolls of marine-grade raw netting custom-cut to your specifications.
+                Incredibly strong with limitless applications.
               </p>
             </div>
           </div>
         </section>
 
-        {/* Video Overview */}
+        {/* Overview Video */}
         <section>
           <div className="max-w-3xl mx-auto">
             <YouTubeEmbed
               videoId={VIDEOS.RAW_NETTING}
-              title="Raw Netting Overview"
+              title="Why Us For Raw Netting"
               variant="hero"
             />
           </div>
         </section>
 
-        {/* Info Cards */}
+        {/* Trust Badges */}
         <section>
-          <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="md">
-            <Card variant="outlined" className="!p-4">
-              <div className="flex items-start gap-3">
-                <Ruler className="w-5 h-5 text-[#406517] mt-0.5" />
-                <div>
-                  <Text className="font-medium">12 Feet Wide</Text>
-                  <Text size="sm" className="text-gray-500">All mesh comes in 12ft wide rolls</Text>
-                </div>
-              </div>
-            </Card>
-            <Card variant="outlined" className="!p-4">
-              <div className="flex items-start gap-3">
-                <Scissors className="w-5 h-5 text-[#003365] mt-0.5" />
-                <div>
-                  <Text className="font-medium">Cut to Length</Text>
-                  <Text size="sm" className="text-gray-500">Order any length you need</Text>
-                </div>
-              </div>
-            </Card>
-            <Card variant="outlined" className="!p-4">
-              <div className="flex items-start gap-3">
-                <Info className="w-5 h-5 text-[#B30158] mt-0.5" />
-                <div>
-                  <Text className="font-medium">Lock-Stitched Edges</Text>
-                  <Text size="sm" className="text-gray-500">Won't unravel when cut</Text>
-                </div>
-              </div>
-            </Card>
+          <Grid responsiveCols={{ mobile: 2, tablet: 4 }} gap="md">
+            {TRUST_BADGES.map((badge) => {
+              const Icon = badge.icon
+              return (
+                <Card key={badge.label} variant="outlined" className="!p-4 text-center">
+                  <Icon className="w-6 h-6 text-[#406517] mx-auto mb-2" />
+                  <Text className="font-semibold text-gray-900 !mb-0.5">{badge.label}</Text>
+                  <Text size="sm" className="text-gray-500 !mb-0">{badge.description}</Text>
+                </Card>
+              )
+            })}
           </Grid>
         </section>
 
-        {/* Products */}
+        {/* Mesh Product Cards */}
         <section>
-          <Heading level={2} className="!mb-6">Available Mesh Types</Heading>
-          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
-            {RAW_PRODUCTS.map((product) => (
-              <Card key={product.id} variant="elevated" className="!p-0 overflow-hidden">
-                <div className="grid grid-cols-1 md:grid-cols-2">
-                  <Frame ratio="1/1" className="bg-gray-100">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </Frame>
-                  <div className="p-6 flex flex-col">
-                    <div className="flex-1">
-                      <div className="flex items-start justify-between mb-2">
-                        <Heading level={4} className="!mb-0">{product.name}</Heading>
-                        {product.inStock && (
-                          <Badge className="!bg-green-100 !text-green-700 !border-green-200 text-xs">
-                            In Stock
-                          </Badge>
-                        )}
+          <Heading level={2} className="!mb-2 text-center">Shop By Mesh Type</Heading>
+          <Text className="text-gray-500 text-center !mb-8 max-w-xl mx-auto">
+            Choose from 5 premium mesh types. Each page has detailed product information and an order form.
+          </Text>
+          <div className="space-y-4">
+            {MESH_PRODUCTS.map((product) => (
+              <Link
+                key={product.slug}
+                href={product.slug}
+                className="group block"
+              >
+                <Card variant="elevated" className="!p-0 overflow-hidden hover:shadow-lg transition-shadow">
+                  <div className="flex flex-col md:flex-row">
+                    <Frame ratio="1/1" className="bg-gray-100 md:w-48 md:h-auto flex-shrink-0">
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </Frame>
+                    <div className="flex-1 p-5 md:p-6 flex items-center">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="text-lg font-bold text-gray-900 group-hover:text-[#406517] transition-colors">
+                            {product.name}
+                          </h3>
+                          {product.badge && (
+                            <Badge className="!bg-[#406517]/10 !text-[#406517] !border-[#406517]/30 text-xs">
+                              {product.badge}
+                            </Badge>
+                          )}
+                        </div>
+                        <Text size="sm" className="text-gray-600 !mb-2">
+                          {product.description}
+                        </Text>
+                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+                          <span>Colors: {product.colors}</span>
+                          <span>Widths: {product.widths}</span>
+                          <span className="font-semibold text-[#406517]">From {product.startingPrice}</span>
+                        </div>
                       </div>
-                      <Text className="text-gray-600 text-sm mb-3">
-                        {product.description}
-                      </Text>
-                      <div className="flex items-baseline gap-1 mb-2">
-                        <span className="text-2xl font-bold text-[#406517]">
-                          ${product.price.toFixed(2)}
-                        </span>
-                        <span className="text-sm text-gray-500">{product.unit}</span>
-                      </div>
-                      <Text size="sm" className="text-gray-500">
-                        Width: {product.width}
-                      </Text>
+                      <ArrowRight className="w-5 h-5 text-gray-300 group-hover:text-[#406517] group-hover:translate-x-1 transition-all ml-4 flex-shrink-0 hidden md:block" />
                     </div>
-                    <Button variant="primary" className="w-full mt-4">
-                      <ShoppingCart className="w-4 h-4 mr-2" />
-                      Add to Cart
-                    </Button>
                   </div>
-                </div>
-              </Card>
+                </Card>
+              </Link>
             ))}
-          </Grid>
-        </section>
-
-        {/* Use Cases */}
-        <section>
-          <div className="bg-white border-2 border-gray-200 rounded-3xl overflow-hidden">
-            <div className="bg-[#003365] px-6 py-4">
-              <span className="text-white font-semibold text-lg uppercase tracking-wider">
-                Common Uses for Raw Mesh
-              </span>
-            </div>
-            <div className="p-6 md:p-10">
-              <TwoColumn gap="lg">
-                <div>
-                  <Heading level={3} className="!mb-4">DIY Projects</Heading>
-                  <BulletedList spacing="sm">
-                    <ListItem variant="checked" iconColor="#406517">
-                      Custom window screens
-                    </ListItem>
-                    <ListItem variant="checked" iconColor="#406517">
-                      Garden netting for plants
-                    </ListItem>
-                    <ListItem variant="checked" iconColor="#406517">
-                      Pet enclosures (catios)
-                    </ListItem>
-                    <ListItem variant="checked" iconColor="#406517">
-                      RV and camper screens
-                    </ListItem>
-                    <ListItem variant="checked" iconColor="#406517">
-                      Hammock canopies
-                    </ListItem>
-                    <ListItem variant="checked" iconColor="#406517">
-                      Projection screens (shade mesh)
-                    </ListItem>
-                  </BulletedList>
-                </div>
-                <div>
-                  <Heading level={3} className="!mb-4">Commercial & Industrial</Heading>
-                  <BulletedList spacing="sm">
-                    <ListItem variant="checked" iconColor="#003365">
-                      Agricultural pest barriers
-                    </ListItem>
-                    <ListItem variant="checked" iconColor="#003365">
-                      Greenhouse insect protection
-                    </ListItem>
-                    <ListItem variant="checked" iconColor="#003365">
-                      HVAC filter screens
-                    </ListItem>
-                    <ListItem variant="checked" iconColor="#003365">
-                      Theater scrim material
-                    </ListItem>
-                    <ListItem variant="checked" iconColor="#003365">
-                      Research lab barriers
-                    </ListItem>
-                    <ListItem variant="checked" iconColor="#003365">
-                      Bulk restaurant orders
-                    </ListItem>
-                  </BulletedList>
-                </div>
-              </TwoColumn>
-            </div>
           </div>
         </section>
 
-        {/* Quality Note */}
-        <section>
-          <Card variant="elevated" className="!p-6">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-[#406517]/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                <Info className="w-6 h-6 text-[#406517]" />
-              </div>
-              <div>
-                <Heading level={4} className="!mb-2">Same Quality, Just Unfinished</Heading>
-                <Text className="text-gray-600">
-                  This is the exact same marine-grade mesh we use in our finished curtain products. 
-                  It's solution-dyed (won't fade), UV-protected, lock-stitched (won't unravel when cut), 
-                  and built to last outdoors. The only difference is you're doing the finishing work yourself.
-                </Text>
-              </div>
-            </div>
-          </Card>
-        </section>
+        {/* Shared Features */}
+        <RawNettingFeaturesBlock />
 
-        {/* Prefer Finished Products? */}
+        {/* Cross Links */}
         <section>
-          <Card variant="outlined" className="!p-6 !bg-[#406517]/5 !border-[#406517]/20">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-              <div>
-                <Heading level={3} className="!mb-1">Prefer Finished Products?</Heading>
-                <Text className="text-gray-600 !mb-0">
-                  We'll custom-make curtains to your exact specifications, ready to hang.
-                </Text>
-              </div>
-              <Button variant="primary" asChild>
-                <Link href="/start-project">
-                  Start a Custom Project
-                  <ArrowRight className="ml-2 w-4 h-4" />
+          <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="md">
+            <Card variant="outlined" className="!p-5 !bg-[#003365]/5 !border-[#003365]/20">
+              <Heading level={4} className="!mb-2">Shop All On One Page</Heading>
+              <Text size="sm" className="text-gray-600 !mb-3">
+                See all mesh types side by side with inline ordering.
+              </Text>
+              <Button variant="secondary" size="sm" asChild>
+                <Link href="/order/raw-netting">
+                  All Meshes
+                  <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
                 </Link>
               </Button>
-            </div>
-          </Card>
+            </Card>
+            <Card variant="outlined" className="!p-5 !bg-[#406517]/5 !border-[#406517]/20">
+              <Heading level={4} className="!mb-2">Attachment Hardware</Heading>
+              <Text size="sm" className="text-gray-600 !mb-3">
+                Marine snaps, elastic cord, webbing, and more for rigging your mesh.
+              </Text>
+              <Button variant="secondary" size="sm" asChild>
+                <Link href="/order/raw-netting-attachments">
+                  Shop Hardware
+                  <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+                </Link>
+              </Button>
+            </Card>
+            <Card variant="outlined" className="!p-5 !bg-[#B30158]/5 !border-[#B30158]/20">
+              <Heading level={4} className="!mb-2">Let Us Make It For You</Heading>
+              <Text size="sm" className="text-gray-600 !mb-3">
+                We custom-make finished panels to your exact measurements.
+              </Text>
+              <Button variant="secondary" size="sm" asChild>
+                <Link href="/start-project">
+                  Start a Project
+                  <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+                </Link>
+              </Button>
+            </Card>
+          </Grid>
         </section>
 
         {/* Final CTA */}

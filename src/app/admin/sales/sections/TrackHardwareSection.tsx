@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react'
 import Image from 'next/image'
 import { ShoppingCart, Info } from 'lucide-react'
 import { Grid, Card, Heading, Text, Button } from '@/lib/design-system'
-import { getPriceLabel } from '@/hooks/useProducts'
+import { getPriceLabel, getProductOptions } from '@/hooks/useProducts'
 import type { DBProduct } from '@/hooks/useProducts'
 import { formatMoney, type ProductModalInfo } from '../types'
 
@@ -25,8 +25,12 @@ export default function TrackHardwareSection({
   isLoading,
   setProductModal,
 }: TrackHardwareSectionProps) {
+  // Read track color options from DB (seeded on the first standard track product)
+  const trackColorOptions = getProductOptions(standardTrackItems[0], 'color')
+  const defaultTrackColor = trackColorOptions.find(o => o.is_default)?.option_value || trackColorOptions[0]?.option_value || 'white'
+
   const [trackWeight, setTrackWeight] = useState<'standard' | 'heavy'>('standard')
-  const [trackColor, setTrackColor] = useState<'white' | 'black'>('white')
+  const [trackColor, setTrackColor] = useState(defaultTrackColor)
   const [trackQtys, setTrackQtys] = useState<Record<string, number>>({})
 
   const activeTrackItems = useMemo(() => {
@@ -89,11 +93,10 @@ export default function TrackHardwareSection({
           <label className="block text-sm text-gray-600 mb-1">Track Color</label>
           <select
             value={trackColor}
-            onChange={(e) => setTrackColor(e.target.value as 'white' | 'black')}
+            onChange={(e) => setTrackColor(e.target.value)}
             className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 text-sm"
           >
-            <option value="white">White</option>
-            <option value="black">Black</option>
+            {trackColorOptions.map((o) => <option key={o.option_value} value={o.option_value}>{o.display_label}</option>)}
           </select>
         </div>
       </Grid>

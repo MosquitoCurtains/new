@@ -65,6 +65,10 @@ export default function SalesPageLayout({ mode }: { mode: SalesMode }) {
     attachmentItems,
     attachmentGroups,
     adjustmentProduct,
+    meshPanel,
+    vinylPanel,
+    rollupProduct,
+    stuccoProducts,
     snapTool,
     rawMaterials,
     isLoading: productsLoading,
@@ -131,11 +135,11 @@ export default function SalesPageLayout({ mode }: { mode: SalesMode }) {
             {/* MC Mode */}
             {mode === 'mc' && (
               <>
-                <MeshPanelsSection dbPrices={dbPrices} addItem={addItem} isLoading={cartLoading} />
-                <StuccoStripsSection getPrice={getPrice} addItem={addItem} isLoading={cartLoading} />
+                <MeshPanelsSection dbPrices={dbPrices} meshPanel={meshPanel} addItem={addItem} isLoading={cartLoading} />
+                <StuccoStripsSection stuccoProducts={stuccoProducts} getPrice={getPrice} addItem={addItem} isLoading={cartLoading} />
                 <TrackHardwareSection standardTrackItems={standardTrackItems} heavyTrackItems={heavyTrackItems} addItem={addItem} isLoading={cartLoading} setProductModal={setProductModal} />
                 <AttachmentItemsSection attachmentItems={attachmentItems} attachmentGroups={attachmentGroups} addItem={addItem} isLoading={cartLoading} setProductModal={setProductModal} />
-                <SnapToolSection snapTool={snapTool} getPrice={getPrice} addItem={addItem} />
+                <SnapToolSection snapTool={snapTool} addItem={addItem} />
                 <AdjustmentsSection adjustmentOptions={adjustmentOptions} addItem={addItem} isLoading={cartLoading} />
                 <PriceAdjustmentsSection addItem={addItem} />
               </>
@@ -144,11 +148,11 @@ export default function SalesPageLayout({ mode }: { mode: SalesMode }) {
             {/* CV Mode */}
             {mode === 'cv' && (
               <>
-                <VinylPanelsSection dbPrices={dbPrices} addItem={addItem} isLoading={cartLoading} />
-                <StuccoStripsSection zippered getPrice={getPrice} addItem={addItem} isLoading={cartLoading} />
+                <VinylPanelsSection dbPrices={dbPrices} vinylPanel={vinylPanel} addItem={addItem} isLoading={cartLoading} />
+                <StuccoStripsSection zippered stuccoProducts={stuccoProducts} getPrice={getPrice} addItem={addItem} isLoading={cartLoading} />
                 <TrackHardwareSection standardTrackItems={standardTrackItems} heavyTrackItems={heavyTrackItems} addItem={addItem} isLoading={cartLoading} setProductModal={setProductModal} />
                 <AttachmentItemsSection attachmentItems={attachmentItems} attachmentGroups={attachmentGroups} addItem={addItem} isLoading={cartLoading} setProductModal={setProductModal} />
-                <SnapToolSection snapTool={snapTool} getPrice={getPrice} addItem={addItem} />
+                <SnapToolSection snapTool={snapTool} addItem={addItem} />
                 <AdjustmentsSection adjustmentOptions={adjustmentOptions} addItem={addItem} isLoading={cartLoading} />
                 <PriceAdjustmentsSection addItem={addItem} />
               </>
@@ -160,7 +164,7 @@ export default function SalesPageLayout({ mode }: { mode: SalesMode }) {
                 <RawNettingSection dbPrices={dbPrices} getPrice={getPrice} rawMaterials={rawMaterials} addItem={addItem} isLoading={cartLoading} setProductModal={setProductModal} />
                 <TrackHardwareSection standardTrackItems={standardTrackItems} heavyTrackItems={heavyTrackItems} addItem={addItem} isLoading={cartLoading} setProductModal={setProductModal} />
                 <AttachmentItemsSection attachmentItems={attachmentItems} attachmentGroups={attachmentGroups} addItem={addItem} isLoading={cartLoading} setProductModal={setProductModal} />
-                <SnapToolSection snapTool={snapTool} getPrice={getPrice} addItem={addItem} />
+                <SnapToolSection snapTool={snapTool} addItem={addItem} />
                 <AdjustmentsSection adjustmentOptions={adjustmentOptions} addItem={addItem} isLoading={cartLoading} />
                 <PriceAdjustmentsSection addItem={addItem} />
               </>
@@ -169,7 +173,7 @@ export default function SalesPageLayout({ mode }: { mode: SalesMode }) {
             {/* RU Mode */}
             {mode === 'ru' && (
               <>
-                <RollUpShadeSection getPrice={getPrice} addItem={addItem} isLoading={cartLoading} />
+                <RollUpShadeSection rollupProduct={rollupProduct} getPrice={getPrice} addItem={addItem} isLoading={cartLoading} />
                 <PriceAdjustmentsSection addItem={addItem} />
               </>
             )}

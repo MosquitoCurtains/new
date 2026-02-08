@@ -6,32 +6,12 @@ import { Plus, Minus, ShoppingCart } from 'lucide-react'
 import { Grid, Card, Heading, Text, Button } from '@/lib/design-system'
 import type { VinylPanelSize as VinylSizeTier, VinylTopAttachment, VelcroColor, CanvasColor } from '@/lib/pricing/types'
 import type { PricingMap } from '@/lib/pricing/types'
+import type { DBProduct } from '@/hooks/useProducts'
+import { getProductOptions } from '@/hooks/useProducts'
 import { calculateVinylPanelPrice } from '@/lib/pricing/formulas'
 import { formatMoney, createDefaultVinylSize, type VinylPanelSize } from '../types'
 
 const IMG = 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads'
-
-const VINYL_TOP_ATTACHMENTS = [
-  { id: 'standard_track', label: 'Standard Track' },
-  { id: 'heavy_track', label: 'Heavy Track' },
-  { id: 'velcro', label: 'Velcro\u00AE' },
-  { id: 'binding_only', label: 'Binding Only' },
-  { id: 'special_rigging', label: 'Special Rigging' },
-] as const
-
-const CANVAS_COLORS = [
-  { id: 'tbd', label: 'TBD' },
-  { id: 'black', label: 'Black' },
-  { id: 'ashen_gray', label: 'Ashen Gray' },
-  { id: 'burgundy', label: 'Burgundy' },
-  { id: 'cocoa_brown', label: 'Cocoa Brown' },
-  { id: 'clear_top_to_bottom', label: 'Clear (Top to Bottom)' },
-  { id: 'forest_green', label: 'Forest Green' },
-  { id: 'moss_green', label: 'Moss Green' },
-  { id: 'navy_blue', label: 'Navy Blue' },
-  { id: 'royal_blue', label: 'Royal Blue' },
-  { id: 'sandy_tan', label: 'Sandy Tan' },
-] as const
 
 function getSizeTier(heightInches: number | undefined): VinylSizeTier {
   if (!heightInches) return 'medium'
@@ -42,16 +22,27 @@ function getSizeTier(heightInches: number | undefined): VinylSizeTier {
 
 interface VinylPanelsSectionProps {
   dbPrices: PricingMap | null
+  vinylPanel: DBProduct | null
   addItem: (item: any) => void
   isLoading: boolean
 }
 
-export default function VinylPanelsSection({ dbPrices, addItem, isLoading }: VinylPanelsSectionProps) {
+export default function VinylPanelsSection({ dbPrices, vinylPanel, addItem, isLoading }: VinylPanelsSectionProps) {
+  // Read options from database
+  const topAttachmentOptions = getProductOptions(vinylPanel, 'top_attachment', { includeAdminOnly: true })
+  const canvasColorOptions = getProductOptions(vinylPanel, 'canvas_color')
+  const velcroColorOptions = getProductOptions(vinylPanel, 'velcro_color')
+
+  // Defaults from DB
+  const defaultTopAttachment = topAttachmentOptions.find(o => o.is_default)?.option_value || topAttachmentOptions[0]?.option_value || 'velcro'
+  const defaultCanvasColor = canvasColorOptions.find(o => o.is_default)?.option_value || canvasColorOptions[0]?.option_value || 'tbd'
+  const defaultVelcroColor = velcroColorOptions.find(o => o.is_default)?.option_value || velcroColorOptions[0]?.option_value || 'black'
+
   const [sizes, setSizes] = useState<VinylPanelSize[]>([createDefaultVinylSize()])
   const [sharedOptions, setSharedOptions] = useState({
-    topAttachment: 'velcro' as VinylTopAttachment,
-    velcroColor: 'black' as VelcroColor,
-    canvasColor: 'tbd' as CanvasColor,
+    topAttachment: defaultTopAttachment as VinylTopAttachment,
+    velcroColor: defaultVelcroColor as VelcroColor,
+    canvasColor: defaultCanvasColor as CanvasColor,
   })
 
   const vinylTotals = useMemo(() => {
@@ -111,30 +102,29 @@ export default function VinylPanelsSection({ dbPrices, addItem, isLoading }: Vin
     <Card variant="elevated" className="!p-6">
       <div className="flex items-center gap-4 mb-4">
         <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-gray-200">
-          <Image src={`${IMG}/2019/11/Panel-Example-700x525.jpg`} alt="Vinyl Panels" width={64} height={64} className="w-full h-full object-cover" />
+          <Image src={vinylPanel?.image_url || `${IMG}/2019/11/Panel-Example-700x525.jpg`} alt="Vinyl Panels" width={64} height={64} className="w-full h-full object-cover" />
         </div>
-        <Heading level={2} className="!mb-0">Clear Vinyl Panels</Heading>
+        <Heading level={2} className="!mb-0">{vinylPanel?.name || 'Clear Vinyl Panels'}</Heading>
       </div>
 
       <Grid responsiveCols={{ mobile: 2, tablet: 4 }} gap="md" className="mb-6">
         <div>
           <label className="block text-sm text-gray-600 mb-1">Top Attachment</label>
           <select value={sharedOptions.topAttachment} onChange={(e) => setSharedOptions({ ...sharedOptions, topAttachment: e.target.value as VinylTopAttachment })} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 text-sm">
-            {VINYL_TOP_ATTACHMENTS.map((a) => <option key={a.id} value={a.id}>{a.label}</option>)}
+            {topAttachmentOptions.map((o) => <option key={o.option_value} value={o.option_value}>{o.display_label}</option>)}
           </select>
         </div>
         <div>
           <label className="block text-sm text-gray-600 mb-1">Canvas Color</label>
           <select value={sharedOptions.canvasColor} onChange={(e) => setSharedOptions({ ...sharedOptions, canvasColor: e.target.value as CanvasColor })} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 text-sm">
-            {CANVAS_COLORS.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
+            {canvasColorOptions.map((o) => <option key={o.option_value} value={o.option_value}>{o.display_label}</option>)}
           </select>
         </div>
-        {sharedOptions.topAttachment === 'velcro' && (
+        {sharedOptions.topAttachment === 'velcro' && velcroColorOptions.length > 0 && (
           <div>
             <label className="block text-sm text-gray-600 mb-1">Velcro Color</label>
             <select value={sharedOptions.velcroColor} onChange={(e) => setSharedOptions({ ...sharedOptions, velcroColor: e.target.value as VelcroColor })} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 text-sm">
-              <option value="black">Black</option>
-              <option value="white">White</option>
+              {velcroColorOptions.map((o) => <option key={o.option_value} value={o.option_value}>{o.display_label}</option>)}
             </select>
           </div>
         )}

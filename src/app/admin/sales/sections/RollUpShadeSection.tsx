@@ -4,6 +4,8 @@ import { useMemo, useState } from 'react'
 import Image from 'next/image'
 import { Plus, Minus, ShoppingCart } from 'lucide-react'
 import { Card, Heading, Text, Button } from '@/lib/design-system'
+import type { DBProduct } from '@/hooks/useProducts'
+import { getProductOptions } from '@/hooks/useProducts'
 import { formatMoney } from '../types'
 
 const IMG = 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads'
@@ -11,47 +13,56 @@ const IMG = 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtai
 type RollUpLine = {
   id: string
   widthInches: number | undefined
-  ply: 'single' | 'double'
+  ply: string
 }
 
-function createLine(): RollUpLine {
+function createLine(defaultPly: string): RollUpLine {
   return {
     id: `ru-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     widthInches: undefined,
-    ply: 'single',
+    ply: defaultPly,
   }
 }
 
 interface RollUpShadeSectionProps {
+  rollupProduct: DBProduct | null
   getPrice: (id: string, fallback?: number) => number
   addItem: (item: any) => void
   isLoading: boolean
 }
 
-export default function RollUpShadeSection({ getPrice, addItem, isLoading }: RollUpShadeSectionProps) {
-  const [lines, setLines] = useState<RollUpLine[]>([createLine()])
+export default function RollUpShadeSection({ rollupProduct, getPrice, addItem, isLoading }: RollUpShadeSectionProps) {
+  // Read ply options from database
+  const plyOptions = getProductOptions(rollupProduct, 'ply')
+  const defaultPly = plyOptions.find(o => o.is_default)?.option_value || plyOptions[0]?.option_value || 'single'
 
-  // All prices from database
-  const screenFee = getPrice('rollup_shade_screen') // products.base_price = $10
-  const plySingle = getPrice('rollup_ply_single')   // product_options pricing_key = $1.00
-  const plyDouble = getPrice('rollup_ply_double')    // product_options pricing_key = $1.67
+  const [lines, setLines] = useState<RollUpLine[]>([createLine(defaultPly)])
 
-  const plyRates: Record<string, number> = useMemo(
-    () => ({ single: plySingle, double: plyDouble }),
-    [plySingle, plyDouble]
-  )
+  // Screen fee from product base_price
+  const screenFee = rollupProduct ? Number(rollupProduct.base_price) : getPrice('rollup_shade_screen')
+
+  // Build ply rate lookup from DB options
+  const plyRates = useMemo(() => {
+    const rates: Record<string, number> = {}
+    for (const opt of plyOptions) {
+      rates[opt.option_value] = Number(opt.price)
+    }
+    return rates
+  }, [plyOptions])
+
+  const defaultRate = plyRates[defaultPly] ?? 1.00
 
   const lineTotals = useMemo(() => {
     const totals = lines.map((line) => {
       const width = line.widthInches ?? 0
-      const rate = plyRates[line.ply] ?? plySingle
+      const rate = plyRates[line.ply] ?? defaultRate
       return screenFee + (width * rate)
     })
     const subtotal = totals.reduce((sum, v) => sum + v, 0)
     return { totals, subtotal }
-  }, [lines, screenFee, plyRates, plySingle])
+  }, [lines, screenFee, plyRates, defaultRate])
 
-  const addLine = () => setLines([...lines, createLine()])
+  const addLine = () => setLines([...lines, createLine(defaultPly)])
   const updateLine = (index: number, updates: Partial<RollUpLine>) => {
     const next = [...lines]
     next[index] = { ...next[index], ...updates }
@@ -84,10 +95,10 @@ export default function RollUpShadeSection({ getPrice, addItem, isLoading }: Rol
     <Card variant="elevated" className="!p-6">
       <div className="flex items-center gap-4 mb-4">
         <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-gray-200">
-          <Image src={`${IMG}/2024/06/Single-Ply.jpg`} alt="Roll-Up Shade Screen" width={64} height={64} className="w-full h-full object-cover" />
+          <Image src={rollupProduct?.image_url || `${IMG}/2024/06/Single-Ply.jpg`} alt={rollupProduct?.name || 'Roll-Up Shade Screen'} width={64} height={64} className="w-full h-full object-cover" />
         </div>
         <div>
-          <Heading level={2} className="!mb-0">Roll-Up Shade Screens</Heading>
+          <Heading level={2} className="!mb-0">{rollupProduct?.name || 'Roll-Up Shade Screens'}</Heading>
           <Text size="sm" className="text-gray-500 !mb-0">${formatMoney(screenFee)}/screen + width x ply rate</Text>
         </div>
       </div>
@@ -102,11 +113,14 @@ export default function RollUpShadeSection({ getPrice, addItem, isLoading }: Rol
             <div>
               <select
                 value={line.ply}
-                onChange={(e) => updateLine(index, { ply: e.target.value as 'single' | 'double' })}
+                onChange={(e) => updateLine(index, { ply: e.target.value })}
                 className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#003365] focus:border-transparent"
               >
-                <option value="single">Single (${formatMoney(plySingle)}/in)</option>
-                <option value="double">Double (${formatMoney(plyDouble)}/in)</option>
+                {plyOptions.map((o) => (
+                  <option key={o.option_value} value={o.option_value}>
+                    {o.display_label} (${formatMoney(Number(o.price))}/in)
+                  </option>
+                ))}
               </select>
             </div>
             <div>

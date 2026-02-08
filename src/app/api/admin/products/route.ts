@@ -53,9 +53,9 @@ export async function GET(request: Request) {
       )
     }
 
-    // Fetch options for configurable products (panels, raw materials, adjustments)
+    // Fetch options for configurable products (panels, raw materials, adjustments, track)
     const configurableIds = (products || [])
-      .filter(p => ['panel', 'raw_material', 'adjustment'].includes(p.product_type))
+      .filter(p => ['panel', 'raw_material', 'adjustment', 'track'].includes(p.product_type))
       .map(p => p.id)
 
     let options: Record<string, unknown>[] = []
