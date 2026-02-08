@@ -161,7 +161,7 @@ export const VIDEOS = {
 export const MOSQUITO_HERO_VIDEO = {
   videoId: VIDEOS.MOSQUITO_CURTAINS_OVERVIEW,
   title: 'Mosquito Curtains Overview',
-  thumbnailUrl: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Mosquito-Netting-Curtains-Video-Thumbnail-1.jpg',
+  thumbnailUrl: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Planning-Overview-Video-Thumbnail-1.jpg',
 }
 
 /**

@@ -193,8 +193,18 @@ export const adminNavSections: AdminNavSection[] = [
   {
     label: 'Sales & Commerce',
     items: [
-      { name: 'Sales', href: '/admin/sales', icon: Briefcase },
-      { name: 'MC Sales (Legacy)', href: '/admin/mc-sales', icon: ShoppingCart },
+      {
+        name: 'Sales',
+        href: '/admin/mc-sales',
+        icon: Briefcase,
+        hasDropdown: true,
+        children: [
+          { name: 'MC Sales', href: '/admin/mc-sales' },
+          { name: 'CV Sales', href: '/admin/cv-sales' },
+          { name: 'RN Sales', href: '/admin/rn-sales' },
+          { name: 'RU Sales', href: '/admin/ru-sales' },
+        ],
+      },
       { name: 'Product Pricing', href: '/admin/pricing', icon: DollarSign },
       { name: 'Shipping & Tax', href: '/admin/shipping-tax', icon: Truck },
     ],

@@ -172,25 +172,34 @@ export function useProducts() {
       .sort((a, b) => a.category_order - b.category_order)
   }, [products])
 
-  /** Attachment + accessory items grouped by category_section */
+  /** Explicit ordering for attachment/accessory group sections */
+  const SECTION_ORDER: Record<string, number> = {
+    'Sealing Sides': 1,
+    'Magnetic Doorways': 2,
+    'Elastic Cord & Tethers': 3,
+    'Other Items': 4,
+  }
+
+  /** Attachment + accessory items grouped by category_section (excludes stucco) */
   const attachmentItems = useMemo(() => {
     if (!products) return []
     return products
       .filter(p => p.product_type === 'attachment' || p.product_type === 'accessory')
       .filter(p => !p.admin_only) // Filter admin_only items for sales page
+      .filter(p => p.category_section !== 'Stucco') // Stucco strips have their own section
       .sort((a, b) => {
-        // Sort by category, then section, then order
-        const catCompare = (a.product_category || '').localeCompare(b.product_category || '')
-        if (catCompare !== 0) return catCompare
-        const secCompare = (a.category_section || '').localeCompare(b.category_section || '')
-        if (secCompare !== 0) return secCompare
+        // Sort by explicit section order, then by category_order within section
+        const secA = SECTION_ORDER[a.category_section || 'Other Items'] ?? 99
+        const secB = SECTION_ORDER[b.category_section || 'Other Items'] ?? 99
+        if (secA !== secB) return secA - secB
         return a.category_order - b.category_order
       })
   }, [products])
 
   /** Ordered list of unique attachment/accessory sections */
   const attachmentGroups = useMemo(() => {
-    return Array.from(new Set(attachmentItems.map(item => item.category_section || 'Other')))
+    const groups = Array.from(new Set(attachmentItems.map(item => item.category_section || 'Other Items')))
+    return groups.sort((a, b) => (SECTION_ORDER[a] ?? 99) - (SECTION_ORDER[b] ?? 99))
   }, [attachmentItems])
 
   /** Get the adjustment product and its options */
@@ -203,6 +212,34 @@ export function useProducts() {
   const panelProducts = useMemo(() => {
     if (!products) return []
     return products.filter(p => p.product_type === 'panel')
+  }, [products])
+
+  /** Vinyl panel product with its options */
+  const vinylPanel = useMemo(() => {
+    if (!products) return null
+    return products.find(p => p.sku === 'vinyl_panel') || null
+  }, [products])
+
+  /** Roll-up shade screen product with its options */
+  const rollupProduct = useMemo(() => {
+    if (!products) return null
+    return products.find(p => p.sku === 'rollup_shade_screen') || null
+  }, [products])
+
+  /** Raw material products (mesh, industrial) with their options */
+  const rawMaterials = useMemo(() => {
+    if (!products) return []
+    return products
+      .filter(p => p.product_type === 'raw_material')
+      .sort((a, b) => a.category_order - b.category_order)
+  }, [products])
+
+  /** Stucco strip products */
+  const stuccoProducts = useMemo(() => {
+    if (!products) return []
+    return products
+      .filter(p => p.sku === 'stucco_standard' || p.sku === 'stucco_zippered')
+      .sort((a, b) => a.category_order - b.category_order)
   }, [products])
 
   /** Snap tool product */
@@ -226,14 +263,22 @@ export function useProducts() {
     standardTrackItems,
     /** Heavy track products sorted by category_order */
     heavyTrackItems,
-    /** Attachment + accessory items (non-admin) */
+    /** Attachment + accessory items (non-admin, excludes stucco) */
     attachmentItems,
-    /** Unique attachment group names (category_section) */
+    /** Unique attachment group names (category_section) in display order */
     attachmentGroups,
     /** The adjustment product with its options */
     adjustmentProduct,
     /** Panel products (mesh, vinyl, rollup) */
     panelProducts,
+    /** Vinyl panel product with options */
+    vinylPanel,
+    /** Roll-up shade screen product with options */
+    rollupProduct,
+    /** Raw material products with options */
+    rawMaterials,
+    /** Stucco strip products (standard and zippered) */
+    stuccoProducts,
     /** The snap tool product */
     snapTool,
   }

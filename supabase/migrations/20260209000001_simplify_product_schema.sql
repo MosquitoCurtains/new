@@ -103,30 +103,24 @@ INSERT INTO products (sku, name, description, product_type, base_price, unit, pa
 ('fiberglass_rod', 'Fiberglass Rod Set', 'Fiberglass rods for panel support', 'attachment', 10.00, 'each', 1, 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Fiberglass-Rod-2-Pack.jpg', true, false, 'Attachment Hardware', 'Magnetic Doorways', 2, 1, 0, 100),
 ('fiberglass_rod_clip', 'Fiberglass Rod Clips', 'Extra clips for fiberglass rods', 'attachment', 2.00, 'each', 1, 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/Fiberglass-Rod-Clips.jpg', true, false, 'Attachment Hardware', 'Magnetic Doorways', 3, 1, 0, 100),
 
--- Attachment Hardware: Cord & Rigging
-('elastic_cord_black', 'Elastic Cord & D-Rings (Black)', 'Black elastic cord with D-rings', 'attachment', 10.00, 'each', 1, 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Elastic-Cord.jpg', true, false, 'Attachment Hardware', 'Cord & Rigging', 1, 1, 0, 100),
-('elastic_cord_white', 'Elastic Cord & D-Rings (White)', 'White elastic cord with D-rings', 'attachment', 10.00, 'each', 1, 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/White-Elastic-Cord.jpg', true, false, 'Attachment Hardware', 'Cord & Rigging', 2, 1, 0, 100),
-('tether_clip', 'Tether Clips', 'Clips for panel tethering', 'attachment', 10.00, 'each', 1, 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/Tether-Clip.jpg', true, false, 'Attachment Hardware', 'Cord & Rigging', 3, 1, 0, 100),
-('belted_rib', 'Belted Ribs', 'Reinforcement ribs', 'attachment', 15.00, 'each', 1, 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/Black-Belted-Rib.jpg', true, false, 'Attachment Hardware', 'Cord & Rigging', 4, 1, 0, 100),
+-- Attachment Hardware: Elastic Cord & Tethers
+('elastic_cord_black', 'Elastic Cord & D-Rings (Black)', 'Black elastic cord with D-rings', 'attachment', 10.00, 'each', 1, 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Elastic-Cord.jpg', true, false, 'Attachment Hardware', 'Elastic Cord & Tethers', 1, 1, 0, 100),
+('elastic_cord_white', 'Elastic Cord & D-Rings (White)', 'White elastic cord with D-rings', 'attachment', 10.00, 'each', 1, 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/White-Elastic-Cord.jpg', true, false, 'Attachment Hardware', 'Elastic Cord & Tethers', 2, 1, 0, 100),
+('tether_clip', 'Tether Clips', 'Clips for panel tethering', 'attachment', 10.00, 'each', 1, 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/Tether-Clip.jpg', true, false, 'Attachment Hardware', 'Elastic Cord & Tethers', 3, 1, 0, 100),
+('belted_rib', 'Belted Ribs', 'Reinforcement ribs', 'attachment', 15.00, 'each', 1, 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/Black-Belted-Rib.jpg', true, false, 'Attachment Hardware', 'Elastic Cord & Tethers', 4, 1, 0, 100),
 
--- Attachment Hardware: Mounting
-('screw_stud_1inch', '1" Screw Studs', 'Screw studs 1 inch, pack of 10', 'attachment', 1.50, 'each', 10, 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/1-INCH-SCREW.jpg', true, false, 'Attachment Hardware', 'Mounting', 1, 1, 0, 100),
-('screw_stud_2inch', '2" Screw Studs', 'Screw studs 2 inch, pack of 10', 'attachment', 1.50, 'each', 10, 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/2-INCH-SCREW.jpg', true, false, 'Attachment Hardware', 'Mounting', 2, 1, 0, 100),
-('l_screw', 'L Screws', 'L-shaped screws, pack of 4', 'attachment', 1.00, 'each', 4, 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/L-Screws-1.jpg', true, false, 'Attachment Hardware', 'Mounting', 3, 1, 0, 100),
-
--- Accessories: Velcro (admin_only -- included in panel price)
-('velcro_white', 'Adhesive Hook Velcro (White)', 'White self-adhesive velcro, by the foot', 'accessory', 0, '/ft', 1, 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/White-Velcro-1.jpg', true, true, 'Accessories', 'Velcro', 1, 1, 0, 100),
-('velcro_black', 'Adhesive Hook Velcro (Black)', 'Black self-adhesive velcro, by the foot', 'accessory', 0, '/ft', 1, 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/Black-Velcro-1.jpg', true, true, 'Accessories', 'Velcro', 2, 1, 0, 100),
-
--- Accessories: Webbing & Tape
-('webbing_black', '2" Webbing (Black)', 'Black 2-inch webbing, by the foot', 'accessory', 0.40, '/ft', 1, 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Black-Webbing.jpg', true, false, 'Accessories', 'Webbing & Tape', 1, 1, 0, 200),
-('webbing_white', '2" Webbing (White)', 'White 2-inch webbing, by the foot', 'accessory', 0.40, '/ft', 1, 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/White-Webbing.jpg', true, false, 'Accessories', 'Webbing & Tape', 2, 1, 0, 200),
-('snap_tape_black', 'Snap Tape (Black)', 'Black snap tape, by the foot', 'accessory', 2.00, '/ft', 1, 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/07/Black-Snap-Tape.jpg', true, false, 'Accessories', 'Webbing & Tape', 3, 1, 0, 200),
-('snap_tape_white', 'Snap Tape (White)', 'White snap tape, by the foot', 'accessory', 2.00, '/ft', 1, 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/07/White-Snap-Tape.jpg', true, false, 'Accessories', 'Webbing & Tape', 4, 1, 0, 200),
-
--- Accessories: Other
-('tieup_strap', 'Tie-Up Strap', 'Strap for tying up panels', 'accessory', 2.00, 'each', 1, 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/Tie-Up-Straps-1.jpg', true, false, 'Accessories', 'Other', 1, 1, 0, 100),
-('fastwax', 'Fastwax Cleaner', 'Cleaning solution for vinyl', 'accessory', 15.00, 'each', 1, 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/Fast-Wax.jpg', true, false, 'Accessories', 'Other', 2, 1, 0, 100),
+-- Other Items (mounting, webbing, tape, velcro, general accessories)
+('fastwax', 'Fastwax Cleaner', 'Cleaning solution for vinyl', 'accessory', 15.00, 'each', 1, 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/Fast-Wax.jpg', true, false, 'Accessories', 'Other Items', 1, 1, 0, 100),
+('webbing_black', '2" Webbing (Black)', 'Black 2-inch webbing, by the foot', 'accessory', 0.40, '/ft', 1, 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Black-Webbing.jpg', true, false, 'Accessories', 'Other Items', 2, 1, 0, 200),
+('webbing_white', '2" Webbing (White)', 'White 2-inch webbing, by the foot', 'accessory', 0.40, '/ft', 1, 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/White-Webbing.jpg', true, false, 'Accessories', 'Other Items', 3, 1, 0, 200),
+('snap_tape_black', 'Snap Tape (Black)', 'Black snap tape, by the foot', 'accessory', 2.00, '/ft', 1, 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/07/Black-Snap-Tape.jpg', true, false, 'Accessories', 'Other Items', 4, 1, 0, 200),
+('snap_tape_white', 'Snap Tape (White)', 'White snap tape, by the foot', 'accessory', 2.00, '/ft', 1, 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/07/White-Snap-Tape.jpg', true, false, 'Accessories', 'Other Items', 5, 1, 0, 200),
+('tieup_strap', 'Tie-Up Strap', 'Strap for tying up panels', 'accessory', 2.00, 'each', 1, 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/Tie-Up-Straps-1.jpg', true, false, 'Accessories', 'Other Items', 6, 1, 0, 100),
+('velcro_white', 'Adhesive Hook Velcro (White)', 'White self-adhesive velcro, by the foot', 'accessory', 0, '/ft', 1, 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/White-Velcro-1.jpg', true, false, 'Accessories', 'Other Items', 7, 1, 0, 100),
+('velcro_black', 'Adhesive Hook Velcro (Black)', 'Black self-adhesive velcro, by the foot', 'accessory', 0, '/ft', 1, 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/Black-Velcro-1.jpg', true, false, 'Accessories', 'Other Items', 8, 1, 0, 100),
+('l_screw', 'L Screws', 'L-shaped screws, pack of 4', 'attachment', 1.00, 'each', 4, 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/L-Screws-1.jpg', true, false, 'Attachment Hardware', 'Other Items', 9, 1, 0, 100),
+('screw_stud_1inch', '1" Screw Studs', 'Screw studs 1 inch, pack of 10', 'attachment', 1.50, 'each', 10, 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/1-INCH-SCREW.jpg', true, false, 'Attachment Hardware', 'Other Items', 10, 1, 0, 100),
+('screw_stud_2inch', '2" Screw Studs', 'Screw studs 2 inch, pack of 10', 'attachment', 1.50, 'each', 10, 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/2-INCH-SCREW.jpg', true, false, 'Attachment Hardware', 'Other Items', 11, 1, 0, 100),
 
 -- Accessories: Stucco
 ('stucco_standard', 'Standard Stucco Strip', 'Standard stucco mounting strip', 'accessory', 24.00, 'each', 1, 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/11/Panel-Example.jpg', true, false, 'Accessories', 'Stucco', 1, 1, 0, 100),
@@ -222,13 +216,10 @@ INSERT INTO product_options (product_id, option_name, option_value, display_labe
 ((SELECT id FROM products WHERE sku = 'vinyl_panel'), 'top_attachment', 'special_rigging', 'Special Rigging', 0, 0, false, 5, true, NULL);
 
 -- rollup_shade_screen options
+-- Pricing: $10/screen (base_price) + width(in) × ply rate ($1.00 single / $1.67 double)
 INSERT INTO product_options (product_id, option_name, option_value, display_label, price, fee, is_default, sort_order, admin_only, pricing_key) VALUES
 ((SELECT id FROM products WHERE sku = 'rollup_shade_screen'), 'ply', 'single', 'Single Ply', 1.00, 0, true, 1, false, 'rollup_ply_single'),
-((SELECT id FROM products WHERE sku = 'rollup_shade_screen'), 'ply', 'double', 'Double Ply', 1.67, 0, false, 2, false, 'rollup_ply_double'),
-((SELECT id FROM products WHERE sku = 'rollup_shade_screen'), 'color', 'black', 'Black', 0, 0, true, 1, false, NULL),
-((SELECT id FROM products WHERE sku = 'rollup_shade_screen'), 'color', 'white', 'White', 0, 0, false, 2, false, NULL),
-((SELECT id FROM products WHERE sku = 'rollup_shade_screen'), 'velcro_color', 'black', 'Black', 0, 0, true, 1, false, NULL),
-((SELECT id FROM products WHERE sku = 'rollup_shade_screen'), 'velcro_color', 'white', 'White', 0, 0, false, 2, false, NULL);
+((SELECT id FROM products WHERE sku = 'rollup_shade_screen'), 'ply', 'double', 'Double Ply', 1.67, 0, false, 2, false, 'rollup_ply_double');
 
 -- raw_heavy_mosquito options
 INSERT INTO product_options (product_id, option_name, option_value, display_label, price, fee, is_default, sort_order, admin_only, pricing_key) VALUES

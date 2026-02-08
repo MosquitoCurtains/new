@@ -7,9 +7,9 @@
  * 1. Product Type Selection (Mosquito/Clear Vinyl/Raw Materials)
  * 2. Choose Your Path (Expert/Quote/DIY)
  * 3. Mode-specific steps:
- *    - Expert: Photos → Contact → Review (FAST - 2 clicks to upload!)
- *    - Quote: Options → Specs → Contact → Review
- *    - DIY: Options → Panel Builder
+ *    - Expert: Photos -> Contact -> Review (FAST - 2 clicks to upload!)
+ *    - Quote: Single-page instant quote calculator (matches Gravity Forms pricing)
+ *    - DIY: Options -> Panel Builder
  * 
  * Follows Mosquito Curtains Design System patterns.
  */
@@ -31,8 +31,9 @@ import {
   Hammer,
   Check,
   Scissors,
-  Ruler,
-  SlidersHorizontal,
+  DollarSign,
+  Truck,
+  Info,
 } from 'lucide-react'
 import {
   Container,
@@ -47,7 +48,24 @@ import {
   Spinner,
   Badge,
 } from '@/lib/design-system'
-import { PhotoUploader, UploadedPhoto, DIYBuilder, DIYProject, FabricConfigurator, FabricOrder, QuickSetup, QuickSetupOptions, MeshOptions, VinylOptions, RawMaterialOptions } from '@/components/project'
+import { PhotoUploader, UploadedPhoto, DIYBuilder, DIYProject, FabricConfigurator, FabricOrder, QuickSetup, QuickSetupOptions, MeshOptions, VinylOptions, RawMaterialOptions, QuoteGuidance } from '@/components/project'
+import {
+  calculateMosquitoQuote,
+  calculateClearVinylQuote,
+  formatUSD,
+  MESH_TYPE_OPTIONS,
+  PANEL_HEIGHT_OPTIONS,
+  MOSQUITO_ATTACHMENT_OPTIONS,
+  VINYL_ATTACHMENT_OPTIONS,
+  SIDES_OPTIONS,
+  SHIP_LOCATION_OPTIONS,
+  type MosquitoMeshType,
+  type ClearVinylPanelHeight,
+  type TopAttachmentMosquito,
+  type TopAttachmentVinyl,
+  type ShipLocation,
+  type QuoteResult,
+} from '@/lib/pricing/instant-quote'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 
@@ -66,11 +84,17 @@ interface ContactInfo {
   phone: string
 }
 
-interface QuickSpecs {
-  productType: ProductType
-  projectWidth: number
-  numberOfSides: number
-  shipLocation: 'usa' | 'canada' | 'international'
+interface InstantQuoteState {
+  // Mosquito-specific
+  meshType: MosquitoMeshType | null
+  // Clear Vinyl-specific
+  panelHeight: ClearVinylPanelHeight | null
+  // Shared
+  topAttachment: string | null
+  numberOfSides: number | null
+  projectWidth: number | null
+  shipLocation: ShipLocation
+  projectNote: string
 }
 
 interface WizardState {
@@ -80,7 +104,7 @@ interface WizardState {
   email: string | null
   sessionId: string
   contact: ContactInfo
-  specs: QuickSpecs
+  instantQuote: InstantQuoteState
   photos: UploadedPhoto[]
 }
 
@@ -107,6 +131,16 @@ const defaultRawOptions: RawMaterialOptions = {
   meshColor: 'black',
 }
 
+const initialInstantQuote: InstantQuoteState = {
+  meshType: null,
+  panelHeight: null,
+  topAttachment: null,
+  numberOfSides: null,
+  projectWidth: null,
+  shipLocation: 'usa',
+  projectNote: '',
+}
+
 const initialState: WizardState = {
   productType: null,
   options: defaultMeshOptions,
@@ -114,7 +148,7 @@ const initialState: WizardState = {
   email: null,
   sessionId: `session-${Date.now()}`,
   contact: { firstName: '', lastName: '', email: '', phone: '' },
-  specs: { productType: null, projectWidth: 20, numberOfSides: 3, shipLocation: 'usa' },
+  instantQuote: { ...initialInstantQuote },
   photos: [],
 }
 
@@ -183,29 +217,10 @@ const PATH_OPTIONS = [
 ]
 
 // =============================================================================
-// PRICE CALCULATOR
+// SHARED SELECT STYLING
 // =============================================================================
 
-function calculateQuickPrice(specs: QuickSpecs, options: QuickSetupOptions) {
-  if (!specs.productType) return { subtotal: 0, shipping: 0, total: 0 }
-
-  let pricePerFoot = 35
-  if ('meshType' in options) {
-    if (options.meshType === 'no_see_um') pricePerFoot += 5
-    if (options.meshType === 'shade') pricePerFoot += 8
-    if ('topAttachment' in options && (options.topAttachment === 'standard_track' || options.topAttachment === 'heavy_track')) pricePerFoot += 15
-  }
-  if (specs.productType === 'clear_vinyl') pricePerFoot += 20
-  
-  let subtotal = specs.projectWidth * pricePerFoot
-  subtotal += (specs.numberOfSides + 1) * 45
-  
-  let shipping = 35 + Math.ceil(specs.projectWidth / 20) * 15
-  if (specs.shipLocation === 'canada') shipping += 50
-  if (specs.shipLocation === 'international') shipping += 100
-  
-  return { subtotal: Math.round(subtotal), shipping: Math.round(shipping), total: Math.round(subtotal + shipping) }
-}
+const selectClass = 'w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-gray-900 focus:ring-2 focus:ring-[#406517]/20 focus:border-[#406517] transition-colors appearance-none cursor-pointer'
 
 // =============================================================================
 // STEP COMPONENTS
@@ -252,15 +267,20 @@ function ProductTypeStep({ value, onChange }: { value: ProductType; onChange: (v
   )
 }
 
-function ChoosePathStep({ value, onChange, onSelect }: { value: ProjectMode; onChange: (mode: ProjectMode) => void; onSelect: (mode: ProjectMode) => void }) {
+function ChoosePathStep({ value, onChange, onSelect, productType }: { value: ProjectMode; onChange: (mode: ProjectMode) => void; onSelect: (mode: ProjectMode) => void; productType: ProductType }) {
+  // Filter out "quote" for raw materials (no pricing formula)
+  const filteredPaths = productType === 'raw_materials' 
+    ? PATH_OPTIONS.filter(p => p.id !== 'quote')
+    : PATH_OPTIONS
+
   return (
     <div className="space-y-4">
       <div className="text-center">
         <Heading level={2} className="!mb-1 !text-xl md:!text-2xl">How Can We Help?</Heading>
         <Text size="sm" className="text-gray-600 !mb-0">Choose the approach that works best for you</Text>
       </div>
-      <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="md">
-        {PATH_OPTIONS.map((path) => {
+      <Grid responsiveCols={{ mobile: 1, tablet: filteredPaths.length }} gap="md">
+        {filteredPaths.map((path) => {
           const Icon = path.icon
           const isSelected = value === path.id
           return (
@@ -354,57 +374,7 @@ function PhotosStep({ photos, onPhotosChange, sessionId }: { photos: UploadedPho
   )
 }
 
-function QuickSpecsStep({ specs, options, onChange, price }: { specs: QuickSpecs; options: QuickSetupOptions; onChange: (specs: QuickSpecs) => void; price: { subtotal: number; shipping: number; total: number } }) {
-  return (
-    <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="lg">
-      <div className="md:col-span-2">
-        <Stack gap="lg">
-          <div className="text-center md:text-left">
-            <div className="w-12 h-12 bg-[#B30158]/10 rounded-full mx-auto md:mx-0 mb-3 flex items-center justify-center">
-              <Ruler className="w-6 h-6 text-[#B30158]" />
-            </div>
-            <Heading level={2} className="!text-xl md:!text-2xl">Project Dimensions</Heading>
-            <Text size="sm" className="text-gray-600 !mb-0">Tell us about your project size.</Text>
-          </div>
-          <Card variant="elevated" className="!p-4">
-            <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="md">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Total Project Width (ft)</label>
-                <select value={specs.projectWidth} onChange={(e) => onChange({ ...specs, projectWidth: Number(e.target.value) })} className="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl text-gray-900 focus:ring-2 focus:ring-[#406517]/20 focus:border-[#406517]">
-                  {Array.from({ length: 196 }, (_, i) => i + 5).map((n) => (<option key={n} value={n}>{n} ft</option>))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Number of Open Sides</label>
-                <select value={specs.numberOfSides} onChange={(e) => onChange({ ...specs, numberOfSides: Number(e.target.value) })} className="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl text-gray-900 focus:ring-2 focus:ring-[#406517]/20 focus:border-[#406517]">
-                  <option value={1}>1 Side</option><option value={2}>2 Sides</option><option value={3}>3 Sides</option><option value={4}>4 Sides</option><option value={5}>More than 4</option>
-                </select>
-              </div>
-            </Grid>
-          </Card>
-        </Stack>
-      </div>
-      <div>
-        <Card variant="elevated" className="!p-6 !bg-gradient-to-br !from-[#406517]/5 !via-white !to-[#003365]/5 !border-[#406517]/20 sticky top-4">
-          <div className="flex items-center gap-2 mb-4">
-            <Calculator className="w-5 h-5 text-[#406517]" />
-            <Heading level={4} className="!mb-0">Instant Estimate</Heading>
-          </div>
-          <Stack gap="sm">
-            <div className="flex justify-between text-sm"><span className="text-gray-600">Subtotal</span><span className="font-medium text-gray-900">${price.subtotal.toLocaleString()}</span></div>
-            <div className="flex justify-between text-sm"><span className="text-gray-600">Shipping</span><span className="text-gray-500 italic">Calculated at checkout</span></div>
-            <div className="border-t border-gray-200 pt-2 mt-2">
-              <div className="flex justify-between"><span className="font-semibold text-gray-900">Estimated Total</span><span className="text-xl font-bold text-[#406517]">${price.subtotal.toLocaleString()}+</span></div>
-            </div>
-          </Stack>
-          <Text size="sm" className="text-gray-500 mt-4">Actual price depends on final measurements.</Text>
-        </Card>
-      </div>
-    </Grid>
-  )
-}
-
-function ReviewStep({ state, price }: { state: WizardState; price: { subtotal: number; shipping: number; total: number } }) {
+function ReviewStep({ state }: { state: WizardState }) {
   return (
     <Stack gap="md">
       <div className="text-center">
@@ -435,12 +405,262 @@ function ReviewStep({ state, price }: { state: WizardState; price: { subtotal: n
         </Card>
       </Grid>
       <Card variant="elevated" className="!p-6 !bg-gradient-to-br !from-[#406517]/5 !via-white !to-[#003365]/5 !border-[#406517]/20 max-w-xl mx-auto">
-        <div className="flex items-center justify-between mb-4">
-          <Heading level={4} className="!mb-0">Estimated Total</Heading>
-          <span className="text-3xl font-bold text-[#406517]">${price.subtotal.toLocaleString()}+</span>
+        <div className="text-center">
+          <Text className="text-gray-600">A project planner will review your submission and contact you within 1 business day with a detailed quote.</Text>
         </div>
-        <Text size="sm" className="text-gray-500">A project planner will review your submission and contact you within 1 business day.</Text>
       </Card>
+    </Stack>
+  )
+}
+
+// =============================================================================
+// INSTANT QUOTE STEP (Mosquito Curtains & Clear Vinyl)
+// =============================================================================
+
+function InstantQuoteStep({
+  productType,
+  quoteState,
+  onQuoteChange,
+  price,
+  contact,
+  onContactChange,
+  photos,
+  onPhotosChange,
+  sessionId,
+}: {
+  productType: 'mosquito_curtains' | 'clear_vinyl'
+  quoteState: InstantQuoteState
+  onQuoteChange: (state: InstantQuoteState) => void
+  price: QuoteResult
+  contact: ContactInfo
+  onContactChange: (data: ContactInfo) => void
+  photos: UploadedPhoto[]
+  onPhotosChange: (photos: UploadedPhoto[]) => void
+  sessionId: string
+}) {
+  const isMosquito = productType === 'mosquito_curtains'
+  const brandColor = isMosquito ? '#406517' : '#003365'
+  const allInputsFilled = price.isComplete
+
+  return (
+    <Stack gap="lg">
+      {/* Header */}
+      <div className="text-center">
+        <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ backgroundColor: `${brandColor}15` }}>
+          <Calculator className="w-6 h-6" style={{ color: brandColor }} />
+        </div>
+        <Heading level={2} className="!text-xl md:!text-2xl">Instant Price Quote</Heading>
+        <Text size="sm" className="text-gray-600 !mb-0">
+          {isMosquito ? 'Configure your mosquito curtain project' : 'Configure your clear vinyl project'}
+        </Text>
+      </div>
+
+      {/* Pricing Input Card */}
+      <Card variant="elevated" className="!p-5 md:!p-6">
+        {/* Row 1: Product-specific + attachment + sides */}
+        <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="md">
+          {/* Mosquito: Mesh Type */}
+          {isMosquito && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Mesh Type</label>
+              <select
+                value={quoteState.meshType || ''}
+                onChange={(e) => onQuoteChange({ ...quoteState, meshType: (e.target.value || null) as MosquitoMeshType | null })}
+                className={selectClass}
+              >
+                <option value="">Select Mesh Type</option>
+                {MESH_TYPE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Clear Vinyl: Panel Height */}
+          {!isMosquito && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Panel Height</label>
+              <select
+                value={quoteState.panelHeight || ''}
+                onChange={(e) => onQuoteChange({ ...quoteState, panelHeight: (e.target.value || null) as ClearVinylPanelHeight | null })}
+                className={selectClass}
+              >
+                <option value="">Select Panel Height</option>
+                {PANEL_HEIGHT_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Top Attachment */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Top Attachment</label>
+            <select
+              value={quoteState.topAttachment || ''}
+              onChange={(e) => onQuoteChange({ ...quoteState, topAttachment: e.target.value || null })}
+              className={selectClass}
+            >
+              <option value="">Select Top Attachment</option>
+              {(isMosquito ? MOSQUITO_ATTACHMENT_OPTIONS : VINYL_ATTACHMENT_OPTIONS).map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Number of Sides */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Number of Sides</label>
+            <select
+              value={quoteState.numberOfSides ?? ''}
+              onChange={(e) => onQuoteChange({ ...quoteState, numberOfSides: e.target.value ? Number(e.target.value) : null })}
+              className={selectClass}
+            >
+              <option value="">Number of Open Sides</option>
+              {SIDES_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+        </Grid>
+
+        {/* Row 2: Width + Shipping */}
+        <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="md" className="mt-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Total Project Width (FT)</label>
+            <select
+              value={quoteState.projectWidth ?? ''}
+              onChange={(e) => onQuoteChange({ ...quoteState, projectWidth: e.target.value ? Number(e.target.value) : null })}
+              className={selectClass}
+            >
+              <option value="">Total Project Width (FT)</option>
+              {Array.from({ length: 196 }, (_, i) => i + 5).map((n) => (
+                <option key={n} value={n}>{n}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Where Will We Ship?</label>
+            <select
+              value={quoteState.shipLocation}
+              onChange={(e) => onQuoteChange({ ...quoteState, shipLocation: e.target.value as ShipLocation })}
+              className={selectClass}
+            >
+              {SHIP_LOCATION_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+        </Grid>
+      </Card>
+
+      {/* Price Display - shown when all inputs are filled */}
+      {allInputsFilled && (
+        <Card variant="elevated" className="!p-0 overflow-hidden !border-2" style={{ borderColor: `${brandColor}30` }}>
+          {/* Price rows */}
+          <div className="divide-y divide-gray-100">
+            <div className="flex items-center justify-between px-6 py-3.5">
+              <div className="flex items-center gap-2">
+                <DollarSign className="w-4 h-4 text-gray-400" />
+                <span className="text-sm font-medium text-gray-600 uppercase tracking-wide">Subtotal</span>
+              </div>
+              <span className="text-lg font-semibold text-gray-900">{formatUSD(price.subtotal)}</span>
+            </div>
+            <div className="flex items-center justify-between px-6 py-3.5">
+              <div className="flex items-center gap-2">
+                <Truck className="w-4 h-4 text-gray-400" />
+                <span className="text-sm font-medium text-gray-600 uppercase tracking-wide">Shipping (USD$)</span>
+              </div>
+              <span className="text-lg font-semibold text-gray-900">{formatUSD(price.shipping)}</span>
+            </div>
+            <div className="flex items-center justify-between px-6 py-4" style={{ backgroundColor: `${brandColor}08` }}>
+              <span className="text-base font-bold text-gray-900 uppercase tracking-wide">Estimated Total (USD)</span>
+              <span className="text-2xl font-bold" style={{ color: brandColor }}>{formatUSD(price.total)}</span>
+            </div>
+          </div>
+          {/* Shipping note */}
+          <div className="px-6 py-2.5 bg-gray-50 border-t border-gray-100">
+            <Text size="xs" className="text-gray-500 !mb-0">
+              * Additional shipping charges apply to Hawaii, Alaska, and Puerto Rico.
+            </Text>
+          </div>
+        </Card>
+      )}
+
+      {/* Divider + Contact Section - shown when price is calculated */}
+      {allInputsFilled && (
+        <>
+          {/* Decorative divider */}
+          <div className="relative py-2">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t-2" style={{ borderColor: `${brandColor}30` }} />
+            </div>
+          </div>
+
+          <div className="text-center">
+            <Heading level={3} className="!text-lg md:!text-xl !mb-1" style={{ color: brandColor }}>
+              Want to have a quick chat about your quote?
+            </Heading>
+            <Text size="sm" className="text-gray-600 !mb-0">
+              Our project planning team is super friendly and can answer any questions you may have. Drop us your contact and we&apos;ll be in touch as soon as possible.
+            </Text>
+          </div>
+
+          {/* Contact Form */}
+          <Card variant="elevated" className="!p-5 md:!p-6">
+            <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="md">
+              <div className="md:col-span-2">
+                <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="md">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
+                    <Input value={contact.firstName} onChange={(e) => onContactChange({ ...contact, firstName: e.target.value })} placeholder="First Name" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
+                    <Input value={contact.lastName} onChange={(e) => onContactChange({ ...contact, lastName: e.target.value })} placeholder="Last Name" />
+                  </div>
+                </Grid>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Phone *</label>
+                <Input type="tel" value={contact.phone} onChange={(e) => onContactChange({ ...contact, phone: e.target.value })} placeholder="Phone" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                <Input type="email" value={contact.email} onChange={(e) => onContactChange({ ...contact, email: e.target.value })} placeholder="Email" />
+              </div>
+            </Grid>
+
+            {/* Project Note */}
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">A quick note about your project</label>
+              <textarea
+                value={quoteState.projectNote}
+                onChange={(e) => onQuoteChange({ ...quoteState, projectNote: e.target.value })}
+                placeholder="A quick note about your project"
+                rows={3}
+                className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-gray-900 focus:ring-2 focus:ring-[#406517]/20 focus:border-[#406517] transition-colors resize-none"
+              />
+            </div>
+          </Card>
+
+          {/* Photo Upload */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Photos (Optional but very helpful)</label>
+            <PhotoUploader sessionId={sessionId} maxFiles={10} onUploadComplete={onPhotosChange} />
+          </div>
+
+          {/* Info note */}
+          <Card variant="outlined" className="!p-3 !bg-[#003365]/5 !border-[#003365]/20">
+            <div className="flex items-start gap-2">
+              <Info className="w-4 h-4 text-[#003365] mt-0.5 flex-shrink-0" />
+              <Text size="sm" className="text-[#003365] !mb-0">
+                <strong>Tip:</strong> Step BACK and zoom OUT when taking photos. We need to see full sides with all fastening surfaces visible.
+              </Text>
+            </div>
+          </Card>
+        </>
+      )}
     </Stack>
   )
 }
@@ -457,10 +677,28 @@ export default function StartProjectPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
-  const price = useMemo(() => calculateQuickPrice(
-    { ...state.specs, productType: state.productType },
-    state.options
-  ), [state.specs, state.productType, state.options])
+  // Calculate instant quote price
+  const quotePrice = useMemo(() => {
+    if (state.productType === 'mosquito_curtains') {
+      return calculateMosquitoQuote({
+        meshType: state.instantQuote.meshType,
+        topAttachment: state.instantQuote.topAttachment as TopAttachmentMosquito | null,
+        numberOfSides: state.instantQuote.numberOfSides,
+        projectWidth: state.instantQuote.projectWidth,
+        shipLocation: state.instantQuote.shipLocation,
+      })
+    }
+    if (state.productType === 'clear_vinyl') {
+      return calculateClearVinylQuote({
+        panelHeight: state.instantQuote.panelHeight,
+        topAttachment: state.instantQuote.topAttachment as TopAttachmentVinyl | null,
+        numberOfSides: state.instantQuote.numberOfSides,
+        projectWidth: state.instantQuote.projectWidth,
+        shipLocation: state.instantQuote.shipLocation,
+      })
+    }
+    return { subtotal: 0, shipping: 0, total: 0, isComplete: false }
+  }, [state.productType, state.instantQuote])
 
   // Handle DIY add to cart
   const handleDIYAddToCart = async (project: DIYProject, totals: { total: number }) => {
@@ -485,20 +723,25 @@ export default function StartProjectPage() {
   const canProceedModeStep = () => {
     if (state.mode === 'planner') {
       if (modeStep === 1) return true // Photos optional
-      if (modeStep === 2) return state.contact.firstName && state.contact.lastName && state.contact.email && state.contact.phone
-    }
-    if (state.mode === 'quote') {
-      if (modeStep === 1) return true // Options
-      if (modeStep === 2) return true // Specs
-      if (modeStep === 3) return state.contact.firstName && state.contact.lastName && state.contact.email && state.contact.phone
+      if (modeStep === 2) return !!(state.contact.firstName && state.contact.lastName && state.contact.email && state.contact.phone)
     }
     return true
+  }
+
+  // Can submit the instant quote form?
+  const canSubmitQuote = (): boolean => {
+    if (!quotePrice.isComplete) return false
+    const c = state.contact
+    return !!(c.firstName && c.lastName && c.email && c.phone)
   }
 
   // Handle submission
   const handleSubmit = async () => {
     setIsSubmitting(true)
     try {
+      const isQuoteMode = state.mode === 'quote'
+      const iq = state.instantQuote
+
       const payload = {
         email: state.contact.email,
         firstName: state.contact.firstName,
@@ -506,15 +749,27 @@ export default function StartProjectPage() {
         phone: state.contact.phone,
         product: state.productType,
         projectType: state.mode,
-        meshType: 'meshType' in state.options ? state.options.meshType : null,
-        topAttachment: 'topAttachment' in state.options ? state.options.topAttachment : null,
-        totalWidth: state.specs.projectWidth,
-        numberOfSides: state.specs.numberOfSides,
-        notes: JSON.stringify({
-          options: state.options,
-          photos: state.photos.map(p => ({ url: p.publicUrl, key: p.key })),
-        }),
-        estimatedTotal: price.subtotal,
+        // Instant quote fields (when in quote mode)
+        meshType: isQuoteMode ? iq.meshType : ('meshType' in state.options ? state.options.meshType : null),
+        panelHeight: isQuoteMode ? iq.panelHeight : null,
+        topAttachment: isQuoteMode ? iq.topAttachment : ('topAttachment' in state.options ? state.options.topAttachment : null),
+        totalWidth: isQuoteMode ? iq.projectWidth : null,
+        numberOfSides: isQuoteMode ? iq.numberOfSides : null,
+        shipLocation: isQuoteMode ? iq.shipLocation : null,
+        // Pricing
+        subtotal: isQuoteMode ? quotePrice.subtotal : null,
+        shipping: isQuoteMode ? quotePrice.shipping : null,
+        estimatedTotal: isQuoteMode ? quotePrice.total : null,
+        // Notes & photos
+        notes: isQuoteMode
+          ? JSON.stringify({
+              projectNote: iq.projectNote,
+              photos: state.photos.map(p => ({ url: p.publicUrl, key: p.key })),
+            })
+          : JSON.stringify({
+              options: state.options,
+              photos: state.photos.map(p => ({ url: p.publicUrl, key: p.key })),
+            }),
         session_id: state.sessionId,
       }
       
@@ -544,9 +799,9 @@ export default function StartProjectPage() {
     }
     if (state.mode === 'quote') {
       return {
-        total: 4,
-        steps: ['Options', 'Specs', 'Contact', 'Review'],
-        icons: [SlidersHorizontal, Ruler, User, CheckCircle]
+        total: 1,
+        steps: ['Instant Quote'],
+        icons: [Calculator]
       }
     }
     return { total: 0, steps: [], icons: [] }
@@ -565,6 +820,12 @@ export default function StartProjectPage() {
               </div>
               <Heading level={2} className="!mb-2">Project Submitted!</Heading>
               <Text className="text-gray-600 mb-6">Thank you, {state.contact.firstName}! We&apos;ll contact you within 1 business day.</Text>
+              {state.mode === 'quote' && quotePrice.isComplete && (
+                <Card variant="outlined" className="!p-4 !bg-white/80 !border-[#406517]/20 mb-6 inline-block">
+                  <Text size="sm" className="text-gray-500 !mb-1">Your Estimated Total</Text>
+                  <Text className="text-2xl font-bold text-[#406517] !mb-0">{formatUSD(quotePrice.total)}</Text>
+                </Card>
+              )}
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button variant="primary" asChild><Link href="/">Return Home</Link></Button>
                 <Button variant="outline" asChild><a href="tel:7706454745">Call (770) 645-4745</a></Button>
@@ -608,8 +869,8 @@ export default function StartProjectPage() {
               </div>
             )}
 
-            {/* Progress - Mode Steps */}
-            {wizardStep === 'mode-steps' && state.mode !== 'diy' && (
+            {/* Progress - Mode Steps (not quote or DIY) */}
+            {wizardStep === 'mode-steps' && state.mode === 'planner' && (
               <div className="flex justify-center gap-2 mb-4">
                 {modeInfo.steps.map((step, idx) => {
                   const Icon = modeInfo.icons[idx]
@@ -640,7 +901,12 @@ export default function StartProjectPage() {
                   value={state.productType} 
                   onChange={(v) => {
                     const newOptions = v === 'mosquito_curtains' ? defaultMeshOptions : v === 'clear_vinyl' ? defaultVinylOptions : defaultRawOptions
-                    setState(prev => ({ ...prev, productType: v, options: newOptions, specs: { ...prev.specs, productType: v } }))
+                    setState(prev => ({ 
+                      ...prev, 
+                      productType: v, 
+                      options: newOptions, 
+                      instantQuote: { ...initialInstantQuote },
+                    }))
                   }} 
                 />
               )}
@@ -650,6 +916,7 @@ export default function StartProjectPage() {
                   value={state.mode}
                   onChange={(mode) => setState(prev => ({ ...prev, mode }))}
                   onSelect={handlePathSelect}
+                  productType={state.productType}
                 />
               )}
 
@@ -658,24 +925,27 @@ export default function StartProjectPage() {
                 <>
                   {modeStep === 1 && <PhotosStep photos={state.photos} onPhotosChange={(photos) => setState(prev => ({ ...prev, photos }))} sessionId={state.sessionId} />}
                   {modeStep === 2 && <ContactStep data={state.contact} onChange={(contact) => setState(prev => ({ ...prev, contact }))} />}
-                  {modeStep === 3 && <ReviewStep state={state} price={price} />}
+                  {modeStep === 3 && <ReviewStep state={state} />}
                 </>
               )}
 
-              {/* Quote Mode Steps */}
-              {wizardStep === 'mode-steps' && state.mode === 'quote' && (
-                <>
-                  {modeStep === 1 && state.productType && (
-                    <QuickSetup
-                      productType={state.productType}
-                      options={state.options}
-                      onChange={(opts) => setState(prev => ({ ...prev, options: opts }))}
-                    />
-                  )}
-                  {modeStep === 2 && <QuickSpecsStep specs={state.specs} options={state.options} onChange={(specs) => setState(prev => ({ ...prev, specs }))} price={price} />}
-                  {modeStep === 3 && <ContactStep data={state.contact} onChange={(contact) => setState(prev => ({ ...prev, contact }))} />}
-                  {modeStep === 4 && <ReviewStep state={state} price={price} />}
-                </>
+              {/* Quote Mode - Single Step Instant Calculator */}
+              {wizardStep === 'mode-steps' && state.mode === 'quote' && (state.productType === 'mosquito_curtains' || state.productType === 'clear_vinyl') && (
+                <Stack gap="xl">
+                  <InstantQuoteStep
+                    productType={state.productType}
+                    quoteState={state.instantQuote}
+                    onQuoteChange={(iq) => setState(prev => ({ ...prev, instantQuote: iq }))}
+                    price={quotePrice}
+                    contact={state.contact}
+                    onContactChange={(contact) => setState(prev => ({ ...prev, contact }))}
+                    photos={state.photos}
+                    onPhotosChange={(photos) => setState(prev => ({ ...prev, photos }))}
+                    sessionId={state.sessionId}
+                  />
+                  {/* Educational content, guidance modals, videos, examples */}
+                  <QuoteGuidance productType={state.productType} />
+                </Stack>
               )}
 
               {/* DIY Mode */}
@@ -708,8 +978,8 @@ export default function StartProjectPage() {
               </div>
             )}
 
-            {/* Navigation - Mode Steps (not DIY) */}
-            {wizardStep === 'mode-steps' && state.mode !== 'diy' && (
+            {/* Navigation - Planner Mode Steps */}
+            {wizardStep === 'mode-steps' && state.mode === 'planner' && (
               <div className="flex justify-between items-center pt-4 border-t border-gray-200 mt-4">
                 <Button variant="ghost" onClick={() => {
                   if (modeStep === 1) { setWizardStep('path'); setModeStep(0) }
@@ -728,6 +998,30 @@ export default function StartProjectPage() {
                     <ArrowRight className="ml-2 w-4 h-4" />
                   </Button>
                 )}
+              </div>
+            )}
+
+            {/* Navigation - Quote Mode */}
+            {wizardStep === 'mode-steps' && state.mode === 'quote' && (
+              <div className="flex justify-between items-center pt-4 border-t border-gray-200 mt-4">
+                <Button variant="ghost" onClick={() => {
+                  setWizardStep('path')
+                  setModeStep(0)
+                }}>
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back
+                </Button>
+                <Button 
+                  variant="primary" 
+                  size="lg" 
+                  onClick={handleSubmit} 
+                  disabled={isSubmitting || !canSubmitQuote()}
+                >
+                  {isSubmitting 
+                    ? <><Spinner size="sm" className="mr-2" />Submitting...</> 
+                    : <>Submit Quote<CheckCircle className="ml-2 w-5 h-5" /></>
+                  }
+                </Button>
               </div>
             )}
           </div>

@@ -112,6 +112,7 @@ export default function OptionsPage() {
           subtitle="This page gives you an overview of your options and a basic understanding of our simple attachment hardware. Use the sections below to learn about each topic."
           videoId={VIDEOS.SHORT_OVERVIEW}
           videoTitle="Mosquito Curtains Options Overview"
+          thumbnailUrl="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Planning-Overview-Video-Thumbnail-1.jpg"
           variant="compact"
           actions={heroActions}
         />

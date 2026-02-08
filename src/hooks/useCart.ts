@@ -87,7 +87,6 @@ function convertDIYToLineItems(
 
   // Convert panels to line items using DB-driven pricing
   panels.forEach((panel, index) => {
-    const totalWidth = panel.widthFeet + (panel.widthInches / 12)
     const unitPrice = calculateMeshPanelPrice({
       widthFeet: panel.widthFeet,
       widthInches: panel.widthInches,
@@ -103,7 +102,7 @@ function convertDIYToLineItems(
       type: 'panel',
       productSku: 'mesh_panel',
       name: panel.name || `Panel ${index + 1}`,
-      description: `${totalWidth.toFixed(1)}ft x ${panel.heightInches}in ${panel.meshType.replace(/_/g, ' ')} - ${panel.color}`,
+      description: `${panel.widthFeet}'${panel.widthInches}" x ${panel.heightInches}" ${panel.meshType.replace(/_/g, ' ')} - ${panel.color}`,
       quantity: 1,
       unitPrice,
       totalPrice: unitPrice,
