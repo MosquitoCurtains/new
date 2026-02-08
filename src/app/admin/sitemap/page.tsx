@@ -602,32 +602,60 @@ export default function AdminSitemapPage() {
               {/* Routes */}
               <div className="p-3 max-h-[500px] overflow-y-auto">
                 <Stack gap="xs">
-                  {section.routes.map((route) => (
-                    <Link
-                      key={route.path}
-                      href={route.path}
-                      target="_blank"
-                      className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 transition-colors group"
-                    >
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-sm text-gray-900 group-hover:text-[#406517] transition-colors">
-                            {route.name}
-                          </span>
-                          {route.inSitemap ? (
-                            <Globe className="w-3 h-3 text-green-500 shrink-0" title="In public sitemap" />
-                          ) : (
-                            <EyeOff className="w-3 h-3 text-gray-300 shrink-0" title="Not in public sitemap" />
+                  {section.routes.map((route) => {
+                    const isDynamic = route.path.includes('[')
+
+                    const content = (
+                      <>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-sm text-gray-900 group-hover:text-[#406517] transition-colors">
+                              {route.name}
+                            </span>
+                            {route.inSitemap ? (
+                              <Globe className="w-3 h-3 text-green-500 shrink-0" title="In public sitemap" />
+                            ) : (
+                              <EyeOff className="w-3 h-3 text-gray-300 shrink-0" title="Not in public sitemap" />
+                            )}
+                            {isDynamic && (
+                              <Badge className="!bg-amber-100 !text-amber-700 !border-amber-200 !text-[10px] !px-1.5 !py-0">
+                                Dynamic
+                              </Badge>
+                            )}
+                          </div>
+                          {route.description && (
+                            <span className="text-xs text-gray-500">{route.description}</span>
                           )}
+                          <span className="text-xs text-gray-400 block truncate">{route.path}</span>
                         </div>
-                        {route.description && (
-                          <span className="text-xs text-gray-500">{route.description}</span>
+                        {!isDynamic && (
+                          <ExternalLink className="w-4 h-4 text-gray-300 group-hover:text-[#406517] flex-shrink-0 ml-2" />
                         )}
-                        <span className="text-xs text-gray-400 block truncate">{route.path}</span>
-                      </div>
-                      <ExternalLink className="w-4 h-4 text-gray-300 group-hover:text-[#406517] flex-shrink-0 ml-2" />
-                    </Link>
-                  ))}
+                      </>
+                    )
+
+                    if (isDynamic) {
+                      return (
+                        <div
+                          key={route.path}
+                          className="flex items-center justify-between p-2 rounded-lg bg-gray-50/50 group"
+                        >
+                          {content}
+                        </div>
+                      )
+                    }
+
+                    return (
+                      <Link
+                        key={route.path}
+                        href={route.path}
+                        target="_blank"
+                        className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 transition-colors group"
+                      >
+                        {content}
+                      </Link>
+                    )
+                  })}
                 </Stack>
               </div>
             </Card>

@@ -35,6 +35,7 @@ const UPLOAD_PATHS: Record<string, string> = {
   'project-photo': 'user-uploads/project-photos',
   'diagram': 'user-uploads/diagrams',
   'attachment': 'user-uploads/attachments',
+  'gallery-image': 'gallery/images',
 }
 
 // =============================================================================

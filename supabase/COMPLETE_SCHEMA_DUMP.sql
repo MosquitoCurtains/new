@@ -1503,10 +1503,12 @@ CREATE TABLE public.gallery_images (
     sort_order integer DEFAULT 0,
     created_at timestamp with time zone DEFAULT now(),
     updated_at timestamp with time zone DEFAULT now(),
+    canvas_color text,
+    CONSTRAINT gallery_images_canvas_color_check CHECK ((canvas_color = ANY (ARRAY['ashen_gray'::text, 'black'::text, 'burgundy'::text, 'cocoa_brown'::text, 'forest_green'::text, 'moss_green'::text, 'navy'::text, 'no_canvas'::text, 'royal_blue'::text, 'sandy_tan'::text, NULL::text]))),
     CONSTRAINT gallery_images_color_check CHECK ((color = ANY (ARRAY['black'::text, 'white'::text, 'ivory'::text, NULL::text]))),
     CONSTRAINT gallery_images_mesh_type_check CHECK ((mesh_type = ANY (ARRAY['heavy_mosquito'::text, 'no_see_um'::text, 'shade'::text, 'scrim'::text, NULL::text]))),
     CONSTRAINT gallery_images_product_type_check CHECK ((product_type = ANY (ARRAY['mosquito_curtains'::text, 'clear_vinyl'::text, 'raw_mesh'::text]))),
-    CONSTRAINT gallery_images_project_type_check CHECK ((project_type = ANY (ARRAY['porch'::text, 'patio'::text, 'garage'::text, 'pergola'::text, 'gazebo'::text, 'deck'::text, 'awning'::text, 'industrial'::text, 'other'::text]))),
+    CONSTRAINT gallery_images_project_type_check CHECK ((project_type = ANY (ARRAY['porch'::text, 'patio'::text, 'garage'::text, 'pergola'::text, 'gazebo'::text, 'deck'::text, 'awning'::text, 'industrial'::text, 'boat'::text, 'projection'::text, 'other'::text]))),
     CONSTRAINT gallery_images_top_attachment_check CHECK ((top_attachment = ANY (ARRAY['tracking'::text, 'velcro'::text, 'grommets'::text, NULL::text])))
 );
 
@@ -4092,6 +4094,13 @@ CREATE INDEX idx_gallery_assignments_gallery_id ON public.gallery_assignments US
 --
 
 CREATE INDEX idx_gallery_assignments_image_id ON public.gallery_assignments USING btree (image_id);
+
+
+--
+-- Name: idx_gallery_images_is_featured; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_gallery_images_canvas_color ON public.gallery_images USING btree (canvas_color);
 
 
 --

@@ -1,131 +1,85 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { GalleryPageTemplate } from '@/lib/design-system/templates'
+import type { GalleryImage } from '@/lib/design-system/templates'
 import { ORDERS_SERVED_FORMATTED } from '@/lib/constants/orders-served'
-
-// Sample gallery images (would come from Supabase in production)
-const GALLERY_IMAGES = [
-  {
-    id: '1',
-    src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/21-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg',
-    title: 'Screen Porch Enclosure',
-    productType: 'mosquito_curtains' as const,
-    projectType: 'Porch',
-    location: 'Georgia',
-  },
-  {
-    id: '2',
-    src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/31-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg',
-    title: 'Patio Screening',
-    productType: 'mosquito_curtains' as const,
-    projectType: 'Patio',
-    location: 'Florida',
-  },
-  {
-    id: '3',
-    src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/09-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg',
-    title: 'Pergola Screen',
-    productType: 'mosquito_curtains' as const,
-    projectType: 'Pergola',
-    location: 'Texas',
-  },
-  {
-    id: '4',
-    src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/32-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg',
-    title: 'Deck Enclosure',
-    productType: 'mosquito_curtains' as const,
-    projectType: 'Deck',
-    location: 'North Carolina',
-  },
-  {
-    id: '5',
-    src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/30-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg',
-    title: 'Gazebo Curtains',
-    productType: 'mosquito_curtains' as const,
-    projectType: 'Gazebo',
-    location: 'California',
-  },
-  {
-    id: '6',
-    src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/25-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg',
-    title: 'Porch Netting',
-    productType: 'mosquito_curtains' as const,
-    projectType: 'Porch',
-    location: 'Virginia',
-  },
-  {
-    id: '7',
-    src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/23-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg',
-    title: 'Awning Screen',
-    productType: 'mosquito_curtains' as const,
-    projectType: 'Awning',
-    location: 'Arizona',
-  },
-  {
-    id: '8',
-    src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/20-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg',
-    title: 'Backyard Enclosure',
-    productType: 'mosquito_curtains' as const,
-    projectType: 'Patio',
-    location: 'Tennessee',
-  },
-  {
-    id: '9',
-    src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/Garage-Screen-300x225.jpg',
-    title: 'Garage Door Screen',
-    productType: 'mosquito_curtains' as const,
-    projectType: 'Garage',
-    location: 'Ohio',
-  },
-  {
-    id: '10',
-    src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/82-Screen-Patio-Enclosure-1200-400x300-1.jpg',
-    title: 'Clear Vinyl Patio',
-    productType: 'clear_vinyl' as const,
-    projectType: 'Patio',
-    location: 'Colorado',
-  },
-  {
-    id: '11',
-    src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/81-Screen-Patio-Enclosure-1200-400x300-1.jpg',
-    title: 'Weather Enclosure',
-    productType: 'clear_vinyl' as const,
-    projectType: 'Porch',
-    location: 'Maryland',
-  },
-  {
-    id: '12',
-    src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/85-Screen-Patio-Enclosure-1200-400x300-1.jpg',
-    title: 'Winter Panels',
-    productType: 'clear_vinyl' as const,
-    projectType: 'Patio',
-    location: 'Wisconsin',
-  },
-]
 
 // Filter options
 const GALLERY_FILTERS = {
   productTypes: [
     { value: 'mosquito_curtains', label: 'Mosquito Curtains' },
     { value: 'clear_vinyl', label: 'Clear Vinyl' },
+    { value: 'raw_mesh', label: 'Raw Mesh' },
   ],
   projectTypes: [
-    { value: 'Porch', label: 'Porch' },
-    { value: 'Patio', label: 'Patio' },
-    { value: 'Garage', label: 'Garage' },
-    { value: 'Pergola', label: 'Pergola' },
-    { value: 'Gazebo', label: 'Gazebo' },
-    { value: 'Deck', label: 'Deck' },
-    { value: 'Awning', label: 'Awning' },
+    { value: 'porch', label: 'Porch' },
+    { value: 'patio', label: 'Patio' },
+    { value: 'garage', label: 'Garage' },
+    { value: 'pergola', label: 'Pergola' },
+    { value: 'gazebo', label: 'Gazebo' },
+    { value: 'deck', label: 'Deck' },
+    { value: 'awning', label: 'Awning' },
+    { value: 'boat', label: 'Boat' },
+    { value: 'industrial', label: 'Industrial' },
   ],
 }
 
+/**
+ * Map database row to GalleryImage template interface
+ */
+function mapDbToGalleryImage(row: any): GalleryImage {
+  return {
+    id: row.id,
+    src: row.image_url,
+    thumbnail: row.thumbnail_url || undefined,
+    title: row.title || undefined,
+    description: row.description || undefined,
+    productType: row.product_type,
+    projectType: row.project_type,
+    meshType: row.mesh_type || undefined,
+    topAttachment: row.top_attachment || undefined,
+    color: row.color || undefined,
+    location: row.location || undefined,
+    customerName: row.customer_name || undefined,
+  }
+}
+
 export default function GalleryPage() {
+  const [images, setImages] = useState<GalleryImage[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchImages() {
+      try {
+        const res = await fetch('/api/gallery/images?limit=200')
+        const data = await res.json()
+        if (res.ok) {
+          setImages((data.images || []).map(mapDbToGalleryImage))
+        }
+      } catch (err) {
+        console.error('Failed to fetch gallery images:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchImages()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[400px]">
+        <div className="w-8 h-8 border-4 border-gray-200 border-t-[#406517] rounded-full animate-spin" />
+      </div>
+    )
+  }
+
   return (
     <GalleryPageTemplate
       title="Project Gallery"
       subtitle={`Browse real installations from our ${ORDERS_SERVED_FORMATTED} customers. Filter by product type and project to find inspiration for your space.`}
-      images={GALLERY_IMAGES}
+      images={images}
       filters={GALLERY_FILTERS}
       showFilters={true}
     />
