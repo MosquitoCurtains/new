@@ -19,7 +19,7 @@ export default function StuccoStripsSection({ zippered = false, getPrice, addIte
   const [stuccoStrips, setStuccoStrips] = useState<StuccoStrip[]>([createDefaultStuccoStrip()])
 
   const priceKey = zippered ? 'stucco_zippered' : 'stucco_standard'
-  const fallbackPrice = zippered ? 40 : 24
+  const fallbackPrice = 0
   const label = zippered ? 'Zippered Stucco Strips' : 'Stucco Strips'
 
   const stuccoTotals = useMemo(() => {

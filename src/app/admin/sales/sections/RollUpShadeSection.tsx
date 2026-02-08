@@ -22,27 +22,34 @@ function createLine(): RollUpLine {
   }
 }
 
-// Pricing: $10/screen + width(in) × ply rate
-const SCREEN_FEE = 10
-const PLY_RATES: Record<string, number> = { single: 1.00, double: 1.67 }
-
 interface RollUpShadeSectionProps {
+  getPrice: (id: string, fallback?: number) => number
   addItem: (item: any) => void
   isLoading: boolean
 }
 
-export default function RollUpShadeSection({ addItem, isLoading }: RollUpShadeSectionProps) {
+export default function RollUpShadeSection({ getPrice, addItem, isLoading }: RollUpShadeSectionProps) {
   const [lines, setLines] = useState<RollUpLine[]>([createLine()])
+
+  // All prices from database
+  const screenFee = getPrice('rollup_shade_screen') // products.base_price = $10
+  const plySingle = getPrice('rollup_ply_single')   // product_options pricing_key = $1.00
+  const plyDouble = getPrice('rollup_ply_double')    // product_options pricing_key = $1.67
+
+  const plyRates: Record<string, number> = useMemo(
+    () => ({ single: plySingle, double: plyDouble }),
+    [plySingle, plyDouble]
+  )
 
   const lineTotals = useMemo(() => {
     const totals = lines.map((line) => {
       const width = line.widthInches ?? 0
-      const rate = PLY_RATES[line.ply] ?? 1.00
-      return SCREEN_FEE + (width * rate)
+      const rate = plyRates[line.ply] ?? plySingle
+      return screenFee + (width * rate)
     })
     const subtotal = totals.reduce((sum, v) => sum + v, 0)
     return { totals, subtotal }
-  }, [lines])
+  }, [lines, screenFee, plyRates, plySingle])
 
   const addLine = () => setLines([...lines, createLine()])
   const updateLine = (index: number, updates: Partial<RollUpLine>) => {
@@ -61,7 +68,7 @@ export default function RollUpShadeSection({ addItem, isLoading }: RollUpShadeSe
         type: 'panel',
         productSku: 'rollup_shade_screen',
         name: `Roll-Up Shade ${index + 1}`,
-        description: `${line.widthInches ?? 0}in wide - ${line.ply} ply`,
+        description: `${line.widthInches ?? 0}" wide - ${line.ply} ply`,
         quantity: 1,
         unitPrice: total,
         totalPrice: total,
@@ -81,7 +88,7 @@ export default function RollUpShadeSection({ addItem, isLoading }: RollUpShadeSe
         </div>
         <div>
           <Heading level={2} className="!mb-0">Roll-Up Shade Screens</Heading>
-          <Text size="sm" className="text-gray-500 !mb-0">$10/screen + width x ply rate</Text>
+          <Text size="sm" className="text-gray-500 !mb-0">${formatMoney(screenFee)}/screen + width x ply rate</Text>
         </div>
       </div>
 
@@ -98,8 +105,8 @@ export default function RollUpShadeSection({ addItem, isLoading }: RollUpShadeSe
                 onChange={(e) => updateLine(index, { ply: e.target.value as 'single' | 'double' })}
                 className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#003365] focus:border-transparent"
               >
-                <option value="single">Single ($1.00/in)</option>
-                <option value="double">Double ($1.67/in)</option>
+                <option value="single">Single (${formatMoney(plySingle)}/in)</option>
+                <option value="double">Double (${formatMoney(plyDouble)}/in)</option>
               </select>
             </div>
             <div>

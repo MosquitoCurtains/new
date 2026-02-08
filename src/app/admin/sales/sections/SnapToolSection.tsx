@@ -12,7 +12,7 @@ interface SnapToolSectionProps {
 }
 
 export default function SnapToolSection({ snapTool, getPrice, addItem }: SnapToolSectionProps) {
-  const snapToolPrice = snapTool ? Number(snapTool.base_price) : getPrice('snap_tool', 130)
+  const snapToolPrice = snapTool ? Number(snapTool.base_price) : getPrice('snap_tool')
 
   const addSnapTool = () => {
     addItem({

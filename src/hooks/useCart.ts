@@ -8,12 +8,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import type { PanelConfig } from '@/components/project/PanelEditor'
-import type { TrackHardware } from '@/components/project/DIYBuilder'
-import type { FabricOrder } from '@/components/project/FabricConfigurator'
-import { calculateMeshPanelPrice } from '@/lib/pricing/formulas'
 import { getShippingClassForItem } from '@/lib/pricing/types'
-import type { PricingMap } from '@/lib/pricing/types'
 import { usePricing } from '@/hooks/usePricing'
 
 // =============================================================================
@@ -77,221 +72,6 @@ function createEmptyCart(): CartData {
   }
 }
 
-function convertDIYToLineItems(
-  panels: PanelConfig[], 
-  hardware: TrackHardware,
-  addOns: { snapTool: boolean; magnetDoorway: number; elasticCords: number },
-  prices: PricingMap
-): CartLineItem[] {
-  const items: CartLineItem[] = []
-
-  // Convert panels to line items using DB-driven pricing
-  panels.forEach((panel, index) => {
-    const unitPrice = calculateMeshPanelPrice({
-      widthFeet: panel.widthFeet,
-      widthInches: panel.widthInches,
-      heightInches: panel.heightInches,
-      meshType: panel.meshType,
-      meshColor: panel.color,
-      topAttachment: panel.topAttachment,
-      velcroColor: panel.velcroColor,
-    }, prices).total
-
-    items.push({
-      id: panel.id,
-      type: 'panel',
-      productSku: 'mesh_panel',
-      name: panel.name || `Panel ${index + 1}`,
-      description: `${panel.widthFeet}'${panel.widthInches}" x ${panel.heightInches}" ${panel.meshType.replace(/_/g, ' ')} - ${panel.color}`,
-      quantity: 1,
-      unitPrice,
-      totalPrice: unitPrice,
-      options: {
-        widthFeet: panel.widthFeet,
-        widthInches: panel.widthInches,
-        heightInches: panel.heightInches,
-        meshType: panel.meshType,
-        color: panel.color,
-        topAttachment: panel.topAttachment,
-        notes: panel.notes,
-      },
-    })
-  })
-
-  // Track pricing from DB (per-piece prices)
-  const isHeavy = hardware.trackWeight === 'heavy'
-  const trackPrice7ft = isHeavy
-    ? (prices['track_heavy_7ft'] ?? 42)
-    : (prices['track_std_7ft'] ?? 30)
-
-  if (hardware.straightTrack > 0) {
-    items.push({
-      id: `track-${Date.now()}`,
-      type: 'track',
-      productSku: isHeavy ? 'heavy_track' : 'standard_track',
-      name: `${isHeavy ? 'Heavy' : 'Standard'} Track 7ft`,
-      description: `${hardware.trackColor} ${isHeavy ? 'heavy duty' : 'standard'} track`,
-      quantity: hardware.straightTrack,
-      unitPrice: trackPrice7ft,
-      totalPrice: hardware.straightTrack * trackPrice7ft,
-      options: {
-        length: '7ft',
-        weight: hardware.trackWeight,
-        color: hardware.trackColor,
-      },
-    })
-  }
-
-  if (hardware.curves90 > 0) {
-    const curvePrice = isHeavy
-      ? (prices['track_heavy_curve_90'] ?? 25)
-      : (prices['track_curve_90'] ?? 25)
-    items.push({
-      id: `curve90-${Date.now()}`,
-      type: 'hardware',
-      productSku: 'track_curve_90',
-      name: '90 Degree Curve',
-      description: `${hardware.trackColor} track curve`,
-      quantity: hardware.curves90,
-      unitPrice: Math.round(curvePrice * 100) / 100,
-      totalPrice: Math.round(hardware.curves90 * curvePrice * 100) / 100,
-      options: { color: hardware.trackColor },
-    })
-  }
-
-  if (hardware.curves135 > 0) {
-    const curvePrice = isHeavy
-      ? (prices['track_heavy_curve_135'] ?? 25)
-      : (prices['track_curve_135'] ?? 25)
-    items.push({
-      id: `curve135-${Date.now()}`,
-      type: 'hardware',
-      productSku: 'track_curve_135',
-      name: '135 Degree Curve',
-      description: `${hardware.trackColor} track curve`,
-      quantity: hardware.curves135,
-      unitPrice: Math.round(curvePrice * 100) / 100,
-      totalPrice: Math.round(hardware.curves135 * curvePrice * 100) / 100,
-      options: { color: hardware.trackColor },
-    })
-  }
-
-  if (hardware.splices > 0) {
-    const splicePrice = isHeavy
-      ? (prices['track_heavy_splice'] ?? 5)
-      : (prices['track_splice'] ?? 7)
-    items.push({
-      id: `splice-${Date.now()}`,
-      type: 'hardware',
-      productSku: 'track_splice',
-      name: 'Track Splice',
-      description: `${hardware.trackColor} splice connector`,
-      quantity: hardware.splices,
-      unitPrice: splicePrice,
-      totalPrice: hardware.splices * splicePrice,
-      options: { color: hardware.trackColor },
-    })
-  }
-
-  if (hardware.endCaps > 0) {
-    const capPrice = isHeavy
-      ? (prices['track_heavy_endcap'] ?? 3)
-      : (prices['track_endcap'] ?? 1.5)
-    items.push({
-      id: `endcap-${Date.now()}`,
-      type: 'hardware',
-      productSku: 'track_endcap',
-      name: 'End Cap',
-      description: `${hardware.trackColor} end cap`,
-      quantity: hardware.endCaps,
-      unitPrice: capPrice,
-      totalPrice: hardware.endCaps * capPrice,
-      options: { color: hardware.trackColor },
-    })
-  }
-
-  if (hardware.carriers > 0) {
-    const carrierPrice = isHeavy
-      ? (prices['track_heavy_carrier'] ?? 1.25)
-      : (prices['track_carrier'] ?? 0.5)
-    items.push({
-      id: `carriers-${Date.now()}`,
-      type: 'hardware',
-      productSku: 'snap_carriers',
-      name: 'Snap Carriers',
-      description: `${hardware.trackColor} snap carriers (pack of 10)`,
-      quantity: Math.ceil(hardware.carriers / 10),
-      unitPrice: Math.round(carrierPrice * 10 * 100) / 100,
-      totalPrice: Math.round(Math.ceil(hardware.carriers / 10) * carrierPrice * 10 * 100) / 100,
-      options: { color: hardware.trackColor },
-    })
-  }
-
-  // Add-ons using DB pricing
-  if (addOns.snapTool) {
-    const snapToolPrice = prices['snap_tool'] ?? 0
-    items.push({
-      id: `snaptool-${Date.now()}`,
-      type: 'addon',
-      productSku: 'snap_tool',
-      name: 'Industrial Snap Tool',
-      description: '100% refundable if returned',
-      quantity: 1,
-      unitPrice: snapToolPrice,
-      totalPrice: snapToolPrice,
-    })
-  }
-
-  if (addOns.magnetDoorway > 0) {
-    // Magnetic doorway kit: block magnets + fiberglass rods
-    const magnetPrice = prices['block_magnet'] ?? 0
-    const rodPrice = prices['fiberglass_rod'] ?? 0
-    const kitPrice = Math.round((magnetPrice * 8 + rodPrice * 2) * 100) / 100
-    items.push({
-      id: `doorway-${Date.now()}`,
-      type: 'addon',
-      productSku: 'magnetic_doorway',
-      name: 'Magnetic Doorway Kit',
-      description: 'Block magnets + fiberglass rods',
-      quantity: addOns.magnetDoorway,
-      unitPrice: kitPrice,
-      totalPrice: addOns.magnetDoorway * kitPrice,
-    })
-  }
-
-  return items
-}
-
-function convertFabricToLineItems(fabric: FabricOrder, totalPrice: number): CartLineItem[] {
-  const fabricNames: Record<string, string> = {
-    heavy_mosquito: 'Heavy Mosquito Netting',
-    no_see_um: 'No-See-Um Mesh',
-    shade: 'Shade Mesh',
-    scrim: 'Theater Scrim',
-    theater_scrim: 'Theater Scrim',
-  }
-  
-  const sqYards = (fabric.widthFeet / 3) * fabric.lengthYards
-  
-  return [{
-    id: `fabric-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-    type: 'fabric',
-    productSku: `raw_${fabric.fabricType}`,
-    name: fabricNames[fabric.fabricType] || 'Raw Mesh Fabric',
-    description: `${fabric.widthFeet}ft × ${fabric.lengthYards}yd (${sqYards.toFixed(1)} sq yds) - ${fabric.color}`,
-    quantity: 1,
-    unitPrice: totalPrice,
-    totalPrice: totalPrice,
-    options: {
-      fabricType: fabric.fabricType,
-      color: fabric.color,
-      widthFeet: fabric.widthFeet,
-      lengthYards: fabric.lengthYards,
-      notes: fabric.notes,
-    },
-  }]
-}
-
 function calculateTotals(items: CartLineItem[], existingShipping?: number, existingTax?: number): { subtotal: number; shipping: number; tax: number; total: number } {
   const subtotal = items.reduce((sum, item) => sum + item.totalPrice, 0)
   const shipping = existingShipping || 0
@@ -325,53 +105,16 @@ export function useCart() {
   const [taxRateName, setTaxRateName] = useState<string | null>(null)
   const calcAbortRef = useRef<AbortController | null>(null)
 
-  // Load cart from localStorage (deferred until pricing is ready)
+  // Load cart from localStorage
   useEffect(() => {
-    // Wait for pricing to load before processing legacy carts
-    if (pricingLoading) return
-
     try {
       const stored = localStorage.getItem(CART_KEY)
       if (stored) {
         const parsed = JSON.parse(stored)
-        
-        // Handle legacy cart format (from DIY builder)
-        if (parsed.type === 'diy' && parsed.project && dbPrices) {
-          const { project, contact, sessionId } = parsed
-          const items = convertDIYToLineItems(project.panels, project.hardware, project.addOns, dbPrices)
-          const totals = calculateTotals(items)
-          
-          const newCart: CartData = {
-            id: `cart-${Date.now()}`,
-            items,
-            ...totals,
-            contact: contact || undefined,
-            sessionId: sessionId || `session-${Date.now()}`,
-            createdAt: parsed.timestamp || Date.now(),
-            updatedAt: Date.now(),
-          }
-          setCart(newCart)
-          localStorage.setItem(CART_KEY, JSON.stringify(newCart))
-        } else if (parsed.type === 'raw_materials' && parsed.fabric) {
-          const { fabric, totals: fabricTotals, contact, sessionId } = parsed
-          const items = convertFabricToLineItems(fabric, fabricTotals?.total || 0)
-          const totals = calculateTotals(items)
-          
-          const newCart: CartData = {
-            id: `cart-${Date.now()}`,
-            items,
-            ...totals,
-            contact: contact || undefined,
-            sessionId: sessionId || `session-${Date.now()}`,
-            createdAt: parsed.timestamp || Date.now(),
-            updatedAt: Date.now(),
-          }
-          setCart(newCart)
-          localStorage.setItem(CART_KEY, JSON.stringify(newCart))
-        } else if (parsed.items) {
-          // Standard cart format — prices already calculated
+        if (parsed.items) {
           setCart(parsed)
         } else {
+          // Unrecognised format — start fresh
           setCart(createEmptyCart())
         }
       } else {
@@ -382,7 +125,7 @@ export function useCart() {
       setCart(createEmptyCart())
     }
     setIsLoading(false)
-  }, [pricingLoading, dbPrices])
+  }, [])
 
   // Save cart to localStorage whenever it changes
   const saveCart = useCallback((newCart: CartData) => {
