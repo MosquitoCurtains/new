@@ -20,6 +20,7 @@ function mapDbToGalleryImage(row: any): GalleryImage {
     meshType: row.mesh_type || undefined,
     topAttachment: row.top_attachment || undefined,
     color: row.color || undefined,
+    canvasColor: row.canvas_color || undefined,
     location: row.location || undefined,
     customerName: row.customer_name || undefined,
   }

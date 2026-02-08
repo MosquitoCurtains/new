@@ -38,5 +38,8 @@ export type { SupportPageTemplateProps, ContentSection as SupportContentSection,
 export { GalleryPageTemplate } from './GalleryPageTemplate'
 export type { GalleryPageTemplateProps, GalleryImage, GalleryFilters, FilterOption } from './GalleryPageTemplate'
 
+// Re-export for convenience — GalleryImage is also used by ProjectTypePageTemplate
+// Use ProjectGalleryImage for that context to avoid naming collisions
+
 // Re-export GoogleReviews for use in templates
 export { GoogleReviews } from '../components/marketing/GoogleReviews'

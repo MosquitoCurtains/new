@@ -5,7 +5,10 @@ import { GalleryPageTemplate } from '@/lib/design-system/templates'
 import type { GalleryImage } from '@/lib/design-system/templates'
 import { ORDERS_SERVED_FORMATTED } from '@/lib/constants/orders-served'
 
-// Filter options
+// ============================================================================
+// Filter options — context-aware, shown/hidden based on product type
+// ============================================================================
+
 const GALLERY_FILTERS = {
   productTypes: [
     { value: 'mosquito_curtains', label: 'Mosquito Curtains' },
@@ -22,12 +25,28 @@ const GALLERY_FILTERS = {
     { value: 'awning', label: 'Awning' },
     { value: 'boat', label: 'Boat' },
     { value: 'industrial', label: 'Industrial' },
+    { value: 'projection', label: 'Projection' },
+    { value: 'other', label: 'Other' },
+  ],
+  // CV only — canvas/apron color
+  canvasColors: [
+    { value: 'ashen_gray', label: 'Ashen Gray' },
+    { value: 'black', label: 'Black' },
+    { value: 'burgundy', label: 'Burgundy' },
+    { value: 'cocoa_brown', label: 'Cocoa Brown' },
+    { value: 'forest_green', label: 'Forest Green' },
+    { value: 'moss_green', label: 'Moss Green' },
+    { value: 'navy', label: 'Navy' },
+    { value: 'no_canvas', label: 'No Canvas' },
+    { value: 'royal_blue', label: 'Royal Blue' },
+    { value: 'sandy_tan', label: 'Sandy Tan' },
   ],
 }
 
-/**
- * Map database row to GalleryImage template interface
- */
+// ============================================================================
+// Map DB row -> GalleryImage template interface
+// ============================================================================
+
 function mapDbToGalleryImage(row: any): GalleryImage {
   return {
     id: row.id,
@@ -40,10 +59,15 @@ function mapDbToGalleryImage(row: any): GalleryImage {
     meshType: row.mesh_type || undefined,
     topAttachment: row.top_attachment || undefined,
     color: row.color || undefined,
+    canvasColor: row.canvas_color || undefined,
     location: row.location || undefined,
     customerName: row.customer_name || undefined,
   }
 }
+
+// ============================================================================
+// Page
+// ============================================================================
 
 export default function GalleryPage() {
   const [images, setImages] = useState<GalleryImage[]>([])
@@ -52,7 +76,7 @@ export default function GalleryPage() {
   useEffect(() => {
     async function fetchImages() {
       try {
-        const res = await fetch('/api/gallery/images?limit=200')
+        const res = await fetch('/api/gallery/images?limit=500')
         const data = await res.json()
         if (res.ok) {
           setImages((data.images || []).map(mapDbToGalleryImage))
