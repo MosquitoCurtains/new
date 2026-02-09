@@ -155,7 +155,7 @@ export default function RedditHubPage() {
         <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg" className="items-center">
           <Frame ratio="4/3" className="rounded-3xl overflow-hidden">
             <img
-              src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/21-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg"
+              src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/21-Mosquito-Netting-on-Screen-Porch-1200.jpg"
               alt="Beautiful porch with mosquito curtains"
               className="w-full h-full object-cover"
             />

@@ -7,6 +7,8 @@ import {
   ThermometerSun,
   Shield,
   CheckCircle,
+  Bug,
+  Sparkle,
 } from 'lucide-react'
 import { 
   Container, 
@@ -24,6 +26,7 @@ import {
   WhyChooseUsTemplate,
   PowerHeaderTemplate,
   MC_HERO_ACTIONS,
+  TwoColumn,
 } from '@/lib/design-system'
 
 export default function PorchWinterizePage() {
@@ -146,6 +149,7 @@ export default function PorchWinterizePage() {
         </section>
 
         {/* Final CTA */}
+
         <FinalCTATemplate />
 
       </Stack>

@@ -348,14 +348,14 @@ export default function ClearVinylOptionsPage() {
                 <Grid responsiveCols={{ mobile: 2, tablet: 2 }} gap="sm">
                   <Frame ratio="4/3" className="rounded-lg overflow-hidden">
                     <img
-                      src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Good-1-Big-1024x768.jpg"
+                      src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Good-1-Big.jpg"
                       alt="Good photo example 1"
                       className="w-full h-full object-cover"
                     />
                   </Frame>
                   <Frame ratio="4/3" className="rounded-lg overflow-hidden">
                     <img
-                      src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Good-2-Big-1024x768.jpg"
+                      src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Good-2-Big.jpg"
                       alt="Good photo example 2"
                       className="w-full h-full object-cover"
                     />
@@ -377,14 +377,14 @@ export default function ClearVinylOptionsPage() {
                 <Grid responsiveCols={{ mobile: 2, tablet: 2 }} gap="sm">
                   <Frame ratio="4/3" className="rounded-lg overflow-hidden opacity-60">
                     <img
-                      src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Bad-1-Big-1024x768.jpg"
+                      src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Bad-1-Big.jpg"
                       alt="Bad photo example 1"
                       className="w-full h-full object-cover"
                     />
                   </Frame>
                   <Frame ratio="4/3" className="rounded-lg overflow-hidden opacity-60">
                     <img
-                      src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Bad-2-Big-1024x768.jpg"
+                      src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Bad-2-Big.jpg"
                       alt="Bad photo example 2"
                       className="w-full h-full object-cover"
                     />

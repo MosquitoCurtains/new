@@ -8,6 +8,8 @@ import {
   AlertTriangle,
   Wrench,
   Shield,
+  Bug,
+  Award,
 } from 'lucide-react'
 import { 
   Container, 
@@ -29,11 +31,16 @@ import {
 } from '@/lib/design-system'
 
 const GALLERY_IMAGES = [
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/09-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg', alt: 'Pergola screen curtains' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/21-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg', alt: 'Pergola netting' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/31-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg', alt: 'Pergola enclosure' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/32-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg', alt: 'Pergola screens' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/30-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg', alt: 'Pergola insect curtains' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/22-Pergola-Screen-Panels-1200.jpg', alt: 'Insect Curtains for Pergolas' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/17-Pergola-Screen-Panels-1200.jpg', alt: 'Pergola Screen Panels' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/14-Plastic-Porch-and-Patio-Enclosures-Sandy-Tan-Pergola-1200.jpg', alt: 'Plastic Panels for porch' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/16-Pergola-Screen-Panels-1200.jpg', alt: 'Pergola Screen Panels' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/15-Pergola-Screen-Panels-1200.jpg', alt: 'Pergola Screen Panels' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/14-Pergola-Screen-Panels-1200.jpg', alt: 'Pergola Screen Panels' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/13-Pergola-Screen-Panels-1200.jpg', alt: 'Pergola Screen Panels' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/12-Pergola-Screen-Panels-1200.jpg', alt: 'Pergola Screen Panels' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/11-Pergola-Screen-Panels-1200.jpg', alt: 'Pergola Screens' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/10-Pergola-Screen-Panels-1200.jpg', alt: 'Pergola bug curtain screens' },
 ]
 
 export default function PergolaScreenCurtainsPage() {
@@ -82,7 +89,7 @@ export default function PergolaScreenCurtainsPage() {
               </Text>
             </Stack>
             <Frame ratio="16/9" className="rounded-2xl overflow-hidden">
-              <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/09-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg" alt="Pergola screen curtains" className="w-full h-full object-cover" />
+              <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/09-Mosquito-Netting-on-Screen-Porch-1200.jpg" alt="Pergola screen curtains" className="w-full h-full object-cover" />
             </Frame>
           </TwoColumn>
         </HeaderBarSection>
@@ -145,7 +152,7 @@ export default function PergolaScreenCurtainsPage() {
           <TwoColumn gap="lg" className="items-center">
             <Grid responsiveCols={{ mobile: 2, tablet: 2 }} gap="md">
               <Frame ratio="1/1" className="rounded-xl overflow-hidden">
-                <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Insect-Mesh-Holds-Up-240-LB-Man-400.jpg" alt="Durable mosquito netting" className="w-full h-full object-cover" />
+                <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Insect-Mesh-Holds-Up-240-LB-Man-1200.jpg" alt="Durable mosquito netting" className="w-full h-full object-cover" />
               </Frame>
               <Frame ratio="1/1" className="rounded-xl overflow-hidden">
                 <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Screen-Sewing-400.jpg" alt="Quality screen sewing" className="w-full h-full object-cover" />

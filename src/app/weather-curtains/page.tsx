@@ -17,6 +17,8 @@ import {
   TreePine,
   Camera,
   DollarSign,
+  Bug,
+  Sparkle,
 } from 'lucide-react'
 import { 
   Container, 
@@ -179,7 +181,7 @@ export default function WeatherCurtainsPage() {
               <Card className="p-4 text-center">
                 <Frame ratio="4/3" className="rounded-lg overflow-hidden mb-3">
                   <img
-                    src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/01-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg"
+                    src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/01-Mosquito-Netting-on-Screen-Porch-1200.jpg"
                     alt="Summer insect panels"
                     className="w-full h-full object-cover"
                   />
@@ -288,6 +290,59 @@ export default function WeatherCurtainsPage() {
         {/* ================================================================
             FINAL CTA - Shared template
             ================================================================ */}
+
+        <HeaderBarSection icon={Bug} label="Product description in a nutshell (1:30)" variant="dark">
+          <TwoColumn gap="lg" className="items-center">
+            <Frame ratio="4/3" className="rounded-2xl overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/10_Plastic-Drop-Panels-Patio-Inside-View-Forest-Green-Canvas-1200.jpg"
+                alt="Plastic Drop Panels Patio Inside View Forest Green Canvas"
+                className="w-full h-full object-cover"
+              />
+            </Frame>
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                10% Off Sale until Feb 14th… Coupon = Midwinter26
+              </Text>
+            </Stack>
+          </TwoColumn>
+        </HeaderBarSection>
+
+        <HeaderBarSection icon={Sparkle} label="Instant Price Calculator" variant="dark">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                Estimate Within 5% of Actual Cost
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-2xl overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/26-Clear-Plastic-Porch-Enclosure-With-No-Canvas-1200.jpg"
+                alt="Clear Plastic Porch Enclosure With No Canvas"
+                className="w-full h-full object-cover"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+
+        <HeaderBarSection icon={Snowflake} label="Plastic Weather Curtains Interchangeable With Our Summer Mosquito Curtains" variant="dark">
+          <TwoColumn gap="lg" className="items-center">
+            <Frame ratio="4/3" className="rounded-2xl overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/09-Clear-Vinyl-Enclosure-Moss-Green-Canvas-Patio-1200.jpg"
+                alt="Clear Vinyl Enclosure Moss Green Canvas Patio"
+                className="w-full h-full object-cover"
+              />
+            </Frame>
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                We offer both Summer Mosquito Netting Curtains & Clear Vinyl Winter Weather Curtains that will enable you to enjoy family time just outside your own home. Best of all, the two products are entirely removable & interchangeable such that you can swap them out in the Spring and Fall. We designed an easy to self-install product perfect as an afternoon family project that you will all later enjoy, together! Congratulations! You just found a needle in a haystack and the best Quality / Price anywhere!
+              </Text>
+            </Stack>
+          </TwoColumn>
+        </HeaderBarSection>
+
+
         <FinalCTATemplate />
 
       </Stack>

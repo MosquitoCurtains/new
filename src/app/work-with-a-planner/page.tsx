@@ -11,6 +11,7 @@ import {
   MapPin,
   User,
   Clock,
+  Bug,
 } from 'lucide-react'
 import { 
   Container, 
@@ -27,6 +28,7 @@ import {
   FinalCTATemplate,
   HeaderBarSection,
   YouTubeEmbed,
+  TwoColumn,
 } from '@/lib/design-system'
 
 // Planning team members
@@ -253,6 +255,29 @@ export default function WorkWithAPlannerPage() {
         {/* ================================================================
             FINAL CTA
             ================================================================ */}
+
+        <HeaderBarSection icon={Bug} label="More Information" variant="dark">
+          <TwoColumn gap="lg" className="items-center">
+            <Frame ratio="4/3" className="rounded-2xl overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/10_Plastic-Drop-Panels-Patio-Inside-View-Forest-Green-Canvas-1200.jpg"
+                alt="Plastic Drop Panels Patio Inside View Forest Green Canvas"
+                className="w-full h-full object-cover"
+              />
+            </Frame>
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                We are happy to help you plan your project with a quick planning session. For maximum speed and efficiency, photos of your space are extremely helpful. Click the buttons below to see photo guidelines. If you have a general question, call us at 770-645-4745.
+              </Text>
+              <BulletedList spacing="sm">
+                <ListItem variant="checked" iconColor="#406517">Please provide 2-4 high resolution photos that show all complete sides of your project.</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Step BACK and zoom OUT so we can see as much as possible. No close-ups.</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Large file sizes – Small images do not provide enough resolution for planning sessions.</ListItem>
+              </BulletedList>
+            </Stack>
+          </TwoColumn>
+        </HeaderBarSection>
+
         <FinalCTATemplate />
 
       </Stack>

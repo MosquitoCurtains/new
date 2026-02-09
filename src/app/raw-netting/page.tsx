@@ -9,7 +9,7 @@ import {
   Theater,
   Wrench,
   Scissors,
-  Play,
+  ShieldCheck,
 } from 'lucide-react'
 import { 
   Container, 
@@ -25,40 +25,62 @@ import {
   FinalCTATemplate,
   HeaderBarSection,
   WhyChooseUsTemplate,
+  PowerHeaderTemplate,
+  MC_HERO_ACTIONS,
   YouTubeEmbed,
 } from '@/lib/design-system'
-import { RAW_NETTING_VIDEOS } from '@/lib/constants/videos'
+import { VIDEOS, RAW_NETTING_VIDEOS } from '@/lib/constants/videos'
+
+const IMG = 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads'
 
 const NETTING_TYPES = [
   {
-    title: 'Mosquito Netting',
-    description: 'Classic mosquito mesh available by the yard or roll. Perfect for DIY projects.',
+    title: 'Heavy Mosquito Netting',
+    description: 'Our most popular. Best airflow, incredibly strong, stops gnats & black flies. Available in black, white, or ivory.',
     href: '/raw-netting/mosquito-net',
     icon: Bug,
+    image: `${IMG}/2021/08/Mosquito-Mesh-1600.jpg`,
+    price: 'From $5.50/ft',
   },
   {
-    title: 'No-See-Um Netting',
-    description: 'Finer mesh to block tiny biting midges. Essential for coastal areas.',
+    title: 'No-See-Um Mesh',
+    description: 'Very small holes with a much denser weave to keep out no-see-ums. Essential for coastal areas.',
     href: '/raw-netting/no-see-um',
     icon: Bug,
+    image: `${IMG}/2021/08/Noseeum-Mesh-1600.jpg`,
+    price: 'From $6.00/ft',
   },
   {
     title: 'Shade Mesh',
-    description: 'Provides shade, privacy, and insect protection. Multi-purpose outdoor fabric.',
+    description: 'Blocks 80% of sunlight. Black for shade & privacy, white for outdoor projection screens.',
     href: '/raw-netting/shade-mesh',
     icon: Sun,
+    image: `${IMG}/2021/08/Shade-Mesh-1600.jpg`,
+    price: 'From $7.00/ft',
   },
   {
     title: 'Theatre Scrim',
-    description: 'Lightweight theatrical netting for stage productions and events.',
+    description: 'Marine-grade shark tooth scrim for theatre, concerts, events, and projection screens.',
     href: '/raw-netting/scrim',
     icon: Theater,
+    image: `${IMG}/2019/09/White-Sharks-tooth-Scrim-1200.jpg`,
+    price: 'From $7.00/ft',
   },
   {
     title: 'Industrial Mesh',
-    description: 'Heavy-duty netting for agricultural, industrial, and commercial applications.',
+    description: 'Extremely durable military-overrun netting. Can zip tie on edges. Incredible price point.',
     href: '/raw-netting/industrial',
     icon: Factory,
+    image: `${IMG}/2021/08/Industrial-Mesh-1600.jpg`,
+    price: 'From $4.00/ft',
+  },
+  {
+    title: 'Shop All Meshes',
+    description: 'See pricing information for all raw netting mesh types. Compare visibility, optical qualities, and colors.',
+    href: '/order-mesh-netting-fabrics',
+    icon: Scissors,
+    image: `${IMG}/2021/08/See-All-Meshes-1600.jpg`,
+    price: 'View All',
   },
 ]
 
@@ -68,63 +90,61 @@ export default function RawNettingPage() {
       <Stack gap="lg">
         
         {/* Hero */}
-        <section className="relative py-12 text-center">
-          <Stack gap="md" className="max-w-3xl mx-auto">
-            <div className="w-20 h-20 bg-[#406517]/10 rounded-full mx-auto flex items-center justify-center">
-              <Scissors className="w-10 h-10 text-[#406517]" />
-            </div>
-            <Heading level={1} className="!text-4xl md:!text-5xl">
-              Raw Netting & Mesh
-            </Heading>
-            <Text className="text-xl text-gray-600">
-              Premium netting and mesh fabrics sold by the yard or roll. Perfect for DIY 
-              projects, custom applications, and bulk orders.
-            </Text>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Button variant="primary" asChild>
-                <Link href="/start-project?mode=quote">
-                  Get a Quote
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <Link href="/raw-netting/custom">
-                  Custom Orders
-                </Link>
-              </Button>
-            </div>
-          </Stack>
-        </section>
+        <PowerHeaderTemplate
+          title="Raw Netting & Mesh Fabrics"
+          subtitle="Giant rolls of raw netting custom-cut to your specifications. Incredibly strong with limitless applications. We're manufacturers who use these exact materials in our own products."
+          videoId={VIDEOS.RAW_NETTING}
+          videoTitle="Why Us For Raw Netting"
+          variant="compact"
+          actions={MC_HERO_ACTIONS}
+        />
 
-        {/* Netting Types */}
-        <HeaderBarSection icon={Bug} label="Netting Types" variant="dark">
+        {/* Why Choose Us */}
+        <WhyChooseUsTemplate />
+
+        {/* Product Cards with Real Images */}
+        <HeaderBarSection icon={Scissors} label="Shop By Mesh Type" variant="dark">
           <Grid responsiveCols={{ mobile: 1, tablet: 2, desktop: 3 }} gap="lg">
             {NETTING_TYPES.map((type) => {
               const Icon = type.icon
               return (
-                <Card key={type.title} variant="elevated" className="!p-6 hover:shadow-lg transition-shadow">
-                  <Link href={type.href} className="block">
-                    <div className="w-12 h-12 bg-[#406517]/10 rounded-lg flex items-center justify-center mb-4">
-                      <Icon className="w-6 h-6 text-[#406517]" />
-                    </div>
-                    <Heading level={4} className="!mb-2">{type.title}</Heading>
-                    <Text className="text-gray-600 mb-4 !text-sm">{type.description}</Text>
-                    <span className="text-[#406517] font-medium text-sm inline-flex items-center">
-                      Learn More
-                      <ArrowRight className="ml-1 w-4 h-4" />
-                    </span>
-                  </Link>
-                </Card>
+                <Link key={type.title} href={type.href} className="group">
+                  <Card variant="elevated" className="h-full overflow-hidden !p-0 !rounded-2xl hover:shadow-lg transition-shadow">
+                    <Frame ratio="4/3" className="overflow-hidden">
+                      <img
+                        src={type.image}
+                        alt={type.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </Frame>
+                    <Stack gap="sm" className="p-4 md:p-5">
+                      <div className="flex items-center gap-2">
+                        <Icon className="w-4 h-4 text-[#406517]" />
+                        <Text size="xs" className="font-semibold uppercase tracking-wider text-[#406517] !mb-0">
+                          {type.price}
+                        </Text>
+                      </div>
+                      <Heading level={4} className="!text-lg group-hover:text-[#406517] transition-colors !mb-0">
+                        {type.title}
+                      </Heading>
+                      <Text size="sm" className="text-gray-600 !mb-1">{type.description}</Text>
+                      <div className="flex items-center font-semibold text-sm text-[#406517]">
+                        Shop Now
+                        <ArrowRight className="ml-1 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      </div>
+                    </Stack>
+                  </Card>
+                </Link>
               )
             })}
           </Grid>
         </HeaderBarSection>
 
         {/* Video Demonstrations */}
-        <HeaderBarSection icon={Play} label="Raw Netting Videos" variant="dark">
+        <HeaderBarSection icon={Bug} label="Raw Netting Videos" variant="dark">
           <Stack gap="lg">
             <Text className="text-gray-600 text-center max-w-3xl mx-auto">
-              Watch our videos to learn about our raw netting products, materials, and how to use them for your projects.
+              Watch our videos to learn about raw netting products, fabric types, optical qualities, and how to use them for your projects.
             </Text>
             <Grid responsiveCols={{ mobile: 1, tablet: 2, desktop: 3 }} gap="lg">
               {RAW_NETTING_VIDEOS.map((video) => (
@@ -144,27 +164,36 @@ export default function RawNettingPage() {
         </HeaderBarSection>
 
         {/* Why Buy From Us */}
-        <HeaderBarSection icon={Wrench} label="Why Buy Netting From Us?" variant="dark">
+        <HeaderBarSection icon={ShieldCheck} label="Why Buy Netting From Us?" variant="dark">
           <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg" className="items-center">
             <Frame ratio="16/9" className="rounded-xl overflow-hidden">
               <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Raw-Netting-Roll.jpg"
-                alt="Raw netting rolls"
+                src={`${IMG}/2019/09/Massive-Fabric-Rolls.jpg`}
+                alt="Massive rolls of raw netting fabric"
                 className="w-full h-full object-cover"
               />
             </Frame>
             <Stack gap="md">
               <Text className="text-gray-600">
-                We're not just a netting retailer - we're manufacturers who use these exact 
-                materials in our own professional curtain products.
+                We only offer mesh netting that is going to last. We don't just buy netting and resell it -- 
+                we're manufacturers who use these exact materials in our own fabricated solutions. The best 
+                reason to buy from us are the ideas we can share.
               </Text>
               <BulletedList spacing="md">
-                <ListItem variant="checked" iconColor="#406517">Same quality we use in our products</ListItem>
-                <ListItem variant="checked" iconColor="#406517">Bulk pricing available</ListItem>
-                <ListItem variant="checked" iconColor="#406517">Cut to any length you need</ListItem>
-                <ListItem variant="checked" iconColor="#406517">Expert advice on applications</ListItem>
-                <ListItem variant="checked" iconColor="#406517">Fast shipping nationwide</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Same marine-grade quality we use in our products</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Very wide rolls up to 12 feet -- sold by the linear foot</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Expert advice on applications and rigging</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Fast shipping: 3-7 business days (US/CA)</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Solution dyed for maximum fade resistance</ListItem>
               </BulletedList>
+              <div className="pt-2">
+                <Button variant="primary" asChild>
+                  <Link href="/raw-netting/why-us">
+                    Learn More About Us
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </Link>
+                </Button>
+              </div>
             </Stack>
           </Grid>
         </HeaderBarSection>
@@ -172,60 +201,44 @@ export default function RawNettingPage() {
         {/* Resources */}
         <HeaderBarSection icon={Wrench} label="Helpful Resources" variant="dark">
           <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="lg">
-            <Card className="!p-4 hover:shadow-md transition-shadow">
+            <Card className="!p-5 hover:shadow-md transition-shadow">
               <Link href="/raw-netting/hardware" className="block">
+                <Wrench className="w-8 h-8 text-[#406517] mb-3" />
                 <Heading level={5} className="!mb-2">Attachment Hardware</Heading>
-                <Text className="text-sm text-gray-600 !mb-2">
-                  Grommets, snaps, velcro, and more for attaching your netting.
+                <Text className="text-sm text-gray-600 !mb-3">
+                  Marine snaps, grommets, velcro, elastic cord, webbing, and more for attaching your netting.
                 </Text>
-                <span className="text-[#406517] text-sm font-medium">View Hardware</span>
+                <span className="text-[#406517] text-sm font-medium inline-flex items-center">
+                  View Hardware <ArrowRight className="ml-1 w-3 h-3" />
+                </span>
               </Link>
             </Card>
-            <Card className="!p-4 hover:shadow-md transition-shadow">
+            <Card className="!p-5 hover:shadow-md transition-shadow">
               <Link href="/raw-netting/rigging" className="block">
-                <Heading level={5} className="!mb-2">Fasteners & Rigging</Heading>
-                <Text className="text-sm text-gray-600 !mb-2">
-                  Ideas for fastening and rigging your netting projects.
+                <Scissors className="w-8 h-8 text-[#406517] mb-3" />
+                <Heading level={5} className="!mb-2">Fasteners & Rigging Ideas</Heading>
+                <Text className="text-sm text-gray-600 !mb-3">
+                  Creative rigging methods: marine snaps, elastic cord, PVC clamps, duct tape tricks, and more.
                 </Text>
-                <span className="text-[#406517] text-sm font-medium">View Ideas</span>
+                <span className="text-[#406517] text-sm font-medium inline-flex items-center">
+                  View Ideas <ArrowRight className="ml-1 w-3 h-3" />
+                </span>
               </Link>
             </Card>
-            <Card className="!p-4 hover:shadow-md transition-shadow">
+            <Card className="!p-5 hover:shadow-md transition-shadow">
               <Link href="/raw-netting/custom" className="block">
-                <Heading level={5} className="!mb-2">Custom Orders</Heading>
-                <Text className="text-sm text-gray-600 !mb-2">
-                  Let us make it for you - custom cut, sewn, and finished.
+                <ShieldCheck className="w-8 h-8 text-[#406517] mb-3" />
+                <Heading level={5} className="!mb-2">Let Us Make It For You</Heading>
+                <Text className="text-sm text-gray-600 !mb-3">
+                  Custom cut, sewn, hemmed, and finished. We've done tens of thousands of custom projects.
                 </Text>
-                <span className="text-[#406517] text-sm font-medium">Learn More</span>
+                <span className="text-[#406517] text-sm font-medium inline-flex items-center">
+                  Learn More <ArrowRight className="ml-1 w-3 h-3" />
+                </span>
               </Link>
             </Card>
           </Grid>
         </HeaderBarSection>
-
-        {/* Why Choose Us */}
-        <WhyChooseUsTemplate />
-
-        {/* CTA */}
-        <section className="bg-gradient-to-br from-[#406517]/10 via-white to-[#003365]/10 rounded-3xl p-8 md:p-12 text-center">
-          <Heading level={2} className="!mb-4">Need Help Choosing?</Heading>
-          <Text className="text-gray-600 max-w-2xl mx-auto mb-8">
-            Not sure which netting is right for your project? Contact us and we'll 
-            help you find the perfect material.
-          </Text>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="primary" asChild>
-              <Link href="/start-project">
-                Start Your Project
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/raw-netting/why-us">
-                Why Choose Us
-              </Link>
-            </Button>
-          </div>
-        </section>
 
         {/* Final CTA */}
         <FinalCTATemplate />

@@ -127,7 +127,7 @@ export default function FramePage() {
             <Text className="font-semibold !mb-2">4/3 - Gallery Images</Text>
             <Frame ratio="4/3" className="rounded-xl overflow-hidden bg-gray-200">
               <img 
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/21-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg"
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/21-Mosquito-Netting-on-Screen-Porch-1200.jpg"
                 alt="Example"
                 className="w-full h-full object-cover"
               />

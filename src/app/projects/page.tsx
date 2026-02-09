@@ -32,7 +32,7 @@ const GALLERY_COLLECTIONS = [
     description: 'Browse our complete gallery of customer installations.',
     href: '/gallery',
     icon: Images,
-    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/21-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg',
+    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/21-Mosquito-Netting-on-Screen-Porch-1200.jpg',
     count: '500+',
   },
   {
@@ -40,7 +40,7 @@ const GALLERY_COLLECTIONS = [
     description: 'All mosquito curtain installations - porches, patios, gazebos, and more.',
     href: '/gallery/mosquito-netting',
     icon: Bug,
-    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/31-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg',
+    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/31-Mosquito-Netting-on-Screen-Porch-1200.jpg',
     count: '300+',
   },
   {
@@ -48,7 +48,7 @@ const GALLERY_COLLECTIONS = [
     description: 'White mesh creates a bright, airy feel while keeping bugs out.',
     href: '/gallery/white-netting',
     icon: Bug,
-    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/23-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg',
+    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/23-Mosquito-Netting-on-Screen-Porch-1200.jpg',
     count: '100+',
   },
   {
@@ -56,7 +56,7 @@ const GALLERY_COLLECTIONS = [
     description: 'Black mesh offers better visibility and blends with dark frames.',
     href: '/gallery/black-netting',
     icon: Bug,
-    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/32-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg',
+    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/32-Mosquito-Netting-on-Screen-Porch-1200.jpg',
     count: '200+',
   },
   {
@@ -64,7 +64,7 @@ const GALLERY_COLLECTIONS = [
     description: 'Weather-blocking panels that extend your outdoor season.',
     href: '/gallery/clear-vinyl',
     icon: Snowflake,
-    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/82-Screen-Patio-Enclosure-1200-400x300-1.jpg',
+    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/82-Screen-Patio-Enclosure-1200.jpg',
     count: '150+',
   },
   {
@@ -72,7 +72,7 @@ const GALLERY_COLLECTIONS = [
     description: 'Hand-picked installations showcasing our best work.',
     href: '/gallery/featured',
     icon: Images,
-    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/09-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg',
+    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/09-Mosquito-Netting-on-Screen-Porch-1200.jpg',
     count: '50+',
   },
 ]
@@ -82,19 +82,19 @@ const PROJECT_TYPES = [
     title: 'Porch Projects',
     href: '/gallery/porch-projects',
     icon: Home,
-    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/25-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg',
+    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/25-Mosquito-Netting-on-Screen-Porch-1200.jpg',
   },
   {
     title: 'Pergola Projects',
     href: '/pergola',
     icon: TreePine,
-    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/09-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg',
+    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/09-Mosquito-Netting-on-Screen-Porch-1200.jpg',
   },
   {
     title: 'Gazebo Projects',
     href: '/gazebo',
     icon: Tent,
-    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/30-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg',
+    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/30-Mosquito-Netting-on-Screen-Porch-1200.jpg',
   },
   {
     title: 'Yardistry Gazebos',

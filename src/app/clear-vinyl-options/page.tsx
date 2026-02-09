@@ -17,6 +17,7 @@ import {
   DoorOpen,
   Wrench,
   Phone,
+  Bug,
 } from 'lucide-react'
 import {
   Container,
@@ -366,14 +367,14 @@ export default function ClearVinylOptionsPage() {
               <Grid responsiveCols={{ mobile: 2, tablet: 2 }} gap="sm">
                 <Frame ratio="4/3" className="rounded-lg overflow-hidden">
                   <img
-                    src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Good-1-Big-1024x768.jpg"
+                    src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Good-1-Big.jpg"
                     alt="Good photo example 1"
                     className="w-full h-full object-cover"
                   />
                 </Frame>
                 <Frame ratio="4/3" className="rounded-lg overflow-hidden">
                   <img
-                    src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Good-2-Big-1024x768.jpg"
+                    src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Good-2-Big.jpg"
                     alt="Good photo example 2"
                     className="w-full h-full object-cover"
                   />
@@ -395,14 +396,14 @@ export default function ClearVinylOptionsPage() {
               <Grid responsiveCols={{ mobile: 2, tablet: 2 }} gap="sm">
                 <Frame ratio="4/3" className="rounded-lg overflow-hidden opacity-60">
                   <img
-                    src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Bad-1-Big-1024x768.jpg"
+                    src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Bad-1-Big.jpg"
                     alt="Bad photo example 1"
                     className="w-full h-full object-cover"
                   />
                 </Frame>
                 <Frame ratio="4/3" className="rounded-lg overflow-hidden opacity-60">
                   <img
-                    src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Bad-2-Big-1024x768.jpg"
+                    src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Bad-2-Big.jpg"
                     alt="Bad photo example 2"
                     className="w-full h-full object-cover"
                   />
@@ -491,6 +492,46 @@ export default function ClearVinylOptionsPage() {
         {/* ================================================================
             FINAL CTA
             ================================================================ */}
+
+        <HeaderBarSection icon={Wrench} label="Step 3. Simple Components & Usability" variant="dark">
+          <TwoColumn gap="lg" className="items-center">
+            <Frame ratio="4/3" className="rounded-2xl overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/10_Plastic-Drop-Panels-Patio-Inside-View-Forest-Green-Canvas-1200.jpg"
+                alt="Plastic Drop Panels Patio Inside View Forest Green Canvas"
+                className="w-full h-full object-cover"
+              />
+            </Frame>
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                One of our biggest focal points is the ease of installation and usability of your curtain. Our zipper doorways allow you easy entry and exit between panels and at the edge of panels. For simple installation, we use a series of versatile components like L screws and marine snaps to allow you to attach to different surfaces. The marine Snap Video is under 90 seconds. Watch it and you will understand most of what you need to know about how your curtains will operate.
+              </Text>
+            </Stack>
+          </TwoColumn>
+        </HeaderBarSection>
+
+        <HeaderBarSection icon={Bug} label="Marine Snaps in Under 90 Seconds" variant="dark">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                We are happy to help you plan your project with a quick planning session. For maximum speed and efficiency, photos of your space are extremely helpful. Click the buttons below to see photo guidelines. If you have a general question, call us at 770-645-4745.
+              </Text>
+              <BulletedList spacing="sm">
+                <ListItem variant="checked" iconColor="#406517">Please provide 2-4 high resolution photos that show all complete sides of your project.</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Step BACK and zoom OUT so we can see as much as possible. No close-ups.</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Large file sizes – Small images do not provide enough resolution for planning sessions.</ListItem>
+              </BulletedList>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-2xl overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/26-Clear-Plastic-Porch-Enclosure-With-No-Canvas-1200.jpg"
+                alt="Clear Plastic Porch Enclosure With No Canvas"
+                className="w-full h-full object-cover"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+
         <FinalCTATemplate />
 
       </Stack>

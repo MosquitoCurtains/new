@@ -9,6 +9,7 @@ import {
   Snowflake,
   Shield,
   Film,
+  Bug,
 } from 'lucide-react'
 import { 
   Container, 
@@ -31,16 +32,16 @@ import {
 } from '@/lib/design-system'
 
 const GALLERY_IMAGES = [
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/14-Garage-Door-Mosquito-Mesh-Netting-Panels-1200-1024x768.jpg', alt: '2 car garage screen' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/13-Garage-Door-Mosquito-Mesh-Netting-Panels-1200-1024x768.jpg', alt: 'Garage screen cost' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/16-Garage-Door-Mosquito-Mesh-Netting-Panels-1200-1024x768.jpg', alt: '16ft garage screen' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/08-Boat-Garage-Door-Mosquito-Mesh-Netting-Panels-1200-1024x768.jpg', alt: 'Garage screens' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/04-Garage-Door-Mosquito-Mesh-Netting-Panels-1200-1024x768.jpg', alt: 'Garage door screens' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/11-Garage-Door-Mosquito-Mesh-Netting-Panels-1200-1024x768.jpg', alt: 'Garage bug netting' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/01-Garage-Door-Mosquito-Mesh-Netting-Panels-Shade-In-1200-1024x768.jpg', alt: 'Garage screen door' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/06-Garage-Door-Mosquito-Mesh-Netting-Panels-1200-1024x768.jpg', alt: 'Commercial garage screen' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/10-Garage-Door-Mosquito-Mesh-Netting-Panels-1200-1024x768.jpg', alt: 'Garage mosquito netting' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/00-Garage-Door-Mosquito-Mesh-Netting-Panels-Clear-Out-1200-1024x768.jpg', alt: 'Garage door screens' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/16-Garage-Door-Mosquito-Mesh-Netting-Panels-1200.jpg', alt: '16ft garage screen' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/14-Garage-Door-Mosquito-Mesh-Netting-Panels-1200.jpg', alt: '2 car garage screen' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/13-Garage-Door-Mosquito-Mesh-Netting-Panels-1200.jpg', alt: 'Cost to screen garage' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/12-Garage-Door-Mosquito-Mesh-Netting-Panels-1200.jpg', alt: 'screens for garage door' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/11-Garage-Door-Mosquito-Mesh-Netting-Panels-1200.jpg', alt: 'Garage bug netting' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/10-Garage-Door-Mosquito-Mesh-Netting-Panels-1200.jpg', alt: 'Garage mosquito netting' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/01-Clear-Plastic-Winter-Panels-Garage-Gray-1200.jpg', alt: 'Clear Plastic Winter Panels Garage Gray' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/09-Garage-Door-Mosquito-Mesh-Netting-Panels-1200.jpg', alt: 'Garage Door Mosquito Mesh Netting Panels' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/08-Boat-Garage-Door-Mosquito-Mesh-Netting-Panels-1200.jpg', alt: 'Garage screens' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/07-Garage-Door-Mosquito-Mesh-Netting-Panels-1200.jpg', alt: 'Garage screens' },
 ]
 
 const FEATURES = [
@@ -105,10 +106,10 @@ export default function GarageDoorScreensPage() {
             </Stack>
             <Grid responsiveCols={{ mobile: 2, tablet: 2 }} gap="md">
               <Frame ratio="4/3" className="rounded-xl overflow-hidden">
-                <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/01-Garage-Door-Mosquito-Mesh-Netting-Panels-Shade-In-1200-768x576.jpg" alt="Privacy looking in" className="w-full h-full object-cover" />
+                <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/01-Garage-Door-Mosquito-Mesh-Netting-Panels-Shade-In-1200.jpg" alt="Privacy looking in" className="w-full h-full object-cover" />
               </Frame>
               <Frame ratio="4/3" className="rounded-xl overflow-hidden">
-                <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/00-Garage-Door-Mosquito-Mesh-Netting-Panels-Clear-Out-1200-768x576.jpg" alt="Clear looking out" className="w-full h-full object-cover" />
+                <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/00-Garage-Door-Mosquito-Mesh-Netting-Panels-Clear-Out-1200.jpg" alt="Clear looking out" className="w-full h-full object-cover" />
               </Frame>
             </Grid>
           </TwoColumn>
@@ -164,7 +165,7 @@ export default function GarageDoorScreensPage() {
         <HeaderBarSection icon={Snowflake} label="Winter Panels For All-Season Garage Room" variant="dark">
           <TwoColumn gap="lg" className="items-center">
             <Frame ratio="16/9" className="rounded-2xl overflow-hidden">
-              <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/01-Clear-Plastic-Winter-Panels-Garage-Gray-1200-768x576.jpg" alt="Clear vinyl garage panels" className="w-full h-full object-cover" />
+              <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/01-Clear-Plastic-Winter-Panels-Garage-Gray-1200.jpg" alt="Clear vinyl garage panels" className="w-full h-full object-cover" />
             </Frame>
             <Stack gap="md">
               <Text className="text-gray-600">

@@ -7,6 +7,7 @@ import {
   LayoutGrid,
   Ruler,
   Camera,
+  Bug,
 } from 'lucide-react'
 import { 
   Container, 
@@ -22,6 +23,7 @@ import {
   FinalCTATemplate,
   HeaderBarSection,
   YouTubeEmbed,
+  TwoColumn,
 } from '@/lib/design-system'
 
 export default function TwoSidedPage() {
@@ -170,6 +172,68 @@ export default function TwoSidedPage() {
         </section>
 
         {/* Final CTA */}
+
+        <HeaderBarSection icon={Bug} label="Planning a 2-sided Exposure" variant="dark">
+          <TwoColumn gap="lg" className="items-center">
+            <Frame ratio="4/3" className="rounded-2xl overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/10_Plastic-Drop-Panels-Patio-Inside-View-Forest-Green-Canvas-1200.jpg"
+                alt="Plastic Drop Panels Patio Inside View Forest Green Canvas"
+                className="w-full h-full object-cover"
+              />
+            </Frame>
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                By now you have probably decided on a mesh-type & color and either tracking or Velcro® top attachment. Now you will choose a path and select a panel configuration to size individual panels for sealing to surfaces and positioning magnetic doorways.
+              </Text>
+            </Stack>
+          </TwoColumn>
+        </HeaderBarSection>
+
+        <HeaderBarSection icon={Bug} label="2) Determine a Path" variant="dark">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                There is a subtle difference in the path curtains will take depending on what type of columns or you have. There are two types of paths to take, an inside hang (inside your columns), or an outside hang (outside your columns).
+              </Text>
+              <Text className="text-gray-600">
+                We group columns into two categories – regular columns and irregular columns. The path you take depends on the “shape” of the columns that you have.
+              </Text>
+              <Text className="text-gray-600">
+                If you have regular columns and can seal to a perfectly straight edge, we want to take advantage of that opportunity to maximize space and performance of your curtains. You can pass intermediate columns but it is best to terminate panels at CORNER regular columns.
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-2xl overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/26-Clear-Plastic-Porch-Enclosure-With-No-Canvas-1200.jpg"
+                alt="Clear Plastic Porch Enclosure With No Canvas"
+                className="w-full h-full object-cover"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+
+        <HeaderBarSection icon={Bug} label="Regular or Irregular Columns" variant="dark">
+          <TwoColumn gap="lg" className="items-center">
+            <Frame ratio="4/3" className="rounded-2xl overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/09-Clear-Vinyl-Enclosure-Moss-Green-Canvas-Patio-1200.jpg"
+                alt="Clear Vinyl Enclosure Moss Green Canvas Patio"
+                className="w-full h-full object-cover"
+              />
+            </Frame>
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                A regular column has a straight edge that makes for a good sealing surface with marine snaps. We recommend an outside hang ending panels at corner columns.
+              </Text>
+              <Text className="text-gray-600">
+                Irregular columns do not have this straight edge to snap to, so panels will straddle irregular corner columns with our elastic cord to “pinch” the center of the straddling panel to an irregular corner column.
+              </Text>
+            </Stack>
+          </TwoColumn>
+        </HeaderBarSection>
+
+
         <FinalCTATemplate />
 
       </Stack>

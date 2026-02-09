@@ -1,7 +1,7 @@
 'use client'
 
 import { SupportPageTemplate } from '@/lib/design-system/templates'
-import { Heart, Users, Award, Clock } from 'lucide-react'
+import { Heart, Users, Award, Clock, Bug } from 'lucide-react'
 import { Text, Grid, Card, Heading, YouTubeEmbed, Stack } from '@/lib/design-system'
 import { VIDEOS } from '@/lib/constants/videos'
 import { ORDERS_SERVED_COUNT, ORDERS_SERVED_FORMATTED } from '@/lib/constants/orders-served'

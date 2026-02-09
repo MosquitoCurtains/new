@@ -28,21 +28,21 @@ const PRODUCT_CATEGORIES = [
     description: 'Custom mesh curtains that keep bugs out while letting breezes in. Perfect for porches, gazebos, and pergolas.',
     href: '/screened-porch',
     icon: Bug,
-    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Mosquito-Curtains-Product.jpg',
+    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/00-Mosquito-Netting-Various-Projects-1200.jpg',
   },
   {
     title: 'Clear Vinyl Enclosures',
     description: 'Weather-blocking panels that extend your outdoor season. See-through protection from wind, rain, and cold.',
     href: '/clear-vinyl',
     icon: Snowflake,
-    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Clear-Vinyl-Product.jpg',
+    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/00-Clear-Plastic-Winter-Panels-Porch-Gray-1200.jpg',
   },
   {
     title: 'Raw Netting & Mesh',
     description: 'Bulk netting fabrics sold by the yard for DIY projects. Mosquito mesh, no-see-um, shade mesh, and more.',
     href: '/raw-netting',
     icon: Scissors,
-    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Raw-Netting-Product.jpg',
+    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/wide-net-1200.jpg',
   },
 ]
 

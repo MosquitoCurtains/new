@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowRight, Star } from 'lucide-react'
+import { ArrowRight, Star, Bug } from 'lucide-react'
 import {
   Container,
   Stack,
@@ -13,6 +13,8 @@ import {
   GoogleReviews,
   Frame,
   YouTubeEmbed,
+  TwoColumn,
+  HeaderBarSection,
 } from '@/lib/design-system'
 import { VIDEOS } from '@/lib/constants/videos'
 import { FinalCTATemplate } from '@/lib/design-system/templates'
@@ -203,6 +205,25 @@ export default function ReviewsPage() {
         </section>
 
         {/* Final CTA */}
+
+        <HeaderBarSection icon={Bug} label="Making our customers happy is our goal." variant="dark">
+          <TwoColumn gap="lg" className="items-center">
+            <Frame ratio="4/3" className="rounded-2xl overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/26-Clear-Plastic-Porch-Enclosure-With-No-Canvas-1200.jpg"
+                alt="Clear Plastic Porch Enclosure With No Canvas"
+                className="w-full h-full object-cover"
+              />
+            </Frame>
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                We often receive photos of our work from our satisfied customers once they finish installation. We proudly display them here on our website. Read below to see what our customers have to say and how they describe their experiences with us. We would love to work with you too!
+              </Text>
+            </Stack>
+          </TwoColumn>
+        </HeaderBarSection>
+
+
         <FinalCTATemplate />
       </Stack>
     </Container>

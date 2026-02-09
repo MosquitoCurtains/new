@@ -1,182 +1,210 @@
 'use client'
 
 import Link from 'next/link'
-import { 
-  ArrowRight, 
-  ArrowLeft,
-  Theater,
-  Lightbulb,
-  Play,
-} from 'lucide-react'
-import { 
-  Container, 
-  Stack, 
-  Grid, 
-  Text, 
-  Button, 
+import { ArrowRight, Theater, ShieldCheck, Scissors, Bug } from 'lucide-react'
+import {
+  Container,
+  Stack,
+  Grid,
+  TwoColumn,
+  Frame,
+  Text,
+  Button,
   Card,
   Heading,
-  Frame,
   BulletedList,
   ListItem,
+  YouTubeEmbed,
+  PowerHeaderTemplate,
   FinalCTATemplate,
   HeaderBarSection,
-  YouTubeEmbed,
+  MC_HERO_ACTIONS,
 } from '@/lib/design-system'
 import { VIDEOS } from '@/lib/constants/videos'
+
+const IMG = 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads'
 
 export default function ScrimPage() {
   return (
     <Container size="xl">
       <Stack gap="lg">
-        
-        {/* Back Link */}
-        <Link href="/raw-netting" className="inline-flex items-center text-gray-500 hover:text-gray-700 -mb-4">
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Raw Netting
-        </Link>
 
-        {/* Header */}
-        <section className="relative py-8 text-center">
-          <Stack gap="md" className="max-w-3xl mx-auto">
-            <div className="w-16 h-16 bg-[#8B5CF6]/10 rounded-full mx-auto flex items-center justify-center">
-              <Theater className="w-8 h-8 text-[#8B5CF6]" />
-            </div>
-            <Heading level={1} className="!text-4xl md:!text-5xl">
-              Theatre Scrim
-            </Heading>
-            <Text className="text-xl text-gray-600">
-              Lightweight theatrical netting for stage productions, concerts, events, 
-              and creative installations.
-            </Text>
-          </Stack>
-        </section>
+        {/* Hero */}
+        <PowerHeaderTemplate
+          title="Marine Grade Quality Theatre Scrim Material"
+          subtitle="Our shark tooth scrim is 100% polyester, suitable for outdoors and made to get wet. If needed, we can seam panels to make ANY size you desire. Available in white or silver."
+          videoId={VIDEOS.THEATER_SCRIM}
+          videoTitle="Theater Scrim Demo"
+          variant="compact"
+          actions={MC_HERO_ACTIONS}
+        />
 
-        {/* What Is Scrim */}
+        {/* Product Details */}
         <HeaderBarSection icon={Theater} label="What Is Theatre Scrim?" variant="dark">
-          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg" className="items-center">
+          <TwoColumn gap="lg" className="items-center">
             <Frame ratio="4/3" className="rounded-xl overflow-hidden">
               <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Theatre-Scrim.jpg"
-                alt="Theatre scrim material"
+                src={`${IMG}/2019/09/White-Sharks-tooth-Scrim-1200.jpg`}
+                alt="White shark tooth theatre scrim material"
                 className="w-full h-full object-cover"
               />
             </Frame>
             <Stack gap="md">
               <Text className="text-gray-600">
-                Theatre scrim is a specialized gauze-like fabric used in stage productions. 
-                It appears opaque when lit from the front, but becomes transparent when 
-                lit from behind - creating magical reveal effects.
+                Theatre scrim (also known as shark tooth scrim) has a unique optical property: 
+                when lit from the front, it appears opaque. When lit from behind, it becomes 
+                transparent, revealing what's behind it. This creates the classic theatrical 
+                reveal effect.
               </Text>
-              <BulletedList spacing="md">
-                <ListItem variant="checked" iconColor="#8B5CF6">Appears opaque with front lighting</ListItem>
-                <ListItem variant="checked" iconColor="#8B5CF6">Becomes transparent with back lighting</ListItem>
-                <ListItem variant="checked" iconColor="#8B5CF6">Creates dramatic reveal effects</ListItem>
-                <ListItem variant="checked" iconColor="#8B5CF6">Flame retardant options available</ListItem>
+              <BulletedList spacing="sm">
+                <ListItem variant="checked" iconColor="#406517">Front-lit: appears opaque (hides what's behind)</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Back-lit: becomes transparent (reveals what's behind)</ListItem>
+                <ListItem variant="checked" iconColor="#406517">100% polyester, suitable for outdoors</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Marine-grade quality, made to get wet</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Can seam panels for ANY size</ListItem>
               </BulletedList>
+              <div className="pt-2">
+                <Button variant="outline" asChild>
+                  <Link href="/theater-scrims">
+                    See Fabricated Theater Scrims <ArrowRight className="ml-2 w-4 h-4" />
+                  </Link>
+                </Button>
+              </div>
             </Stack>
-          </Grid>
+          </TwoColumn>
         </HeaderBarSection>
 
-        {/* Lighting Effect */}
-        <HeaderBarSection icon={Lightbulb} label="The Scrim Effect" variant="dark">
+        {/* The Scrim Effect */}
+        <HeaderBarSection icon={Theater} label="The Scrim Effect" variant="dark">
           <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
-            <Card variant="elevated" className="!p-6 text-center">
-              <div className="w-full h-32 bg-gray-800 rounded-lg mb-4 flex items-center justify-center">
-                <div className="w-20 h-20 bg-gray-600 rounded-lg"></div>
+            <Card variant="elevated" className="!p-5">
+              <div className="w-full h-40 rounded-lg bg-gray-200 mb-4 flex items-center justify-center border-2 border-gray-300">
+                <div className="text-center">
+                  <Text className="font-bold text-gray-700 !mb-1">FRONT-LIT</Text>
+                  <Text size="sm" className="text-gray-500 !mb-0">Appears Opaque</Text>
+                </div>
               </div>
-              <Heading level={5} className="!mb-2">Front Lit (Opaque)</Heading>
-              <Text className="text-sm text-gray-600 !mb-0">
-                When lit from the front, the scrim appears solid and hides what's behind it.
+              <Heading level={4} className="!mb-2">When Lit From Front</Heading>
+              <Text size="sm" className="text-gray-600 !mb-0">
+                Light hits the scrim from the audience side. The fabric reflects the light and 
+                appears solid/opaque. Anything behind the scrim is hidden from view.
               </Text>
             </Card>
-            <Card variant="elevated" className="!p-6 text-center">
-              <div className="w-full h-32 bg-gray-800 rounded-lg mb-4 flex items-center justify-center">
-                <div className="w-20 h-20 bg-amber-400 rounded-lg opacity-70"></div>
+            <Card variant="elevated" className="!p-5">
+              <div className="w-full h-40 rounded-lg bg-white mb-4 flex items-center justify-center border-2 border-[#406517]/20" style={{background: 'linear-gradient(135deg, rgba(255,255,255,0.9), rgba(64,101,23,0.1))'}}>
+                <div className="text-center">
+                  <Text className="font-bold text-[#406517] !mb-1">BACK-LIT</Text>
+                  <Text size="sm" className="text-[#406517]/70 !mb-0">Becomes Transparent</Text>
+                </div>
               </div>
-              <Heading level={5} className="!mb-2">Back Lit (Transparent)</Heading>
-              <Text className="text-sm text-gray-600 !mb-0">
-                When lit from behind, the scrim becomes transparent, revealing what's there.
+              <Heading level={4} className="!mb-2">When Lit From Behind</Heading>
+              <Text size="sm" className="text-gray-600 !mb-0">
+                Light comes from behind the scrim. The fabric becomes transparent, revealing 
+                actors, sets, or objects positioned behind it. Creates a dramatic reveal effect.
               </Text>
             </Card>
           </Grid>
         </HeaderBarSection>
 
-        {/* Applications */}
+        {/* Pricing */}
+        <HeaderBarSection icon={Scissors} label="Sizing & Pricing" variant="dark">
+          <Stack gap="md">
+            <Text className="text-gray-600">
+              Theatre scrim is available in two roll widths. Order by the linear foot. Color does 
+              not affect price. Your cost is determined by how much we cut (length) from the 
+              particular roll you select.
+            </Text>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-[#406517] text-white">
+                    <th className="px-4 py-3 text-left text-sm font-semibold">Roll Width</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold">Price per Linear Foot</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold">Colors</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold">Example (20ft)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b border-gray-200">
+                    <td className="px-4 py-3 font-medium">120-inch roll</td>
+                    <td className="px-4 py-3 text-[#406517] font-bold">$7.00 / ft</td>
+                    <td className="px-4 py-3 text-gray-600">White, Silver</td>
+                    <td className="px-4 py-3 text-gray-600">20ft x $7.00 = $140.00</td>
+                  </tr>
+                  <tr className="bg-gray-50">
+                    <td className="px-4 py-3 font-medium">140-inch roll</td>
+                    <td className="px-4 py-3 text-[#406517] font-bold">$7.50 / ft</td>
+                    <td className="px-4 py-3 text-gray-600">White, Silver</td>
+                    <td className="px-4 py-3 text-gray-600">20ft x $7.50 = $150.00</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div className="flex justify-center pt-2">
+              <Button variant="primary" asChild>
+                <Link href="/order/raw-netting">
+                  Order Now <ArrowRight className="ml-2 w-4 h-4" />
+                </Link>
+              </Button>
+            </div>
+          </Stack>
+        </HeaderBarSection>
+
+        {/* Common Uses */}
         <HeaderBarSection icon={Theater} label="Common Uses" variant="dark">
-          <Grid responsiveCols={{ mobile: 2, tablet: 4 }} gap="md">
-            <Card variant="elevated" className="!p-4 text-center">
-              <Heading level={5} className="!mb-1">Theatre</Heading>
-              <Text className="text-xs text-gray-500 !mb-0">Stage productions</Text>
-            </Card>
-            <Card variant="elevated" className="!p-4 text-center">
-              <Heading level={5} className="!mb-1">Concerts</Heading>
-              <Text className="text-xs text-gray-500 !mb-0">Live performances</Text>
-            </Card>
-            <Card variant="elevated" className="!p-4 text-center">
-              <Heading level={5} className="!mb-1">Events</Heading>
-              <Text className="text-xs text-gray-500 !mb-0">Corporate & private</Text>
-            </Card>
-            <Card variant="elevated" className="!p-4 text-center">
-              <Heading level={5} className="!mb-1">Installations</Heading>
-              <Text className="text-xs text-gray-500 !mb-0">Art & displays</Text>
-            </Card>
+          <Grid responsiveCols={{ mobile: 1, tablet: 2, desktop: 4 }} gap="md">
+            {[
+              { title: 'Theatre Productions', desc: 'Classic scrim reveals and lighting effects' },
+              { title: 'Concerts & Events', desc: 'Projection surfaces and stage backdrops' },
+              { title: 'Outdoor Projection', desc: 'Outdoor movie screens and displays' },
+              { title: 'Art Installations', desc: 'Creative installations with lighting effects' },
+            ].map((use) => (
+              <Card key={use.title} variant="outlined" className="!p-3">
+                <Text className="font-bold text-gray-900 !mb-0.5 text-sm">{use.title}</Text>
+                <Text size="xs" className="text-gray-600 !mb-0">{use.desc}</Text>
+              </Card>
+            ))}
           </Grid>
         </HeaderBarSection>
-
-        {/* Colors */}
-        <Card className="!p-6 !bg-[#8B5CF6]/5 !border-[#8B5CF6]/20">
-          <Heading level={3} className="!mb-4 text-center">Available in Multiple Colors</Heading>
-          <Text className="text-gray-600 text-center max-w-2xl mx-auto">
-            Theatre scrim is available in black, white, gray, and other colors. 
-            Black is most common for theatrical use. Contact us for color availability.
-          </Text>
-        </Card>
 
         {/* Videos */}
-        <HeaderBarSection icon={Play} label="Related Videos" variant="dark">
+        <HeaderBarSection icon={Theater} label="Scrim Videos" variant="dark">
           <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
             <div>
-              <YouTubeEmbed
-                videoId={VIDEOS.RAW_NETTING}
-                title="Raw Netting Overview"
-                variant="card"
-              />
-              <Text className="text-center mt-2 font-medium text-sm">Raw Netting Overview</Text>
+              <YouTubeEmbed videoId={VIDEOS.THEATER_SCRIM} title="Theater Scrim Demo" variant="card" />
+              <Text className="text-center mt-2 font-medium text-sm">Theater Scrim Demo</Text>
             </div>
             <div>
-              <YouTubeEmbed
-                videoId={VIDEOS.RAW_NETTING_FABRIC}
-                title="Raw Netting Fabric Types"
-                variant="card"
-              />
-              <Text className="text-center mt-2 font-medium text-sm">Raw Netting Fabric Types</Text>
+              <YouTubeEmbed videoId={VIDEOS.RAW_NETTING_FABRIC} title="Mesh Types Overview" variant="card" />
+              <Text className="text-center mt-2 font-medium text-sm">Mesh Types Overview</Text>
             </div>
           </Grid>
         </HeaderBarSection>
 
-        {/* CTA */}
-        <section className="bg-gradient-to-br from-[#8B5CF6]/10 via-white to-[#003365]/10 rounded-3xl p-8 md:p-12 text-center">
-          <Heading level={2} className="!mb-4">Need Theatre Scrim?</Heading>
-          <Text className="text-gray-600 max-w-2xl mx-auto mb-8">
-            Contact us for pricing on theatre scrim and theatrical netting.
-          </Text>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="primary" asChild>
-              <Link href="/start-project">
-                Get a Quote
-                <ArrowRight className="ml-2 w-4 h-4" />
+        {/* Quick Links */}
+        <HeaderBarSection icon={Bug} label="Raw Netting Store Quick Links" variant="dark">
+          <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="md">
+            <Card className="!p-5 text-center hover:shadow-md transition-shadow">
+              <Link href="/order-mesh-netting-fabrics" className="block">
+                <Heading level={5} className="text-[#406517] !mb-1">1. See All Meshes</Heading>
+                <Text size="sm" className="text-gray-600 !mb-0">Several Mesh Types & Colors</Text>
               </Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/theater-scrims">
-                Learn More
+            </Card>
+            <Card className="!p-5 text-center hover:shadow-md transition-shadow">
+              <Link href="/raw-netting/rigging" className="block">
+                <Heading level={5} className="text-[#406517] !mb-1">2. Rigging Ideas</Heading>
+                <Text size="sm" className="text-gray-600 !mb-0">Helpful Ideas & Attachment Items</Text>
               </Link>
-            </Button>
-          </div>
-        </section>
+            </Card>
+            <Card className="!p-5 text-center hover:shadow-md transition-shadow">
+              <Link href="/raw-netting/custom" className="block">
+                <Heading level={5} className="text-[#406517] !mb-1">3. Let Us Make It</Heading>
+                <Text size="sm" className="text-gray-600 !mb-0">Ready to Hang Custom Panels</Text>
+              </Link>
+            </Card>
+          </Grid>
+        </HeaderBarSection>
 
-        {/* Final CTA */}
         <FinalCTATemplate />
 
       </Stack>

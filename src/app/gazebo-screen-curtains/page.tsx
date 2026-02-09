@@ -8,6 +8,8 @@ import {
   Sun,
   Snowflake,
   Shield,
+  Bug,
+  Award,
 } from 'lucide-react'
 import { 
   Container, 
@@ -27,14 +29,16 @@ import {
 } from '@/lib/design-system'
 
 const GALLERY_IMAGES = [
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/30-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg', alt: 'Gazebo screen curtains' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/31-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg', alt: 'Gazebo netting' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/09-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg', alt: 'Gazebo enclosure' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/32-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg', alt: 'Gazebo screens' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/21-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg', alt: 'Gazebo insect curtains' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/25-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg', alt: 'Gazebo bug screens' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/23-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg', alt: 'Gazebo mosquito curtains' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/20-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg', alt: 'Gazebo netting panels' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/096-White-Mosquito-Netting-Curtains-1200.jpg', alt: 'white mosquito net fabric' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/17-Mosquito-Netting-on-Gazebo-1200.jpg', alt: 'gazebo screens' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/16-Mosquito-Netting-on-Gazebo-1200.jpg', alt: 'gazebo screens' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/08-Clear-Vinyl-Enclosure-Moss-Green-Canvas-Gazebo-1200.jpg', alt: 'Clear vinyl for gazebo' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/07-Clear-Vinyl-Enclosure-Moss-Green-Canvas-Gazebo-1200.jpg', alt: 'plastic panels for gazebo' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/123-White-Mosquito-Netting-Curtains-1200.jpg', alt: 'white porch curtains' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/06-Clear-Vinyl-Enclosure-Moss-Green-Canvas-Gazebo-1200.jpg', alt: 'Winterize gazebo' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/21-Gazebo-Clear-Vinyl-Plastic-Porch-Enclosure-Red.jpg', alt: 'Clear Vinyl Plastic enclosure for Gazebo' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/19-Mosquito-Netting-on-Gazebo-1200.jpg', alt: 'Cost to screen gazebo' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/18-Mosquito-Netting-on-Gazebo-1200.jpg', alt: 'Cost to screen gazebo' },
 ]
 
 export default function GazeboScreenCurtainsPage() {
@@ -88,8 +92,8 @@ export default function GazeboScreenCurtainsPage() {
               </Card>
             </Stack>
             <Grid responsiveCols={{ mobile: 2, tablet: 2 }} gap="md">
-              <Frame ratio="1/1" className="rounded-xl overflow-hidden"><img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/30-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg" alt="Elegant enclosure" className="w-full h-full object-cover" /></Frame>
-              <Frame ratio="1/1" className="rounded-xl overflow-hidden"><img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Insect-Mesh-Holds-Up-240-LB-Man-400.jpg" alt="Super strength" className="w-full h-full object-cover" /></Frame>
+              <Frame ratio="1/1" className="rounded-xl overflow-hidden"><img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/30-Mosquito-Netting-on-Screen-Porch-1200.jpg" alt="Elegant enclosure" className="w-full h-full object-cover" /></Frame>
+              <Frame ratio="1/1" className="rounded-xl overflow-hidden"><img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Insect-Mesh-Holds-Up-240-LB-Man-1200.jpg" alt="Super strength" className="w-full h-full object-cover" /></Frame>
             </Grid>
           </TwoColumn>
         </HeaderBarSection>

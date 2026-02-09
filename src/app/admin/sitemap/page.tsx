@@ -613,9 +613,9 @@ export default function AdminSitemapPage() {
                               {route.name}
                             </span>
                             {route.inSitemap ? (
-                              <Globe className="w-3 h-3 text-green-500 shrink-0" title="In public sitemap" />
+                              <span title="In public sitemap"><Globe className="w-3 h-3 text-green-500 shrink-0" /></span>
                             ) : (
-                              <EyeOff className="w-3 h-3 text-gray-300 shrink-0" title="Not in public sitemap" />
+                              <span title="Not in public sitemap"><EyeOff className="w-3 h-3 text-gray-300 shrink-0" /></span>
                             )}
                             {isDynamic && (
                               <Badge className="!bg-amber-100 !text-amber-700 !border-amber-200 !text-[10px] !px-1.5 !py-0">

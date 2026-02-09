@@ -1,232 +1,195 @@
 'use client'
 
 import Link from 'next/link'
-import { 
-  ArrowRight, 
-  ArrowLeft,
-  Scissors,
-  CheckCircle,
-  Wrench,
-  Play,
-} from 'lucide-react'
-import { 
-  Container, 
-  Stack, 
-  Grid, 
-  Text, 
-  Button, 
+import { ArrowRight, Scissors, ShieldCheck, Bug, Layers, Wrench } from 'lucide-react'
+import {
+  Container,
+  Stack,
+  Grid,
+  TwoColumn,
+  Frame,
+  Text,
+  Button,
   Card,
   Heading,
-  Frame,
   BulletedList,
   ListItem,
+  YouTubeEmbed,
+  PowerHeaderTemplate,
   FinalCTATemplate,
   HeaderBarSection,
-  YouTubeEmbed,
+  MC_HERO_ACTIONS,
 } from '@/lib/design-system'
 import { VIDEOS } from '@/lib/constants/videos'
+
+const IMG = 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads'
 
 export default function CustomNettingPage() {
   return (
     <Container size="xl">
       <Stack gap="lg">
-        
-        {/* Back Link */}
-        <Link href="/raw-netting" className="inline-flex items-center text-gray-500 hover:text-gray-700 -mb-4">
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Raw Netting
-        </Link>
 
-        {/* Header */}
-        <section className="relative py-8 text-center">
-          <Stack gap="md" className="max-w-3xl mx-auto">
-            <div className="w-16 h-16 bg-[#406517]/10 rounded-full mx-auto flex items-center justify-center">
-              <Scissors className="w-8 h-8 text-[#406517]" />
-            </div>
-            <Heading level={1} className="!text-4xl md:!text-5xl">
-              Custom Netting Orders
-            </Heading>
-            <Text className="text-xl text-gray-600">
-              Let us make it for you! We can custom cut, sew, and finish your netting 
-              to your exact specifications.
-            </Text>
-          </Stack>
-        </section>
+        {/* Hero */}
+        <PowerHeaderTemplate
+          title="Let Us Make It For You"
+          subtitle="Not everyone is a DIY person. We custom-make finished netting panels to your exact measurements. Hemmed edges, grommets, marine snaps, velcro -- whatever you need. We've done tens of thousands of custom projects since 2003."
+          videoId={VIDEOS.CUSTOM_NETTING}
+          videoTitle="Custom Netting Orders"
+          variant="compact"
+          actions={MC_HERO_ACTIONS}
+        />
 
-        {/* What We Can Do */}
-        <HeaderBarSection icon={Scissors} label="What We Can Do For You" variant="dark">
-          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg" className="items-center">
+        {/* What We Do */}
+        <HeaderBarSection icon={Scissors} label="What We Custom Make" variant="dark">
+          <TwoColumn gap="lg" className="items-center">
             <Frame ratio="4/3" className="rounded-xl overflow-hidden">
               <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Custom-Sewing.jpg"
-                alt="Custom netting sewing"
+                src={`${IMG}/2019/09/Massive-Fabric-Rolls.jpg`}
+                alt="Massive rolls of raw netting ready for custom fabrication"
                 className="w-full h-full object-cover"
               />
             </Frame>
             <Stack gap="md">
               <Text className="text-gray-600">
-                Beyond selling raw netting, we're a full-service manufacturing shop. We can 
-                take your raw netting and transform it into a finished product ready to install.
+                We're manufacturers -- not just a retailer. We custom-make thousands of netting 
+                panels every year for customers who want a ready-to-hang solution. Tell us your 
+                measurements and how you want to attach it, and we'll fabricate it for you.
               </Text>
-              <BulletedList spacing="md">
-                <ListItem variant="checked" iconColor="#406517">Cut to your exact dimensions</ListItem>
-                <ListItem variant="checked" iconColor="#406517">Hem edges professionally</ListItem>
-                <ListItem variant="checked" iconColor="#406517">Add grommets or snaps</ListItem>
-                <ListItem variant="checked" iconColor="#406517">Add velcro strips</ListItem>
-                <ListItem variant="checked" iconColor="#406517">Create custom shapes</ListItem>
-                <ListItem variant="checked" iconColor="#406517">Add zippers for doorways</ListItem>
+              <BulletedList spacing="sm">
+                <ListItem variant="checked" iconColor="#406517">Custom cut to your exact measurements</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Hemmed edges (sewn, not raw)</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Grommets installed at your spacing</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Marine snaps attached -- ready to snap on</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Velcro attachment option</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Multiple panels sewn together for larger areas</ListItem>
               </BulletedList>
             </Stack>
-          </Grid>
+          </TwoColumn>
         </HeaderBarSection>
 
-        {/* Why Custom */}
-        <HeaderBarSection icon={CheckCircle} label="Why Choose Custom?" variant="dark">
-          <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="lg">
-            <Card variant="elevated" className="!p-6 text-center">
-              <div className="w-12 h-12 bg-[#406517]/10 rounded-full mx-auto mb-4 flex items-center justify-center">
-                <CheckCircle className="w-6 h-6 text-[#406517]" />
-              </div>
-              <Heading level={4} className="!mb-2">Perfect Fit</Heading>
-              <Text className="text-sm text-gray-600 !mb-0">
-                Exact dimensions for your unique space. No guessing, no waste.
-              </Text>
-            </Card>
-            <Card variant="elevated" className="!p-6 text-center">
-              <div className="w-12 h-12 bg-[#406517]/10 rounded-full mx-auto mb-4 flex items-center justify-center">
-                <Wrench className="w-6 h-6 text-[#406517]" />
-              </div>
-              <Heading level={4} className="!mb-2">Pro Quality</Heading>
-              <Text className="text-sm text-gray-600 !mb-0">
-                Industrial sewing machines and professional finishing techniques.
-              </Text>
-            </Card>
-            <Card variant="elevated" className="!p-6 text-center">
-              <div className="w-12 h-12 bg-[#406517]/10 rounded-full mx-auto mb-4 flex items-center justify-center">
-                <Scissors className="w-6 h-6 text-[#406517]" />
-              </div>
-              <Heading level={4} className="!mb-2">Save Time</Heading>
-              <Text className="text-sm text-gray-600 !mb-0">
-                Skip the DIY sewing. We'll deliver panels ready to hang.
-              </Text>
-            </Card>
-          </Grid>
-        </HeaderBarSection>
-
-        {/* Common Custom Projects */}
-        <HeaderBarSection icon={Scissors} label="Common Custom Projects" variant="dark">
-          <Grid responsiveCols={{ mobile: 2, tablet: 4 }} gap="md">
-            <Card variant="elevated" className="!p-4 text-center">
-              <Heading level={5} className="!mb-1">Bed Nets</Heading>
-              <Text className="text-xs text-gray-500 !mb-0">Custom canopies</Text>
-            </Card>
-            <Card variant="elevated" className="!p-4 text-center">
-              <Heading level={5} className="!mb-1">Tent Screens</Heading>
-              <Text className="text-xs text-gray-500 !mb-0">Pop-up panels</Text>
-            </Card>
-            <Card variant="elevated" className="!p-4 text-center">
-              <Heading level={5} className="!mb-1">Event Netting</Heading>
-              <Text className="text-xs text-gray-500 !mb-0">Temporary installs</Text>
-            </Card>
-            <Card variant="elevated" className="!p-4 text-center">
-              <Heading level={5} className="!mb-1">Garden Covers</Heading>
-              <Text className="text-xs text-gray-500 !mb-0">Plant protection</Text>
-            </Card>
+        {/* Project Types */}
+        <HeaderBarSection icon={Layers} label="Popular Custom Projects" variant="dark">
+          <Grid responsiveCols={{ mobile: 1, tablet: 2, desktop: 3 }} gap="md">
+            {[
+              {
+                title: 'Porch & Patio Panels',
+                desc: 'Custom mosquito curtain panels with marine snaps for your porch, patio, or gazebo. Our core business.',
+                link: '/screened-porch',
+              },
+              {
+                title: 'Boat & Marine Netting',
+                desc: 'Marine-grade netting custom fit for pontoon boats, sailboats, and dock areas.',
+                link: '/boat-screens',
+              },
+              {
+                title: 'Garage Door Screens',
+                desc: 'Custom panels that fit your garage opening. Multiple attachment methods available.',
+                link: '/garage-door-screens',
+              },
+              {
+                title: 'French Door Screens',
+                desc: 'Custom mosquito netting for french doors with magnetic closures.',
+                link: '/french-door-screens',
+              },
+              {
+                title: 'Industrial Enclosures',
+                desc: 'Custom industrial mesh for loading docks, warehouses, and agricultural applications.',
+                link: '/industrial-netting',
+              },
+              {
+                title: 'Theatre Scrims',
+                desc: 'Custom theatre scrim panels seamed to any size for stage productions and events.',
+                link: '/theater-scrims',
+              },
+            ].map((project) => (
+              <Link key={project.title} href={project.link} className="group block">
+                <Card variant="elevated" className="h-full !p-5 hover:shadow-lg transition-shadow">
+                  <Heading level={5} className="group-hover:text-[#406517] transition-colors !mb-2">
+                    {project.title}
+                  </Heading>
+                  <Text size="sm" className="text-gray-600 !mb-2">{project.desc}</Text>
+                  <span className="text-[#406517] text-sm font-medium inline-flex items-center">
+                    Learn More <ArrowRight className="ml-1 w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                  </span>
+                </Card>
+              </Link>
+            ))}
           </Grid>
         </HeaderBarSection>
 
         {/* How It Works */}
-        <Card className="!p-6 !bg-[#406517]/5 !border-[#406517]/20">
-          <Heading level={3} className="!mb-6 text-center">How Custom Orders Work</Heading>
-          <Grid responsiveCols={{ mobile: 1, tablet: 4 }} gap="md" className="text-center">
-            <Stack gap="sm">
-              <div className="w-10 h-10 bg-[#406517] text-white rounded-full mx-auto flex items-center justify-center font-bold">1</div>
-              <Text className="text-sm font-medium !mb-0">Contact Us</Text>
-              <Text className="text-xs text-gray-500 !mb-0">Describe your project</Text>
-            </Stack>
-            <Stack gap="sm">
-              <div className="w-10 h-10 bg-[#406517] text-white rounded-full mx-auto flex items-center justify-center font-bold">2</div>
-              <Text className="text-sm font-medium !mb-0">Get Quote</Text>
-              <Text className="text-xs text-gray-500 !mb-0">We'll provide pricing</Text>
-            </Stack>
-            <Stack gap="sm">
-              <div className="w-10 h-10 bg-[#406517] text-white rounded-full mx-auto flex items-center justify-center font-bold">3</div>
-              <Text className="text-sm font-medium !mb-0">We Make It</Text>
-              <Text className="text-xs text-gray-500 !mb-0">Custom manufacturing</Text>
-            </Stack>
-            <Stack gap="sm">
-              <div className="w-10 h-10 bg-[#406517] text-white rounded-full mx-auto flex items-center justify-center font-bold">4</div>
-              <Text className="text-sm font-medium !mb-0">We Ship It</Text>
-              <Text className="text-xs text-gray-500 !mb-0">Ready to install</Text>
-            </Stack>
+        <HeaderBarSection icon={Wrench} label="How It Works" variant="dark">
+          <Grid responsiveCols={{ mobile: 1, tablet: 4 }} gap="md">
+            {[
+              { step: '1', title: 'Send Measurements', desc: 'Provide width, height, and photos of your space.' },
+              { step: '2', title: 'Choose Options', desc: 'Select mesh type, color, and attachment method.' },
+              { step: '3', title: 'We Fabricate', desc: 'We custom-make your panels in our facility.' },
+              { step: '4', title: 'Delivered Fast', desc: 'Shipped in 3-7 business days (US/CA).' },
+            ].map((s) => (
+              <Card key={s.step} variant="outlined" className="!p-4 text-center">
+                <div className="w-10 h-10 rounded-full bg-[#406517] text-white font-bold text-lg flex items-center justify-center mx-auto mb-3">
+                  {s.step}
+                </div>
+                <Text className="font-bold text-gray-900 !mb-1">{s.title}</Text>
+                <Text size="sm" className="text-gray-600 !mb-0">{s.desc}</Text>
+              </Card>
+            ))}
           </Grid>
-        </Card>
+        </HeaderBarSection>
 
-        {/* Videos */}
-        <HeaderBarSection icon={Play} label="Helpful Videos" variant="dark">
-          <Stack gap="lg">
-            <Text className="text-gray-600 text-center max-w-3xl mx-auto">
-              Watch our videos to learn about our products, custom fitting process, and quality materials.
-            </Text>
-            <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
-              <div>
-                <YouTubeEmbed
-                  videoId={VIDEOS.MOSQUITO_CURTAINS_OVERVIEW}
-                  title="Mosquito Curtains Overview"
-                  variant="card"
-                />
-                <Text className="text-center mt-2 font-medium text-sm">Mosquito Curtains Overview</Text>
-              </div>
-              <div>
-                <YouTubeEmbed
-                  videoId={VIDEOS.CUSTOM_NETTING}
-                  title="Custom Netting Orders"
-                  variant="card"
-                />
-                <Text className="text-center mt-2 font-medium text-sm">Custom Netting Orders</Text>
-              </div>
-              <div>
-                <YouTubeEmbed
-                  videoId={VIDEOS.CUSTOM_FITTED}
-                  title="Custom Fitted Mesh Types"
-                  variant="card"
-                />
-                <Text className="text-center mt-2 font-medium text-sm">Custom Fitted Mesh Types</Text>
-              </div>
-              <div>
-                <YouTubeEmbed
-                  videoId={VIDEOS.QUALITY_MATERIALS}
-                  title="Quality Materials"
-                  variant="card"
-                />
-                <Text className="text-center mt-2 font-medium text-sm">Quality Materials</Text>
-              </div>
-            </Grid>
-          </Stack>
+        {/* Video */}
+        <HeaderBarSection icon={Bug} label="Custom Netting Video" variant="dark">
+          <div className="max-w-2xl mx-auto">
+            <YouTubeEmbed videoId={VIDEOS.CUSTOM_NETTING} title="Custom Netting Orders" variant="card" />
+          </div>
         </HeaderBarSection>
 
         {/* CTA */}
-        <section className="bg-gradient-to-br from-[#406517]/10 via-white to-[#003365]/10 rounded-3xl p-8 md:p-12 text-center">
-          <Heading level={2} className="!mb-4">Have a Custom Project?</Heading>
-          <Text className="text-gray-600 max-w-2xl mx-auto mb-8">
-            Tell us what you need and we'll make it happen.
-          </Text>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="primary" asChild>
-              <Link href="/start-project">
-                Get a Quote
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/raw-netting">
-                View Raw Netting
-              </Link>
-            </Button>
+        <HeaderBarSection icon={ShieldCheck} label="Ready to Start?" variant="dark">
+          <div className="text-center py-4">
+            <Text className="text-gray-600 max-w-2xl mx-auto mb-4">
+              Tell us about your project and we'll provide a quote. Photos are helpful but not 
+              required. We've worked with tens of thousands of customers since 2003.
+            </Text>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button variant="primary" asChild>
+                <Link href="/start-project">
+                  Start Your Project <ArrowRight className="ml-2 w-4 h-4" />
+                </Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link href="/contact">
+                  Contact Us
+                </Link>
+              </Button>
+            </div>
           </div>
-        </section>
+        </HeaderBarSection>
 
-        {/* Final CTA */}
+        {/* Quick Links */}
+        <HeaderBarSection icon={Bug} label="Raw Netting Store Quick Links" variant="dark">
+          <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="md">
+            <Card className="!p-5 text-center hover:shadow-md transition-shadow">
+              <Link href="/order-mesh-netting-fabrics" className="block">
+                <Heading level={5} className="text-[#406517] !mb-1">1. See All Meshes</Heading>
+                <Text size="sm" className="text-gray-600 !mb-0">Several Mesh Types & Colors</Text>
+              </Link>
+            </Card>
+            <Card className="!p-5 text-center hover:shadow-md transition-shadow">
+              <Link href="/raw-netting/rigging" className="block">
+                <Heading level={5} className="text-[#406517] !mb-1">2. Rigging Ideas</Heading>
+                <Text size="sm" className="text-gray-600 !mb-0">Helpful Ideas & Attachment Items</Text>
+              </Link>
+            </Card>
+            <Card className="!p-5 text-center hover:shadow-md transition-shadow">
+              <Link href="/raw-netting/hardware" className="block">
+                <Heading level={5} className="text-[#406517] !mb-1">3. Shop Hardware</Heading>
+                <Text size="sm" className="text-gray-600 !mb-0">Snaps, Cord, Webbing & More</Text>
+              </Link>
+            </Card>
+          </Grid>
+        </HeaderBarSection>
+
         <FinalCTATemplate />
 
       </Stack>

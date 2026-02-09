@@ -6,6 +6,7 @@ import {
   ArrowLeft,
   DoorOpen,
   Magnet,
+  Bug,
 } from 'lucide-react'
 import { 
   Container, 
@@ -21,6 +22,7 @@ import {
   FinalCTATemplate,
   HeaderBarSection,
   YouTubeEmbed,
+  TwoColumn,
 } from '@/lib/design-system'
 import { VIDEOS, HARDWARE_VIDEOS } from '@/lib/constants/videos'
 
@@ -193,6 +195,7 @@ export default function MagneticDoorwaysPage() {
         </section>
 
         {/* Final CTA */}
+
         <FinalCTATemplate />
 
       </Stack>

@@ -7,6 +7,8 @@ import {
   ThermometerSun,
   Sun,
   CheckCircle,
+  Bug,
+  Sparkle,
 } from 'lucide-react'
 import { 
   Container, 
@@ -24,6 +26,7 @@ import {
   WhyChooseUsTemplate,
   PowerHeaderTemplate,
   MC_HERO_ACTIONS,
+  TwoColumn,
 } from '@/lib/design-system'
 
 export default function PatioWinterizePage() {
@@ -145,6 +148,7 @@ export default function PatioWinterizePage() {
         </section>
 
         {/* Final CTA */}
+
         <FinalCTATemplate />
 
       </Stack>

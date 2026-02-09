@@ -15,6 +15,7 @@ import {
   Play,
   Calculator,
   MessageSquare,
+  Bug,
 } from 'lucide-react'
 import { 
   Container, 
@@ -37,16 +38,16 @@ import {
 } from '@/lib/design-system'
 
 const GALLERY_IMAGES = [
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/00-Clear-Plastic-Winter-Panels-Porch-Gray-1200-1024x768.jpg', alt: 'Clear vinyl porch' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/22-Small-Business-Plastic-Panels-On-Patio-With-Black-Canvas-1200-1024x768.jpg', alt: 'Restaurant plastic panels' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/12-Winterized-Porch-Plastic-Panels-Black-Canvas-1200-1024x768.jpg', alt: 'Winterized porch' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/07-Winterized-Porch-Plastic-Panels-Black-Canvas-1200-1024x768.jpg', alt: 'Plastic panels' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/23-Winterized-Porch-and-Patio-Enclosure-Black-1200-1024x768.jpg', alt: 'DIY winter enclosure' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/21-Gazebo-Clear-Vinyl-Plastic-Porch-Enclosure-Red-1024x768.jpg', alt: 'Gazebo clear vinyl' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/01-Clear-Vinyl-Panels-Porch-Chocolate-Brown-1200-1024x768.jpg', alt: 'Clear vinyl panels' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/17-Plastic-Enclosure-With-Cocoa-Brown-Canvas-Pavilion-1200-1024x768.jpg', alt: 'Pavilion enclosure' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/06_Plastic-Drop-Panels-On-Restaurant-Forest-Green-Canvas-1200-1024x768.jpg', alt: 'Restaurant drop panels' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/10-Clear-Vinyl-Enclosure-Moss-Green-Canvas-Patio-1200-1024x768.jpg', alt: 'Patio weatherproofing' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/23-Winterized-Porch-and-Patio-Enclosure-Black-1200.jpg', alt: 'Winterized Porch and Patio Enclosure Black' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/05-Plastic-Enclosures-Royal-Blue-Canvas-Dairy-Queen-1200.jpg', alt: 'Plastic Enclosures Royal Blue Canvas Dairy Queen' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/35-Plastic-Enclosure-With-Cocoa-Brown-Canvas-Porch-1200.jpg', alt: 'Plastic Enclosure With Cocoa Brown Canvas Porch' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/25-Clear-Vinyl-Red-Canvas-Tintes-400.jpg', alt: 'Clear Vinyl Red Canvas' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/26-Clear-Plastic-Porch-Enclosure-With-No-Canvas-1200.jpg', alt: 'Clear Plastic Porch Enclosure With No Canvas' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/10-Clear-Vinyl-Enclosure-Moss-Green-Canvas-Patio-1200.jpg', alt: 'Clear Vinyl Enclosure Moss Green Canvas Patio' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/10_Plastic-Drop-Panels-Patio-Inside-View-Forest-Green-Canvas-1200.jpg', alt: 'Plastic Drop Panels Patio Inside View Forest Green Canvas' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/11/6-Navy-Clear-Vinyl-Enclosure.jpg', alt: 'Navy Clear Vinyl Enclosure' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/16-Plastic-Porch-and-Patio-Enclosures-Sandy-Tan-1200.jpg', alt: 'Weather enclosures for patio' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/07-Clear-Plastic-Winter-Panels-Porch-Gray-1200.jpg', alt: 'Clear Plastic Winter Panels Porch Gray' },
 ]
 
 const PROJECT_TYPES = [
@@ -133,7 +134,7 @@ export default function ClearVinylPage() {
         <HeaderBarSection icon={Wrench} label="There Are Advantages to Self-Installation" variant="dark">
           <TwoColumn gap="lg" className="items-center">
             <Frame ratio="16/9" className="rounded-2xl overflow-hidden">
-              <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Quick-Clear-Vinyl-Panel-Installation-1920-1024x576.jpg" alt="Quick installation" className="w-full h-full object-cover" />
+              <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Quick-Clear-Vinyl-Panel-Installation-1920.jpg" alt="Quick installation" className="w-full h-full object-cover" />
             </Frame>
             <Stack gap="md">
               <BulletedList spacing="md">
@@ -157,7 +158,7 @@ export default function ClearVinylPage() {
               </BulletedList>
             </Stack>
             <Frame ratio="16/9" className="rounded-2xl overflow-hidden">
-              <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Meticulous-Clear-Vinyl-Construction-1920-1024x576.jpg" alt="Quality construction" className="w-full h-full object-cover" />
+              <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Meticulous-Clear-Vinyl-Construction-1920.jpg" alt="Quality construction" className="w-full h-full object-cover" />
             </Frame>
           </TwoColumn>
         </HeaderBarSection>
@@ -167,13 +168,13 @@ export default function ClearVinylPage() {
             <Card variant="elevated" className="!p-6 !bg-red-50 !border-red-200">
               <Heading level={4} className="!mb-3 text-red-800">This is NOT our Product</Heading>
               <Frame ratio="4/3" className="rounded-xl overflow-hidden">
-                <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/What-Not-To-Do-768x576.jpg" alt="What not to do" className="w-full h-full object-cover" />
+                <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/What-Not-To-Do.jpg" alt="What not to do" className="w-full h-full object-cover" />
               </Frame>
             </Card>
             <Card variant="elevated" className="!p-6 !bg-green-50 !border-green-200">
               <Heading level={4} className="!mb-3 text-green-800">This is What We Do</Heading>
               <Frame ratio="4/3" className="rounded-xl overflow-hidden">
-                <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/MOSQUITO-CURTAINS-CLEAR-VINYL-EXAMPLE-2400-768x576.jpg" alt="Our quality" className="w-full h-full object-cover" />
+                <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/MOSQUITO-CURTAINS-CLEAR-VINYL-EXAMPLE-2400.jpg" alt="Our quality" className="w-full h-full object-cover" />
               </Frame>
             </Card>
           </Grid>
@@ -195,25 +196,25 @@ export default function ClearVinylPage() {
             <Grid responsiveCols={{ mobile: 2, tablet: 4 }} gap="md">
               <Stack gap="sm">
                 <Frame ratio="4/3" className="rounded-xl overflow-hidden">
-                  <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/06/Interchangeable-Mosquito-Curtain-Clear-Vinyl-3-768x576.jpg" alt="Summer panels" className="w-full h-full object-cover" />
+                  <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/06/Interchangeable-Mosquito-Curtain-Clear-Vinyl-3.jpg" alt="Summer panels" className="w-full h-full object-cover" />
                 </Frame>
                 <Text className="text-xs text-center text-gray-500">Summer Insect Panels</Text>
               </Stack>
               <Stack gap="sm">
                 <Frame ratio="4/3" className="rounded-xl overflow-hidden">
-                  <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/06/Interchangeable-Mosquito-Curtain-Clear-Vinyl-4-1024x768.jpg" alt="Winter panels" className="w-full h-full object-cover" />
+                  <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/06/Interchangeable-Mosquito-Curtain-Clear-Vinyl-4.jpg" alt="Winter panels" className="w-full h-full object-cover" />
                 </Frame>
                 <Text className="text-xs text-center text-gray-500">Winter Weather Panels</Text>
               </Stack>
               <Stack gap="sm">
                 <Frame ratio="4/3" className="rounded-xl overflow-hidden">
-                  <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Mosquito-Netting-Interchangeable-1-1200-768x576.jpg" alt="Summer panels" className="w-full h-full object-cover" />
+                  <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Mosquito-Netting-Interchangeable-1-1200.jpg" alt="Summer panels" className="w-full h-full object-cover" />
                 </Frame>
                 <Text className="text-xs text-center text-gray-500">Summer Insect Panels</Text>
               </Stack>
               <Stack gap="sm">
                 <Frame ratio="4/3" className="rounded-xl overflow-hidden">
-                  <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Clear-Vinyl-Interchangeable-1-1200-768x576.jpg" alt="Winter panels" className="w-full h-full object-cover" />
+                  <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Clear-Vinyl-Interchangeable-1-1200.jpg" alt="Winter panels" className="w-full h-full object-cover" />
                 </Frame>
                 <Text className="text-xs text-center text-gray-500">Winter Weather Panels</Text>
               </Stack>

@@ -135,7 +135,7 @@ export default function RedditMCQuotePage() {
           <Grid responsiveCols={{ mobile: 2, tablet: 2 }} gap="md">
             <Frame ratio="1/1" className="rounded-xl overflow-hidden">
               <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Insect-Mesh-Holds-Up-240-LB-Man-400.jpg"
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Insect-Mesh-Holds-Up-240-LB-Man-1200.jpg"
                 alt="Our mesh holds 240lb man"
                 className="w-full h-full object-cover"
               />

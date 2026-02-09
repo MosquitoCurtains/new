@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Phone, Mail, Clock, MapPin, Send, CheckCircle } from 'lucide-react'
+import { Phone, Mail, Clock, MapPin, Send, CheckCircle, Bug } from 'lucide-react'
 import {
   Container,
   Stack,
@@ -12,6 +12,8 @@ import {
   Button,
   Input,
   Textarea,
+  BulletedList,
+  ListItem,
 } from '@/lib/design-system'
 
 export default function ContactPage() {

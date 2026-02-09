@@ -28,16 +28,16 @@ import {
 } from '@/lib/design-system'
 
 const GALLERY_IMAGES = [
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/21-Screen-Patio-Enclosure-1200-1024x768.jpg', alt: 'Screen patio enclosure' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/82-Screen-Patio-Enclosure-1200-1024x768.jpg', alt: 'Screened patio' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/83-Screen-Patio-Enclosure-1200-1024x768.jpg', alt: 'Patio screen ideas' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/76-Screen-Patio-Enclosure-1200-1024x768.jpg', alt: 'Patio enclosure' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/60-Screen-Patio-Enclosure-1200-1024x768.jpg', alt: 'Screen patio' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/47-Screen-Patio-Enclosure-1200-1024x768.jpg', alt: 'Patio screens' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/39-Screen-Patio-Enclosure-1200-1024x768.jpg', alt: 'Screened in patio' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/40-Screen-Patio-Enclosure-1200-1024x768.jpg', alt: 'Patio curtains' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/86-Screen-Patio-Enclosure-1200-1024x768.jpg', alt: 'Screen patio enclosure' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/71-Screen-Patio-Enclosure-1200-1024x768.jpg', alt: 'Patio bug screens' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/16-Plastic-Porch-and-Patio-Enclosures-Sandy-Tan-1200.jpg', alt: 'Weather enclosures for patio' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/10-Clear-Vinyl-Enclosure-Moss-Green-Canvas-Patio-1200.jpg', alt: 'Clear Vinyl Enclosure Moss Green Canvas Patio' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/82-Screen-Patio-Enclosure-1200.jpg', alt: 'Screen Porch Enclosure' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/10_Plastic-Drop-Panels-Patio-Inside-View-Forest-Green-Canvas-1200.jpg', alt: 'Plastic Drop Panels Patio Inside View Forest Green Canvas' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/05-Plastic-Enclosures-Royal-Blue-Canvas-Dairy-Queen-1200.jpg', alt: 'Plastic Enclosures Royal Blue Canvas Dairy Queen' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/04-Plastic-Enclosures-Royal-Blue-Canvas-Dairy-Queen-1200.jpg', alt: 'Plastic Enclosures Royal Blue Canvas Dairy Queen' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/09-Clear-Vinyl-Enclosure-Moss-Green-Canvas-Patio-1200.jpg', alt: 'Clear Vinyl Enclosure Moss Green Canvas Patio' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/15-Plastic-Porch-and-Patio-Enclosures-Sandy-Tan-1200.jpg', alt: 'Plastic Panels for Screened Patio' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/22-Small-Business-Plastic-Panels-On-Patio-With-Black-Canvas-1200.jpg', alt: 'Small Business Plastic Panels On Patio With Black Canvas' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/81-Screen-Patio-Enclosure-1200.jpg', alt: 'Screen Porch Enclosure' },
 ]
 
 export default function ScreenPatioPage() {
@@ -126,7 +126,7 @@ export default function ScreenPatioPage() {
               <Button variant="primary" asChild><Link href="/install">See Installation Guide<ArrowRight className="ml-2 w-4 h-4" /></Link></Button>
             </Stack>
             <Frame ratio="16/9" className="rounded-2xl overflow-hidden">
-              <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Quick-Installation-With-Simple-Tools-1024x576.jpg" alt="Quick DIY installation" className="w-full h-full object-cover" />
+              <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Quick-Installation-With-Simple-Tools.jpg" alt="Quick DIY installation" className="w-full h-full object-cover" />
             </Frame>
           </TwoColumn>
         </HeaderBarSection>
@@ -135,7 +135,7 @@ export default function ScreenPatioPage() {
           <TwoColumn gap="lg" className="items-center">
             <Grid responsiveCols={{ mobile: 2, tablet: 2 }} gap="md">
               <Frame ratio="4/3" className="rounded-xl overflow-hidden">
-                <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/82-Screen-Patio-Enclosure-1200-400x300-1.jpg" alt="Screen patio enclosure" className="w-full h-full object-cover" />
+                <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/82-Screen-Patio-Enclosure-1200.jpg" alt="Screen patio enclosure" className="w-full h-full object-cover" />
               </Frame>
               <Frame ratio="4/3" className="rounded-xl overflow-hidden">
                 <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/81-Screen-Patio-Enclosure-1200-400x300-1.jpg" alt="Screen patio enclosure" className="w-full h-full object-cover" />
@@ -171,7 +171,7 @@ export default function ScreenPatioPage() {
             </Stack>
             <Grid responsiveCols={{ mobile: 2, tablet: 2 }} gap="md">
               <Frame ratio="1/1" className="rounded-xl overflow-hidden">
-                <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Insect-Mesh-Holds-Up-240-LB-Man-400.jpg" alt="Durable mosquito netting" className="w-full h-full object-cover" />
+                <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Insect-Mesh-Holds-Up-240-LB-Man-1200.jpg" alt="Durable mosquito netting" className="w-full h-full object-cover" />
               </Frame>
               <Frame ratio="1/1" className="rounded-xl overflow-hidden">
                 <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Screen-Sewing-400.jpg" alt="Quality screen sewing" className="w-full h-full object-cover" />

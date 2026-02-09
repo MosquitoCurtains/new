@@ -15,6 +15,8 @@ import {
   Umbrella,
   HelpCircle,
   Layers,
+  Award,
+  Wrench,
 } from 'lucide-react'
 import { 
   Container, 
@@ -30,6 +32,7 @@ import {
   HeaderBarSection,
   PowerHeaderTemplate,
   MC_HERO_ACTIONS,
+  TwoColumn,
 } from '@/lib/design-system'
 
 // Project types grid - matches WordPress
@@ -275,7 +278,7 @@ export default function ScreenedPorchEnclosuresPage() {
           <Card className="!p-4">
             <Frame ratio="4/3" className="rounded-lg overflow-hidden mb-3">
               <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/Garage-Screen-300x225.jpg"
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/Garage-Screen.jpg"
                 alt="Garage screen"
                 className="w-full h-full object-cover"
               />
@@ -301,6 +304,62 @@ export default function ScreenedPorchEnclosuresPage() {
         {/* ================================================================
             FINAL CTA
             ================================================================ */}
+
+        <HeaderBarSection icon={Bug} label="Delivered Fast" variant="dark">
+          <TwoColumn gap="lg" className="items-center">
+            <Frame ratio="4/3" className="rounded-2xl overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/25-Clear-Plastic-With-No-Canvas-1200.jpg"
+                alt="Clear Plastic With No Canvas"
+                className="w-full h-full object-cover"
+              />
+            </Frame>
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                Delivered at lightning speed in 6-10 business days (US/CA).
+              </Text>
+            </Stack>
+          </TwoColumn>
+        </HeaderBarSection>
+
+        <HeaderBarSection icon={Award} label="High Quality" variant="dark">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                Exceptional Marine-grade quality materials made to last.
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-2xl overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/11/7-Navy-Clear-Vinyl-Enclosure.jpg"
+                alt="Navy Clear Vinyl Enclosure"
+                className="w-full h-full object-cover"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+
+        <HeaderBarSection icon={Wrench} label="DIY Install" variant="dark">
+          <TwoColumn gap="lg" className="items-center">
+            <Frame ratio="4/3" className="rounded-2xl overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/09_Plastic-Drop-Panels-Forest-Green-Canvas-1200.jpg"
+                alt="Plastic Drop Panels Forest Green Canvas"
+                className="w-full h-full object-cover"
+              />
+            </Frame>
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                DIY installation in an afternoon with simple tools and fasteners.
+              </Text>
+              <Text className="text-gray-600">
+                10% Off Sale until Feb 14th… Coupon = Midwinter26
+              </Text>
+            </Stack>
+          </TwoColumn>
+        </HeaderBarSection>
+
+
         <FinalCTATemplate />
 
       </Stack>

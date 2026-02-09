@@ -1,158 +1,215 @@
 'use client'
 
 import Link from 'next/link'
-import { 
-  ArrowRight, 
-  ArrowLeft,
-  Factory,
-  CheckCircle,
-  Play,
-} from 'lucide-react'
-import { 
-  Container, 
-  Stack, 
-  Grid, 
-  Text, 
-  Button, 
+import { ArrowRight, Factory, ShieldCheck, Scissors, Bug } from 'lucide-react'
+import {
+  Container,
+  Stack,
+  Grid,
+  TwoColumn,
+  Frame,
+  Text,
+  Button,
   Card,
   Heading,
-  Frame,
   BulletedList,
   ListItem,
+  YouTubeEmbed,
+  PowerHeaderTemplate,
   FinalCTATemplate,
   HeaderBarSection,
-  YouTubeEmbed,
+  MC_HERO_ACTIONS,
 } from '@/lib/design-system'
 import { VIDEOS } from '@/lib/constants/videos'
+
+const IMG = 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads'
 
 export default function IndustrialMeshPage() {
   return (
     <Container size="xl">
       <Stack gap="lg">
-        
-        {/* Back Link */}
-        <Link href="/raw-netting" className="inline-flex items-center text-gray-500 hover:text-gray-700 -mb-4">
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Raw Netting
-        </Link>
 
-        {/* Header */}
-        <section className="relative py-8 text-center">
-          <Stack gap="md" className="max-w-3xl mx-auto">
-            <div className="w-16 h-16 bg-[#003365]/10 rounded-full mx-auto flex items-center justify-center">
-              <Factory className="w-8 h-8 text-[#003365]" />
-            </div>
-            <Heading level={1} className="!text-4xl md:!text-5xl">
-              Industrial Mesh
-            </Heading>
-            <Text className="text-xl text-gray-600">
-              Heavy-duty netting for agricultural, industrial, and commercial applications. 
-              Built tough for demanding environments.
-            </Text>
-          </Stack>
-        </section>
+        {/* Hero */}
+        <PowerHeaderTemplate
+          title="Industrial Mesh"
+          subtitle="Incredibly strong military-overrun industrial mesh. Extremely durable nylon at 9.4 oz/yd2 that can be zip tied on edges. Available in Olive Green. Incredible price point for this quality."
+          videoId={VIDEOS.INDUSTRIAL_NETTING}
+          videoTitle="Industrial Netting"
+          variant="compact"
+          actions={MC_HERO_ACTIONS}
+        />
 
-        {/* Product Info */}
+        {/* Product Details */}
         <HeaderBarSection icon={Factory} label="Product Details" variant="dark">
-          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg" className="items-center">
+          <TwoColumn gap="lg" className="items-center">
             <Frame ratio="4/3" className="rounded-xl overflow-hidden">
               <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Industrial-Mesh.jpg"
-                alt="Industrial mesh material"
+                src={`${IMG}/2019/12/Industrial-Mesh-WooCommerce.jpg`}
+                alt="Industrial mesh fabric - olive green"
                 className="w-full h-full object-cover"
               />
             </Frame>
             <Stack gap="md">
               <Text className="text-gray-600">
-                Our industrial-grade mesh is designed for heavy-duty applications where 
-                standard netting won't hold up. Reinforced construction and UV-stabilized 
-                materials ensure long-term performance.
+                This incredibly strong industrial mesh is a military overrun that we were able to 
+                pick up for a low price. It is extremely durable and can be zip tied on edges. 
+                Available in Olive Green only.
               </Text>
-              <BulletedList spacing="md">
-                <ListItem variant="checked" iconColor="#003365">Heavy-duty construction</ListItem>
-                <ListItem variant="checked" iconColor="#003365">UV stabilized for outdoor use</ListItem>
-                <ListItem variant="checked" iconColor="#003365">Available in various mesh sizes</ListItem>
-                <ListItem variant="checked" iconColor="#003365">Bulk quantities available</ListItem>
+              <BulletedList spacing="sm">
+                <ListItem variant="checked" iconColor="#406517">Thick extremely durable nylon at 9.4 oz/yd2</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Can zip tie on edges</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Purchased from military overrun</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Incredible price point for quality</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Available in Olive Green only</ListItem>
               </BulletedList>
             </Stack>
-          </Grid>
+          </TwoColumn>
         </HeaderBarSection>
 
-        {/* Applications */}
-        <HeaderBarSection icon={CheckCircle} label="Industrial Applications" variant="dark">
+        {/* Feature Image */}
+        <HeaderBarSection icon={Factory} label="Industrial Mesh Views" variant="dark">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Heading level={3} className="!mb-2">Excellent Visibility</Heading>
+              <Text className="text-gray-600">
+                Despite its incredible strength, industrial mesh maintains good visibility. 
+                Looking in from outside provides privacy, while looking out from inside gives 
+                clear visibility -- similar to our shade mesh properties.
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-xl overflow-hidden">
+              <img
+                src={`${IMG}/2024/02/Industrial-Mesh-Looking-In-1200-2.jpg`}
+                alt="Industrial mesh - looking in view"
+                className="w-full h-full object-cover"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+
+        {/* Pricing */}
+        <HeaderBarSection icon={Scissors} label="Sizing & Pricing" variant="dark">
+          <Stack gap="md">
+            <Text className="text-gray-600">
+              Industrial mesh is 65 inches wide. Available by the linear foot or by the full roll 
+              at a significant discount.
+            </Text>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-[#406517] text-white">
+                    <th className="px-4 py-3 text-left text-sm font-semibold">Purchase Type</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold">Roll Width</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold">Price</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold">Example</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b border-gray-200">
+                    <td className="px-4 py-3 font-medium">By the Foot</td>
+                    <td className="px-4 py-3">65-inch roll</td>
+                    <td className="px-4 py-3 text-[#406517] font-bold">$4.00 / ft</td>
+                    <td className="px-4 py-3 text-gray-600">20ft x $4.00 = $80.00</td>
+                  </tr>
+                  <tr className="bg-gray-50">
+                    <td className="px-4 py-3 font-medium">Full Roll</td>
+                    <td className="px-4 py-3">65" x 330ft</td>
+                    <td className="px-4 py-3 text-[#406517] font-bold">$1,350.00</td>
+                    <td className="px-4 py-3 text-gray-600">~$4.09/ft (330ft roll)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div className="flex justify-center pt-2">
+              <Button variant="primary" asChild>
+                <Link href="/order/raw-netting">
+                  Order Now <ArrowRight className="ml-2 w-4 h-4" />
+                </Link>
+              </Button>
+            </div>
+          </Stack>
+        </HeaderBarSection>
+
+        {/* Industrial Applications */}
+        <HeaderBarSection icon={Factory} label="Industrial Applications" variant="dark">
           <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
-            <Card variant="elevated" className="!p-6">
-              <Heading level={4} className="!mb-4">Agriculture</Heading>
+            <Card variant="outlined" className="!p-5">
+              <Heading level={4} className="!mb-3">Agriculture & Environment</Heading>
               <BulletedList spacing="sm">
-                <ListItem variant="arrow" iconColor="#003365">Crop protection</ListItem>
-                <ListItem variant="arrow" iconColor="#003365">Bird exclusion</ListItem>
-                <ListItem variant="arrow" iconColor="#003365">Greenhouse screening</ListItem>
-                <ListItem variant="arrow" iconColor="#003365">Livestock protection</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Crop protection / bird exclusion</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Greenhouse screens</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Entomology experiments & insectaries</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Screens to dry crops</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Vat covers for wineries</ListItem>
               </BulletedList>
             </Card>
-            <Card variant="elevated" className="!p-6">
-              <Heading level={4} className="!mb-4">Commercial</Heading>
+            <Card variant="outlined" className="!p-5">
+              <Heading level={4} className="!mb-3">Commercial & Industrial</Heading>
               <BulletedList spacing="sm">
-                <ListItem variant="arrow" iconColor="#003365">Loading dock screens</ListItem>
-                <ListItem variant="arrow" iconColor="#003365">Warehouse pest control</ListItem>
-                <ListItem variant="arrow" iconColor="#003365">Construction barriers</ListItem>
-                <ListItem variant="arrow" iconColor="#003365">Industrial enclosures</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Loading dock screens</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Warehouse insect segregation (Health Dept)</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Construction debris netting</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Personal fall protection</ListItem>
+                <ListItem variant="checked" iconColor="#406517">HVAC pre-filters for cottonwood/pollen</ListItem>
               </BulletedList>
             </Card>
           </Grid>
         </HeaderBarSection>
 
-        {/* Bulk Pricing */}
-        <Card className="!p-6 !bg-[#003365]/5 !border-[#003365]/20">
-          <Heading level={3} className="!mb-4 text-center">Bulk & Commercial Pricing</Heading>
-          <Text className="text-gray-600 text-center max-w-2xl mx-auto mb-4">
-            We offer competitive pricing for large-scale and ongoing commercial needs. 
-            Contact us to discuss your specific requirements and get volume pricing.
-          </Text>
-          <div className="flex justify-center">
-            <Button variant="primary" asChild>
-              <Link href="/start-project">
-                Request Commercial Quote
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Link>
-            </Button>
+        {/* Bulk Pricing CTA */}
+        <HeaderBarSection icon={ShieldCheck} label="Bulk & Commercial Orders" variant="dark">
+          <div className="text-center py-4">
+            <Text className="text-gray-600 max-w-2xl mx-auto mb-4">
+              Need large quantities or have a custom industrial application? Contact us directly 
+              for bulk pricing and custom solutions. We've done everything from 500' warehouse 
+              screens to custom military applications.
+            </Text>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button variant="primary" asChild>
+                <Link href="/contact">
+                  Contact Us for Bulk Pricing <ArrowRight className="ml-2 w-4 h-4" />
+                </Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link href="/industrial-netting">
+                  See Industrial Solutions
+                </Link>
+              </Button>
+            </div>
           </div>
-        </Card>
+        </HeaderBarSection>
 
         {/* Videos */}
-        <HeaderBarSection icon={Play} label="Industrial Netting Videos" variant="dark">
+        <HeaderBarSection icon={Factory} label="Industrial Netting Video" variant="dark">
           <div className="max-w-2xl mx-auto">
-            <YouTubeEmbed
-              videoId={VIDEOS.INDUSTRIAL_NETTING}
-              title="Industrial Netting"
-              variant="card"
-            />
-            <Text className="text-center mt-2 font-medium text-sm">Industrial Netting</Text>
+            <YouTubeEmbed videoId={VIDEOS.INDUSTRIAL_NETTING} title="Industrial Netting" variant="card" />
           </div>
         </HeaderBarSection>
 
-        {/* CTA */}
-        <section className="bg-gradient-to-br from-[#406517]/10 via-white to-[#003365]/10 rounded-3xl p-8 md:p-12 text-center">
-          <Heading level={2} className="!mb-4">Industrial Netting Needs?</Heading>
-          <Text className="text-gray-600 max-w-2xl mx-auto mb-8">
-            Contact us for pricing on industrial mesh and bulk orders.
-          </Text>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="primary" asChild>
-              <Link href="/start-project">
-                Get a Quote
-                <ArrowRight className="ml-2 w-4 h-4" />
+        {/* Quick Links */}
+        <HeaderBarSection icon={Bug} label="Raw Netting Store Quick Links" variant="dark">
+          <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="md">
+            <Card className="!p-5 text-center hover:shadow-md transition-shadow">
+              <Link href="/order-mesh-netting-fabrics" className="block">
+                <Heading level={5} className="text-[#406517] !mb-1">1. See All Meshes</Heading>
+                <Text size="sm" className="text-gray-600 !mb-0">Several Mesh Types & Colors</Text>
               </Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/raw-netting">
-                View All Netting
+            </Card>
+            <Card className="!p-5 text-center hover:shadow-md transition-shadow">
+              <Link href="/raw-netting/rigging" className="block">
+                <Heading level={5} className="text-[#406517] !mb-1">2. Rigging Ideas</Heading>
+                <Text size="sm" className="text-gray-600 !mb-0">Helpful Ideas & Attachment Items</Text>
               </Link>
-            </Button>
-          </div>
-        </section>
+            </Card>
+            <Card className="!p-5 text-center hover:shadow-md transition-shadow">
+              <Link href="/raw-netting/custom" className="block">
+                <Heading level={5} className="text-[#406517] !mb-1">3. Let Us Make It</Heading>
+                <Text size="sm" className="text-gray-600 !mb-0">Ready to Hang Custom Panels</Text>
+              </Link>
+            </Card>
+          </Grid>
+        </HeaderBarSection>
 
-        {/* Final CTA */}
         <FinalCTATemplate />
 
       </Stack>

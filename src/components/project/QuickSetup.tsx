@@ -265,7 +265,7 @@ const RAW_MESH_TYPES = [
     label: 'Theater Scrim',
     subtitle: 'Projection screens & stage',
     description: 'Ultra-fine weave for projection screens and stage backdrops.',
-    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/wide-net-1200-768x576.jpg',
+    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/wide-net-1200.jpg',
     pricePerFoot: 22,
     colors: ['white', 'silver'] as MeshColor[],
   },

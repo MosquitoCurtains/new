@@ -25,7 +25,7 @@ const PRODUCTS = [
     icon: Bug,
     color: '#406517',
     href: '/screened-porch-enclosures',
-    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/01-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg',
+    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/01-Mosquito-Netting-on-Screen-Porch-1200.jpg',
   },
   {
     title: 'Clear Vinyl Winter Panels',

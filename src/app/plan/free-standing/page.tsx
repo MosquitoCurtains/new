@@ -8,6 +8,7 @@ import {
   Ruler,
   Users,
   Camera,
+  Bug,
 } from 'lucide-react'
 import { 
   Container, 
@@ -23,6 +24,7 @@ import {
   FinalCTATemplate,
   HeaderBarSection,
   YouTubeEmbed,
+  TwoColumn,
 } from '@/lib/design-system'
 
 export default function FreeStandingPage() {
@@ -227,6 +229,34 @@ export default function FreeStandingPage() {
         </section>
 
         {/* Final CTA */}
+
+        <HeaderBarSection icon={Bug} label="We Want to Help" variant="dark">
+          <TwoColumn gap="lg" className="items-center">
+            <Frame ratio="4/3" className="rounded-2xl overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/11/6-Navy-Clear-Vinyl-Enclosure.jpg"
+                alt="Navy Clear Vinyl Enclosure"
+                className="w-full h-full object-cover"
+              />
+            </Frame>
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                These can be a little tricky and we want to help to make sure everything is just right for you. That’s why we recommend that you contact us for this particular project type.
+              </Text>
+              <Text className="text-gray-600">
+                We are about to make planning easier than you could have imagined with a planning session where we will draw on photos you send us as you watch in real time.
+              </Text>
+              <BulletedList spacing="sm">
+                <ListItem variant="checked" iconColor="#406517">We will direct you to a submission form.</ListItem>
+                <ListItem variant="checked" iconColor="#406517">You will send photos and contact info.</ListItem>
+                <ListItem variant="checked" iconColor="#406517">We will call you and take care of the rest.</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Get excited. We’re about to have some fun!</ListItem>
+              </BulletedList>
+            </Stack>
+          </TwoColumn>
+        </HeaderBarSection>
+
+
         <FinalCTATemplate />
 
       </Stack>

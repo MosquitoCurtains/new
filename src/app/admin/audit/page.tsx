@@ -74,6 +74,8 @@ interface PageReview {
   revision_items: string | null
   updated_at: string
   reviewed_at: string | null
+  reviewed_by: string | null
+  last_audited_at: string | null
   seo_score?: number | null
   ai_score?: number | null
   performance_score?: number | null
@@ -293,12 +295,13 @@ function EditModal({
   page, onClose, onSave, saving,
 }: { 
   page: PageReview; onClose: () => void
-  onSave: (id: string, status: ReviewStatus, notes: string, revisionItems: string) => void
+  onSave: (id: string, status: ReviewStatus, notes: string, revisionItems: string, reviewedBy: string) => void
   saving: boolean
 }) {
   const [status, setStatus] = useState<ReviewStatus>(page.review_status || 'pending')
   const [notes, setNotes] = useState(page.review_notes || '')
   const [revisionItems, setRevisionItems] = useState(page.revision_items || '')
+  const [reviewedBy, setReviewedBy] = useState(page.reviewed_by || '')
   const isBuilt = isPageBuilt(page.migration_status)
   
   return (
@@ -361,6 +364,13 @@ function EditModal({
             </div>
           </div>
           
+          {/* Reviewed By */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Reviewed By</label>
+            <Input value={reviewedBy} onChange={(e) => setReviewedBy(e.target.value)}
+              placeholder="e.g. Site Content Audit 1, Jordan, etc." />
+          </div>
+
           {/* Notes */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
@@ -388,7 +398,7 @@ function EditModal({
         
         <div className="flex justify-end gap-2 p-4 border-t border-gray-100 bg-gray-50">
           <Button variant="ghost" onClick={onClose} disabled={saving}>Cancel</Button>
-          <Button variant="primary" onClick={() => onSave(page.id, status, notes, revisionItems)} disabled={saving}>
+          <Button variant="primary" onClick={() => onSave(page.id, status, notes, revisionItems, reviewedBy)} disabled={saving}>
             {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
             Save Changes
           </Button>
@@ -412,6 +422,7 @@ function ReviewsTab({
   const [filterStatus, setFilterStatus] = useState<'all' | ReviewStatus>('all')
   const [filterCategory, setFilterCategory] = useState<string>('all')
   const [filterBuilt, setFilterBuilt] = useState<'all' | 'built' | 'not_built'>('all')
+  const [filterReviewedBy, setFilterReviewedBy] = useState<string>('all')
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
   
   const toggleRow = (id: string) => {
@@ -431,10 +442,13 @@ function ReviewsTab({
     const matchesCategory = filterCategory === 'all' || page.page_type === filterCategory
     const built = isPageBuilt(page.migration_status)
     const matchesBuilt = filterBuilt === 'all' || (filterBuilt === 'built' && built) || (filterBuilt === 'not_built' && !built)
-    return matchesSearch && matchesStatus && matchesCategory && matchesBuilt
+    const matchesReviewedBy = filterReviewedBy === 'all' || 
+      (filterReviewedBy === '_none' ? !page.reviewed_by : page.reviewed_by === filterReviewedBy)
+    return matchesSearch && matchesStatus && matchesCategory && matchesBuilt && matchesReviewedBy
   })
   
   const pageTypes = [...new Set(pages.map(p => p.page_type))].sort()
+  const reviewedByValues = [...new Set(pages.map(p => p.reviewed_by).filter(Boolean))].sort() as string[]
   
   return (
     <Stack gap="md">
@@ -473,6 +487,12 @@ function ReviewsTab({
             <option value="built">Live</option>
             <option value="not_built">Not Started</option>
           </select>
+          <select value={filterReviewedBy} onChange={(e) => setFilterReviewedBy(e.target.value)}
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#406517]/20">
+            <option value="all">All Reviewers</option>
+            <option value="_none">Not Reviewed</option>
+            {reviewedByValues.map(name => <option key={name} value={name}>{name}</option>)}
+          </select>
         </div>
       </Card>
       
@@ -507,11 +527,11 @@ function ReviewsTab({
                   <th className="text-left px-4 py-3 text-xs font-medium text-black uppercase tracking-wider">Page</th>
                   <th className="text-center px-3 py-3 text-xs font-medium text-black uppercase tracking-wider w-16">SEO</th>
                   <th className="text-center px-3 py-3 text-xs font-medium text-black uppercase tracking-wider w-16">AI</th>
-                  <th className="text-center px-3 py-3 text-xs font-medium text-black uppercase tracking-wider w-16">Perf</th>
                   <th className="text-left px-4 py-3 text-xs font-medium text-black uppercase tracking-wider w-28">Built</th>
                   <th className="text-left px-4 py-3 text-xs font-medium text-black uppercase tracking-wider w-28">Review</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-black uppercase tracking-wider w-24 hidden md:table-cell">Updated</th>
-                  <th className="text-right px-4 py-3 text-xs font-medium text-black uppercase tracking-wider w-16"></th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-black uppercase tracking-wider w-36 hidden lg:table-cell">Reviewed By</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-black uppercase tracking-wider w-24 hidden md:table-cell">Reviewed</th>
+                  <th className="text-right px-4 py-3 text-xs font-medium text-black uppercase tracking-wider w-20"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -553,7 +573,15 @@ function ReviewsTab({
                           </div>
                           <div className="px-4 py-3 flex-1 min-w-0">
                             <p className="font-medium text-black truncate">{page.title}</p>
-                            <p className="text-xs text-black/70 font-mono truncate">{page.slug}</p>
+                            <div className="flex items-center gap-2">
+                              <p className="text-xs text-black/70 font-mono truncate">{page.slug}</p>
+                              {isPageBuilt(page.migration_status) && (
+                                <Link href={page.slug} target="_blank" onClick={(e) => e.stopPropagation()}
+                                  className="inline-flex items-center text-[#406517] hover:text-[#2d4710] flex-shrink-0">
+                                  <ExternalLink className="w-3 h-3" />
+                                </Link>
+                              )}
+                            </div>
                             {/* Inline audit summary */}
                             {page.review_notes && (
                               <p className="text-xs text-gray-500 mt-0.5 truncate">{page.review_notes}</p>
@@ -561,7 +589,6 @@ function ReviewsTab({
                           </div>
                           <div className="px-3 py-3 w-16 text-center"><ScoreBadge score={page.seo_score} /></div>
                           <div className="px-3 py-3 w-16 text-center"><ScoreBadge score={page.ai_score} /></div>
-                          <div className="px-3 py-3 w-16 text-center"><ScoreBadge score={page.performance_score} /></div>
                           <div className="px-4 py-3 w-28">
                             <Badge className={`${migrationBadge.className} text-xs whitespace-nowrap`}>{migrationBadge.label}</Badge>
                           </div>
@@ -570,10 +597,23 @@ function ReviewsTab({
                               <StatusIcon className="w-3 h-3" /> {statusInfo.label.split(' ')[0]}
                             </span>
                           </div>
-                          <div className="px-4 py-3 w-24 hidden md:block">
-                            <span className="text-sm text-black">{formatDate(page.updated_at)}</span>
+                          <div className="px-4 py-3 w-36 hidden lg:block">
+                            {page.reviewed_by ? (
+                              <span className="text-sm text-black truncate block" title={page.reviewed_by}>{page.reviewed_by}</span>
+                            ) : (
+                              <span className="text-sm text-gray-400">--</span>
+                            )}
                           </div>
-                          <div className="px-4 py-3 w-16 text-right">
+                          <div className="px-4 py-3 w-24 hidden md:block">
+                            <span className="text-sm text-black">{formatDate(page.reviewed_at)}</span>
+                          </div>
+                          <div className="px-4 py-3 w-20 text-right flex items-center justify-end gap-1">
+                            {isPageBuilt(page.migration_status) && (
+                              <Link href={page.slug} target="_blank" onClick={(e) => e.stopPropagation()}
+                                className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-500 hover:text-[#406517]">
+                                <Eye className="w-4 h-4" />
+                              </Link>
+                            )}
                             <button onClick={(e) => { e.stopPropagation(); onEdit(page) }}
                               className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-black hover:text-black">
                               <Edit2 className="w-4 h-4" />
@@ -661,6 +701,30 @@ function ReviewsTab({
                             {!page.review_notes && !page.revision_items && (
                               <div className="mt-3 text-sm text-gray-400 italic">
                                 No audit notes yet. Run the content audit to populate.
+                              </div>
+                            )}
+                            
+                            {/* Review metadata */}
+                            {(page.reviewed_by || page.reviewed_at) && (
+                              <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-gray-500">
+                                {page.reviewed_by && (
+                                  <span className="inline-flex items-center gap-1.5">
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+                                    Reviewed by: <span className="font-medium text-gray-700">{page.reviewed_by}</span>
+                                  </span>
+                                )}
+                                {page.reviewed_at && (
+                                  <span className="inline-flex items-center gap-1.5">
+                                    <Clock className="w-3.5 h-3.5 text-gray-400" />
+                                    Reviewed: <span className="font-medium text-gray-700">{new Date(page.reviewed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                                  </span>
+                                )}
+                                {page.last_audited_at && (
+                                  <span className="inline-flex items-center gap-1.5">
+                                    <Clock className="w-3.5 h-3.5 text-blue-400" />
+                                    Audited: <span className="font-medium text-gray-700">{new Date(page.last_audited_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                                  </span>
+                                )}
                               </div>
                             )}
                             
@@ -1357,7 +1421,7 @@ export default function AuditDashboard() {
   
   useEffect(() => { fetchPages() }, [fetchPages])
   
-  const handleSave = async (id: string, status: ReviewStatus, notes: string, revisionItems: string) => {
+  const handleSave = async (id: string, status: ReviewStatus, notes: string, revisionItems: string, reviewedBy: string) => {
     try {
       setSaving(true)
       const res = await fetch('/api/admin/page-reviews', {
@@ -1368,6 +1432,7 @@ export default function AuditDashboard() {
           review_status: status,
           review_notes: notes || null,
           revision_items: status === 'needs_revision' ? (revisionItems || null) : null,
+          reviewed_by: reviewedBy || null,
         }),
       })
       const data = await res.json()

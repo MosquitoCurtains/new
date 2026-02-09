@@ -1,8 +1,8 @@
 'use client'
 
 import { SupportPageTemplate } from '@/lib/design-system/templates'
-import { Truck, Globe, MapPin, Clock } from 'lucide-react'
-import { Text, Grid, Card, Heading, Frame } from '@/lib/design-system'
+import { Truck, Globe, MapPin, Clock, Bug, Sparkle } from 'lucide-react'
+import { Text, Grid, Card, Heading, Frame, BulletedList, ListItem } from '@/lib/design-system'
 
 const CONTENT_SECTIONS = [
   {
