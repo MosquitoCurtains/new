@@ -15,6 +15,7 @@ import {
   Text, 
   Button, 
   Card,
+  Heading,
   BulletedList,
   ListItem,
   FinalCTATemplate,

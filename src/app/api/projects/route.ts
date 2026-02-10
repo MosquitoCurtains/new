@@ -27,6 +27,7 @@ export async function POST(request: NextRequest) {
       notes,
       estimatedTotal,
       photo_urls,
+      cart_data,
       // Attribution
       utm_source,
       utm_medium,
@@ -150,6 +151,7 @@ export async function POST(request: NextRequest) {
         number_of_sides: numberOfSides,
         notes,
         estimated_total: estimatedTotal,
+        cart_data: cart_data || [],
         status: 'draft',
         utm_source,
         utm_medium,

@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 3sQ7sBI90Iuyg1fYksmgik4AgbZ6GVInix2AytHoqpxyxwsbY5GW4vb28npfD4m
+\restrict Xp7akUyVQ7uX2fkVVNgBUuK4Qzo0841eyzoFBcYQV4kyQT1EGeRUxK3DzejcMAS
 
 -- Dumped from database version 17.6
 -- Dumped by pg_dump version 17.7 (Homebrew)
@@ -1132,7 +1132,13 @@ CREATE TABLE public.site_pages (
     review_status public.simple_review_status DEFAULT 'pending'::public.simple_review_status,
     revision_items text,
     reviewed_at timestamp with time zone,
-    reviewed_by text
+    reviewed_by text,
+    duplicate_canonical_url text,
+    is_wordpress_original boolean DEFAULT false NOT NULL,
+    original_post_id integer,
+    page_status text DEFAULT 'new'::text NOT NULL,
+    redirect_to_url text,
+    CONSTRAINT chk_page_status CHECK ((page_status = ANY (ARRAY['rebuilt'::text, 'redirected'::text, 'new'::text, 'replacement'::text])))
 );
 
 
@@ -1141,6 +1147,41 @@ CREATE TABLE public.site_pages (
 --
 
 COMMENT ON TABLE public.site_pages IS 'Master inventory of all site pages with migration and audit status';
+
+
+--
+-- Name: COLUMN site_pages.duplicate_canonical_url; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.site_pages.duplicate_canonical_url IS 'If this page is a duplicate of another, stores the canonical URL. Used for <link rel="canonical"> until the decision is made to kill and redirect.';
+
+
+--
+-- Name: COLUMN site_pages.is_wordpress_original; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.site_pages.is_wordpress_original IS 'Whether this page URL existed on the original WordPress site. Source of truth: Checked URLS Mosquito Curtains.csv';
+
+
+--
+-- Name: COLUMN site_pages.original_post_id; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.site_pages.original_post_id IS 'Original WordPress post ID from the WP database export.';
+
+
+--
+-- Name: COLUMN site_pages.page_status; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.site_pages.page_status IS 'Relationship to original WordPress site: rebuilt (same URL), redirected (301), new (never on WP), replacement (new canonical URL for a WP page).';
+
+
+--
+-- Name: COLUMN site_pages.redirect_to_url; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.site_pages.redirect_to_url IS 'For redirected pages: the destination URL they 301-redirect to. NULL for non-redirected pages.';
 
 
 --
@@ -1499,6 +1540,7 @@ CREATE TABLE public.email_messages (
     sent_at timestamp with time zone,
     delivered_at timestamp with time zone,
     opened_at timestamp with time zone,
+    project_id uuid,
     CONSTRAINT email_messages_direction_check CHECK ((direction = ANY (ARRAY['inbound'::text, 'outbound'::text]))),
     CONSTRAINT email_messages_status_check CHECK ((status = ANY (ARRAY['sent'::text, 'delivered'::text, 'failed'::text, 'bounced'::text, 'opened'::text, 'received'::text])))
 );
@@ -1744,6 +1786,7 @@ CREATE TABLE public.leads (
     status text DEFAULT 'open'::text NOT NULL,
     assigned_to uuid,
     pipeline_order integer DEFAULT 0,
+    photo_urls text[],
     CONSTRAINT leads_status_check CHECK ((status = ANY (ARRAY['open'::text, 'pending'::text, 'need_photos'::text, 'invitation_to_plan'::text, 'need_measurements'::text, 'working_on_quote'::text, 'quote_sent'::text, 'need_decision'::text, 'order_placed'::text, 'order_on_hold'::text, 'difficult'::text, 'closed'::text])))
 );
 
@@ -3139,11 +3182,13 @@ CREATE TABLE public.staff (
     id uuid DEFAULT extensions.uuid_generate_v4() NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    auth_user_id uuid NOT NULL,
+    auth_user_id uuid,
     name text NOT NULL,
     email text NOT NULL,
     role text DEFAULT 'sales'::text NOT NULL,
-    is_active boolean DEFAULT true NOT NULL
+    is_active boolean DEFAULT true NOT NULL,
+    first_name text,
+    last_name text
 );
 
 
@@ -4027,6 +4072,13 @@ CREATE INDEX idx_email_messages_lead ON public.email_messages USING btree (lead_
 
 
 --
+-- Name: idx_email_messages_project; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_email_messages_project ON public.email_messages USING btree (project_id);
+
+
+--
 -- Name: idx_email_messages_ses_id_unique; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -4783,6 +4835,27 @@ CREATE INDEX idx_site_pages_batch ON public.site_pages USING btree (migration_ba
 
 
 --
+-- Name: idx_site_pages_is_wordpress_original; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_site_pages_is_wordpress_original ON public.site_pages USING btree (is_wordpress_original);
+
+
+--
+-- Name: idx_site_pages_original_post_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_site_pages_original_post_id ON public.site_pages USING btree (original_post_id);
+
+
+--
+-- Name: idx_site_pages_page_status; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_site_pages_page_status ON public.site_pages USING btree (page_status);
+
+
+--
 -- Name: idx_site_pages_priority; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -5236,6 +5309,14 @@ ALTER TABLE ONLY public.customers
 
 ALTER TABLE ONLY public.email_messages
     ADD CONSTRAINT email_messages_lead_id_fkey FOREIGN KEY (lead_id) REFERENCES public.leads(id) ON DELETE CASCADE;
+
+
+--
+-- Name: email_messages email_messages_project_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.email_messages
+    ADD CONSTRAINT email_messages_project_id_fkey FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE SET NULL;
 
 
 --
@@ -6097,6 +6178,15 @@ CREATE POLICY "Staff can manage sms messages" ON public.sms_messages USING ((EXI
 
 
 --
+-- Name: staff Staff can read all staff; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Staff can read all staff" ON public.staff FOR SELECT USING ((EXISTS ( SELECT 1
+   FROM public.staff s
+  WHERE ((s.auth_user_id = auth.uid()) AND (s.is_active = true)))));
+
+
+--
 -- Name: leads Staff can update leads; Type: POLICY; Schema: public; Owner: -
 --
 
@@ -6180,6 +6270,13 @@ CREATE POLICY "Users can manage line item options" ON public.line_item_options U
 CREATE POLICY "Users can manage line items in own cart" ON public.line_items USING ((cart_id IN ( SELECT carts.id
    FROM public.carts
   WHERE (carts.session_id IS NOT NULL))));
+
+
+--
+-- Name: staff Users can read own staff record; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Users can read own staff record" ON public.staff FOR SELECT USING ((auth_user_id = auth.uid()));
 
 
 --
@@ -6468,5 +6565,5 @@ ALTER TABLE public.visitors ENABLE ROW LEVEL SECURITY;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 3sQ7sBI90Iuyg1fYksmgik4AgbZ6GVInix2AytHoqpxyxwsbY5GW4vb28npfD4m
+\unrestrict Xp7akUyVQ7uX2fkVVNgBUuK4Qzo0841eyzoFBcYQV4kyQT1EGeRUxK3DzejcMAS
 

@@ -52,7 +52,7 @@ const CONTACT_HERO_ACTIONS = [
   { icon: Phone, title: 'Call Us', description: '(770) 645-4745 — fastest way to connect.', href: 'tel:+17706454745', buttonText: 'Call', color: '#406517' },
   { icon: Mail, title: 'Instant Quote', description: 'Get an estimate within 5% of actual cost.', href: '/mosquito-curtains-instant-quote', buttonText: 'Quote', color: '#003365' },
   { icon: Upload, title: 'Start Project', description: 'Upload photos and get personalized guidance.', href: '/start-project', buttonText: 'Start', color: '#B30158' },
-] as const
+]
 
 export default function ContactPage() {
   const [formState, setFormState] = useState({
