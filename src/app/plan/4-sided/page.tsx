@@ -5,8 +5,9 @@ import {
   ArrowRight, 
   ArrowLeft,
   Maximize,
-  Ruler,
-  Users,
+  Columns2,
+  PlayCircle,
+  Map,
 } from 'lucide-react'
 import { 
   Container, 
@@ -23,6 +24,7 @@ import {
   HeaderBarSection,
   YouTubeEmbed,
 } from '@/lib/design-system'
+import { VIDEOS } from '@/lib/constants/videos'
 
 export default function FourSidedPage() {
   return (
@@ -38,148 +40,148 @@ export default function FourSidedPage() {
         {/* Header */}
         <section className="relative py-8 text-center">
           <Stack gap="md" className="max-w-3xl mx-auto">
-            <div className="w-16 h-16 bg-[#003365]/10 rounded-full mx-auto flex items-center justify-center">
-              <Maximize className="w-8 h-8 text-[#003365]" />
+            <div className="w-16 h-16 bg-[#406517]/10 rounded-full mx-auto flex items-center justify-center">
+              <Maximize className="w-8 h-8 text-[#406517]" />
             </div>
             <Heading level={1} className="!text-4xl md:!text-5xl">
-              4+ Sided Exposure
+              Planning a 4+ Sided Exposure
             </Heading>
-            <Text className="text-xl text-gray-600">
-              Your space has four or more open sides. This is common for gazebos, pergolas, 
-              and freestanding structures.
+            <Text className="text-lg text-gray-600">
+              By now you have probably decided on a{' '}
+              <Link href="/plan/mesh-colors" className="text-[#406517] underline">mesh-type &amp; color</Link> and either{' '}
+              <Link href="/plan/tracking" className="text-[#406517] underline">tracking or Velcro top attachment</Link>. 
+              Now you will choose a path and select a panel configuration to size individual panels for sealing to surfaces and positioning magnetic doorways.
             </Text>
           </Stack>
         </section>
 
-        {/* Overview */}
-        <HeaderBarSection icon={Maximize} label="What Is 4+ Sided Exposure?" variant="dark">
-          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg" className="items-center">
-            <Frame ratio="16/9" className="rounded-xl overflow-hidden">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/4-Sided-Example.jpg"
-                alt="4+ Sided exposure example"
-                className="w-full h-full object-cover"
-              />
-            </Frame>
-            <Stack gap="md">
-              <Text className="text-gray-600">
-                A 4+ sided exposure means your structure is open on all sides. This includes 
-                gazebos, pergolas, pavilions, and other freestanding structures.
-              </Text>
-              <BulletedList spacing="md">
-                <ListItem variant="checked" iconColor="#003365">Complete enclosure</ListItem>
-                <ListItem variant="checked" iconColor="#003365">Multiple entry points possible</ListItem>
-                <ListItem variant="checked" iconColor="#003365">All corners need attention</ListItem>
-                <ListItem variant="checked" iconColor="#003365">Hexagonal/octagonal shapes included</ListItem>
-              </BulletedList>
-            </Stack>
-          </Grid>
-        </HeaderBarSection>
+        {/* At this point, we recommend */}
+        <Card className="!p-6 !bg-[#406517]/5 !border-[#406517]/20">
+          <Text className="font-medium text-gray-700 !mb-3">At this point, we recommend:</Text>
+          <BulletedList spacing="sm">
+            <ListItem variant="arrow" iconColor="#406517">Select a configuration to see our configuration-specific detailed planning instructions.</ListItem>
+            <ListItem variant="arrow" iconColor="#406517">Determine a path either inside or outside your columns depending on your particular column type.</ListItem>
+            <ListItem variant="arrow" iconColor="#406517">Watch our planning tutorial to see an example laid out step by step. This is optional but very helpful.</ListItem>
+          </BulletedList>
+        </Card>
 
-        {/* Common Structures */}
-        <HeaderBarSection icon={Maximize} label="Common 4+ Sided Structures" variant="dark">
-          <Grid responsiveCols={{ mobile: 2, tablet: 4 }} gap="md">
-            <Card variant="elevated" className="!p-4 text-center">
-              <Heading level={5} className="!mb-2">Gazebos</Heading>
-              <Text className="text-sm text-gray-600 !mb-0">
-                4, 6, or 8-sided
-              </Text>
-            </Card>
-            <Card variant="elevated" className="!p-4 text-center">
-              <Heading level={5} className="!mb-2">Pergolas</Heading>
-              <Text className="text-sm text-gray-600 !mb-0">
-                Freestanding 4-post
-              </Text>
-            </Card>
-            <Card variant="elevated" className="!p-4 text-center">
-              <Heading level={5} className="!mb-2">Pavilions</Heading>
-              <Text className="text-sm text-gray-600 !mb-0">
-                Open-air structures
-              </Text>
-            </Card>
-            <Card variant="elevated" className="!p-4 text-center">
-              <Heading level={5} className="!mb-2">Pool Houses</Heading>
-              <Text className="text-sm text-gray-600 !mb-0">
-                4-sided cabanas
-              </Text>
-            </Card>
-          </Grid>
-        </HeaderBarSection>
-
-        {/* Why Talk to a Planner */}
-        <HeaderBarSection icon={Users} label="We Recommend Talking to a Planner" variant="dark">
-          <Card className="!p-6 !bg-[#003365]/5 !border-[#003365]/20">
-            <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg" className="items-center">
-              <Stack gap="md">
-                <Heading level={3} className="!text-[#003365]">Complex Projects Need Expert Eyes</Heading>
-                <Text className="text-gray-600">
-                  4+ sided projects have multiple corners, potential odd angles, and lots of 
-                  design decisions. A 15-minute video call saves hours of guesswork.
-                </Text>
-                <BulletedList spacing="sm">
-                  <ListItem variant="arrow" iconColor="#003365">All corners planned correctly</ListItem>
-                  <ListItem variant="arrow" iconColor="#003365">Optimal doorway placement</ListItem>
-                  <ListItem variant="arrow" iconColor="#003365">Custom measurements</ListItem>
-                  <ListItem variant="arrow" iconColor="#003365">Special shape accommodation</ListItem>
-                </BulletedList>
-              </Stack>
-              <YouTubeEmbed
-                videoId="Y5hh50u3trQ"
-                title="4+ Sided Exposure Overview"
-                variant="card"
-              />
-            </Grid>
-          </Card>
-        </HeaderBarSection>
-
-        {/* What to Prepare */}
-        <HeaderBarSection icon={Ruler} label="What to Have Ready" variant="dark">
-          <Card className="!p-6">
+        {/* ================================================================
+            1) Full Example Planning Session
+            ================================================================ */}
+        <HeaderBarSection icon={PlayCircle} label="1) Full Example Planning Session" variant="dark">
+          <Stack gap="md">
+            <Text className="text-gray-600">
+              We have created full example planning session videos to show you how to plan an entire project! This begins with your panel configuration and goes through guidelines for ordering the hardware you need to put it all together. Choose the video with a tracking or Velcro top attachment to get off to a fast start.
+            </Text>
             <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
-              <Stack gap="md">
-                <Heading level={4} className="!text-[#003365]">Photos Needed</Heading>
-                <BulletedList spacing="sm">
-                  <ListItem variant="arrow" iconColor="#003365">Wide shot from each side (outside)</ListItem>
-                  <ListItem variant="arrow" iconColor="#003365">Inside shots looking out each direction</ListItem>
-                  <ListItem variant="arrow" iconColor="#003365">Close-up of each corner post</ListItem>
-                  <ListItem variant="arrow" iconColor="#003365">Ceiling/roof detail at corners</ListItem>
-                  <ListItem variant="arrow" iconColor="#003365">Floor/base condition</ListItem>
-                </BulletedList>
-              </Stack>
-              <Stack gap="md">
-                <Heading level={4} className="!text-[#003365]">Measurements Helpful</Heading>
-                <BulletedList spacing="sm">
-                  <ListItem variant="arrow" iconColor="#003365">Overall width and depth</ListItem>
-                  <ListItem variant="arrow" iconColor="#003365">Height at posts</ListItem>
-                  <ListItem variant="arrow" iconColor="#003365">Post dimensions</ListItem>
-                  <ListItem variant="arrow" iconColor="#003365">Angle measurements (if not square)</ListItem>
-                  <ListItem variant="arrow" iconColor="#003365">Don't worry if approximate - we'll verify</ListItem>
-                </BulletedList>
-              </Stack>
+              <div>
+                <YouTubeEmbed
+                  videoId={VIDEOS.EXPOSURE_OVERVIEW}
+                  title="Tracking Planning Session"
+                  variant="card"
+                />
+                <Text className="text-center mt-2 font-medium">Tracking Planning Session</Text>
+              </div>
+              <div>
+                <YouTubeEmbed
+                  videoId={VIDEOS.LAYOUT_PLANNING_OVERVIEW}
+                  title="Velcro Planning Session"
+                  variant="card"
+                />
+                <Text className="text-center mt-2 font-medium">Velcro Planning Session</Text>
+              </div>
             </Grid>
-          </Card>
+          </Stack>
         </HeaderBarSection>
 
-        {/* CTA */}
-        <section className="bg-gradient-to-br from-[#406517]/10 via-white to-[#003365]/10 rounded-3xl p-8 md:p-12 text-center">
-          <Heading level={2} className="!mb-4">Schedule Your Free Planning Call</Heading>
-          <Text className="text-gray-600 max-w-2xl mx-auto mb-8">
-            Our experts have done thousands of 4+ sided projects. Let us help you get it right.
+        {/* ================================================================
+            2) Determine a Path
+            ================================================================ */}
+        <HeaderBarSection icon={Map} label="2) Determine a Path" variant="dark">
+          <Stack gap="md">
+            <Text className="text-gray-600">
+              There is a subtle difference in the path curtains will take depending on what type of columns you have. There are two types of paths to take, an inside hang (inside your columns), or an outside hang (outside your columns).
+            </Text>
+            <Text className="text-gray-600">
+              We group columns into two categories -- regular columns and irregular columns. The path you take depends on the &quot;shape&quot; of the columns that you have.
+            </Text>
+            <Text className="text-gray-600">
+              If you have regular columns and can seal to a perfectly straight edge, we want to take advantage of that opportunity to maximize space and performance of your curtains. You can pass intermediate columns but it is best to terminate panels at CORNER regular columns.
+            </Text>
+            <Text className="text-gray-600">
+              If you have irregularly shaped columns, we will need to plan such that we never have to directly seal to a non-linear edge so panels do not terminate at CORNER irregular columns.
+            </Text>
+          </Stack>
+        </HeaderBarSection>
+
+        {/* ================================================================
+            Regular or Irregular Columns
+            ================================================================ */}
+        <HeaderBarSection icon={Columns2} label="Regular or Irregular Columns" variant="dark">
+          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
+            <Card variant="elevated" className="!p-6">
+              <Frame ratio="16/9" className="rounded-xl overflow-hidden mb-4">
+                <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Regular-Columns-1.jpg" alt="Regular columns" className="w-full h-full object-cover" />
+              </Frame>
+              <Heading level={4} className="!mb-4 text-[#406517]">Regular Columns</Heading>
+              <Text className="text-gray-600 !mb-0">
+                A regular column has a straight edge that makes for a good sealing surface with marine snaps. We recommend an outside hang ending panels at corner columns.
+              </Text>
+            </Card>
+            <Card variant="elevated" className="!p-6">
+              <Frame ratio="16/9" className="rounded-xl overflow-hidden mb-4">
+                <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Irregular-Columns-1.jpg" alt="Irregular columns" className="w-full h-full object-cover" />
+              </Frame>
+              <Heading level={4} className="!mb-4 text-[#003365]">Irregular Columns</Heading>
+              <Text className="text-gray-600 !mb-0">
+                Irregular columns do not have this straight edge to snap to, so panels will straddle irregular corner columns with our elastic cord to &quot;pinch&quot; the center of the straddling panel to an irregular corner column.
+              </Text>
+            </Card>
+          </Grid>
+        </HeaderBarSection>
+
+        {/* ================================================================
+            3) Click 1 of 4 Options For Panel Configuration Guidelines
+            ================================================================ */}
+        <HeaderBarSection icon={ArrowRight} label="3) Click 1 of 4 Options For Panel Configuration Guidelines" variant="dark">
+          <Text className="text-gray-600 text-center mb-6">
+            Now choose a configuration based on your column type for details specific to your application.
           </Text>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="primary" asChild>
-              <Link href="/start-project?mode=planner">
-                Schedule Free Call
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/plan">
-                Back to Planning
-              </Link>
-            </Button>
-          </div>
-        </section>
+          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
+            <Link href="/plan/4-sided/regular-tracking" className="group">
+              <Card variant="elevated" className="!p-4 text-center transition-all group-hover:border-[#406517] group-hover:shadow-lg group-hover:-translate-y-1 h-full">
+                <Frame ratio="16/8" className="rounded-xl overflow-hidden mb-3">
+                  <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Regular-Columns-W-Tracking-400x208-1.jpg" alt="Regular Columns With Tracking" className="w-full h-full object-cover" />
+                </Frame>
+                <Button variant="primary" className="w-full">Select</Button>
+              </Card>
+            </Link>
+            <Link href="/plan/4-sided/regular-velcro" className="group">
+              <Card variant="elevated" className="!p-4 text-center transition-all group-hover:border-[#406517] group-hover:shadow-lg group-hover:-translate-y-1 h-full">
+                <Frame ratio="16/8" className="rounded-xl overflow-hidden mb-3">
+                  <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Regular-Columns-W-Velcro-400x208-1.jpg" alt="Regular Columns With Velcro" className="w-full h-full object-cover" />
+                </Frame>
+                <Button variant="primary" className="w-full">Select</Button>
+              </Card>
+            </Link>
+            <Link href="/plan/4-sided/irregular-tracking" className="group">
+              <Card variant="elevated" className="!p-4 text-center transition-all group-hover:border-[#406517] group-hover:shadow-lg group-hover:-translate-y-1 h-full">
+                <Frame ratio="16/8" className="rounded-xl overflow-hidden mb-3">
+                  <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Irregular-Tracking-400x208-1.jpg" alt="Irregular Columns With Tracking" className="w-full h-full object-cover" />
+                </Frame>
+                <Button variant="primary" className="w-full">Select</Button>
+              </Card>
+            </Link>
+            <Link href="/plan/4-sided/irregular-velcro" className="group">
+              <Card variant="elevated" className="!p-4 text-center transition-all group-hover:border-[#406517] group-hover:shadow-lg group-hover:-translate-y-1 h-full">
+                <Frame ratio="16/8" className="rounded-xl overflow-hidden mb-3">
+                  <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Irregular-Columns-W-Velcro-400x208-1.jpg" alt="Irregular Columns With Velcro" className="w-full h-full object-cover" />
+                </Frame>
+                <Button variant="primary" className="w-full">Select</Button>
+              </Card>
+            </Link>
+          </Grid>
+        </HeaderBarSection>
 
         {/* Final CTA */}
         <FinalCTATemplate />

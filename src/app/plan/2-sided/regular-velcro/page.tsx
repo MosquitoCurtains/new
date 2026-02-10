@@ -4,10 +4,9 @@ import Link from 'next/link'
 import { 
   ArrowRight, 
   ArrowLeft,
-  Layers,
-  CheckCircle,
-  DollarSign,
+  Ruler,
   PlayCircle,
+  ShoppingCart,
 } from 'lucide-react'
 import { 
   Container, 
@@ -17,13 +16,14 @@ import {
   Button, 
   Card,
   Heading,
-  Frame,
   BulletedList,
   ListItem,
   FinalCTATemplate,
   HeaderBarSection,
   YouTubeEmbed,
 } from '@/lib/design-system'
+import { VIDEOS } from '@/lib/constants/videos'
+import PanelCalculator from '@/components/plan/PanelCalculator'
 
 export default function TwoSidedRegularVelcroPage() {
   return (
@@ -41,136 +41,98 @@ export default function TwoSidedRegularVelcroPage() {
           <Stack gap="md" className="max-w-3xl mx-auto">
             <div className="inline-flex items-center justify-center gap-2 text-sm text-gray-500 mb-2">
               <span className="px-2 py-1 bg-gray-100 rounded">2-Sided</span>
-              <span className="px-2 py-1 bg-gray-100 rounded">Regular Shape</span>
-              <span className="px-2 py-1 bg-[#003365]/10 text-[#003365] rounded font-medium">Velcro</span>
+              <span className="px-2 py-1 bg-gray-100 rounded">Regular Columns</span>
+              <span className="px-2 py-1 bg-[#406517]/10 text-[#406517] rounded font-medium">Velcro</span>
             </div>
-            <Heading level={1} className="!text-4xl md:!text-5xl">
-              2-Sided Regular Velcro
+            <Heading level={1} className="!text-3xl md:!text-4xl">
+              2 Sided Exposure - Regular Columns With Velcro Attachment
             </Heading>
-            <Text className="text-xl text-gray-600">
-              Your 2-sided space has regular rectangular openings and you prefer the 
-              economical velcro attachment option.
-            </Text>
           </Stack>
         </section>
 
-        {/* Layout Planning Video */}
-        <HeaderBarSection icon={PlayCircle} label="Layout Planning Overview" variant="dark">
-          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg" className="items-center">
+        {/* Recommended Panel Configuration */}
+        <HeaderBarSection icon={Ruler} label="Recommended Panel Configuration & Measuring" variant="dark">
+          <Stack gap="md">
+            <Text className="text-gray-700">
+              An inside hang is almost never recommended. Instead, take advantage of the skeletal structure of your porch with an outside path for regularly-shaped columns, start with three panels (one for each side).
+            </Text>
+            <Text className="text-gray-700">
+              Only split panels where you need a magnetic doorway to enter and exit (2-4 panels total). Magnetic doorways for Velcro top attachment work exactly the same way as they do for tracking attachment.
+            </Text>
+          </Stack>
+        </HeaderBarSection>
+
+        {/* Measurement Tips */}
+        <HeaderBarSection icon={Ruler} label="Measurement Tips" variant="dark">
+          <BulletedList spacing="md">
+            <ListItem variant="arrow" iconColor="#406517"><strong>IMPORTANT:</strong> Sum width of all sides = Sum of all panel widths.</ListItem>
+            <ListItem variant="arrow" iconColor="#406517">We then will divide your project into at least 1 panel for each side ending panels at corner columns. Any side can be further split for a magnetic doorway but only if you need one. Remember, we can make very wide panels. Your project will have from 2-4 panels total.</ListItem>
+            <ListItem variant="arrow" iconColor="#406517">Measure heights at all 3 corners from UNDERSIDE of header beam to surface to floor, (we&apos;ll adjust for that too momentarily) since Velcro is side-mounted to some surface.</ListItem>
+            <ListItem variant="arrow" iconColor="#406517">Measure the &quot;widths&quot; of each side ALONG the path the curtain will take WITHOUT ANY overlap (we&apos;ll adjust for overlap later). Measure to the 1/2 inch and please be accurate.</ListItem>
+          </BulletedList>
+          <Text className="text-gray-600 mt-4">
+            The configuration diagrams below demonstrate an example from a top view using{' '}
+            <Link href="/plan/magnetic-doorways" className="text-[#406517] underline font-medium">marine snaps, magnetic doorways, and stucco strips</Link>. 
+            Watch the video to get an overview on how to measure and some ideas for your panel configuration.
+          </Text>
+        </HeaderBarSection>
+
+        {/* Planning Overview Video */}
+        <HeaderBarSection icon={PlayCircle} label="Planning Overview (2:26)" variant="dark">
+          <div className="max-w-2xl mx-auto">
             <YouTubeEmbed
-              videoId="MDPYl7gN4Ec"
-              title="Layout Planning Overview"
+              videoId={VIDEOS.LAYOUT_PLANNING_OVERVIEW}
+              title="Planning Overview"
               variant="card"
             />
-            <Stack gap="md">
-              <Text className="text-gray-600">
-                Watch our layout planning overview to understand how to measure and plan 
-                your 2-sided velcro project for the best results.
-              </Text>
-              <BulletedList spacing="md">
-                <ListItem variant="checked" iconColor="#003365">How to measure each opening</ListItem>
-                <ListItem variant="checked" iconColor="#003365">Planning your layout</ListItem>
-                <ListItem variant="checked" iconColor="#003365">Velcro attachment points</ListItem>
-              </BulletedList>
-            </Stack>
-          </Grid>
+          </div>
         </HeaderBarSection>
 
-        {/* What This Means */}
-        <HeaderBarSection icon={CheckCircle} label="Your Configuration" variant="dark">
-          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg" className="items-center">
-            <Frame ratio="16/9" className="rounded-xl overflow-hidden">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Velcro-Example.jpg"
-                alt="Velcro attachment example"
-                className="w-full h-full object-cover"
-              />
-            </Frame>
-            <Stack gap="md">
-              <BulletedList spacing="md">
-                <ListItem variant="checked" iconColor="#003365">Two open sides to cover</ListItem>
-                <ListItem variant="checked" iconColor="#003365">Rectangular/square openings (no arches)</ListItem>
-                <ListItem variant="checked" iconColor="#003365">Velcro attachment (curtains don't slide)</ListItem>
-                <ListItem variant="checked" iconColor="#003365">Most economical option</ListItem>
-              </BulletedList>
-              <Card className="!p-4 !bg-[#003365]/5 !border-[#003365]/20">
-                <Text className="text-sm text-gray-600 !mb-0">
-                  <strong>Velcro attachment</strong> means curtains are fixed in place. 
-                  They don't slide side-to-side, but can be removed seasonally if desired.
-                </Text>
+        {/* Panel Adjustments */}
+        <HeaderBarSection icon={Ruler} label="Panel Adjustments (Or Use Calculator Below)" variant="dark">
+          <Stack gap="md">
+            <Text className="text-gray-600">
+              Once you have your panel configuration, there are a few panel adjustments to make for each panel. The sum width of all your panels needs to be wider than your actual exposure for overlapping magnetic doors or overlapping a structural surface (like a wall or column) and a little more so that you can have a relaxed fit. Use our panel calculator below to help with your calculations.
+            </Text>
+            <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
+              <Card className="!p-6 !bg-white !border-[#406517]/20">
+                <Heading level={4} className="!mb-4 text-[#406517]">WIDTH ADJUSTMENTS</Heading>
+                <BulletedList spacing="sm">
+                  <ListItem variant="arrow" iconColor="#406517">For Velcro Attachment: Add another 1-in per 10ft of panel width for relaxed fit.</ListItem>
+                  <ListItem variant="arrow" iconColor="#406517">Subtract 1-in for EACH edge connecting a Stucco Strip, and ignore width of stucco strip</ListItem>
+                  <ListItem variant="arrow" iconColor="#406517">Add another 1-inch per panel for EACH edge that will snap to some surface</ListItem>
+                  <ListItem variant="arrow" iconColor="#406517">Automatically add 2-inches per panel regardless of width, then</ListItem>
+                </BulletedList>
               </Card>
-            </Stack>
-          </Grid>
+              <Card className="!p-6 !bg-white !border-[#003365]/20">
+                <Heading level={4} className="!mb-4 text-[#003365]">HEIGHT ADJUSTMENTS</Heading>
+                <BulletedList spacing="sm">
+                  <ListItem variant="arrow" iconColor="#003365">If height of a given panel varies by 2&quot; or less, use taller height</ListItem>
+                  <ListItem variant="arrow" iconColor="#003365">This provides 1&quot; of overlap on top and bottom for mounting panels on your Velcro strip</ListItem>
+                  <ListItem variant="arrow" iconColor="#003365">Velcro -- Add 2&quot; to height from bottom of Velcro mounting surface to the floor</ListItem>
+                </BulletedList>
+              </Card>
+            </Grid>
+          </Stack>
         </HeaderBarSection>
 
-        {/* Benefits */}
-        <HeaderBarSection icon={DollarSign} label="Why Choose Velcro?" variant="dark">
-          <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="lg">
-            <Card variant="elevated" className="!p-6 text-center">
-              <Heading level={4} className="!mb-4">Lower Cost</Heading>
-              <Text className="text-gray-600 !mb-0">
-                Velcro attachment is more economical than tracking, reducing your 
-                overall project cost.
-              </Text>
-            </Card>
-            <Card variant="elevated" className="!p-6 text-center">
-              <Heading level={4} className="!mb-4">Simple Install</Heading>
-              <Text className="text-gray-600 !mb-0">
-                Adhesive velcro strips are easy to apply. Most homeowners complete 
-                installation in an afternoon.
-              </Text>
-            </Card>
-            <Card variant="elevated" className="!p-6 text-center">
-              <Heading level={4} className="!mb-4">Seasonal Use</Heading>
-              <Text className="text-gray-600 !mb-0">
-                Perfect if you want to remove curtains during off-season. Velcro 
-                allows easy on/off.
-              </Text>
-            </Card>
-          </Grid>
-        </HeaderBarSection>
+        {/* Panel Calculator */}
+        <PanelCalculator />
 
-        {/* Good Fit */}
-        <Card className="!p-6 !bg-[#406517]/5 !border-[#406517]/20">
-          <Heading level={3} className="!mb-4 text-center">Velcro is Great If...</Heading>
-          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
-            <BulletedList spacing="sm">
-              <ListItem variant="checked" iconColor="#406517">Budget is a priority</ListItem>
-              <ListItem variant="checked" iconColor="#406517">You don't need daily opening/closing</ListItem>
-              <ListItem variant="checked" iconColor="#406517">Seasonal use (install in spring, remove in fall)</ListItem>
-            </BulletedList>
-            <BulletedList spacing="sm">
-              <ListItem variant="checked" iconColor="#406517">Simpler aesthetic preferred</ListItem>
-              <ListItem variant="checked" iconColor="#406517">You're comfortable with DIY installation</ListItem>
-              <ListItem variant="checked" iconColor="#406517">Want the fastest installation</ListItem>
-            </BulletedList>
-          </Grid>
-        </Card>
-
-        {/* CTA */}
+        {/* Ready to Order CTA */}
         <section className="bg-gradient-to-br from-[#406517]/10 via-white to-[#003365]/10 rounded-3xl p-8 md:p-12 text-center">
-          <Heading level={2} className="!mb-4">Ready for a Quote?</Heading>
-          <Text className="text-gray-600 max-w-2xl mx-auto mb-8">
-            2-sided velcro projects are straightforward. Get instant pricing with our quote tool.
-          </Text>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="primary" asChild>
-              <Link href="/start-project?mode=quote">
-                Get Instant Quote
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/plan/2-sided">
-                View Other Options
+            <Button variant="primary" size="lg" asChild>
+              <Link href="/order-mesh-panels">
+                <ShoppingCart className="w-5 h-5 mr-2" />
+                I&apos;m Ready To Order
+                <ArrowRight className="ml-2 w-5 h-5" />
               </Link>
             </Button>
           </div>
         </section>
 
-        {/* Final CTA */}
         <FinalCTATemplate />
-
       </Stack>
     </Container>
   )

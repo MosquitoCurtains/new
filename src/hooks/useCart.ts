@@ -232,24 +232,219 @@ export function useCart() {
     saveCart(createEmptyCart())
   }, [saveCart])
 
+  // =========================================================================
+  // DATABASE INTEGRATION
+  // =========================================================================
+
+  const [dbCartId, setDbCartId] = useState<string | null>(null)
+  const [projectId, setProjectId] = useState<string | null>(null)
+  const [isSaving, setIsSaving] = useState(false)
+
+  /**
+   * Save cart to database linked to a project.
+   * Creates a new cart if dbCartId is null, otherwise updates existing.
+   */
+  const saveToDb = useCallback(async (
+    projId: string,
+    salespersonId?: string,
+    salespersonName?: string,
+    salesMode?: string,
+  ) => {
+    if (!cart) return null
+    setIsSaving(true)
+    try {
+      const items = cart.items.map((item) => ({
+        product_id: item.productSku, // Use SKU as product reference
+        product_sku: item.productSku,
+        product_name: item.name,
+        quantity: item.quantity,
+        unit_price: item.unitPrice,
+        line_total: item.totalPrice,
+        panel_specs: item.options || {},
+        options: Object.entries(item.options || {}).map(([k, v]) => ({
+          option_name: k,
+          option_value: String(v),
+        })),
+      }))
+
+      const payload = {
+        project_id: projId,
+        salesperson_id: salespersonId || null,
+        salesperson_name: salespersonName || null,
+        sales_mode: salesMode || null,
+        items,
+        subtotal: cart.subtotal,
+        tax_amount: cart.tax,
+        shipping_amount: cart.shipping,
+        total: cart.total,
+        shipping_first_name: cart.shippingAddress ? cart.contact?.firstName : null,
+        shipping_last_name: cart.shippingAddress ? cart.contact?.lastName : null,
+        shipping_address_1: cart.shippingAddress?.street || null,
+        shipping_city: cart.shippingAddress?.city || null,
+        shipping_state: cart.shippingAddress?.state || null,
+        shipping_zip: cart.shippingAddress?.zip || null,
+        shipping_country: cart.shippingAddress?.country || 'US',
+      }
+
+      let res: Response
+      if (dbCartId) {
+        // Update existing cart
+        res = await fetch(`/api/admin/carts/${dbCartId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+      } else {
+        // Create new cart
+        res = await fetch('/api/admin/carts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+      }
+
+      const data = await res.json()
+      if (data.success && data.cart) {
+        setDbCartId(data.cart.id)
+        setProjectId(projId)
+        return data.cart.id as string
+      }
+      return null
+    } catch (err) {
+      console.error('Error saving cart to DB:', err)
+      return null
+    } finally {
+      setIsSaving(false)
+    }
+  }, [cart, dbCartId])
+
+  /**
+   * Load cart from DB by project ID (fetches the project's cart).
+   */
+  const loadFromProject = useCallback(async (projId: string) => {
+    try {
+      const res = await fetch(`/api/admin/carts?project_id=${projId}&status=active`)
+      const data = await res.json()
+      const carts = data.carts || []
+      if (carts.length === 0) {
+        setProjectId(projId)
+        return false
+      }
+
+      const dbCart = carts[0]
+      return await loadFromDb(dbCart.id)
+    } catch (err) {
+      console.error('Error loading cart from project:', err)
+      return false
+    }
+  }, [])
+
+  /**
+   * Load a specific cart from DB by cart ID.
+   */
+  const loadFromDb = useCallback(async (cartId: string) => {
+    try {
+      const res = await fetch(`/api/admin/carts/${cartId}`)
+      const data = await res.json()
+      if (!data.cart) return false
+
+      const dbCart = data.cart
+      const dbItems: LineItemFromDB[] = data.lineItems || []
+
+      // Convert DB line items to CartLineItem format
+      const cartItems: CartLineItem[] = dbItems.map((item: LineItemFromDB) => ({
+        id: `${item.product_sku}-${item.id}`,
+        type: inferType(item.product_sku),
+        productSku: item.product_sku,
+        name: item.product_name,
+        description: '',
+        quantity: item.quantity,
+        unitPrice: Number(item.unit_price),
+        totalPrice: Number(item.line_total),
+        options: item.line_item_options?.reduce((acc: Record<string, string>, opt: { option_name: string; option_value: string }) => {
+          acc[opt.option_name] = opt.option_value
+          return acc
+        }, {} as Record<string, string>) || {},
+      }))
+
+      const totals = {
+        subtotal: Number(dbCart.subtotal) || 0,
+        shipping: Number(dbCart.shipping_amount) || 0,
+        tax: Number(dbCart.tax_amount) || 0,
+        total: Number(dbCart.total) || 0,
+      }
+
+      const loadedCart: CartData = {
+        id: dbCart.id,
+        items: cartItems,
+        ...totals,
+        sessionId: `db-${dbCart.id}`,
+        createdAt: new Date(dbCart.created_at).getTime(),
+        updatedAt: new Date(dbCart.updated_at).getTime(),
+      }
+
+      setCart(loadedCart)
+      setDbCartId(dbCart.id)
+      setProjectId(dbCart.project_id)
+      localStorage.setItem(CART_KEY, JSON.stringify(loadedCart))
+      return true
+    } catch (err) {
+      console.error('Error loading cart from DB:', err)
+      return false
+    }
+  }, [])
+
   const itemCount = cart?.items.reduce((sum, item) => sum + item.quantity, 0) || 0
 
   return {
     cart,
     isLoading: isLoading || pricingLoading,
     isCalculatingShipping,
+    isSaving,
     shippingZoneName,
     taxRateName,
     itemCount,
     /** DB pricing map — available for components that need to calculate prices */
     prices: dbPrices,
+    /** DB cart ID (set after first save) */
+    dbCartId,
+    /** Linked project ID */
+    projectId,
     updateQuantity,
     removeItem,
     addItem,
     updateContact,
     updateShippingAddress,
     clearCart,
+    /** Save cart to database linked to a project */
+    saveToDb,
+    /** Load cart from DB by project ID */
+    loadFromProject,
+    /** Load cart from DB by cart ID */
+    loadFromDb,
   }
+}
+
+// Helper: infer item type from SKU
+function inferType(sku: string): CartLineItem['type'] {
+  if (!sku) return 'addon'
+  const s = sku.toLowerCase()
+  if (s.includes('panel') || s.includes('mesh') || s.includes('vinyl') || s.includes('shade')) return 'panel'
+  if (s.includes('track')) return 'track'
+  if (s.includes('fabric') || s.includes('netting') || s.includes('raw')) return 'fabric'
+  if (s.includes('snap') || s.includes('magnet') || s.includes('velcro') || s.includes('clip') || s.includes('grommet')) return 'hardware'
+  return 'addon'
+}
+
+// Type for DB line items
+interface LineItemFromDB {
+  id: string
+  product_sku: string
+  product_name: string
+  quantity: number
+  unit_price: number
+  line_total: number
+  line_item_options?: Array<{ option_name: string; option_value: string }>
 }
 
 export default useCart

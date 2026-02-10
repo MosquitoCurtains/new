@@ -205,6 +205,7 @@ export const adminNavSections: AdminNavSection[] = [
           { name: 'RU Sales', href: '/admin/ru-sales' },
         ],
       },
+      { name: 'Orders', href: '/admin/orders', icon: Package },
       { name: 'Product Pricing', href: '/admin/pricing', icon: DollarSign },
       { name: 'Shipping & Tax', href: '/admin/shipping-tax', icon: Truck },
     ],
@@ -236,6 +237,7 @@ export const adminNavSections: AdminNavSection[] = [
   {
     label: 'System',
     items: [
+      { name: 'Staff', href: '/admin/staff', icon: Users },
       { name: 'Notifications', href: '/admin/notifications', icon: Bell },
       { name: 'Data Export', href: '/admin/export', icon: Download },
     ],

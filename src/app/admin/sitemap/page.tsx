@@ -74,7 +74,6 @@ const SITE_SECTIONS: SiteSection[] = [
       { path: '/about', name: 'About Us', inSitemap: true },
       { path: '/our-story', name: 'Our Story', inSitemap: true },
       { path: '/products', name: 'Products Hub', description: 'All product categories', inSitemap: true },
-      { path: '/applications', name: 'Applications', description: 'Use-case overview', inSitemap: true },
     ],
   },
 
@@ -96,7 +95,6 @@ const SITE_SECTIONS: SiteSection[] = [
       { path: '/heavy-track', name: 'Heavy Track', inSitemap: true },
       { path: '/camping-net', name: 'Camping Net', inSitemap: true },
       { path: '/outdoor-projection-screens', name: 'Outdoor Projection Screens', inSitemap: true },
-      { path: '/pollen-protection', name: 'Pollen Protection', inSitemap: true },
       { path: '/tent-screens', name: 'Tent Screens', inSitemap: true },
       { path: '/weather-curtains', name: 'Weather Curtains', inSitemap: true },
       { path: '/insulated-curtain-panels', name: 'Insulated Curtain Panels', inSitemap: true },
@@ -356,20 +354,6 @@ const SITE_SECTIONS: SiteSection[] = [
     color: '#EF4444',
     routes: [
       { path: '/sale', name: 'Sale Page', inSitemap: true },
-    ],
-  },
-
-  // ── Marketing Landing Pages ──────────────────────────────────────────────
-  {
-    title: 'Marketing Landing Pages',
-    icon: Megaphone,
-    color: '#14B8A6',
-    routes: [
-      { path: '/fb', name: 'Facebook Hub', description: 'FB ad landing', inSitemap: false },
-      { path: '/fb/mc-quote', name: 'FB: MC Quote', description: 'Facebook MC ad', inSitemap: false },
-      { path: '/fb/cv-quote', name: 'FB: CV Quote', description: 'Facebook CV ad', inSitemap: false },
-      { path: '/reddit', name: 'Reddit Hub', description: 'Reddit ad landing', inSitemap: false },
-      { path: '/reddit/mc-quote', name: 'Reddit: MC Quote', description: 'Reddit MC ad', inSitemap: false },
     ],
   },
 

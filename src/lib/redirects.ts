@@ -151,6 +151,10 @@ export const REDIRECTS: RedirectEntry[] = [
   { source: '/project-gallery/white-netting-2', destination: '/gallery/white-netting', permanent: true },
   { source: '/project-gallery/white-netting-3', destination: '/gallery/white-netting', permanent: true },
   { source: '/project-gallery/white-netting', destination: '/gallery/white-netting', permanent: true },
+  { source: '/project-gallery/mosquito-netting-2', destination: '/gallery', permanent: true },
+  { source: '/project-gallery/mosquito-netting-3', destination: '/gallery', permanent: true },
+  { source: '/project-gallery/mosquito-netting-4', destination: '/gallery', permanent: true },
+  { source: '/project-gallery/mosquito-netting-5', destination: '/gallery', permanent: true },
 
   // =========================================================================
   // BLOG ROOT-LEVEL SLUGS -> /blog/*
@@ -179,13 +183,42 @@ export const REDIRECTS: RedirectEntry[] = [
   { source: '/ru-sales', destination: '/admin/ru-sales', permanent: true },
   { source: '/sales', destination: '/admin/sales', permanent: true },
   { source: '/mp-sales', destination: '/admin/sales', permanent: true },
+  { source: '/cp-sales', destination: '/admin/sales', permanent: true },
+  { source: '/cv-sales', destination: '/admin/sales', permanent: true },
+  { source: '/rn-sales', destination: '/admin/sales', permanent: true },
+  { source: '/sp-sales', destination: '/admin/sales', permanent: true },
+  { source: '/ta-sales', destination: '/admin/sales', permanent: true },
+  { source: '/sales/adjustments', destination: '/admin/sales', permanent: true },
+  { source: '/sales/attachments', destination: '/admin/sales', permanent: true },
+  { source: '/sales/cv', destination: '/admin/sales', permanent: true },
+  { source: '/sales/heavy-track', destination: '/admin/sales', permanent: true },
+  { source: '/sales/mc', destination: '/admin/sales', permanent: true },
+  { source: '/sales/scrim', destination: '/admin/sales', permanent: true },
+  { source: '/sales/standard-tracking', destination: '/admin/sales', permanent: true },
 
   // =========================================================================
-  // AD LANDING PAGES
-  // NOTE: /fb, /fb/mc-quote, /fb/cv-quote, /reddit, /reddit/mc-quote
-  // have actual pages on the new site — do NOT redirect these.
-  // The CSV marked them as REDIRECT but they've been rebuilt as real pages.
+  // AD LANDING PAGES -> / (pages deleted, now redirects)
   // =========================================================================
+  { source: '/fb', destination: '/', permanent: true },
+  { source: '/fb/cv-quote', destination: '/', permanent: true },
+  { source: '/fb/mc-quote', destination: '/', permanent: true },
+  { source: '/reddit', destination: '/', permanent: true },
+  { source: '/reddit/mc-quote', destination: '/', permanent: true },
+
+  // =========================================================================
+  // LEGACY / DEPRECATED PAGES -> /
+  // =========================================================================
+  { source: '/applications', destination: '/', permanent: true },
+  { source: '/calculator-test', destination: '/', permanent: true },
+  { source: '/clear-vinyl-plastic-face-shields', destination: '/', permanent: true },
+  { source: '/covid-19', destination: '/', permanent: true },
+  { source: '/cv-redesign-1-11-23', destination: '/', permanent: true },
+  { source: '/plan-unique-applications', destination: '/', permanent: true },
+  { source: '/pollen-protection', destination: '/', permanent: true },
+  { source: '/products-test', destination: '/', permanent: true },
+  { source: '/speed-test', destination: '/', permanent: true },
+  { source: '/wordpress-seo-premium-16-7-zip', destination: '/', permanent: true },
+  { source: '/wpms-html-sitemap', destination: '/', permanent: true },
 
   // =========================================================================
   // MISC LEGACY -> APPROPRIATE NEW PAGES

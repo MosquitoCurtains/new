@@ -31,6 +31,9 @@ export interface PageReview {
   reviewed_by: string | null
   duplicate_canonical_url: string | null
   is_wordpress_original: boolean
+  page_status: 'rebuilt' | 'redirected' | 'new' | 'replacement'
+  original_post_id: number | null
+  redirect_to_url: string | null
   created_at: string
   updated_at: string
   seo_score?: number | null

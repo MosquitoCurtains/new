@@ -3,14 +3,9 @@
 import Link from 'next/link'
 import { 
   ArrowRight, 
-  Square,
   LayoutGrid,
-  Grid3X3,
   Hexagon,
   MessageSquare,
-  Home,
-  Tent,
-  TreePine,
 } from 'lucide-react'
 import { 
   Container, 
@@ -20,75 +15,68 @@ import {
   Button, 
   Card,
   Heading,
-  Frame,
   YouTubeEmbed,
   WhyChooseUsTemplate,
   FinalCTATemplate,
   HeaderBarSection,
+  BulletedList,
+  ListItem,
 } from '@/lib/design-system'
 import { VIDEOS } from '@/lib/constants/videos'
 
-// Exposure types
+// Exposure types - images from WordPress /plan-screen-porch/ (2021/01 folder)
 const EXPOSURE_TYPES = [
   {
     id: '1-sided',
     title: '1 Sided Exposure',
-    description: 'Single opening to cover',
     href: '/plan/1-sided',
-    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/1-Sided-Icon.jpg',
+    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/01-One-Sided-Exposure.jpg',
   },
   {
     id: '2-sided',
     title: '2 Sided Exposure',
-    description: 'Two adjacent openings',
     href: '/plan/2-sided',
-    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/2-Sided-Icon.jpg',
+    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/02-L-Shaped-Exposure.jpg',
   },
   {
     id: '3-sided',
     title: '3 Sided Exposure',
-    description: 'Three openings to cover',
     href: '/plan/3-sided',
-    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/3-Sided-Icon.jpg',
+    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/03-U-Shaped-Exposure.jpg',
   },
   {
     id: '4-sided',
     title: '4+ Sided Exposure',
-    description: 'Four or more openings',
     href: '/plan/4-sided',
-    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/4-Sided-Icon.jpg',
+    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/04-4-Sides-Wrapping.jpg',
   },
 ]
 
-// Special project types
+// Special project types - images from WordPress /plan-screen-porch/ (2021/01 folder)
 const SPECIAL_TYPES = [
   {
     id: 'free-standing',
     title: 'Free Standing',
-    description: 'Gazebos, pergolas without walls',
     href: '/plan/free-standing',
-    icon: TreePine,
+    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/05-Free-Standing-Structures.jpg',
   },
   {
     id: 'hexagons',
     title: 'Hexagons & Octagons',
-    description: 'Non-rectangular structures',
-    href: '/contact',
-    icon: Hexagon,
+    href: '/plan/free-standing',
+    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/06-Hexagons-and-Octagons.jpg',
   },
   {
     id: 'tents',
     title: 'Tents & Awnings',
-    description: 'Event tents, awning enclosures',
-    href: '/tent-screens',
-    icon: Tent,
+    href: '/plan/free-standing',
+    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/07-Tents-and-Awnings.jpg',
   },
   {
     id: 'open-deck',
     title: 'Open Deck (No Roof)',
-    description: 'Decks without covered roof',
-    href: '/contact',
-    icon: Home,
+    href: '/plan/free-standing',
+    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/08-Open-Decks-No-Roof.jpg',
   },
 ]
 
@@ -119,24 +107,24 @@ export default function PlanPage() {
             <Heading level={1} className="!text-4xl md:!text-5xl">
               Planning Your Project
             </Heading>
-            <Text className="text-xl text-gray-600">
-              This section is for clients who like to plan projects on their own. 
-              Start by clicking a structure below that MOST resembles the number of sides in your project.
+            <Text className="text-lg text-gray-600">
+              This section is for clients who like to plan projects on their own. Sometimes folks would prefer one of our planners to assist them.
             </Text>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Button variant="accent" asChild>
-                <Link href="/work-with-a-planner">
-                  <MessageSquare className="w-5 h-5 mr-2" />
-                  Skip - Work With A Planner
-                </Link>
-              </Button>
-            </div>
+            <BulletedList spacing="md" className="text-left max-w-2xl mx-auto">
+              <ListItem variant="arrow" iconColor="#406517">
+                <strong>(A) To Plan your own project</strong>, start by clicking a structure below that MOST resembles the # of sides in your project.
+              </ListItem>
+              <ListItem variant="arrow" iconColor="#406517">
+                <strong>(B) To skip this step</strong> and have one of our planners help you, follow the instructions on our{' '}
+                <Link href="/contact" className="text-[#406517] underline font-medium">CONTACT US</Link> page.
+              </ListItem>
+            </BulletedList>
 
             {/* Overview Video */}
             <div className="max-w-2xl mx-auto pt-4">
               <YouTubeEmbed
-                videoId={VIDEOS.SHORT_OVERVIEW}
-                title="Mosquito Curtains Overview"
+                videoId={VIDEOS.MOSQUITO_CURTAINS_OVERVIEW}
+                title="Planning Overview"
                 variant="card"
               />
             </div>
@@ -144,22 +132,21 @@ export default function PlanPage() {
         </section>
 
         {/* ================================================================
-            EXPOSURE TYPES
+            EXPOSURE TYPES - "Select one of the exposure types below"
             ================================================================ */}
-        <HeaderBarSection icon={LayoutGrid} label="Select Your Exposure Type" variant="dark">
+        <HeaderBarSection icon={LayoutGrid} label="Select one of the exposure types below" variant="dark">
           <Grid responsiveCols={{ mobile: 2, tablet: 4 }} gap="lg">
             {EXPOSURE_TYPES.map((type) => (
               <Link key={type.id} href={type.href} className="group">
                 <Card variant="elevated" className="!p-4 text-center transition-all group-hover:border-[#406517] group-hover:shadow-lg group-hover:-translate-y-1">
-                  <Frame ratio="4/3" className="rounded-xl overflow-hidden mb-4">
+                  <div className="rounded-xl overflow-hidden mb-4">
                     <img
                       src={type.image}
                       alt={type.title}
-                      className="w-full h-full object-cover"
+                      className="w-full h-auto"
                     />
-                  </Frame>
-                  <Heading level={4} className="!mb-1 group-hover:text-[#406517]">{type.title}</Heading>
-                  <Text className="text-sm text-gray-600 !mb-0">{type.description}</Text>
+                  </div>
+                  <Heading level={4} className="!mb-0 group-hover:text-[#406517]">{type.title}</Heading>
                 </Card>
               </Link>
             ))}
@@ -167,27 +154,24 @@ export default function PlanPage() {
         </HeaderBarSection>
 
         {/* ================================================================
-            SPECIAL PROJECT TYPES
+            SPECIAL PROJECT TYPES - with real images from WordPress
             ================================================================ */}
-        <HeaderBarSection icon={Hexagon} label="Special Project Types" variant="dark">
-          <Text className="text-center text-gray-600 mb-6">
-            If you have one of these project types, you will be working with a planner.
-          </Text>
+        <HeaderBarSection icon={Hexagon} label="If you have one of these project types, you will be working with a planner." variant="dark">
           <Grid responsiveCols={{ mobile: 2, tablet: 4 }} gap="md">
-            {SPECIAL_TYPES.map((type) => {
-              const Icon = type.icon
-              return (
-                <Link key={type.id} href={type.href} className="group">
-                  <Card variant="outlined" className="!p-6 text-center transition-all group-hover:border-[#406517] group-hover:shadow-md">
-                    <div className="w-12 h-12 bg-[#406517]/10 rounded-xl mx-auto mb-3 flex items-center justify-center group-hover:bg-[#406517]/20">
-                      <Icon className="w-6 h-6 text-[#406517]" />
-                    </div>
-                    <Heading level={4} className="!mb-1 !text-base">{type.title}</Heading>
-                    <Text className="text-sm text-gray-600 !mb-0">{type.description}</Text>
-                  </Card>
-                </Link>
-              )
-            })}
+            {SPECIAL_TYPES.map((type) => (
+              <Link key={type.id} href={type.href} className="group">
+                <Card variant="elevated" className="!p-4 text-center transition-all group-hover:border-[#406517] group-hover:shadow-lg group-hover:-translate-y-1">
+                  <div className="rounded-xl overflow-hidden mb-4">
+                    <img
+                      src={type.image}
+                      alt={type.title}
+                      className="w-full h-auto"
+                    />
+                  </div>
+                  <Heading level={4} className="!mb-0 group-hover:text-[#406517]">{type.title}</Heading>
+                </Card>
+              </Link>
+            ))}
           </Grid>
         </HeaderBarSection>
 
@@ -214,7 +198,7 @@ export default function PlanPage() {
           <Heading level={2} className="!mb-4">Prefer to Have Us Help?</Heading>
           <Text className="text-gray-600 max-w-2xl mx-auto mb-8">
             Our planning team is here to help you design your project. Send us photos 
-            and we'll provide personalized recommendations and a detailed quote.
+            and we&apos;ll provide personalized recommendations and a detailed quote.
           </Text>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button variant="accent" size="lg" asChild>
