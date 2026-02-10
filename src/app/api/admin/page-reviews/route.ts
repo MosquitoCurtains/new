@@ -29,6 +29,11 @@ export interface PageReview {
   revision_items: string | null
   reviewed_at: string | null
   reviewed_by: string | null
+  duplicate_canonical_url: string | null
+  is_wordpress_original: boolean
+  page_status: 'rebuilt' | 'redirected' | 'new' | 'replacement'
+  original_post_id: number | null
+  redirect_to_url: string | null
   created_at: string
   updated_at: string
   seo_score?: number | null
@@ -50,7 +55,7 @@ export async function GET(request: NextRequest) {
     // ----- SEO Audit Details -----
     if (type === 'seo') {
       const { data, error } = await supabase
-        .from('seo_audits')
+        .from('audit_seo')
         .select(`
           *,
           site_pages!inner (
@@ -61,7 +66,7 @@ export async function GET(request: NextRequest) {
 
       if (error) {
         if (error.code === '42P01' || error.message?.includes('does not exist')) {
-          return NextResponse.json({ audits: [], message: 'SEO audit table not found. Run migration 20260205000004.' })
+          return NextResponse.json({ audits: [], message: 'audit_seo table not found. Run migrations.' })
         }
         throw error
       }
@@ -79,7 +84,7 @@ export async function GET(request: NextRequest) {
     // ----- AI Audit Details -----
     if (type === 'ai') {
       const { data, error } = await supabase
-        .from('ai_readiness_audits')
+        .from('audit_ai_readiness')
         .select(`
           *,
           site_pages!inner (
@@ -90,7 +95,7 @@ export async function GET(request: NextRequest) {
 
       if (error) {
         if (error.code === '42P01' || error.message?.includes('does not exist')) {
-          return NextResponse.json({ audits: [], message: 'AI audit table not found. Run migration 20260205000004.' })
+          return NextResponse.json({ audits: [], message: 'audit_ai_readiness table not found. Run migrations.' })
         }
         throw error
       }
@@ -111,8 +116,8 @@ export async function GET(request: NextRequest) {
       .from('site_pages')
       .select(`
         *,
-        seo_audits ( seo_score, seo_rating ),
-        ai_readiness_audits ( ai_score, ai_rating )
+        audit_seo ( seo_score, seo_rating ),
+        audit_ai_readiness ( ai_score, ai_rating )
       `)
       .order('migration_priority', { ascending: false })
       .order('title', { ascending: true })
@@ -122,7 +127,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ 
           pages: [],
           stats: { total: 0, pending: 0, complete: 0, needs_revision: 0, built: 0 },
-          message: 'Table not found. Run migrations 20260205000004 and 20260205000007.'
+          message: 'Table not found. Run migrations.'
         })
       }
       throw pagesError
@@ -130,9 +135,9 @@ export async function GET(request: NextRequest) {
 
     // Flatten embedded audit scores into page objects
     const pages = (sitePages || []).map((row: Record<string, unknown>) => {
-      const seoAudit = row.seo_audits as Record<string, unknown> | null
-      const aiAudit = row.ai_readiness_audits as Record<string, unknown> | null
-      const { seo_audits: _s, ai_readiness_audits: _a, ...page } = row
+      const seoAudit = row.audit_seo as Record<string, unknown> | null
+      const aiAudit = row.audit_ai_readiness as Record<string, unknown> | null
+      const { audit_seo: _s, audit_ai_readiness: _a, ...page } = row
       return {
         ...page,
         seo_score: seoAudit?.seo_score ?? null,

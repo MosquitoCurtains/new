@@ -74,6 +74,14 @@ export async function PATCH(request: NextRequest) {
   }
 }
 
+// Map interest to product_type for project creation
+const INTEREST_TO_PRODUCT: Record<string, string> = {
+  mosquito_curtains: 'mosquito_curtains',
+  clear_vinyl: 'clear_vinyl',
+  both: 'mosquito_curtains', // default to MC for "both"
+  raw_materials: 'raw_materials',
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -87,6 +95,7 @@ export async function POST(request: NextRequest) {
       projectType,
       message,
       source = 'quick_connect',
+      photo_urls,
       // Attribution
       utm_source,
       utm_medium,
@@ -107,6 +116,11 @@ export async function POST(request: NextRequest) {
 
     const supabase = createAdminClient()
 
+    // Extract photo URL strings for the leads table
+    const photoUrlStrings = Array.isArray(photo_urls)
+      ? photo_urls.map((p: { url: string }) => p.url)
+      : []
+
     const { data, error } = await supabase
       .from('leads')
       .insert({
@@ -118,6 +132,7 @@ export async function POST(request: NextRequest) {
         project_type: projectType,
         message,
         source,
+        photo_urls: photoUrlStrings.length > 0 ? photoUrlStrings : null,
         utm_source,
         utm_medium,
         utm_campaign,
@@ -139,6 +154,60 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // -----------------------------------------------------------------------
+    // Auto-create a project if photos were attached
+    // -----------------------------------------------------------------------
+    let projectData = null
+    if (data && Array.isArray(photo_urls) && photo_urls.length > 0) {
+      const productType = INTEREST_TO_PRODUCT[interest || ''] || interest || 'mosquito_curtains'
+
+      const { data: project, error: projError } = await supabase
+        .from('projects')
+        .insert({
+          lead_id: data.id,
+          email,
+          first_name: firstName,
+          last_name: lastName,
+          phone,
+          product_type: productType,
+          status: 'draft',
+          notes: message || null,
+          utm_source,
+          utm_medium,
+          utm_campaign,
+          utm_content,
+          utm_term,
+          referrer,
+          landing_page,
+          session_id,
+        })
+        .select()
+        .single()
+
+      if (projError) {
+        console.error('Error auto-creating project from lead:', projError)
+      } else if (project) {
+        projectData = project
+
+        // Save photos to project_photos
+        const photoRows = photo_urls
+          .filter((p: { url?: string }) => p.url)
+          .map((p: { url: string; fileName?: string }) => ({
+            project_id: project.id,
+            storage_path: p.url,
+            filename: p.fileName || 'unknown',
+            content_type: guessContentType(p.fileName || ''),
+          }))
+
+        if (photoRows.length > 0) {
+          const { error: photoErr } = await supabase
+            .from('project_photos')
+            .insert(photoRows)
+          if (photoErr) console.error('Error saving lead project photos:', photoErr)
+        }
+      }
+    }
+
     // Send new lead notification to sales team (fire-and-forget)
     if (data) {
       sendNewLeadNotification({
@@ -155,7 +224,11 @@ export async function POST(request: NextRequest) {
       }).catch(console.error)
     }
 
-    return NextResponse.json({ success: true, lead: data })
+    return NextResponse.json({
+      success: true,
+      lead: data,
+      project: projectData,
+    })
   } catch (error) {
     console.error('Lead API error:', error)
     return NextResponse.json(
@@ -163,4 +236,15 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
+}
+
+/** Guess content type from filename */
+function guessContentType(filename: string): string {
+  const ext = filename.split('.').pop()?.toLowerCase()
+  const map: Record<string, string> = {
+    jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png',
+    webp: 'image/webp', heic: 'image/heic', pdf: 'application/pdf',
+    mp4: 'video/mp4', mov: 'video/quicktime', webm: 'video/webm',
+  }
+  return map[ext || ''] || 'image/jpeg'
 }

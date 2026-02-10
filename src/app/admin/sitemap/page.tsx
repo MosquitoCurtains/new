@@ -49,6 +49,7 @@ interface SiteRoute {
   name: string
   description?: string
   inSitemap: boolean // Is this in the public SEO sitemap?
+  dynamicParent?: string // If set, this route is a child of a dynamic [slug] route
 }
 
 interface SiteSection {
@@ -73,7 +74,6 @@ const SITE_SECTIONS: SiteSection[] = [
       { path: '/about', name: 'About Us', inSitemap: true },
       { path: '/our-story', name: 'Our Story', inSitemap: true },
       { path: '/products', name: 'Products Hub', description: 'All product categories', inSitemap: true },
-      { path: '/applications', name: 'Applications', description: 'Use-case overview', inSitemap: true },
     ],
   },
 
@@ -95,7 +95,6 @@ const SITE_SECTIONS: SiteSection[] = [
       { path: '/heavy-track', name: 'Heavy Track', inSitemap: true },
       { path: '/camping-net', name: 'Camping Net', inSitemap: true },
       { path: '/outdoor-projection-screens', name: 'Outdoor Projection Screens', inSitemap: true },
-      { path: '/pollen-protection', name: 'Pollen Protection', inSitemap: true },
       { path: '/tent-screens', name: 'Tent Screens', inSitemap: true },
       { path: '/weather-curtains', name: 'Weather Curtains', inSitemap: true },
       { path: '/insulated-curtain-panels', name: 'Insulated Curtain Panels', inSitemap: true },
@@ -204,8 +203,18 @@ const SITE_SECTIONS: SiteSection[] = [
     color: '#059669',
     routes: [
       { path: '/start-project', name: 'Start Project', description: 'Project wizard', inSitemap: true },
-      { path: '/mosquito-curtains-instant-quote', name: 'MC Instant Quote', inSitemap: true },
-      { path: '/clear-vinyl-instant-quote', name: 'CV Instant Quote', inSitemap: true },
+      { path: '/start-project/mosquito-curtains', name: 'MC Start Project', inSitemap: true },
+      { path: '/start-project/mosquito-curtains/expert-assistance', name: 'MC Expert Assistance', inSitemap: true },
+      { path: '/start-project/mosquito-curtains/instant-quote', name: 'MC Instant Quote', inSitemap: true },
+      { path: '/start-project/mosquito-curtains/diy-builder', name: 'MC DIY Builder', inSitemap: true },
+      { path: '/start-project/clear-vinyl', name: 'CV Start Project', inSitemap: true },
+      { path: '/start-project/clear-vinyl/expert-assistance', name: 'CV Expert Assistance', inSitemap: true },
+      { path: '/start-project/clear-vinyl/instant-quote', name: 'CV Instant Quote', inSitemap: true },
+      { path: '/start-project/clear-vinyl/diy-builder', name: 'CV DIY Builder', inSitemap: true },
+      { path: '/start-project/raw-netting', name: 'Raw Netting Start Project', inSitemap: true },
+      { path: '/start-project/raw-netting/expert-assistance', name: 'Raw Expert Assistance', inSitemap: true },
+      { path: '/start-project/raw-netting/instant-quote', name: 'Raw Contact for Quote', inSitemap: true },
+      { path: '/start-project/raw-netting/diy-builder', name: 'Raw DIY Builder', inSitemap: true },
       { path: '/quote/mosquito-curtains', name: 'MC Quote Form', inSitemap: true },
       { path: '/quote/clear-vinyl', name: 'CV Quote Form', inSitemap: true },
       { path: '/work-with-a-planner', name: 'Work With a Planner', inSitemap: true },
@@ -218,31 +227,30 @@ const SITE_SECTIONS: SiteSection[] = [
     icon: ScrollText,
     color: '#D97706',
     routes: [
-      { path: '/plan', name: 'Planning Hub', inSitemap: true },
-      { path: '/plan/overview', name: 'Overview', inSitemap: true },
-      { path: '/plan/how-to-order', name: 'How to Order', inSitemap: true },
-      { path: '/plan/tracking', name: 'Tracking Guide', inSitemap: true },
-      { path: '/plan/mesh-colors', name: 'Mesh Colors', inSitemap: true },
-      { path: '/plan/magnetic-doorways', name: 'Magnetic Doorways', inSitemap: true },
-      { path: '/plan/sealing-base', name: 'Sealing the Base', inSitemap: true },
-      { path: '/plan/free-standing', name: 'Free-Standing', inSitemap: true },
-      { path: '/plan/tents-awnings', name: 'Tents & Awnings', inSitemap: true },
-      { path: '/plan/1-sided', name: '1-Sided Opening', inSitemap: true },
-      { path: '/plan/2-sided', name: '2-Sided Opening', inSitemap: true },
-      { path: '/plan/2-sided/regular-tracking', name: '2-Sided Regular Tracking', inSitemap: true },
-      { path: '/plan/2-sided/regular-velcro', name: '2-Sided Regular Velcro', inSitemap: true },
-      { path: '/plan/2-sided/irregular-tracking', name: '2-Sided Irregular Tracking', inSitemap: true },
-      { path: '/plan/2-sided/irregular-velcro', name: '2-Sided Irregular Velcro', inSitemap: true },
-      { path: '/plan/3-sided', name: '3-Sided Opening', inSitemap: true },
-      { path: '/plan/3-sided/regular-tracking', name: '3-Sided Regular Tracking', inSitemap: true },
-      { path: '/plan/3-sided/regular-velcro', name: '3-Sided Regular Velcro', inSitemap: true },
-      { path: '/plan/3-sided/irregular-tracking', name: '3-Sided Irregular Tracking', inSitemap: true },
-      { path: '/plan/3-sided/irregular-velcro', name: '3-Sided Irregular Velcro', inSitemap: true },
-      { path: '/plan/4-sided', name: '4-Sided Opening', inSitemap: true },
-      { path: '/plan/4-sided/regular-tracking', name: '4-Sided Regular Tracking', inSitemap: true },
-      { path: '/plan/4-sided/regular-velcro', name: '4-Sided Regular Velcro', inSitemap: true },
-      { path: '/plan/4-sided/irregular-tracking', name: '4-Sided Irregular Tracking', inSitemap: true },
-      { path: '/plan/4-sided/irregular-velcro', name: '4-Sided Irregular Velcro', inSitemap: true },
+      { path: '/plan-screen-porch', name: 'Planning Hub', inSitemap: true },
+      { path: '/plan-screen-porch/how-to-order', name: 'How to Order', inSitemap: true },
+      { path: '/plan-screen-porch/outdoor-curtain-tracking', name: 'Tracking Guide', inSitemap: true },
+      { path: '/plan-screen-porch/mesh-and-colors', name: 'Mesh & Colors', inSitemap: true },
+      { path: '/plan-screen-porch/magnetic-doorways', name: 'Magnetic Doorways', inSitemap: true },
+      { path: '/plan-screen-porch/sealing-the-base', name: 'Sealing the Base', inSitemap: true },
+      { path: '/plan-screen-porch/free-standing', name: 'Free-Standing', inSitemap: true },
+      { path: '/plan-screen-porch/tents-and-awnings', name: 'Tents & Awnings', inSitemap: true },
+      { path: '/plan-screen-porch/single-sided-exposure', name: 'Single-Sided Exposure', inSitemap: true },
+      { path: '/plan-screen-porch/2-sided-exposure', name: '2-Sided Exposure', inSitemap: true },
+      { path: '/plan-screen-porch/2-sided-exposure/regular-columns-tracking', name: '2S Regular Columns Tracking', inSitemap: true },
+      { path: '/plan-screen-porch/2-sided-exposure/regular-columns-velcro', name: '2S Regular Columns Velcro', inSitemap: true },
+      { path: '/plan-screen-porch/2-sided-exposure/irregular-columns-tracking', name: '2S Irregular Columns Tracking', inSitemap: true },
+      { path: '/plan-screen-porch/2-sided-exposure/irregular-columns-velcro', name: '2S Irregular Columns Velcro', inSitemap: true },
+      { path: '/plan-screen-porch/3-sided-exposure', name: '3-Sided Exposure', inSitemap: true },
+      { path: '/plan-screen-porch/3-sided-exposure/regular-columns-tracking', name: '3S Regular Columns Tracking', inSitemap: true },
+      { path: '/plan-screen-porch/3-sided-exposure/regular-columns-velcro', name: '3S Regular Columns Velcro', inSitemap: true },
+      { path: '/plan-screen-porch/3-sided-exposure/irregular-columns-tracking', name: '3S Irregular Columns Tracking', inSitemap: true },
+      { path: '/plan-screen-porch/3-sided-exposure/irregular-columns-velcro', name: '3S Irregular Columns Velcro', inSitemap: true },
+      { path: '/plan-screen-porch/4-plus-sided-exposure', name: '4+ Sided Exposure', inSitemap: true },
+      { path: '/plan-screen-porch/4-plus-sided-exposure/regular-columns-tracking', name: '4S Regular Columns Tracking', inSitemap: true },
+      { path: '/plan-screen-porch/4-plus-sided-exposure/regular-columns-velcro', name: '4S Regular Columns Velcro', inSitemap: true },
+      { path: '/plan-screen-porch/4-plus-sided-exposure/irregular-columns-velcro', name: '4S Irregular Columns Velcro', inSitemap: true },
+      { path: '/plan-screen-porch/4-plus-sided-exposure/screen-a-wrap-around-porch-with-odd-shaped-columns-and-a-tracking-attachment', name: '4S Wrap-Around Tracking', inSitemap: true },
     ],
   },
 
@@ -307,12 +315,13 @@ const SITE_SECTIONS: SiteSection[] = [
     color: '#F59E0B',
     routes: [
       { path: '/gallery', name: 'Gallery Hub', inSitemap: true },
-      { path: '/gallery/featured', name: 'Featured Collection', inSitemap: true },
-      { path: '/gallery/porch-projects', name: 'Porch Projects Collection', inSitemap: true },
-      { path: '/gallery/clear-vinyl', name: 'Clear Vinyl Collection', inSitemap: true },
-      { path: '/gallery/mosquito-netting', name: 'Mosquito Netting Collection', inSitemap: true },
-      { path: '/gallery/white-netting', name: 'White Netting Collection', inSitemap: true },
-      { path: '/gallery/black-netting', name: 'Black Netting Collection', inSitemap: true },
+      { path: '/gallery/[slug]', name: 'Gallery Collection', description: 'Dynamic route — 6 collections', inSitemap: false },
+      { path: '/gallery/featured', name: 'Featured Collection', inSitemap: true, dynamicParent: '/gallery/[slug]' },
+      { path: '/gallery/porch-projects', name: 'Porch Projects Collection', inSitemap: true, dynamicParent: '/gallery/[slug]' },
+      { path: '/gallery/clear-vinyl', name: 'Clear Vinyl Collection', inSitemap: true, dynamicParent: '/gallery/[slug]' },
+      { path: '/gallery/mosquito-netting', name: 'Mosquito Netting Collection', inSitemap: true, dynamicParent: '/gallery/[slug]' },
+      { path: '/gallery/white-netting', name: 'White Netting Collection', inSitemap: true, dynamicParent: '/gallery/[slug]' },
+      { path: '/gallery/black-netting', name: 'Black Netting Collection', inSitemap: true, dynamicParent: '/gallery/[slug]' },
       { path: '/photos', name: 'Photos', inSitemap: true },
       { path: '/videos', name: 'Videos', inSitemap: true },
       { path: '/projects', name: 'Projects', inSitemap: true },
@@ -326,23 +335,24 @@ const SITE_SECTIONS: SiteSection[] = [
     color: '#8B5CF6',
     routes: [
       { path: '/blog', name: 'Blog Index', inSitemap: true },
-      { path: '/blog/history-of-mosquitoes', name: 'History of Mosquitoes', inSitemap: true },
-      { path: '/blog/mosquito-capitol-of-america', name: 'Mosquito Capitol of America', inSitemap: true },
-      { path: '/blog/mosquito-enclosures-for-decks', name: 'Mosquito Enclosures for Decks', inSitemap: true },
-      { path: '/blog/gazebos-then-and-now', name: 'Gazebos Then and Now', inSitemap: true },
-      { path: '/blog/porch-too-beautiful-to-screen', name: 'Porch Too Beautiful to Screen', inSitemap: true },
-      { path: '/blog/pollen-and-porches', name: 'Pollen and Porches', inSitemap: true },
-      { path: '/blog/northern-mosquitoes', name: 'Northern Mosquitoes', inSitemap: true },
-      { path: '/blog/storm-proof-screening', name: 'Storm-Proof Screening', inSitemap: true },
-      { path: '/blog/west-nile-virus-effects', name: 'West Nile Virus Effects', inSitemap: true },
-      { path: '/blog/mosquito-protection-summary', name: 'Mosquito Protection Summary', inSitemap: true },
-      { path: '/blog/bond-sales-story', name: 'Bond Sales Story', inSitemap: true },
-      { path: '/blog/kids-project', name: 'Kids Project', inSitemap: true },
-      { path: '/blog/dear-martha-stewart', name: 'Dear Martha Stewart', inSitemap: true },
-      { path: '/blog/work-is-good', name: 'Work is Good', inSitemap: true },
-      { path: '/blog/mulligan-blocker', name: 'Mulligan Blocker', inSitemap: true },
-      { path: '/blog/airlines-screen-doors', name: 'Airlines Screen Doors', inSitemap: true },
-      { path: '/blog/outdoor-projection-screens', name: 'Outdoor Projection Screens', inSitemap: true },
+      { path: '/blog/[slug]', name: 'Blog Post', description: 'Dynamic route — 17 posts', inSitemap: false },
+      { path: '/blog/history-of-mosquitoes', name: 'History of Mosquitoes', inSitemap: true, dynamicParent: '/blog/[slug]' },
+      { path: '/blog/mosquito-capitol-of-america', name: 'Mosquito Capitol of America', inSitemap: true, dynamicParent: '/blog/[slug]' },
+      { path: '/blog/mosquito-enclosures-for-decks', name: 'Mosquito Enclosures for Decks', inSitemap: true, dynamicParent: '/blog/[slug]' },
+      { path: '/blog/gazebos-then-and-now', name: 'Gazebos Then and Now', inSitemap: true, dynamicParent: '/blog/[slug]' },
+      { path: '/blog/porch-too-beautiful-to-screen', name: 'Porch Too Beautiful to Screen', inSitemap: true, dynamicParent: '/blog/[slug]' },
+      { path: '/blog/pollen-and-porches', name: 'Pollen and Porches', inSitemap: true, dynamicParent: '/blog/[slug]' },
+      { path: '/blog/northern-mosquitoes', name: 'Northern Mosquitoes', inSitemap: true, dynamicParent: '/blog/[slug]' },
+      { path: '/blog/storm-proof-screening', name: 'Storm-Proof Screening', inSitemap: true, dynamicParent: '/blog/[slug]' },
+      { path: '/blog/west-nile-virus-effects', name: 'West Nile Virus Effects', inSitemap: true, dynamicParent: '/blog/[slug]' },
+      { path: '/blog/mosquito-protection-summary', name: 'Mosquito Protection Summary', inSitemap: true, dynamicParent: '/blog/[slug]' },
+      { path: '/blog/bond-sales-story', name: 'Bond Sales Story', inSitemap: true, dynamicParent: '/blog/[slug]' },
+      { path: '/blog/kids-project', name: 'Kids Project', inSitemap: true, dynamicParent: '/blog/[slug]' },
+      { path: '/blog/dear-martha-stewart', name: 'Dear Martha Stewart', inSitemap: true, dynamicParent: '/blog/[slug]' },
+      { path: '/blog/work-is-good', name: 'Work is Good', inSitemap: true, dynamicParent: '/blog/[slug]' },
+      { path: '/blog/mulligan-blocker', name: 'Mulligan Blocker', inSitemap: true, dynamicParent: '/blog/[slug]' },
+      { path: '/blog/airlines-screen-doors', name: 'Airlines Screen Doors', inSitemap: true, dynamicParent: '/blog/[slug]' },
+      { path: '/blog/outdoor-projection-screens', name: 'Outdoor Projection Screens', inSitemap: true, dynamicParent: '/blog/[slug]' },
     ],
   },
 
@@ -353,20 +363,6 @@ const SITE_SECTIONS: SiteSection[] = [
     color: '#EF4444',
     routes: [
       { path: '/sale', name: 'Sale Page', inSitemap: true },
-    ],
-  },
-
-  // ── Marketing Landing Pages ──────────────────────────────────────────────
-  {
-    title: 'Marketing Landing Pages',
-    icon: Megaphone,
-    color: '#14B8A6',
-    routes: [
-      { path: '/fb', name: 'Facebook Hub', description: 'FB ad landing', inSitemap: false },
-      { path: '/fb/mc-quote', name: 'FB: MC Quote', description: 'Facebook MC ad', inSitemap: false },
-      { path: '/fb/cv-quote', name: 'FB: CV Quote', description: 'Facebook CV ad', inSitemap: false },
-      { path: '/reddit', name: 'Reddit Hub', description: 'Reddit ad landing', inSitemap: false },
-      { path: '/reddit/mc-quote', name: 'Reddit: MC Quote', description: 'Reddit MC ad', inSitemap: false },
     ],
   },
 
@@ -383,6 +379,63 @@ const SITE_SECTIONS: SiteSection[] = [
       { path: '/uploads', name: 'Uploads', description: 'File upload page', inSitemap: false },
       { path: '/project/[shareToken]', name: 'Shared Project', description: 'Dynamic project link', inSitemap: false },
       { path: '/experiment', name: 'Experiment', description: 'Internal testing', inSitemap: false },
+    ],
+  },
+
+  // ── WordPress Legacy URLs (Canonical Wrappers) ─────────────────────────
+  {
+    title: 'WordPress Legacy URLs (Canonical Wrappers)',
+    icon: Layers,
+    color: '#9333EA',
+    routes: [
+      // Care/FAQ/Install Wrappers (10 routes)
+      { path: '/caring-for-clear-vinyl', name: 'Caring For Clear Vinyl (WP)', description: 'Canonical wrapper for /care/clear-vinyl', inSitemap: false },
+      { path: '/caring-for-mosquito-curtains', name: 'Caring For MC (WP)', description: 'Canonical wrapper for /care/mosquito-curtains', inSitemap: false },
+      { path: '/clear-vinyl-faq', name: 'CV FAQ (WP)', description: 'Canonical wrapper for /faq/clear-vinyl', inSitemap: false },
+      { path: '/faqs', name: 'FAQs (WP)', description: 'Canonical wrapper for /faq', inSitemap: false },
+      { path: '/mosquito-curtains-faq', name: 'MC FAQ (WP)', description: 'Canonical wrapper for /faq/mosquito-curtains', inSitemap: false },
+      { path: '/mosquito-curtains-reviews', name: 'MC Reviews (WP)', description: 'Canonical wrapper for /reviews', inSitemap: false },
+      { path: '/mosquito-curtains-tracking-installation', name: 'Tracking Install (WP)', description: 'Canonical wrapper for /install/tracking', inSitemap: false },
+      { path: '/mosquito-curtains-velcro-installation', name: 'Velcro Install (WP)', description: 'Canonical wrapper for /install/velcro', inSitemap: false },
+      { path: '/clear-vinyl-installation', name: 'CV Installation (WP)', description: 'Canonical wrapper for /install/clear-vinyl', inSitemap: false },
+      { path: '/how-to-order', name: 'How To Order (WP)', description: 'Canonical wrapper for /plan-screen-porch/how-to-order', inSitemap: false },
+
+      // Raw Netting Wrappers (5 routes)
+      { path: '/mosquito-net', name: 'Mosquito Net (WP)', description: 'Canonical wrapper for /raw-netting/mosquito-net', inSitemap: false },
+      { path: '/mosquito-netting/all-netting-and-attachment-hardware', name: 'Netting Hardware (WP)', description: 'Canonical wrapper for /raw-netting/hardware', inSitemap: false },
+      { path: '/mosquito-netting/fasteners-and-rigging-ideas', name: 'Rigging Ideas (WP)', description: 'Canonical wrapper for /raw-netting/rigging', inSitemap: false },
+      { path: '/mosquito-netting/why-us-for-raw-netting', name: 'Why Us (WP)', description: 'Canonical wrapper for /raw-netting/why-us', inSitemap: false },
+      { path: '/mosquito-netting/let-us-make-it-for-you', name: 'Custom Netting (WP)', description: 'Canonical wrapper for /raw-netting/custom', inSitemap: false },
+
+      // CV Options Wrappers (4 routes)
+      { path: '/apron-colors-to-choose-from', name: 'Apron Colors (WP)', description: 'Canonical wrapper for /options/clear-vinyl/apron-colors', inSitemap: false },
+      { path: '/clear-vinyl-self-installation-advantages', name: 'CV DIY (WP)', description: 'Canonical wrapper for /options/clear-vinyl/diy', inSitemap: false },
+      { path: '/what-can-go-wrong-with-clear-vinyl', name: 'CV Considerations (WP)', description: 'Canonical wrapper for /options/clear-vinyl/considerations', inSitemap: false },
+      { path: '/what-makes-our-clear-vinyl-product-better', name: 'CV Quality (WP)', description: 'Canonical wrapper for /options/clear-vinyl/quality', inSitemap: false },
+
+      // Other Wrappers (7 routes)
+      { path: '/tentscreenpanels', name: 'Tent Screens (WP)', description: 'Canonical wrapper for /tent-screens', inSitemap: false },
+      { path: '/contractor', name: 'Contractor (WP)', description: 'Canonical wrapper for /contractors', inSitemap: false },
+      { path: '/client-uploads', name: 'Client Uploads (WP)', description: 'Canonical wrapper for /uploads', inSitemap: false },
+      { path: '/order-mosquito-curtains', name: 'Order MC (WP)', description: 'Canonical wrapper for /order/mosquito-curtains', inSitemap: false },
+      { path: '/my-account', name: 'My Account (WP)', description: 'Canonical wrapper for /my-orders', inSitemap: false },
+      { path: '/project-series', name: 'Project Series (WP)', description: 'Canonical wrapper for /projects', inSitemap: false },
+      { path: '/project-planning', name: 'Project Planning', description: 'Canonical wrapper for /start-project', inSitemap: false },
+    ],
+  },
+
+  // ── Session Prep & Utility ────────────────────────────────────────────
+  {
+    title: 'Session Prep & Utility',
+    icon: FileText,
+    color: '#059669',
+    routes: [
+      { path: '/mosquito-curtain-planning-session', name: 'MC Planning Session', description: 'Pre-session prep page for mosquito curtain planners', inSitemap: false },
+      { path: '/clear-vinyl-planning-session', name: 'CV Planning Session', description: 'Pre-session prep page for clear vinyl planners', inSitemap: false },
+      { path: '/prepare', name: 'Prepare (Post-Form)', description: 'Post-form preparation landing page', inSitemap: false },
+      { path: '/form-entry', name: 'Form Entry (Post-Form)', description: 'Post-form entry landing page', inSitemap: false },
+      { path: '/404-error-page', name: '404 Error Page', description: 'Custom 404 error page', inSitemap: false },
+      { path: '/project-series/clear-vinyl-project-87444', name: 'CV Project #87444', description: 'Clear vinyl project series entry', inSitemap: false },
     ],
   },
 
@@ -414,6 +467,11 @@ const SITE_SECTIONS: SiteSection[] = [
       { path: '/admin/notifications', name: 'Notifications', inSitemap: false },
       { path: '/admin/notifications/templates', name: 'Notification Templates', inSitemap: false },
       { path: '/admin/shipping-tax', name: 'Shipping & Tax', inSitemap: false },
+      { path: '/admin/orders', name: 'Orders', inSitemap: false },
+      { path: '/admin/orders/[id]', name: 'Order Detail', description: 'Dynamic order page', inSitemap: false },
+      { path: '/admin/orders/[id]/invoice', name: 'Order Invoice', description: 'Printable invoice', inSitemap: false },
+      { path: '/admin/orders/[id]/packing-list', name: 'Packing List', description: 'Printable packing list', inSitemap: false },
+      { path: '/admin/staff', name: 'Staff Management', inSitemap: false },
     ],
   },
 
@@ -602,32 +660,77 @@ export default function AdminSitemapPage() {
               {/* Routes */}
               <div className="p-3 max-h-[500px] overflow-y-auto">
                 <Stack gap="xs">
-                  {section.routes.map((route) => (
-                    <Link
-                      key={route.path}
-                      href={route.path}
-                      target="_blank"
-                      className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 transition-colors group"
-                    >
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-sm text-gray-900 group-hover:text-[#406517] transition-colors">
-                            {route.name}
-                          </span>
-                          {route.inSitemap ? (
-                            <Globe className="w-3 h-3 text-green-500 shrink-0" title="In public sitemap" />
-                          ) : (
-                            <EyeOff className="w-3 h-3 text-gray-300 shrink-0" title="Not in public sitemap" />
+                  {section.routes.map((route) => {
+                    const isDynamic = route.path.includes('[')
+                    const isChild = !!route.dynamicParent
+
+                    const content = (
+                      <>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className={`font-medium text-sm transition-colors ${isChild ? 'text-gray-700' : 'text-gray-900'} group-hover:text-[#406517]`}>
+                              {route.name}
+                            </span>
+                            {route.inSitemap ? (
+                              <span title="In public sitemap"><Globe className="w-3 h-3 text-green-500 shrink-0" /></span>
+                            ) : (
+                              <span title="Not in public sitemap"><EyeOff className="w-3 h-3 text-gray-300 shrink-0" /></span>
+                            )}
+                            {isDynamic && (
+                              <Badge className="!bg-amber-100 !text-amber-700 !border-amber-200 !text-[10px] !px-1.5 !py-0">
+                                Dynamic
+                              </Badge>
+                            )}
+                          </div>
+                          {route.description && (
+                            <span className="text-xs text-gray-500">{route.description}</span>
                           )}
+                          <span className="text-xs text-gray-400 block truncate">{route.path}</span>
                         </div>
-                        {route.description && (
-                          <span className="text-xs text-gray-500">{route.description}</span>
+                        {!isDynamic && (
+                          <ExternalLink className={`w-4 h-4 group-hover:text-[#406517] flex-shrink-0 ml-2 ${isChild ? 'text-gray-200' : 'text-gray-300'}`} />
                         )}
-                        <span className="text-xs text-gray-400 block truncate">{route.path}</span>
-                      </div>
-                      <ExternalLink className="w-4 h-4 text-gray-300 group-hover:text-[#406517] flex-shrink-0 ml-2" />
-                    </Link>
-                  ))}
+                      </>
+                    )
+
+                    // Dynamic template route (e.g. /blog/[slug])
+                    if (isDynamic) {
+                      return (
+                        <div
+                          key={route.path}
+                          className="flex items-center justify-between p-2 rounded-lg bg-amber-50/70 border border-amber-200/60 group"
+                        >
+                          {content}
+                        </div>
+                      )
+                    }
+
+                    // Child of a dynamic route (e.g. /blog/history-of-mosquitoes)
+                    if (isChild) {
+                      return (
+                        <Link
+                          key={route.path}
+                          href={route.path}
+                          target="_blank"
+                          className="flex items-center justify-between p-2 pl-3 rounded-lg hover:bg-amber-50/50 transition-colors group ml-3 border-l-2 border-amber-300/60"
+                        >
+                          {content}
+                        </Link>
+                      )
+                    }
+
+                    // Regular static route
+                    return (
+                      <Link
+                        key={route.path}
+                        href={route.path}
+                        target="_blank"
+                        className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 transition-colors group"
+                      >
+                        {content}
+                      </Link>
+                    )
+                  })}
                 </Stack>
               </div>
             </Card>
@@ -647,7 +750,7 @@ export default function AdminSitemapPage() {
 
         {/* Legend */}
         <Card variant="outlined" className="!p-4">
-          <div className="flex flex-wrap items-center gap-6 text-sm">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
             <span className="text-gray-500 font-medium">Legend:</span>
             <span className="flex items-center gap-1.5">
               <Globe className="w-3.5 h-3.5 text-green-500" />
@@ -656,6 +759,16 @@ export default function AdminSitemapPage() {
             <span className="flex items-center gap-1.5">
               <EyeOff className="w-3.5 h-3.5 text-gray-300" />
               <span className="text-gray-600">Private / not indexed</span>
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Badge className="!bg-amber-100 !text-amber-700 !border-amber-200 !text-[10px] !px-1.5 !py-0">
+                Dynamic
+              </Badge>
+              <span className="text-gray-600">Dynamic [slug] route</span>
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-4 h-4 border-l-2 border-amber-300/60" />
+              <span className="text-gray-600">Child of dynamic route</span>
             </span>
           </div>
         </Card>

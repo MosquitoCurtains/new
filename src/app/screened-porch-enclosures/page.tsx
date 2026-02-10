@@ -108,25 +108,26 @@ const PROJECT_TYPES = [
   },
 ]
 
-// Testimonials from WordPress
+// Testimonials from WordPress - full-res URLs (same as /reviews, 2019/08)
+const STATIC_BASE = 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads'
 const TESTIMONIALS = [
   {
     quote: "Thank you for the follow-up email about the snap tool. I should have taken a picture during the winter. We had one of the worst winters on record in Maryland. We were able to use our porch all winter long because of the protection and insulation the vinyl Mosquito Curtains provide.",
     author: "Amy & David",
     location: "Maui",
-    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Hawaii-Porch-Screen-200x150-1.jpg',
+    image: `${STATIC_BASE}/2019/08/Hawaii-Porch-Screen.jpg`,
   },
   {
     quote: "Here is a night shot of the curtains you sent to us last week. Covering the entire courtyard opening had the effect that I wanted and made it a cozy area for guests at dinner. We are once again very happy, satisfied customers of Mosquito Curtains.",
     author: "Bill",
     location: "Wisconsin",
-    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Screen-Porch-1-200x150-1.jpg',
+    image: `${STATIC_BASE}/2019/08/Screen-Porch-1.jpg`,
   },
   {
     quote: "We just installed our curtains on a section of our porch and are very pleased. Installation went well, we were very pleased. We have used our porch more in the past week than we did all last summer. Love it!",
     author: "Eric",
     location: "Prince Edward Island",
-    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Canadian-Porch-200x150-1.jpg',
+    image: `${STATIC_BASE}/2019/08/Canadian-Porch.jpg`,
   },
 ]
 
@@ -149,28 +150,10 @@ export default function ScreenedPorchEnclosuresPage() {
         />
 
         {/* ================================================================
-            WHY CHOOSE US
-            ================================================================ */}
-        <WhyChooseUsTemplate />
-
-        {/* ================================================================
             PROJECT TYPES GRID
             ================================================================ */}
         <HeaderBarSection icon={Bug} label="Select A Project Type Below Most Similar to Yours" variant="dark">
-          <Stack gap="md">
-            <div className="text-center max-w-3xl mx-auto">
-              <Text className="text-lg font-semibold text-gray-900">
-                Tired of cheap quality products that don't work? Custom-crafted enclosures made to fit. Made to LAST!
-              </Text>
-              <Text className="text-gray-600 mt-2">
-                We're the Original with over 92,000 happy clients since 2004. If you want a crap product, call someone else!
-              </Text>
-              <Text className="text-[#406517] italic mt-2">
-                If you can THINK IT, we can probably make it!
-              </Text>
-            </div>
-            
-            <Grid responsiveCols={{ mobile: 2, tablet: 3, desktop: 4 }} gap="md">
+          <Grid responsiveCols={{ mobile: 2, tablet: 3, desktop: 4 }} gap="md">
               {PROJECT_TYPES.map((project) => {
                 const Icon = project.icon
                 return (
@@ -193,8 +176,12 @@ export default function ScreenedPorchEnclosuresPage() {
                 )
               })}
             </Grid>
-          </Stack>
         </HeaderBarSection>
+
+        {/* ================================================================
+            WHY CHOOSE US
+            ================================================================ */}
+        <WhyChooseUsTemplate />
 
         {/* ================================================================
             GALLERY CTA
@@ -251,7 +238,7 @@ export default function ScreenedPorchEnclosuresPage() {
           <Card className="!p-4">
             <Frame ratio="4/3" className="rounded-lg overflow-hidden mb-3">
               <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/White-Porch-Curtains-1-400x300-1-300x225.jpg"
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/White-Porch-Curtains-1.jpg"
                 alt="White porch curtains"
                 className="w-full h-full object-cover"
               />
@@ -263,7 +250,7 @@ export default function ScreenedPorchEnclosuresPage() {
           <Card className="!p-4">
             <Frame ratio="4/3" className="rounded-lg overflow-hidden mb-3">
               <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Shade-Fabric-Porch-400x300-1-300x225.jpg"
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/Shade-Fabric-Porch.jpg"
                 alt="Shade fabric porch"
                 className="w-full h-full object-cover"
               />
@@ -275,7 +262,7 @@ export default function ScreenedPorchEnclosuresPage() {
           <Card className="!p-4">
             <Frame ratio="4/3" className="rounded-lg overflow-hidden mb-3">
               <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/Garage-Screen-300x225.jpg"
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/Garage-Screen.jpg"
                 alt="Garage screen"
                 className="w-full h-full object-cover"
               />
@@ -287,7 +274,7 @@ export default function ScreenedPorchEnclosuresPage() {
           <Card className="!p-4">
             <Frame ratio="4/3" className="rounded-lg overflow-hidden mb-3">
               <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Shade-Fabric-400x300-1-300x225.jpg"
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/Shade-Fabric.jpg"
                 alt="Shade fabric"
                 className="w-full h-full object-cover"
               />
@@ -298,9 +285,6 @@ export default function ScreenedPorchEnclosuresPage() {
           </Card>
         </Grid>
 
-        {/* ================================================================
-            FINAL CTA
-            ================================================================ */}
         <FinalCTATemplate />
 
       </Stack>

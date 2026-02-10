@@ -2,16 +2,13 @@
 
 import Link from 'next/link'
 import { 
-  ArrowRight, 
   Play, 
-  CheckCircle, 
   Settings, 
   Palette, 
   SlidersHorizontal,
   MessageSquare,
   Calculator,
   Hammer,
-  Camera,
   Images,
   Star,
 } from 'lucide-react'
@@ -22,7 +19,6 @@ import {
   Card,
   Heading,
   Text,
-  Button,
   YouTubeEmbed,
   Frame,
   HeaderBarSection,
@@ -245,85 +241,10 @@ export default function OptionsPage() {
           </Stack>
         </HeaderBarSection>
 
-        {/* ================================================================
-            PHOTO GUIDELINES
-            ================================================================ */}
-        <HeaderBarSection icon={Camera} label="Photo Guidelines for Planning" variant="dark">
-          <Stack gap="lg">
-            <Text className="text-gray-600 text-center max-w-2xl mx-auto">
-              We're happy to help you plan your project with a quick planning session. For maximum 
-              speed and efficiency, photos of your space are extremely helpful.
-            </Text>
-
-            <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
-              <Card variant="elevated" className="!p-6">
-                <div className="flex items-start gap-3 mb-4">
-                  <CheckCircle className="w-6 h-6 text-[#406517] flex-shrink-0 mt-0.5" />
-                  <div>
-                    <Heading level={4} className="!mb-1">Good Photos</Heading>
-                    <Text size="sm" className="text-gray-500">
-                      Step BACK, zoom OUT. We need to see full sides with fastening surfaces.
-                    </Text>
-                  </div>
-                </div>
-                <Grid responsiveCols={{ mobile: 2, tablet: 2 }} gap="sm">
-                  <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                    <img
-                      src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Good-1-Big-1024x768.jpg"
-                      alt="Good photo example 1"
-                      className="w-full h-full object-cover"
-                    />
-                  </Frame>
-                  <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                    <img
-                      src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Good-2-Big-1024x768.jpg"
-                      alt="Good photo example 2"
-                      className="w-full h-full object-cover"
-                    />
-                  </Frame>
-                </Grid>
-              </Card>
-              <Card variant="outlined" className="!p-6 !border-red-200">
-                <div className="flex items-start gap-3 mb-4">
-                  <div className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-red-600 text-sm font-bold">X</span>
-                  </div>
-                  <div>
-                    <Heading level={4} className="!mb-1">Bad Photos</Heading>
-                    <Text size="sm" className="text-gray-500">
-                      Too close up - we can't see all fastening surfaces and corner transitions.
-                    </Text>
-                  </div>
-                </div>
-                <Grid responsiveCols={{ mobile: 2, tablet: 2 }} gap="sm">
-                  <Frame ratio="4/3" className="rounded-lg overflow-hidden opacity-60">
-                    <img
-                      src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Bad-1-Big-1024x768.jpg"
-                      alt="Bad photo example 1"
-                      className="w-full h-full object-cover"
-                    />
-                  </Frame>
-                  <Frame ratio="4/3" className="rounded-lg overflow-hidden opacity-60">
-                    <img
-                      src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Bad-2-Big-1024x768.jpg"
-                      alt="Bad photo example 2"
-                      className="w-full h-full object-cover"
-                    />
-                  </Frame>
-                </Grid>
-              </Card>
-            </Grid>
-
-            <div className="flex justify-center pt-4">
-              <Button variant="primary" size="lg" asChild>
-                <Link href="/start-project?mode=planner">
-                  Send Us Your Photos
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Link>
-              </Button>
-            </div>
-          </Stack>
-        </HeaderBarSection>
+        <FinalCTATemplate
+          primaryCTAText="Start Your Project"
+          showPhone={false}
+        />
 
         {/* ================================================================
             QUICK LINKS
@@ -354,11 +275,6 @@ export default function OptionsPage() {
             </Link>
           </Grid>
         </section>
-
-        {/* ================================================================
-            FINAL CTA
-            ================================================================ */}
-        <FinalCTATemplate />
 
       </Stack>
     </Container>

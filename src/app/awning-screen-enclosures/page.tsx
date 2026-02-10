@@ -7,6 +7,8 @@ import {
   Snowflake,
   Shield,
   Users,
+  Bug,
+  Wrench,
 } from 'lucide-react'
 import { 
   Container, 
@@ -26,16 +28,16 @@ import {
 } from '@/lib/design-system'
 
 const GALLERY_IMAGES = [
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/26-Tent-Awning-Screens-1200-1024x768.jpg', alt: 'Awning screens' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/33-Tent-Awning-Screens-1200-1024x768.jpg', alt: 'Awning netting' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/27-Tent-Awning-Screens-1200-1024x768.jpg', alt: 'Awning insect curtains' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/29-Tent-Awning-Screens-1200-1024x768.jpg', alt: 'Insect curtains for awnings' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/14-Tent-Awning-Screens-1200-1024x768.jpg', alt: 'Awning enclosure' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/11-Tent-Awning-Screens-1200-1024x768.jpg', alt: 'Awning bug screens' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/02-Tent-Awning-Screens-1200-1024x768.jpg', alt: 'Awning screens' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/03-Tent-Awning-Screens-1200-1024x768.jpg', alt: 'Awning netting' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/01-Tent-Awning-Screens-1200-1024x768.jpg', alt: 'Awning curtains' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/00-Tent-Awning-Screens-1200-1024x768.jpg', alt: 'Awning enclosure' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/26-Tent-Awning-Screens-1200.jpg', alt: 'Awning screens' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/24-Tent-Awning-Screens-1200.jpg', alt: 'Tent and Awning Screens' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/25-Clear-Vinyl-Red-Canvas-Tinted-Inside-1200.jpg', alt: 'Clear plastic enclosures for awnings' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/02-Tent-Awning-Screens-1200.jpg', alt: 'Tent and Awning Screens' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/01-Tent-Awning-Screens-1200.jpg', alt: 'Tent and Awning Screens' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/12-Tent-Awning-Screens-1200.jpg', alt: 'Tent and Awning Screens' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/14-Tent-Awning-Screens-1200.jpg', alt: 'Tent and Awning Screens' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/15-Tent-Awning-Screens-1200.jpg', alt: 'Tent and Awning Screens' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/18-Tent-Awning-Screens-1200.jpg', alt: 'Tent and Awning Screens' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/28-Tent-Awning-Screens-1200.jpg', alt: 'Tent screen panels' },
 ]
 
 export default function AwningScreenEnclosuresPage() {
@@ -81,10 +83,10 @@ export default function AwningScreenEnclosuresPage() {
             </Stack>
             <Grid responsiveCols={{ mobile: 2, tablet: 2 }} gap="md">
               <Frame ratio="4/3" className="rounded-xl overflow-hidden">
-                <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/27-Tent-Awning-Screens-1200-768x576.jpg" alt="Awning insect curtains" className="w-full h-full object-cover" />
+                <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/27-Tent-Awning-Screens-1200.jpg" alt="Awning insect curtains" className="w-full h-full object-cover" />
               </Frame>
               <Frame ratio="4/3" className="rounded-xl overflow-hidden">
-                <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/30-Tent-Awning-Screens-1200-768x576.jpg" alt="Awning curtains" className="w-full h-full object-cover" />
+                <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/30-Tent-Awning-Screens-1200.jpg" alt="Awning curtains" className="w-full h-full object-cover" />
               </Frame>
             </Grid>
           </TwoColumn>
@@ -94,7 +96,7 @@ export default function AwningScreenEnclosuresPage() {
           <TwoColumn gap="lg" className="items-center">
             <Grid responsiveCols={{ mobile: 2, tablet: 2 }} gap="md">
               <Frame ratio="4/3" className="rounded-xl overflow-hidden">
-                <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/25-Clear-Vinyl-Red-Canvas-Tinted-Inside-400.jpg" alt="Clear vinyl awning" className="w-full h-full object-cover" />
+                <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/25-Clear-Vinyl-Red-Canvas-Tinted-Inside-1200.jpg" alt="Clear vinyl awning" className="w-full h-full object-cover" />
               </Frame>
               <Frame ratio="4/3" className="rounded-xl overflow-hidden">
                 <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/25-Clear-Vinyl-Red-Canvas-Tintes-400.jpg" alt="Clear vinyl panels" className="w-full h-full object-cover" />
@@ -135,7 +137,7 @@ export default function AwningScreenEnclosuresPage() {
               </Text>
             </Stack>
             <Frame ratio="4/3" className="rounded-2xl overflow-hidden">
-              <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Insect-Mesh-Holds-Up-240-LB-Man-1200-300x225.jpg" alt="Strong mosquito netting" className="w-full h-full object-cover" />
+              <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Insect-Mesh-Holds-Up-240-LB-Man-1200.jpg" alt="Strong mosquito netting" className="w-full h-full object-cover" />
             </Frame>
           </TwoColumn>
         </HeaderBarSection>
@@ -143,7 +145,7 @@ export default function AwningScreenEnclosuresPage() {
         <HeaderBarSection icon={Users} label="Our Integrity Saves You Money" variant="dark">
           <TwoColumn gap="lg" className="items-center">
             <Frame ratio="4/3" className="rounded-2xl overflow-hidden">
-              <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Mosquito-Curtains-Team-1200-300x225.jpg" alt="Mosquito Curtains Team" className="w-full h-full object-cover" />
+              <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Mosquito-Curtains-Team-1200.jpg" alt="Mosquito Curtains Team" className="w-full h-full object-cover" />
             </Frame>
             <Stack gap="md">
               <Text className="text-gray-600">

@@ -10,6 +10,7 @@ import {
   Sparkles,
   Award,
   ArrowRight,
+  Bug,
 } from 'lucide-react'
 import { 
   Container, 
@@ -24,6 +25,8 @@ import {
   Card,
   Heading,
   YouTubeEmbed,
+  TwoColumn,
+  Frame,
 } from '@/lib/design-system'
 import { VIDEOS } from '@/lib/constants/videos'
 
@@ -211,6 +214,42 @@ export default function OpportunitiesPage() {
         {/* ================================================================
             FINAL CTA
             ================================================================ */}
+
+        <HeaderBarSection icon={Bug} label="The Security of our Business and your Job." variant="dark">
+          <TwoColumn gap="lg" className="items-center">
+            <Frame ratio="4/3" className="rounded-2xl overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/10_Plastic-Drop-Panels-Patio-Inside-View-Forest-Green-Canvas-1200.jpg"
+                alt="Plastic Drop Panels Patio Inside View Forest Green Canvas"
+                className="w-full h-full object-cover"
+              />
+            </Frame>
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                We are very healthy and growing like a weed. We have no debt either in our business nor the building we occupy, so we can weather unpredictable storms. Because we are a value product, we actually seem to grow even faster during economic downturns. The Financial Crisis of 2008 and the COVID pandemic of 2019 were two of our best growth years ever…. and by a lot. In 16yrs, we have never laid off a worker for lack of business.
+              </Text>
+            </Stack>
+          </TwoColumn>
+        </HeaderBarSection>
+
+        <HeaderBarSection icon={Bug} label="Perfecting the Product" variant="dark">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                In 2004, the stars had aligned where I wasn’t happy as an institutional bond salesman and was looking for a career change and we decided to go for it (Read Full Story: Bond Sales, Mosquito Curtains & A Rodeo Ghost). We found jumbo sized 144″ rolls and continued to make improvements in the quality of the materials, mounting techniques and our production process. Fifteen years later, we have 17 employees and are growing like a weed. In 2004, it took us 9 hours to make our first curtain. By developing a streamline process and adding automation, not only is the quality far better with perfect stitching, that same curtain is now produced in about 25 minutes.
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-2xl overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/26-Clear-Plastic-Porch-Enclosure-With-No-Canvas-1200.jpg"
+                alt="Clear Plastic Porch Enclosure With No Canvas"
+                className="w-full h-full object-cover"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+
+
         <FinalCTATemplate />
 
       </Stack>

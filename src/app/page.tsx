@@ -71,7 +71,7 @@ const products = [
     subtitle: 'Insect Protection',
     description: 'Custom insect curtains. Screen your patio in an afternoon.',
     href: '/screened-porch-enclosures',
-    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/00-Mosquito-Netting-Various-Projects-1200-768x576.jpg',
+    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/00-Mosquito-Netting-Various-Projects-1200.jpg',
     badge: 'Most Popular',
     color: '#406517',
     icon: Bug,
@@ -81,7 +81,7 @@ const products = [
     subtitle: 'Weather Protection',
     description: 'Four-season room. Wind, rain, and cold stay outside.',
     href: '/clear-vinyl-plastic-patio-enclosures',
-    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/00-Clear-Plastic-Winter-Panels-Porch-Gray-1200-768x576.jpg',
+    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/00-Clear-Plastic-Winter-Panels-Porch-Gray-1200.jpg',
     badge: 'All Season',
     color: '#003365',
     icon: Snowflake,
@@ -91,7 +91,7 @@ const products = [
     subtitle: 'DIY Materials',
     description: 'Premium netting for custom projects. Up to 12ft wide.',
     href: '/raw-netting-fabric-store',
-    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/wide-net-1200-768x576.jpg',
+    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/wide-net-1200.jpg',
     badge: 'Raw Netting',
     color: '#B30158',
     icon: Scissors,
@@ -444,6 +444,84 @@ export default function HomePage() {
               />
             </TwoColumn>
             </div>
+          </div>
+        </section>
+
+        {/* ================================================================
+            FEATURED PROJECTS GALLERY
+            ================================================================ */}
+        <section>
+          <div className="bg-white border-gray-200 border-2 rounded-3xl overflow-hidden">
+            <div className="bg-gray-900 px-6 py-4 flex items-center gap-3">
+              <Award className="w-6 h-6 text-white" />
+              <span className="text-white font-semibold text-lg uppercase tracking-wider">Featured Client Projects</span>
+            </div>
+            <div className="p-6 md:p-8">
+              <Grid responsiveCols={{ mobile: 2, tablet: 3, desktop: 5 }} gap="md">
+                {[
+                  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/21-Mosquito-Netting-on-Screen-Porch-1200.jpg', alt: 'Screened porch with mosquito netting curtains' },
+                  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/82-Screen-Patio-Enclosure-1200.jpg', alt: 'Custom screen patio enclosure' },
+                  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/17-Mosquito-Netting-on-Gazebo-1200.jpg', alt: 'Gazebo screen curtains installation' },
+                  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/22-Pergola-Screen-Panels-1200.jpg', alt: 'Pergola screen panels by Mosquito Curtains' },
+                  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/16-Garage-Door-Mosquito-Mesh-Netting-Panels-1200.jpg', alt: 'Garage door screen enclosure' },
+                  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/00-Clear-Plastic-Winter-Panels-Porch-Gray-1200.jpg', alt: 'Clear vinyl winter panels for porch' },
+                  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/16-Mosquito-Mesh-Boat-Screens-Pontoon-1200.jpg', alt: 'Pontoon boat mosquito screens' },
+                  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/46-Screened-In-Deck-1200.jpg', alt: 'Screened in deck enclosure' },
+                  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/26-Tent-Awning-Screens-1200.jpg', alt: 'Tent and awning screen enclosure' },
+                  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/11-Industrial-Netting-Applications-NASA-1200.jpg', alt: 'Industrial netting application' },
+                ].map((img, idx) => (
+                  <Frame key={idx} ratio="4/3" className="rounded-xl overflow-hidden">
+                    <img
+                      src={img.src}
+                      alt={img.alt}
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    />
+                  </Frame>
+                ))}
+              </Grid>
+              <div className="flex justify-center pt-6">
+                <Button variant="outline" asChild>
+                  <Link href="/gallery">
+                    See Full Gallery
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ================================================================
+            APPLICATIONS - Where our products are used
+            ================================================================ */}
+        <section>
+          <div className="bg-gradient-to-br from-[#406517]/5 to-transparent border-[#406517]/20 border-2 rounded-3xl p-6 md:p-8 lg:p-10">
+            <div className="text-center mb-8">
+              <Heading level={2} className="text-gray-900 !mb-2">One System, Limitless Applications</Heading>
+              <Text className="text-gray-600 max-w-2xl mx-auto !mb-0">
+                Our custom-made modular panel system works on virtually any structure with an overhead covering. 
+                Porches, patios, gazebos, pergolas, garages, boats, and more.
+              </Text>
+            </div>
+            <Grid responsiveCols={{ mobile: 2, tablet: 3, desktop: 4 }} gap="md">
+              {[
+                { title: 'Porches', href: '/screened-porch', icon: Home },
+                { title: 'Patios', href: '/screen-patio', icon: Home },
+                { title: 'Gazebos', href: '/gazebo-screen-curtains', icon: Home },
+                { title: 'Pergolas', href: '/pergola-screen-curtains', icon: Home },
+                { title: 'Garages', href: '/garage-door-screens', icon: Home },
+                { title: 'Boats', href: '/boat-screens', icon: Home },
+                { title: 'Decks', href: '/screened-in-decks', icon: Home },
+                { title: 'Awnings', href: '/awning-screen-enclosures', icon: Home },
+              ].map((app) => (
+                <Link key={app.title} href={app.href} className="group">
+                  <Card variant="elevated" hover className="text-center !p-4 h-full">
+                    <app.icon className="w-6 h-6 text-[#406517] mx-auto mb-2" />
+                    <Text className="font-semibold text-gray-900 !mb-0 group-hover:text-[#406517] transition-colors">{app.title}</Text>
+                  </Card>
+                </Link>
+              ))}
+            </Grid>
           </div>
         </section>
 

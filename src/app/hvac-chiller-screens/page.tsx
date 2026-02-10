@@ -8,6 +8,7 @@ import {
   Factory,
   CheckCircle,
   Wrench,
+  Layers,
 } from 'lucide-react'
 import { 
   Container, 
@@ -216,7 +217,7 @@ export default function HVACChillerScreensPage() {
           <TwoColumn gap="lg" className="items-center">
             <Frame ratio="1/1" className="rounded-2xl overflow-hidden max-w-md mx-auto">
               <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Insect-Mesh-Holds-Up-240-LB-Man-400.jpg"
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Insect-Mesh-Holds-Up-240-LB-Man-1200.jpg"
                 alt="Our netting is strong enough to lift a 240lb man"
                 className="w-full h-full object-cover"
               />
@@ -247,6 +248,59 @@ export default function HVACChillerScreensPage() {
         {/* ================================================================
             FINAL CTA
             ================================================================ */}
+
+        <HeaderBarSection icon={Layers} label="HVAC Screen Solutions" variant="dark">
+          <TwoColumn gap="lg" className="items-center">
+            <Frame ratio="4/3" className="rounded-2xl overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/01-Industrial-Netting-Applications-1200.jpg"
+                alt="Industrial Mesh Netting"
+                className="w-full h-full object-cover"
+              />
+            </Frame>
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                10% Off Sale until Feb 14th… Coupon = Midwinter26
+              </Text>
+            </Stack>
+          </TwoColumn>
+        </HeaderBarSection>
+
+        <HeaderBarSection icon={Layers} label="Pre-Filter Screens For Cottonwoods, Pollen, Dust & Humidity" variant="dark">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                We make cost effective custom screens to keep out large particulates so that your Air Handler unit will run more efficiently. With our pre-screens, you will save on expensive air handler filter replacements and save on servicing frequency. Our HVAC screens are externally mounted so that visual inspections are easy. Our screens are custom-made and sized to your specifications. All Chiller screens are bound with a sturdy webbing around the entire perimeter. Fasten our air handler screens with a combination of Velcro® and stainless steel marine snaps. When it gets dirty, rinse with a hose or wash in a machine. It is that easy! Want to contact us to brainstorm an idea?
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-2xl overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/02-Industrial-Netting-Applications-1200.jpg"
+                alt="Industrial Mesh Netting"
+                className="w-full h-full object-cover"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+
+        <HeaderBarSection icon={Layers} label="Benefits & Features of Our HVAC Chiller & A/C Unit Screens" variant="dark">
+          <TwoColumn gap="lg" className="items-center">
+            <Frame ratio="4/3" className="rounded-2xl overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/03-Industrial-Netting-Applications-1200.jpg"
+                alt="Industrial Screens"
+                className="w-full h-full object-cover"
+              />
+            </Frame>
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                We have multiple Mesh Types available to solve different problems. We also have unique attachment hardware that allow you to self install your own HVAC screen filter panels in no time. This allows you to know exactly how they work so you can easily take them down, put them up, and troubleshoot any issues that may arise yourself without needing a technician.
+              </Text>
+            </Stack>
+          </TwoColumn>
+        </HeaderBarSection>
+
+
         <FinalCTATemplate />
 
       </Stack>

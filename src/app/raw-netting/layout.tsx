@@ -1,19 +1,19 @@
 import type { Metadata } from 'next'
 import { buildPageMetadata } from '@/lib/seo/metadata'
-import { BreadcrumbSchema, breadcrumbsFromSlug, ProductSchema } from '@/lib/seo/structured-data'
+import { BreadcrumbSchema, breadcrumbsFromSlug, WebPageSchema } from '@/lib/seo/structured-data'
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Mosquito Netting Hub',
-  description: 'Custom mosquito netting hub by Mosquito Curtains. Made-to-measure, shipped direct. Easy DIY installation. 92,000+ customers served since 2004.',
+  title: 'Raw Netting & Mesh Fabrics | Buy By the Foot',
+  description: 'Giant rolls of raw netting and mesh fabric sold by the linear foot. Heavy mosquito mesh, no-see-um, shade mesh, theatre scrim, and industrial netting. Marine-grade quality from manufacturers since 2003.',
   slug: '/raw-netting',
-  keywords: ['mosquito curtains', 'custom screens', 'screen enclosures', 'netting'],
+  keywords: ['raw netting', 'mesh fabric', 'mosquito netting by the foot', 'bulk mosquito mesh', 'raw mesh netting', 'netting fabric rolls', 'DIY mosquito netting'],
 })
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(BreadcrumbSchema(breadcrumbsFromSlug('/raw-netting', 'Mosquito Netting Hub')))} } />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ProductSchema({ name: 'Mosquito Netting Hub', description: 'Custom mosquito netting hub by Mosquito Curtains. Made-to-measure, shipped direct. Easy DIY installation. 92,000+ customers served since 2004.', image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/MC-Logo.png', url: '/raw-netting' })) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(BreadcrumbSchema(breadcrumbsFromSlug('/raw-netting', 'Raw Netting & Mesh Fabrics'))) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(WebPageSchema({ title: 'Raw Netting & Mesh Fabrics | Buy By the Foot', description: 'Giant rolls of raw netting and mesh fabric sold by the linear foot. Heavy mosquito mesh, no-see-um, shade mesh, theatre scrim, and industrial netting. Marine-grade quality.', url: '/raw-netting' })) }} />
       {children}
     </>
   )

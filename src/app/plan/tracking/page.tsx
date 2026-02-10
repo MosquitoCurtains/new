@@ -7,6 +7,7 @@ import {
   SlidersHorizontal,
   CheckCircle,
   Play,
+  Wrench,
 } from 'lucide-react'
 import { 
   Container, 
@@ -36,117 +37,131 @@ export default function TrackingPage() {
           Back to Planning
         </Link>
 
-        {/* Header */}
+        {/* Header - matches WP "Step 2. Two Top Attachment Options" */}
         <section className="relative py-8 text-center">
           <Stack gap="md" className="max-w-3xl mx-auto">
             <div className="w-16 h-16 bg-[#406517]/10 rounded-full mx-auto flex items-center justify-center">
               <SlidersHorizontal className="w-8 h-8 text-[#406517]" />
             </div>
             <Heading level={1} className="!text-4xl md:!text-5xl">
-              Outdoor Curtain Tracking
+              Step 2. Two Top Attachment Options
             </Heading>
-            <Text className="text-xl text-gray-600">
-              Learn about our tracking system that allows your curtains to slide from side to side 
-              for easy operation and beautiful decorative swags.
-            </Text>
           </Stack>
         </section>
 
-        {/* Tracking Overview */}
-        <HeaderBarSection icon={SlidersHorizontal} label="How Tracking Works" variant="dark">
-          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg" className="items-center">
-            <YouTubeEmbed
-              videoId={VIDEOS.TRACKING_OVERVIEW}
-              title="Tracking System Overview"
-              variant="card"
-            />
-            <Stack gap="md">
-              <Text className="text-gray-600">
-                Our tracking system enables you to slide curtains open in lovely decorative swags. 
-                The track is powder-coated aluminum that mounts to any overhead surface.
-              </Text>
-              <BulletedList spacing="md">
-                <ListItem variant="checked" iconColor="#406517">Slides from side to side effortlessly</ListItem>
-                <ListItem variant="checked" iconColor="#406517">Powder-coated aluminum construction</ListItem>
-                <ListItem variant="checked" iconColor="#406517">Under-mounted to overhead surfaces</ListItem>
-                <ListItem variant="checked" iconColor="#406517">Available for heights under 10ft and over 10ft</ListItem>
-              </BulletedList>
-            </Stack>
-          </Grid>
+        {/* Quick Summary */}
+        <Card className="!p-6 !bg-[#406517]/5 !border-[#406517]/20">
+          <BulletedList spacing="md">
+            <ListItem variant="arrow" iconColor="#406517">Tracking Attachment allows you to slide curtains from side to side.</ListItem>
+            <ListItem variant="arrow" iconColor="#406517">Velcro Attachment is fixed in place and doesn&apos;t slide.</ListItem>
+            <ListItem variant="arrow" iconColor="#406517">Both are easy to install. Velcro is less expensive (no track hardware).</ListItem>
+          </BulletedList>
+        </Card>
+
+        {/* Tracking vs Velcro Side by Side - with animated GIFs from WordPress */}
+        <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
+          <Card variant="elevated" className="!p-6 !border-[#406517]/20 text-center">
+            <Frame ratio="1/1" className="rounded-xl overflow-hidden mb-4">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Track-480-Optimized-1.gif"
+                alt="Tracking slides side-to-side"
+                className="w-full h-full object-cover"
+              />
+            </Frame>
+            <Heading level={3} className="!mb-2 text-[#406517]">Tracking -- slides side-to-side</Heading>
+            <Text className="text-gray-500 !mb-0">Under-mounted</Text>
+          </Card>
+          <Card variant="elevated" className="!p-6 !border-[#003365]/20 text-center">
+            <Frame ratio="1/1" className="rounded-xl overflow-hidden mb-4">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/Velcro-480-Optimized.gif"
+                alt="Velcro fixed does not slide"
+                className="w-full h-full object-cover"
+              />
+            </Frame>
+            <Heading level={3} className="!mb-2 text-[#003365]">Velcro (fixed) does NOT slide</Heading>
+            <Text className="text-gray-500 !mb-0">Side-mounted &amp; less cost</Text>
+          </Card>
+        </Grid>
+
+        {/* ================================================================
+            OUTDOOR CURTAIN TRACKING
+            ================================================================ */}
+        <HeaderBarSection icon={SlidersHorizontal} label="Outdoor Curtain Tracking" variant="dark">
+          <Stack gap="md">
+            <Text className="text-gray-700">
+              Outdoor Curtain Tracking is like the old Hot Wheels track you may have played with as a kid. Curved tracking + Splices allow you to create virtually any track configuration for any desired length. Cut your final piece with an ordinary hacksaw. Tracking hardware must be ordered separately.
+            </Text>
+            <BulletedList spacing="sm">
+              <ListItem variant="arrow" iconColor="#406517">Ceiling mounted screws go straight up through the track into some solid surface. No brackets!</ListItem>
+              <ListItem variant="arrow" iconColor="#406517"><em>If your overhead surface is a metal waterproof system where screws would cause leaks, a 40mil double-sided VHB tape will adhere the track overhead. (purchased separately at www.Uline.com)</em></ListItem>
+              <ListItem variant="arrow" iconColor="#406517">Sleek design at 3/4&quot; x 3/4&quot; x 7ft long</ListItem>
+              <ListItem variant="arrow" iconColor="#406517">Powder coated white or black aluminum that quickly cuts using ordinary hacksaw</ListItem>
+              <ListItem variant="arrow" iconColor="#406517">Only 4 components: straight tracks, curved tracks, splices, &amp; end caps</ListItem>
+            </BulletedList>
+          </Stack>
         </HeaderBarSection>
 
-        {/* Tracking vs Velcro */}
-        <HeaderBarSection icon={CheckCircle} label="Tracking vs Velcro" variant="dark">
-          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
-            <Card variant="elevated" className="!p-6 !border-[#406517]/20">
-              <Heading level={3} className="!mb-4 text-[#406517]">Tracking (Most Popular)</Heading>
-              <Text className="text-gray-600 mb-4">
-                Slides side-to-side for easy operation. Perfect for areas where you want to 
-                open and close your curtains regularly.
-              </Text>
-              <BulletedList spacing="sm">
-                <ListItem variant="checked" iconColor="#406517">Slides open and closed</ListItem>
-                <ListItem variant="checked" iconColor="#406517">Beautiful swag appearance</ListItem>
-                <ListItem variant="checked" iconColor="#406517">Easy daily operation</ListItem>
-                <ListItem variant="checked" iconColor="#406517">Premium option</ListItem>
-              </BulletedList>
-            </Card>
-            <Card variant="elevated" className="!p-6 !border-[#003365]/20">
-              <Heading level={3} className="!mb-4 text-[#003365]">Velcro (Fixed)</Heading>
-              <Text className="text-gray-600 mb-4">
-                Does NOT slide. A more economical option for areas where you don't need to 
-                open and close the curtains frequently.
-              </Text>
-              <BulletedList spacing="sm">
-                <ListItem variant="checked" iconColor="#003365">Fixed in place</ListItem>
-                <ListItem variant="checked" iconColor="#003365">More economical</ListItem>
-                <ListItem variant="checked" iconColor="#003365">Seasonal installation</ListItem>
-                <ListItem variant="checked" iconColor="#003365">Simple attachment</ListItem>
-              </BulletedList>
-            </Card>
-          </Grid>
-        </HeaderBarSection>
-
-        {/* Track Types */}
-        <HeaderBarSection icon={SlidersHorizontal} label="Track Height Options" variant="dark">
-          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
-            <Card variant="elevated" className="!p-6">
-              <Heading level={4} className="!mb-4">Standard Track (Under 10ft Tall)</Heading>
-              <Frame ratio="16/9" className="rounded-xl overflow-hidden mb-4">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Standard-Track.jpg"
-                  alt="Standard tracking for under 10ft"
-                  className="w-full h-full object-cover"
-                />
+        {/* Tracking Components */}
+        <HeaderBarSection icon={Wrench} label="Tracking Components (Available in Black or White)" variant="dark">
+          <Grid responsiveCols={{ mobile: 2, tablet: 5 }} gap="md">
+            <Card variant="outlined" className="!p-4 text-center">
+              <Frame ratio="1/1" className="rounded-lg overflow-hidden mb-3">
+                <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Straight-Track-Black-1-200x200-1.jpg" alt="7ft Straight Track" className="w-full h-full object-contain" />
               </Frame>
-              <Text className="text-gray-600 !mb-0">
-                For projects with ceiling heights under 10 feet. Most residential applications 
-                use standard track.
-              </Text>
+              <Heading level={5} className="!mb-0">7ft Straight Track</Heading>
             </Card>
-            <Card variant="elevated" className="!p-6">
-              <Heading level={4} className="!mb-4">Heavy Track (Over 10ft Tall)</Heading>
-              <Frame ratio="16/9" className="rounded-xl overflow-hidden mb-4">
-                <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Heavy-Track.jpg"
-                  alt="Heavy tracking for over 10ft"
-                  className="w-full h-full object-cover"
-                />
+            <Card variant="outlined" className="!p-4 text-center">
+              <Frame ratio="1/1" className="rounded-lg overflow-hidden mb-3">
+                <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/90-Black-Track-1-1024x1024.jpg" alt="90 Degree Curve" className="w-full h-full object-contain" />
               </Frame>
-              <Text className="text-gray-600 !mb-0">
-                For taller projects over 10 feet. Heavier duty construction to support 
-                larger curtain panels.
-              </Text>
+              <Heading level={5} className="!mb-0">90 Degree Curve</Heading>
+            </Card>
+            <Card variant="outlined" className="!p-4 text-center">
+              <Frame ratio="1/1" className="rounded-lg overflow-hidden mb-3">
+                <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/135-Black-Track-1-200x200-1.jpg" alt="135 Degree Curve" className="w-full h-full object-contain" />
+              </Frame>
+              <Heading level={5} className="!mb-0">135 Degree Curve (Rare)</Heading>
+            </Card>
+            <Card variant="outlined" className="!p-4 text-center">
+              <Frame ratio="1/1" className="rounded-lg overflow-hidden mb-3">
+                <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/Black-White-Splice-1024x1024.jpg" alt="Splice" className="w-full h-full object-contain" />
+              </Frame>
+              <Heading level={5} className="!mb-0">Splice</Heading>
+            </Card>
+            <Card variant="outlined" className="!p-4 text-center">
+              <Frame ratio="1/1" className="rounded-lg overflow-hidden mb-3">
+                <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/Black-White-End-Cap-1024x1024.jpg" alt="End Caps" className="w-full h-full object-contain" />
+              </Frame>
+              <Heading level={5} className="!mb-0">End Caps</Heading>
             </Card>
           </Grid>
         </HeaderBarSection>
 
-        {/* Tracking Video Demos */}
-        <HeaderBarSection icon={Play} label="Tracking System Video Demonstrations" variant="dark">
-          <Stack gap="lg">
+        {/* ================================================================
+            FIXED VELCRO ATTACHMENT
+            ================================================================ */}
+        <HeaderBarSection icon={CheckCircle} label="Fixed Velcro Attachment" variant="dark">
+          <Stack gap="md">
+            <Text className="text-gray-700">
+              Velcro panels are fixed in place and do not slide. You can still enter and exit through magnetic doorways even though the top is stationary. <strong>Velcro is side-mounted to some surface</strong> as under-mounting is a weak hold.
+            </Text>
+            <Text className="text-gray-700">
+              We double-stitch Loop-sided Velcro to the top of your panel and provide Adhesive-backed hook to apply to your surface that you will reinforce with a staple gun every 12 inches.
+            </Text>
+          </Stack>
+        </HeaderBarSection>
+
+        {/* ================================================================
+            INSTALLATION VIDEOS
+            ================================================================ */}
+        <HeaderBarSection icon={Play} label="See Actual Installation of Both Options" variant="dark">
+          <Stack gap="md">
             <Text className="text-gray-600 text-center max-w-3xl mx-auto">
-              Watch these videos to see how our tracking system works, installation tips, 
-              and the different tracking options available for your project.
+              Rather than TELL how either outdoor curtain tracking or Velcro installation works, we&apos;d rather SHOW you with an actual installation.
+            </Text>
+            <Text className="text-sm text-gray-500 text-center italic">
+              Tip: You can adjust play speed. Click &quot;cog gear&quot; in lower right of video to change play speed setting.
             </Text>
             <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
               {TRACKING_VIDEOS.map((video) => (
@@ -156,37 +171,54 @@ export default function TrackingPage() {
                     title={video.title}
                     variant="card"
                   />
-                  <Text className="text-center mt-2 font-medium text-sm">
-                    {video.title}
-                  </Text>
+                  <Text className="text-center mt-2 font-medium text-sm">{video.title}</Text>
                 </div>
               ))}
             </Grid>
           </Stack>
         </HeaderBarSection>
 
-        {/* CTA */}
+        {/* ================================================================
+            WHEN YOU DO NOT HAVE A CLEAR MOUNTING PATH
+            ================================================================ */}
+        <HeaderBarSection icon={Wrench} label="When You Do Not Have a Clear Mounting Path" variant="dark">
+          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg" className="items-start">
+            <Stack gap="md">
+              <BulletedList spacing="md">
+                <ListItem variant="arrow" iconColor="#406517">Velcro Attachment -- under-mount a wood strip to create a clear path to side mount panels to outer edge of wood strip.</ListItem>
+                <ListItem variant="arrow" iconColor="#406517">Tracking (example to right) -- side-mount a wood strip to create a clear path and then under-mount track to wood strip.</ListItem>
+                <ListItem variant="arrow" iconColor="#406517">Hint: Home Depot sells synthetic molding made of white PVC composite that will not rot or split and can be painted.</ListItem>
+              </BulletedList>
+            </Stack>
+            <Stack gap="md">
+              <a href="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/06/Columns-Interrupt-Path.jpg" target="_blank" rel="noopener noreferrer">
+                <Frame ratio="4/3" className="rounded-xl overflow-hidden">
+                  <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/06/Columns-Interrupt-Path.jpg" alt="Columns interrupt track path" className="w-full h-full object-cover" />
+                </Frame>
+                <Text className="text-center text-sm text-gray-500 mt-1">Columns Interrupt Track Path</Text>
+              </a>
+              <a href="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/06/Mounted-Wood-Strips.jpg" target="_blank" rel="noopener noreferrer">
+                <Frame ratio="4/3" className="rounded-xl overflow-hidden">
+                  <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/06/Mounted-Wood-Strips.jpg" alt="Side-mount wood strips for clear path" className="w-full h-full object-cover" />
+                </Frame>
+                <Text className="text-center text-sm text-gray-500 mt-1">Side-mount Wood Strips For Clear Path</Text>
+              </a>
+            </Stack>
+          </Grid>
+        </HeaderBarSection>
+
+        {/* Continue Navigation */}
         <section className="bg-gradient-to-br from-[#406517]/10 via-white to-[#003365]/10 rounded-3xl p-8 md:p-12 text-center">
-          <Heading level={2} className="!mb-4">Ready to Choose Your Attachment?</Heading>
-          <Text className="text-gray-600 max-w-2xl mx-auto mb-8">
-            Continue planning your project or get help from our expert team.
-          </Text>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="primary" asChild>
-              <Link href="/plan">
-                Continue Planning
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/start-project">
-                Get a Quote
+            <Button variant="primary" size="lg" asChild>
+              <Link href="/plan/magnetic-doorways">
+                Continue to Step 3 -- Doorways &amp; Fasteners
+                <ArrowRight className="ml-2 w-5 h-5" />
               </Link>
             </Button>
           </div>
         </section>
 
-        {/* Final CTA */}
         <FinalCTATemplate />
 
       </Stack>

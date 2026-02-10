@@ -7,6 +7,9 @@ import {
   Shield,
   AlertCircle,
   CheckCircle,
+  Snowflake,
+  Bug,
+  Sparkle,
 } from 'lucide-react'
 import { 
   Container, 
@@ -24,6 +27,7 @@ import {
   WhyChooseUsTemplate,
   PowerHeaderTemplate,
   MC_HERO_ACTIONS,
+  TwoColumn,
 } from '@/lib/design-system'
 
 export default function InsulatedCurtainPanelsPage() {
@@ -180,6 +184,7 @@ export default function InsulatedCurtainPanelsPage() {
         </section>
 
         {/* Final CTA */}
+
         <FinalCTATemplate />
 
       </Stack>

@@ -40,6 +40,7 @@ import {
   BookOpen,
   Shield,
   Quote,
+  Copy,
 } from 'lucide-react'
 import {
   Container,
@@ -74,6 +75,13 @@ interface PageReview {
   revision_items: string | null
   updated_at: string
   reviewed_at: string | null
+  reviewed_by: string | null
+  last_audited_at: string | null
+  duplicate_canonical_url: string | null
+  is_wordpress_original: boolean
+  page_status: 'rebuilt' | 'redirected' | 'new' | 'replacement'
+  original_post_id: number | null
+  redirect_to_url: string | null
   seo_score?: number | null
   ai_score?: number | null
   performance_score?: number | null
@@ -178,6 +186,15 @@ const getStatusInfo = (status: ReviewStatus) => {
     case 'pending': return { label: 'Pending', icon: Clock, bg: 'bg-gray-100', text: 'text-gray-600', border: 'border-gray-200' }
     case 'complete': return { label: 'Complete', icon: CheckCircle2, bg: 'bg-green-100', text: 'text-green-700', border: 'border-green-200' }
     case 'needs_revision': return { label: 'Needs Revision', icon: AlertTriangle, bg: 'bg-orange-100', text: 'text-orange-700', border: 'border-orange-200' }
+  }
+}
+
+const getPageStatusInfo = (status: string) => {
+  switch (status) {
+    case 'rebuilt': return { label: 'Rebuilt', className: '!bg-blue-100 !text-blue-700 !border-blue-200' }
+    case 'redirected': return { label: 'Redirected', className: '!bg-orange-100 !text-orange-700 !border-orange-200' }
+    case 'replacement': return { label: 'Replacement', className: '!bg-purple-100 !text-purple-700 !border-purple-200' }
+    case 'new': default: return { label: 'New', className: '!bg-gray-100 !text-gray-500 !border-gray-200' }
   }
 }
 
@@ -293,12 +310,13 @@ function EditModal({
   page, onClose, onSave, saving,
 }: { 
   page: PageReview; onClose: () => void
-  onSave: (id: string, status: ReviewStatus, notes: string, revisionItems: string) => void
+  onSave: (id: string, status: ReviewStatus, notes: string, revisionItems: string, reviewedBy: string) => void
   saving: boolean
 }) {
   const [status, setStatus] = useState<ReviewStatus>(page.review_status || 'pending')
   const [notes, setNotes] = useState(page.review_notes || '')
   const [revisionItems, setRevisionItems] = useState(page.revision_items || '')
+  const [reviewedBy, setReviewedBy] = useState(page.reviewed_by || '')
   const isBuilt = isPageBuilt(page.migration_status)
   
   return (
@@ -361,6 +379,13 @@ function EditModal({
             </div>
           </div>
           
+          {/* Reviewed By */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Reviewed By</label>
+            <Input value={reviewedBy} onChange={(e) => setReviewedBy(e.target.value)}
+              placeholder="e.g. Site Content Audit 1, Jordan, etc." />
+          </div>
+
           {/* Notes */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
@@ -388,7 +413,7 @@ function EditModal({
         
         <div className="flex justify-end gap-2 p-4 border-t border-gray-100 bg-gray-50">
           <Button variant="ghost" onClick={onClose} disabled={saving}>Cancel</Button>
-          <Button variant="primary" onClick={() => onSave(page.id, status, notes, revisionItems)} disabled={saving}>
+          <Button variant="primary" onClick={() => onSave(page.id, status, notes, revisionItems, reviewedBy)} disabled={saving}>
             {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
             Save Changes
           </Button>
@@ -412,6 +437,10 @@ function ReviewsTab({
   const [filterStatus, setFilterStatus] = useState<'all' | ReviewStatus>('all')
   const [filterCategory, setFilterCategory] = useState<string>('all')
   const [filterBuilt, setFilterBuilt] = useState<'all' | 'built' | 'not_built'>('all')
+  const [filterReviewedBy, setFilterReviewedBy] = useState<string>('all')
+  const [filterCanonical, setFilterCanonical] = useState<'all' | 'has_canonical' | 'no_canonical'>('all')
+  const [filterPageStatus, setFilterPageStatus] = useState<string>('hide_redirected')
+  const [sortBy, setSortBy] = useState<'default' | 'canonical' | 'page_status'>('default')
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
   
   const toggleRow = (id: string) => {
@@ -431,17 +460,45 @@ function ReviewsTab({
     const matchesCategory = filterCategory === 'all' || page.page_type === filterCategory
     const built = isPageBuilt(page.migration_status)
     const matchesBuilt = filterBuilt === 'all' || (filterBuilt === 'built' && built) || (filterBuilt === 'not_built' && !built)
-    return matchesSearch && matchesStatus && matchesCategory && matchesBuilt
+    const matchesReviewedBy = filterReviewedBy === 'all' || 
+      (filterReviewedBy === '_none' ? !page.reviewed_by : page.reviewed_by === filterReviewedBy)
+    const matchesCanonical = filterCanonical === 'all' ||
+      (filterCanonical === 'has_canonical' ? !!page.duplicate_canonical_url : !page.duplicate_canonical_url)
+    const matchesPageStatus = filterPageStatus === 'all' ? true
+      : filterPageStatus === 'hide_redirected' ? page.page_status !== 'redirected'
+      : page.page_status === filterPageStatus
+    return matchesSearch && matchesStatus && matchesCategory && matchesBuilt && matchesReviewedBy && matchesCanonical && matchesPageStatus
   })
+
+  // Apply sort
+  const statusOrder: Record<string, number> = { rebuilt: 0, replacement: 1, new: 2, redirected: 3 }
+  const sortedFilteredPages = sortBy === 'canonical'
+    ? [...filteredPages].sort((a, b) => {
+        if (a.duplicate_canonical_url && !b.duplicate_canonical_url) return -1
+        if (!a.duplicate_canonical_url && b.duplicate_canonical_url) return 1
+        return a.title.localeCompare(b.title)
+      })
+    : sortBy === 'page_status'
+    ? [...filteredPages].sort((a, b) => {
+        const aOrder = statusOrder[a.page_status] ?? 99
+        const bOrder = statusOrder[b.page_status] ?? 99
+        if (aOrder !== bOrder) return aOrder - bOrder
+        return a.title.localeCompare(b.title)
+      })
+    : filteredPages
   
   const pageTypes = [...new Set(pages.map(p => p.page_type))].sort()
+  const reviewedByValues = [...new Set(pages.map(p => p.reviewed_by).filter(Boolean))].sort() as string[]
   
   return (
     <Stack gap="md">
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
         <StatCard label="Total Pages" value={stats.total} icon={Filter} color="#6B7280" />
-        <StatCard label="Pending" value={stats.pending} icon={Clock} color="#6B7280" />
+        <StatCard label="Rebuilt" value={pages.filter(p => p.page_status === 'rebuilt').length} icon={Globe} color="#2563EB" />
+        <StatCard label="Redirected" value={pages.filter(p => p.page_status === 'redirected').length} icon={ExternalLink} color="#EA580C" />
+        <StatCard label="New" value={pages.filter(p => p.page_status === 'new').length} icon={FileText} color="#6B7280" />
+        <StatCard label="Replacement" value={pages.filter(p => p.page_status === 'replacement').length} icon={Copy} color="#7C3AED" />
         <StatCard label="Complete" value={stats.complete} icon={CheckCircle2} color="#059669" />
         <StatCard label="Needs Revision" value={stats.needs_revision} icon={AlertTriangle} color="#EA580C" />
         <StatCard label="Built" value={stats.built} icon={CheckCircle2} color="#406517" />
@@ -473,6 +530,42 @@ function ReviewsTab({
             <option value="built">Live</option>
             <option value="not_built">Not Started</option>
           </select>
+          <select value={filterReviewedBy} onChange={(e) => setFilterReviewedBy(e.target.value)}
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#406517]/20">
+            <option value="all">All Reviewers</option>
+            <option value="_none">Not Reviewed</option>
+            {reviewedByValues.map(name => <option key={name} value={name}>{name}</option>)}
+          </select>
+          <select value={filterCanonical} onChange={(e) => setFilterCanonical(e.target.value as typeof filterCanonical)}
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#406517]/20">
+            <option value="all">All Canonical</option>
+            <option value="has_canonical">Has Canonical</option>
+            <option value="no_canonical">No Canonical</option>
+          </select>
+          <select value={filterPageStatus} onChange={(e) => setFilterPageStatus(e.target.value)}
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#406517]/20">
+            <option value="hide_redirected">Hide Redirected</option>
+            <option value="all">All Statuses</option>
+            <option value="rebuilt">Rebuilt (WP)</option>
+            <option value="redirected">Redirected (WP)</option>
+            <option value="new">New Pages</option>
+            <option value="replacement">Replacements</option>
+          </select>
+        </div>
+        <div className="flex items-center gap-2 mt-2">
+          <span className="text-xs text-gray-500">Sort:</span>
+          <button onClick={() => setSortBy('default')}
+            className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${sortBy === 'default' ? 'bg-[#406517] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+            Default
+          </button>
+          <button onClick={() => setSortBy('canonical')}
+            className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${sortBy === 'canonical' ? 'bg-[#406517] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+            <span className="flex items-center gap-1"><Copy className="w-3 h-3" /> Canonical First</span>
+          </button>
+          <button onClick={() => setSortBy('page_status')}
+            className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${sortBy === 'page_status' ? 'bg-[#406517] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+            <span className="flex items-center gap-1"><Globe className="w-3 h-3" /> By Status</span>
+          </button>
         </div>
       </Card>
       
@@ -507,15 +600,21 @@ function ReviewsTab({
                   <th className="text-left px-4 py-3 text-xs font-medium text-black uppercase tracking-wider">Page</th>
                   <th className="text-center px-3 py-3 text-xs font-medium text-black uppercase tracking-wider w-16">SEO</th>
                   <th className="text-center px-3 py-3 text-xs font-medium text-black uppercase tracking-wider w-16">AI</th>
-                  <th className="text-center px-3 py-3 text-xs font-medium text-black uppercase tracking-wider w-16">Perf</th>
+                  <th className="text-center px-3 py-3 text-xs font-medium text-black uppercase tracking-wider w-24">
+                    <span className="flex items-center justify-center gap-1" title="Page Status">Status</span>
+                  </th>
                   <th className="text-left px-4 py-3 text-xs font-medium text-black uppercase tracking-wider w-28">Built</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-black uppercase tracking-wider w-40 hidden xl:table-cell">
+                    <span className="flex items-center gap-1"><Copy className="w-3 h-3" /> Canonical</span>
+                  </th>
                   <th className="text-left px-4 py-3 text-xs font-medium text-black uppercase tracking-wider w-28">Review</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-black uppercase tracking-wider w-24 hidden md:table-cell">Updated</th>
-                  <th className="text-right px-4 py-3 text-xs font-medium text-black uppercase tracking-wider w-16"></th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-black uppercase tracking-wider w-36 hidden lg:table-cell">Reviewed By</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-black uppercase tracking-wider w-24 hidden md:table-cell">Reviewed</th>
+                  <th className="text-right px-4 py-3 text-xs font-medium text-black uppercase tracking-wider w-20"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {filteredPages.map((page) => {
+                {sortedFilteredPages.map((page) => {
                   const reviewStatus = page.review_status || 'pending'
                   const statusInfo = getStatusInfo(reviewStatus)
                   const StatusIcon = statusInfo.icon
@@ -543,7 +642,7 @@ function ReviewsTab({
                   
                   return (
                     <tr key={page.id} className="group">
-                      <td colSpan={9} className="p-0">
+                      <td colSpan={11} className="p-0">
                         {/* Main row */}
                         <div className="flex items-center hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => toggleRow(page.id)}>
                           <div className="px-4 py-3 w-8 flex-shrink-0">
@@ -553,7 +652,15 @@ function ReviewsTab({
                           </div>
                           <div className="px-4 py-3 flex-1 min-w-0">
                             <p className="font-medium text-black truncate">{page.title}</p>
-                            <p className="text-xs text-black/70 font-mono truncate">{page.slug}</p>
+                            <div className="flex items-center gap-2">
+                              <p className="text-xs text-black/70 font-mono truncate">{page.slug}</p>
+                              {isPageBuilt(page.migration_status) && (
+                                <Link href={page.slug} target="_blank" onClick={(e) => e.stopPropagation()}
+                                  className="inline-flex items-center text-[#406517] hover:text-[#2d4710] flex-shrink-0">
+                                  <ExternalLink className="w-3 h-3" />
+                                </Link>
+                              )}
+                            </div>
                             {/* Inline audit summary */}
                             {page.review_notes && (
                               <p className="text-xs text-gray-500 mt-0.5 truncate">{page.review_notes}</p>
@@ -561,19 +668,53 @@ function ReviewsTab({
                           </div>
                           <div className="px-3 py-3 w-16 text-center"><ScoreBadge score={page.seo_score} /></div>
                           <div className="px-3 py-3 w-16 text-center"><ScoreBadge score={page.ai_score} /></div>
-                          <div className="px-3 py-3 w-16 text-center"><ScoreBadge score={page.performance_score} /></div>
+                          <div className="px-3 py-3 w-24 text-center">
+                            {(() => {
+                              const info = getPageStatusInfo(page.page_status)
+                              return (
+                                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${info.className}`}>
+                                  {info.label}
+                                </span>
+                              )
+                            })()}
+                          </div>
                           <div className="px-4 py-3 w-28">
                             <Badge className={`${migrationBadge.className} text-xs whitespace-nowrap`}>{migrationBadge.label}</Badge>
+                          </div>
+                          <div className="px-4 py-3 w-40 hidden xl:block">
+                            {page.duplicate_canonical_url ? (
+                              <Link href={page.duplicate_canonical_url} target="_blank" onClick={(e) => e.stopPropagation()}
+                                className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700 border border-purple-200 hover:bg-purple-200 transition-colors truncate max-w-full"
+                                title={`Canonical: ${page.duplicate_canonical_url}`}>
+                                <Copy className="w-3 h-3 flex-shrink-0" />
+                                <span className="truncate">{page.duplicate_canonical_url}</span>
+                              </Link>
+                            ) : (
+                              <span className="text-xs text-gray-300">--</span>
+                            )}
                           </div>
                           <div className="px-4 py-3 w-28">
                             <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${statusInfo.bg} ${statusInfo.text}`}>
                               <StatusIcon className="w-3 h-3" /> {statusInfo.label.split(' ')[0]}
                             </span>
                           </div>
-                          <div className="px-4 py-3 w-24 hidden md:block">
-                            <span className="text-sm text-black">{formatDate(page.updated_at)}</span>
+                          <div className="px-4 py-3 w-36 hidden lg:block">
+                            {page.reviewed_by ? (
+                              <span className="text-sm text-black truncate block" title={page.reviewed_by}>{page.reviewed_by}</span>
+                            ) : (
+                              <span className="text-sm text-gray-400">--</span>
+                            )}
                           </div>
-                          <div className="px-4 py-3 w-16 text-right">
+                          <div className="px-4 py-3 w-24 hidden md:block">
+                            <span className="text-sm text-black">{formatDate(page.reviewed_at)}</span>
+                          </div>
+                          <div className="px-4 py-3 w-20 text-right flex items-center justify-end gap-1">
+                            {isPageBuilt(page.migration_status) && (
+                              <Link href={page.slug} target="_blank" onClick={(e) => e.stopPropagation()}
+                                className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-500 hover:text-[#406517]">
+                                <Eye className="w-4 h-4" />
+                              </Link>
+                            )}
                             <button onClick={(e) => { e.stopPropagation(); onEdit(page) }}
                               className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-black hover:text-black">
                               <Edit2 className="w-4 h-4" />
@@ -658,9 +799,76 @@ function ReviewsTab({
                               </div>
                             )}
                             
-                            {!page.review_notes && !page.revision_items && (
+                            {/* Canonical URL */}
+                            {page.duplicate_canonical_url && (
+                              <div className="mt-3 px-4 py-3 rounded-lg border bg-purple-50 border-purple-200">
+                                <p className="text-sm font-semibold text-purple-800 flex items-center gap-2">
+                                  <Copy className="w-4 h-4 text-purple-500" />
+                                  Duplicate / Canonical Wrapper
+                                </p>
+                                <p className="text-sm text-purple-700 mt-1">
+                                  This page serves the same content as{' '}
+                                  <Link href={page.duplicate_canonical_url} target="_blank"
+                                    className="font-mono font-medium text-purple-900 hover:underline">
+                                    {page.duplicate_canonical_url}
+                                  </Link>
+                                  {' '}and includes a <code className="bg-purple-100 px-1 py-0.5 rounded text-xs">{'<link rel="canonical">'}</code> tag.
+                                </p>
+                              </div>
+                            )}
+
+                            {/* Redirect destination */}
+                            {page.page_status === 'redirected' && page.redirect_to_url && (
+                              <div className="mt-3 px-4 py-3 rounded-lg border bg-orange-50 border-orange-200">
+                                <p className="text-sm font-semibold text-orange-800 flex items-center gap-2">
+                                  <ExternalLink className="w-4 h-4 text-orange-500" />
+                                  301 Redirect
+                                </p>
+                                <p className="text-sm text-orange-700 mt-1">
+                                  This URL redirects to{' '}
+                                  <Link href={page.redirect_to_url} target="_blank"
+                                    className="font-mono font-medium text-orange-900 hover:underline">
+                                    {page.redirect_to_url}
+                                  </Link>
+                                </p>
+                              </div>
+                            )}
+
+                            {/* WordPress post ID */}
+                            {page.original_post_id && (
+                              <div className="mt-2 text-xs text-gray-500 flex items-center gap-1.5">
+                                <Globe className="w-3 h-3 text-blue-400" />
+                                WordPress Post ID: <span className="font-mono font-medium text-gray-700">{page.original_post_id}</span>
+                              </div>
+                            )}
+
+                            {!page.review_notes && !page.revision_items && !page.duplicate_canonical_url && page.page_status !== 'redirected' && (
                               <div className="mt-3 text-sm text-gray-400 italic">
                                 No audit notes yet. Run the content audit to populate.
+                              </div>
+                            )}
+                            
+                            {/* Review metadata */}
+                            {(page.reviewed_by || page.reviewed_at) && (
+                              <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-gray-500">
+                                {page.reviewed_by && (
+                                  <span className="inline-flex items-center gap-1.5">
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+                                    Reviewed by: <span className="font-medium text-gray-700">{page.reviewed_by}</span>
+                                  </span>
+                                )}
+                                {page.reviewed_at && (
+                                  <span className="inline-flex items-center gap-1.5">
+                                    <Clock className="w-3.5 h-3.5 text-gray-400" />
+                                    Reviewed: <span className="font-medium text-gray-700">{new Date(page.reviewed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                                  </span>
+                                )}
+                                {page.last_audited_at && (
+                                  <span className="inline-flex items-center gap-1.5">
+                                    <Clock className="w-3.5 h-3.5 text-blue-400" />
+                                    Audited: <span className="font-medium text-gray-700">{new Date(page.last_audited_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                                  </span>
+                                )}
                               </div>
                             )}
                             
@@ -689,7 +897,7 @@ function ReviewsTab({
             </table>
           </div>
           
-          {filteredPages.length === 0 && pages.length > 0 && (
+          {sortedFilteredPages.length === 0 && pages.length > 0 && (
             <div className="p-8 text-center text-black">
               <Search className="w-12 h-12 mx-auto mb-3 text-black/50" />
               <p>No pages match your filters</p>
@@ -699,7 +907,10 @@ function ReviewsTab({
       )}
       
       <Text size="sm" className="text-black text-center !mb-0">
-        Showing {filteredPages.length} of {pages.length} pages
+        Showing {sortedFilteredPages.length} of {pages.length} pages
+        <span className="ml-2 text-gray-500">
+          ({pages.filter(p => p.page_status === 'rebuilt').length} rebuilt, {pages.filter(p => p.page_status === 'redirected').length} redirected, {pages.filter(p => p.page_status === 'new').length} new, {pages.filter(p => p.page_status === 'replacement').length} replacement)
+        </span>
       </Text>
     </Stack>
   )
@@ -1357,7 +1568,7 @@ export default function AuditDashboard() {
   
   useEffect(() => { fetchPages() }, [fetchPages])
   
-  const handleSave = async (id: string, status: ReviewStatus, notes: string, revisionItems: string) => {
+  const handleSave = async (id: string, status: ReviewStatus, notes: string, revisionItems: string, reviewedBy: string) => {
     try {
       setSaving(true)
       const res = await fetch('/api/admin/page-reviews', {
@@ -1368,6 +1579,7 @@ export default function AuditDashboard() {
           review_status: status,
           review_notes: notes || null,
           revision_items: status === 'needs_revision' ? (revisionItems || null) : null,
+          reviewed_by: reviewedBy || null,
         }),
       })
       const data = await res.json()

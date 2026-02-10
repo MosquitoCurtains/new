@@ -51,7 +51,7 @@ export default function HeavyTrackPage() {
                 </Link>
               </Button>
               <Button variant="outline" asChild>
-                <Link href="/plan/tracking">
+                <Link href="/plan-screen-porch/outdoor-curtain-tracking">
                   Compare Track Options
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </Link>

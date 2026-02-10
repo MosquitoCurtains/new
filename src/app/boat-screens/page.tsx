@@ -7,6 +7,8 @@ import {
   Anchor,
   Sailboat,
   Lightbulb,
+  Bug,
+  Award,
 } from 'lucide-react'
 import { 
   Container, 
@@ -74,26 +76,26 @@ export default function BoatScreensPage() {
 
         <Grid responsiveCols={{ mobile: 2, tablet: 5 }} gap="md">
           <Frame ratio="4/3" className="rounded-xl overflow-hidden">
-            <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/21-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg" alt="Tied at corners" className="w-full h-full object-cover" />
+            <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/21-Mosquito-Netting-on-Screen-Porch-1200.jpg" alt="Tied at corners" className="w-full h-full object-cover" />
           </Frame>
           <Frame ratio="4/3" className="rounded-xl overflow-hidden">
-            <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/30-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg" alt="Fully screened in" className="w-full h-full object-cover" />
+            <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/30-Mosquito-Netting-on-Screen-Porch-1200.jpg" alt="Fully screened in" className="w-full h-full object-cover" />
           </Frame>
           <Frame ratio="4/3" className="rounded-xl overflow-hidden">
-            <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/32-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg" alt="Just a throw sheet" className="w-full h-full object-cover" />
+            <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/32-Mosquito-Netting-on-Screen-Porch-1200.jpg" alt="Just a throw sheet" className="w-full h-full object-cover" />
           </Frame>
           <Frame ratio="4/3" className="rounded-xl overflow-hidden">
-            <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/09-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg" alt="Customized" className="w-full h-full object-cover" />
+            <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/09-Mosquito-Netting-on-Screen-Porch-1200.jpg" alt="Customized" className="w-full h-full object-cover" />
           </Frame>
           <Frame ratio="4/3" className="rounded-xl overflow-hidden">
-            <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/31-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg" alt="A night on the lake" className="w-full h-full object-cover" />
+            <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/31-Mosquito-Netting-on-Screen-Porch-1200.jpg" alt="A night on the lake" className="w-full h-full object-cover" />
           </Frame>
         </Grid>
 
         <HeaderBarSection icon={Anchor} label="Houseboat Porch Screens" variant="dark">
           <TwoColumn gap="lg" className="items-center">
             <Frame ratio="16/9" className="rounded-2xl overflow-hidden">
-              <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/09-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg" alt="Houseboat screens" className="w-full h-full object-cover" />
+              <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/09-Mosquito-Netting-on-Screen-Porch-1200.jpg" alt="Houseboat screens" className="w-full h-full object-cover" />
             </Frame>
             <Stack gap="md">
               <Text className="text-gray-600">
@@ -117,7 +119,7 @@ export default function BoatScreensPage() {
               </Text>
             </Stack>
             <Frame ratio="16/9" className="rounded-2xl overflow-hidden">
-              <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/32-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg" alt="Boat dock screens" className="w-full h-full object-cover" />
+              <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/32-Mosquito-Netting-on-Screen-Porch-1200.jpg" alt="Boat dock screens" className="w-full h-full object-cover" />
             </Frame>
           </TwoColumn>
         </HeaderBarSection>
@@ -139,7 +141,7 @@ export default function BoatScreensPage() {
               </Button>
             </Stack>
             <Frame ratio="16/9" className="rounded-2xl overflow-hidden">
-              <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/30-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg" alt="Sailboat screens" className="w-full h-full object-cover" />
+              <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/30-Mosquito-Netting-on-Screen-Porch-1200.jpg" alt="Sailboat screens" className="w-full h-full object-cover" />
             </Frame>
           </TwoColumn>
         </HeaderBarSection>

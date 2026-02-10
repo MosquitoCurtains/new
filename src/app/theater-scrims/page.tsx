@@ -6,6 +6,8 @@ import {
   Theater,
   Lightbulb,
   CheckCircle,
+  Bug,
+  Layers,
 } from 'lucide-react'
 import { 
   Container, 
@@ -22,6 +24,7 @@ import {
   HeaderBarSection,
   WhyChooseUsTemplate,
   YouTubeEmbed,
+  TwoColumn,
 } from '@/lib/design-system'
 import { VIDEOS } from '@/lib/constants/videos'
 
@@ -240,6 +243,65 @@ export default function TheaterScrimsPage() {
         </section>
 
         {/* Final CTA */}
+
+        <HeaderBarSection icon={Bug} label="Instant Quote" variant="dark">
+          <TwoColumn gap="lg" className="items-center">
+            <Frame ratio="4/3" className="rounded-2xl overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/02-Theater-Scrims-Projection-Screens-400.jpg"
+                alt="black theater scrims"
+                className="w-full h-full object-cover"
+              />
+            </Frame>
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                Get an estimate within 5% of actual cost.
+              </Text>
+            </Stack>
+          </TwoColumn>
+        </HeaderBarSection>
+
+        <HeaderBarSection icon={Bug} label="Ordering" variant="dark">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                Our team will help plan your project!
+              </Text>
+              <Text className="text-gray-600">
+                10% Off Sale until Feb 14th… Coupon = Midwinter26
+              </Text>
+            </Stack>
+            <Frame ratio="4/3" className="rounded-2xl overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/05-Theater-Scrims-Projection-Screens-400.jpg"
+                alt="white theatre screens"
+                className="w-full h-full object-cover"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+
+        <HeaderBarSection icon={Layers} label="Theater Scrim Colors & Mesh Type" variant="dark">
+          <TwoColumn gap="lg" className="items-center">
+            <Frame ratio="4/3" className="rounded-2xl overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/10-Theater-Scrims-Projection-Screens-400.jpg"
+                alt="large theatre scrims"
+                className="w-full h-full object-cover"
+              />
+            </Frame>
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                Imagine a giant, high-resolution, dense mesh sheet (for wind) made of an outdoor marine-grade polyester, bound on all sides and prepared with Velcro or Grommets to your specifications.
+              </Text>
+              <Text className="text-gray-600">
+                We decided to focus on the quality of our theater scrim material and offer flexible rigging techniques where you can hang your theater scrim from any overhead surface including a header beam on your porch.
+              </Text>
+            </Stack>
+          </TwoColumn>
+        </HeaderBarSection>
+
+
         <FinalCTATemplate />
 
       </Stack>

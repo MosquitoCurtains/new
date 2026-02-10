@@ -6,6 +6,9 @@ import {
   Square,
   Shield,
   CheckCircle,
+  Snowflake,
+  Bug,
+  Sparkle,
 } from 'lucide-react'
 import { 
   Container, 
@@ -23,6 +26,7 @@ import {
   WhyChooseUsTemplate,
   PowerHeaderTemplate,
   MC_HERO_ACTIONS,
+  TwoColumn,
 } from '@/lib/design-system'
 
 export default function PorchVinylPanelsPage() {
@@ -144,6 +148,7 @@ export default function PorchVinylPanelsPage() {
         </section>
 
         {/* Final CTA */}
+
         <FinalCTATemplate />
 
       </Stack>

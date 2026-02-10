@@ -136,10 +136,10 @@ const navigation: MenuItem[] = [
     name: 'Order',
     href: '/start-project',
     children: [
-      { name: 'Order Mosquito Curtains', href: '/start-project' },
+      { name: 'Order Mosquito Curtains', href: '/start-project/mosquito-curtains' },
       { name: 'Order Tracking Hardware', href: '/raw-netting/hardware' },
       { name: 'Order Attachment Hardware', href: '/raw-netting/hardware' },
-      { name: 'Order Clear Vinyl', href: '/start-project' },
+      { name: 'Order Clear Vinyl', href: '/start-project/clear-vinyl' },
       { name: 'Order Mosquito Netting & Other Mesh Types', href: '/raw-netting-fabric-store' },
       { name: 'Order Roll Up Shade Screens', href: '/roll-up-shade-screens' },
     ],

@@ -3,7 +3,7 @@
  * 
  * Crawls rendered HTML from the Vercel deployment (or localhost) for every
  * live page, scores SEO and AI readiness, and writes results to the
- * seo_audits and ai_readiness_audits tables in Supabase.
+ * audit_seo and audit_ai_readiness tables in Supabase.
  * 
  * Scoring:
  *   SEO (100 points): meta title, description, canonical, OG, Twitter,
@@ -631,7 +631,7 @@ function auditAIReadiness(html: string, slug: string): AIAuditResult {
 
 async function writeSEOAudit(pageId: string, audit: SEOAuditResult): Promise<boolean> {
   const { error } = await supabase
-    .from('seo_audits')
+    .from('audit_seo')
     .upsert(
       {
         page_id: pageId,
@@ -650,7 +650,7 @@ async function writeSEOAudit(pageId: string, audit: SEOAuditResult): Promise<boo
 
 async function writeAIAudit(pageId: string, audit: AIAuditResult): Promise<boolean> {
   const { error } = await supabase
-    .from('ai_readiness_audits')
+    .from('audit_ai_readiness')
     .upsert(
       {
         page_id: pageId,

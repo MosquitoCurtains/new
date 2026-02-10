@@ -1,205 +1,281 @@
 'use client'
 
 import Link from 'next/link'
-import { 
-  ArrowRight, 
-  ArrowLeft,
-  Bug,
-  Ruler,
-  CheckCircle,
-  Play,
-} from 'lucide-react'
-import { 
-  Container, 
-  Stack, 
-  Grid, 
-  Text, 
-  Button, 
+import { ArrowRight, Bug, ShieldCheck, Flame, Scissors, Droplets } from 'lucide-react'
+import {
+  Container,
+  Stack,
+  Grid,
+  TwoColumn,
+  Frame,
+  Text,
+  Button,
   Card,
   Heading,
-  Frame,
   BulletedList,
   ListItem,
+  YouTubeEmbed,
+  PowerHeaderTemplate,
+  WhyChooseUsTemplate,
   FinalCTATemplate,
   HeaderBarSection,
-  YouTubeEmbed,
+  MC_HERO_ACTIONS,
 } from '@/lib/design-system'
 import { VIDEOS } from '@/lib/constants/videos'
 
-export default function MosquitoNetPage() {
+const IMG = 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads'
+
+export default function MosquitoNettingPage() {
   return (
     <Container size="xl">
       <Stack gap="lg">
-        
-        {/* Back Link */}
-        <Link href="/raw-netting" className="inline-flex items-center text-gray-500 hover:text-gray-700 -mb-4">
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Raw Netting
-        </Link>
 
-        {/* Header */}
-        <section className="relative py-8 text-center">
-          <Stack gap="md" className="max-w-3xl mx-auto">
-            <div className="w-16 h-16 bg-[#406517]/10 rounded-full mx-auto flex items-center justify-center">
-              <Bug className="w-8 h-8 text-[#406517]" />
-            </div>
-            <Heading level={1} className="!text-4xl md:!text-5xl">
-              Mosquito Netting
-            </Heading>
-            <Text className="text-xl text-gray-600">
-              Premium mosquito mesh fabric sold by the yard. The same solution-dyed 
-              material we use in our professional curtain products.
-            </Text>
-          </Stack>
-        </section>
+        {/* Hero */}
+        <PowerHeaderTemplate
+          title='Our "Heavy" Mosquito Netting Fabric'
+          subtitle="Our most popular raw netting. Best value, quality, and airflow. Incredibly strong unlike cheap meshes you see elsewhere. Its rectangular pattern stops even gnats and black flies."
+          videoId={VIDEOS.RAW_NETTING}
+          videoTitle="Why Us For Raw Netting"
+          variant="compact"
+          actions={MC_HERO_ACTIONS}
+        />
 
-        {/* Product Info */}
+        {/* Product Details */}
         <HeaderBarSection icon={Bug} label="Product Details" variant="dark">
-          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg" className="items-center">
+          <TwoColumn gap="lg" className="items-center">
             <Frame ratio="4/3" className="rounded-xl overflow-hidden">
               <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Mosquito-Netting-Roll.jpg"
-                alt="Mosquito netting material"
+                src={`${IMG}/2019/12/Heavy-Mosquito-Netting-WooCommerce.jpg`}
+                alt="Raw Heavy Mosquito Netting Mesh"
                 className="w-full h-full object-cover"
               />
             </Frame>
             <Stack gap="md">
               <Text className="text-gray-600">
-                Our heavy-duty mosquito netting is designed to keep out mosquitoes, gnats, 
-                and black flies while allowing air to flow freely through.
+                Heavy Mosquito Netting is our most popular and offers the best value and quality 
+                for the price. It also has the best airflow. This mosquito netting is incredibly 
+                strong unlike the other cheap meshes that you see elsewhere. Our Heavy Mosquito 
+                Netting Mesh is our own durable recipe made to last.
               </Text>
-              <BulletedList spacing="md">
-                <ListItem variant="checked" iconColor="#406517">450 denier (super strong)</ListItem>
-                <ListItem variant="checked" iconColor="#406517">Solution-dyed (won't fade)</ListItem>
-                <ListItem variant="checked" iconColor="#406517">Blocks mosquitoes, gnats, black flies</ListItem>
-                <ListItem variant="checked" iconColor="#406517">Available by the yard or roll</ListItem>
+              <BulletedList spacing="sm">
+                <ListItem variant="checked" iconColor="#406517">450 denier, solution-dyed polyester</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Lock stitch weave -- will not unravel when cut</ListItem>
+                <ListItem variant="checked" iconColor="#406517">CA fire rated (NFPA 701 small test)</ListItem>
+                <ListItem variant="checked" iconColor="#406517">100% polyester, made for outdoors and made to get wet</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Rectangular pattern stops gnats & black flies</ListItem>
               </BulletedList>
             </Stack>
+          </TwoColumn>
+        </HeaderBarSection>
+
+        {/* Color Swatches */}
+        <HeaderBarSection icon={Bug} label="Available Colors" variant="dark">
+          <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="lg">
+            {[
+              { name: 'Black', image: `${IMG}/2019/09/Black-Mosquito-Netting-1200.jpg`, note: 'Most popular choice' },
+              { name: 'White', image: `${IMG}/2019/09/White-Mosquito-Netting-1200.jpg`, note: 'Clean, bright look' },
+              { name: 'Ivory', image: `${IMG}/2019/09/Ivory-Mosquito-netting-1200.jpg`, note: 'Warm neutral tone' },
+            ].map((color) => (
+              <Card key={color.name} variant="elevated" className="!p-0 overflow-hidden">
+                <Frame ratio="4/3" className="overflow-hidden">
+                  <img src={color.image} alt={`${color.name} mosquito netting`} className="w-full h-full object-cover" />
+                </Frame>
+                <div className="p-4 text-center">
+                  <Text className="font-bold text-gray-900 !mb-0">{color.name}</Text>
+                  <Text size="sm" className="text-gray-500 !mb-0">{color.note}</Text>
+                </div>
+              </Card>
+            ))}
           </Grid>
         </HeaderBarSection>
 
-        {/* Colors */}
-        <HeaderBarSection icon={CheckCircle} label="Available Colors" variant="dark">
-          <Grid responsiveCols={{ mobile: 3, tablet: 3 }} gap="lg" className="max-w-xl mx-auto">
-            <Card variant="elevated" className="!p-6 text-center">
-              <div className="w-16 h-16 bg-gray-900 rounded-full mx-auto mb-3" />
-              <Heading level={5}>Black</Heading>
-              <Text className="text-xs text-gray-500 !mb-0">Most Popular</Text>
-            </Card>
-            <Card variant="elevated" className="!p-6 text-center">
-              <div className="w-16 h-16 bg-gray-100 border-2 border-gray-200 rounded-full mx-auto mb-3" />
-              <Heading level={5}>White</Heading>
-            </Card>
-            <Card variant="elevated" className="!p-6 text-center">
-              <div className="w-16 h-16 bg-[#F5F5DC] border-2 border-gray-200 rounded-full mx-auto mb-3" />
-              <Heading level={5}>Ivory</Heading>
-            </Card>
-          </Grid>
-        </HeaderBarSection>
-
-        {/* Sizing */}
-        <HeaderBarSection icon={Ruler} label="Sizing & Pricing" variant="dark">
-          <Card className="!p-6">
-            <Text className="text-gray-600 mb-6 text-center">
-              Available in various widths. Contact us for current pricing and availability.
+        {/* Pricing Table */}
+        <HeaderBarSection icon={Scissors} label="Sizing & Pricing" variant="dark">
+          <Stack gap="md">
+            <Text className="text-gray-600">
+              Our mesh fabric rolls are VERY WIDE from 100" to 140". Order by the linear foot from 
+              the respective roll. Your cost is determined by how much we cut (length) from the particular 
+              roll you select.
             </Text>
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full border-collapse">
                 <thead>
-                  <tr className="border-b">
-                    <th className="text-left py-3 font-semibold">Width</th>
-                    <th className="text-left py-3 font-semibold">Common Uses</th>
-                    <th className="text-left py-3 font-semibold">Sold As</th>
+                  <tr className="bg-[#406517] text-white">
+                    <th className="px-4 py-3 text-left text-sm font-semibold">Roll Width</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold">Price per Linear Foot</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold">Example (20ft)</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr className="border-b">
-                    <td className="py-3">54" Wide</td>
-                    <td>Smaller panels, patching</td>
-                    <td>By the yard</td>
+                  <tr className="border-b border-gray-200">
+                    <td className="px-4 py-3 font-medium">101-inch roll</td>
+                    <td className="px-4 py-3 text-[#406517] font-bold">$5.50 / ft</td>
+                    <td className="px-4 py-3 text-gray-600">20ft x $5.50 = $110.00</td>
                   </tr>
-                  <tr className="border-b">
-                    <td className="py-3">72" Wide</td>
-                    <td>Standard panels, most projects</td>
-                    <td>By the yard or roll</td>
+                  <tr className="border-b border-gray-200 bg-gray-50">
+                    <td className="px-4 py-3 font-medium">123-inch roll</td>
+                    <td className="px-4 py-3 text-[#406517] font-bold">$6.00 / ft</td>
+                    <td className="px-4 py-3 text-gray-600">20ft x $6.00 = $120.00</td>
                   </tr>
                   <tr>
-                    <td className="py-3">108" Wide</td>
-                    <td>Large panels, fewer seams</td>
-                    <td>By the yard or roll</td>
+                    <td className="px-4 py-3 font-medium">138-inch roll</td>
+                    <td className="px-4 py-3 text-[#406517] font-bold">$6.50 / ft</td>
+                    <td className="px-4 py-3 text-gray-600">20ft x $6.50 = $130.00</td>
                   </tr>
                 </tbody>
               </table>
             </div>
-          </Card>
+            <div className="flex justify-center pt-2">
+              <Button variant="primary" asChild>
+                <Link href="/order/raw-netting">
+                  Order Now
+                  <ArrowRight className="ml-2 w-4 h-4" />
+                </Link>
+              </Button>
+            </div>
+          </Stack>
         </HeaderBarSection>
 
-        {/* Common Uses */}
-        <HeaderBarSection icon={Bug} label="Common Applications" variant="dark">
-          <Grid responsiveCols={{ mobile: 2, tablet: 4 }} gap="md">
-            <Card variant="elevated" className="!p-4 text-center">
-              <Heading level={5} className="!mb-1">Porch Screens</Heading>
-              <Text className="text-xs text-gray-500 !mb-0">DIY screening projects</Text>
-            </Card>
-            <Card variant="elevated" className="!p-4 text-center">
-              <Heading level={5} className="!mb-1">Bed Canopies</Heading>
-              <Text className="text-xs text-gray-500 !mb-0">Indoor/outdoor sleeping</Text>
-            </Card>
-            <Card variant="elevated" className="!p-4 text-center">
-              <Heading level={5} className="!mb-1">Garden Protection</Heading>
-              <Text className="text-xs text-gray-500 !mb-0">Keep pests off plants</Text>
-            </Card>
-            <Card variant="elevated" className="!p-4 text-center">
-              <Heading level={5} className="!mb-1">Event Tents</Heading>
-              <Text className="text-xs text-gray-500 !mb-0">Temporary enclosures</Text>
-            </Card>
+        {/* Feature Images */}
+        <HeaderBarSection icon={ShieldCheck} label="Incredibly Strong Netting" variant="dark">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Text className="text-gray-600">
+                Looking for a quality mesh fabric that will protect you from mosquitoes and other insects? 
+                Perhaps your project is for a purpose other than insects. Our mesh netting fabric can do just that.
+              </Text>
+              <BulletedList spacing="sm">
+                <ListItem variant="checked" iconColor="#406517">Multi-purpose: insects, privacy, shade, and more</ListItem>
+                <ListItem variant="checked" iconColor="#406517">100% polyester made for outdoors and made to get wet</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Sold by the foot from massive rolls</ListItem>
+              </BulletedList>
+            </Stack>
+            <Frame ratio="16/9" className="rounded-xl overflow-hidden">
+              <img
+                src={`${IMG}/2021/11/Strong-Mosquito-Netting-Mesh.jpg`}
+                alt="Strong mosquito netting mesh"
+                className="w-full h-full object-cover"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
+
+        {/* Feature Properties */}
+        <HeaderBarSection icon={Flame} label="Material Properties" variant="dark">
+          <Grid responsiveCols={{ mobile: 1, tablet: 2, desktop: 3 }} gap="md">
+            {[
+              { icon: Flame, title: 'CA Fire Rated', desc: 'NFPA 701 small test certified. Safe for indoor and outdoor use.' },
+              { icon: Scissors, title: 'Will Not Unravel', desc: 'Our unique lock stitch weave will not unravel when cut on any edge.' },
+              { icon: Droplets, title: 'Solution Dyed', desc: 'Netting materials are solution dyed for maximum fade resistance.' },
+              { icon: ShieldCheck, title: 'Made to Get Wet', desc: '100% polyester fabric made for outdoors and made to get wet.' },
+              { icon: Bug, title: 'Stops Gnats', desc: 'Rectangular pattern is fine enough to stop gnats and black flies.' },
+              { icon: Scissors, title: 'Massive Rolls', desc: 'Rolls are 100"-140" wide. Much wider than standard 54-60" fabric bolts.' },
+            ].map((feat) => (
+              <Card key={feat.title} variant="outlined" className="!p-4">
+                <feat.icon className="w-6 h-6 text-[#406517] mb-2" />
+                <Text className="font-bold text-gray-900 !mb-1">{feat.title}</Text>
+                <Text size="sm" className="text-gray-600 !mb-0">{feat.desc}</Text>
+              </Card>
+            ))}
           </Grid>
+        </HeaderBarSection>
+
+        {/* Feature Images Grid */}
+        <HeaderBarSection icon={Bug} label="Versatile Applications" variant="dark">
+          <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="lg">
+            <Frame ratio="16/9" className="rounded-xl overflow-hidden">
+              <img
+                src={`${IMG}/2021/11/Mosquito-Netting-Mesh-Sold-in-Large-Sheets.jpg`}
+                alt="Mosquito netting mesh sold in large sheets"
+                className="w-full h-full object-cover"
+              />
+            </Frame>
+            <Frame ratio="16/9" className="rounded-xl overflow-hidden">
+              <img
+                src={`${IMG}/2021/11/Strong-Mosquito-Netting-Mesh.jpg`}
+                alt="Strong mosquito netting mesh close-up"
+                className="w-full h-full object-cover"
+              />
+            </Frame>
+            <Frame ratio="16/9" className="rounded-xl overflow-hidden">
+              <img
+                src={`${IMG}/2025/08/White-Boat-Netting.jpg`}
+                alt="White mosquito netting on a boat"
+                className="w-full h-full object-cover"
+              />
+            </Frame>
+          </Grid>
+        </HeaderBarSection>
+
+        {/* Specs Table Image */}
+        <HeaderBarSection icon={Bug} label="Heavy Mosquito Netting Specs Table" variant="dark">
+          <div className="flex justify-center">
+            <a href={`${IMG}/2024/05/All-Mesh-Netting-Specifications-Table-New.jpg`} target="_blank" rel="noopener noreferrer">
+              <img
+                src={`${IMG}/2024/05/All-Mesh-Netting-Specifications-Table-New.jpg`}
+                alt="All mesh netting specifications comparison table"
+                className="w-full max-w-4xl rounded-xl border border-gray-200 hover:shadow-lg transition-shadow"
+              />
+            </a>
+          </div>
+          <Text size="sm" className="text-gray-500 text-center mt-3">Click table to enlarge</Text>
         </HeaderBarSection>
 
         {/* Videos */}
-        <HeaderBarSection icon={Play} label="Mosquito Netting Videos" variant="dark">
-          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
+        <HeaderBarSection icon={Bug} label="Product Videos" variant="dark">
+          <Grid responsiveCols={{ mobile: 1, tablet: 2, desktop: 3 }} gap="lg">
             <div>
-              <YouTubeEmbed
-                videoId={VIDEOS.MOSQUITO_NETTING_FABRIC}
-                title="Mosquito Netting Fabric"
-                variant="card"
-              />
-              <Text className="text-center mt-2 font-medium text-sm">Mosquito Netting Fabric</Text>
+              <YouTubeEmbed videoId={VIDEOS.RAW_NETTING} title="Why Us For Raw Netting" variant="card" />
+              <Text className="text-center mt-2 font-medium text-sm">Why Us For Raw Netting</Text>
             </div>
             <div>
-              <YouTubeEmbed
-                videoId={VIDEOS.RAW_NETTING_FABRIC}
-                title="Raw Netting Fabric Types"
-                variant="card"
-              />
-              <Text className="text-center mt-2 font-medium text-sm">Raw Netting Fabric Types</Text>
+              <YouTubeEmbed videoId={VIDEOS.RAW_NETTING_FABRIC} title="Mesh Types Overview" variant="card" />
+              <Text className="text-center mt-2 font-medium text-sm">Mesh Types Overview</Text>
+            </div>
+            <div>
+              <YouTubeEmbed videoId={VIDEOS.MOSQUITO_NETTING_FABRIC} title="Mosquito Netting Fabric" variant="card" />
+              <Text className="text-center mt-2 font-medium text-sm">Optical Qualities</Text>
+            </div>
+            <div>
+              <YouTubeEmbed videoId={VIDEOS.RAW_NETTING_DIY} title="Rigging Ideas" variant="card" />
+              <Text className="text-center mt-2 font-medium text-sm">Rigging Ideas</Text>
+            </div>
+            <div>
+              <YouTubeEmbed videoId={VIDEOS.RAW_NETTING_APPLICATIONS} title="Strong Net" variant="card" />
+              <Text className="text-center mt-2 font-medium text-sm">Applications</Text>
+            </div>
+            <div>
+              <YouTubeEmbed videoId={VIDEOS.RAW_NETTING_USES} title="Versatile Uses" variant="card" />
+              <Text className="text-center mt-2 font-medium text-sm">Versatile Uses</Text>
             </div>
           </Grid>
         </HeaderBarSection>
 
-        {/* CTA */}
-        <section className="bg-gradient-to-br from-[#406517]/10 via-white to-[#003365]/10 rounded-3xl p-8 md:p-12 text-center">
-          <Heading level={2} className="!mb-4">Ready to Order?</Heading>
-          <Text className="text-gray-600 max-w-2xl mx-auto mb-8">
-            Contact us for pricing and to place your order for mosquito netting.
-          </Text>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="primary" asChild>
-              <Link href="/start-project">
-                Get a Quote
-                <ArrowRight className="ml-2 w-4 h-4" />
+        {/* Cross-links */}
+        <HeaderBarSection icon={Bug} label="Raw Netting Store Quick Links" variant="dark">
+          <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="md">
+            <Card className="!p-5 text-center hover:shadow-md transition-shadow">
+              <Link href="/order-mesh-netting-fabrics" className="block">
+                <Heading level={5} className="text-[#406517] !mb-1">1. See All Meshes</Heading>
+                <Text size="sm" className="text-gray-600 !mb-0">Several Mesh Types & Colors</Text>
               </Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/raw-netting">
-                View All Netting
+            </Card>
+            <Card className="!p-5 text-center hover:shadow-md transition-shadow">
+              <Link href="/raw-netting/rigging" className="block">
+                <Heading level={5} className="text-[#406517] !mb-1">2. Rigging Ideas & Attachments</Heading>
+                <Text size="sm" className="text-gray-600 !mb-0">Helpful Ideas & Attachment Items</Text>
               </Link>
-            </Button>
-          </div>
-        </section>
+            </Card>
+            <Card className="!p-5 text-center hover:shadow-md transition-shadow">
+              <Link href="/raw-netting/custom" className="block">
+                <Heading level={5} className="text-[#406517] !mb-1">3. Let Us Make It For You</Heading>
+                <Text size="sm" className="text-gray-600 !mb-0">Ready to Hang Custom Panels</Text>
+              </Link>
+            </Card>
+          </Grid>
+        </HeaderBarSection>
 
-        {/* Final CTA */}
+        <WhyChooseUsTemplate />
         <FinalCTATemplate />
 
       </Stack>

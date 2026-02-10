@@ -30,11 +30,16 @@ import {
 } from '@/lib/design-system'
 
 const GALLERY_IMAGES = [
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/06-Garage-Door-Mosquito-Mesh-Netting-Panels-1200-1024x768.jpg', alt: 'Industrial netting' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/08-Boat-Garage-Door-Mosquito-Mesh-Netting-Panels-1200-1024x768.jpg', alt: 'Warehouse netting' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/16-Garage-Door-Mosquito-Mesh-Netting-Panels-1200-1024x768.jpg', alt: 'Industrial screens' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/11-Garage-Door-Mosquito-Mesh-Netting-Panels-1200-1024x768.jpg', alt: 'Commercial netting' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/04-Garage-Door-Mosquito-Mesh-Netting-Panels-1200-1024x768.jpg', alt: 'Industrial enclosure' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/11-Industrial-Netting-Applications-NASA-1200.jpg', alt: 'Large commercial door screen' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/Industiral-Netting-Applications-Tampico-Dock-Screen.jpg', alt: 'Insect netting for Produce' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/Industrial-Netting-Applications-Large-Dumpster-1200.jpg', alt: 'Container Netting for large dumpster' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/09-Industrial-Netting-Applications-1200.jpg', alt: 'Industrial Insect Netting' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/08-Industrial-Netting-Applications-1200.jpg', alt: 'USDA Screen Cage' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/06-Industrial-Netting-Applications-1200.jpg', alt: 'Commercial Netting Applications' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/05-Industrial-Netting-Applications-Bee-Enclosure-1200.jpg', alt: 'Industrial Netting Applications' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/04-Industrial-Netting-Applications-1200.jpg', alt: 'Industrial Netting Applications' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/Industrial-Netting-Health-Department-Requirement-1200.jpg', alt: 'Industrial Food Netting' },
+  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/00-Industrial-Netting-Applications-1200.jpg', alt: 'Industrial Netting Applications' },
 ]
 
 const PHYSICAL_FILTER_EXAMPLES = [
@@ -106,7 +111,7 @@ export default function IndustrialNettingPage() {
               </Button>
             </Stack>
             <Frame ratio="16/9" className="rounded-2xl overflow-hidden">
-              <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/06-Garage-Door-Mosquito-Mesh-Netting-Panels-1200-1024x768.jpg" alt="Industrial netting" className="w-full h-full object-cover" />
+              <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/06-Garage-Door-Mosquito-Mesh-Netting-Panels-1200.jpg" alt="Industrial netting" className="w-full h-full object-cover" />
             </Frame>
           </TwoColumn>
         </HeaderBarSection>
@@ -174,7 +179,7 @@ export default function IndustrialNettingPage() {
               </Text>
             </Stack>
             <Frame ratio="16/9" className="rounded-2xl overflow-hidden">
-              <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/16-Garage-Door-Mosquito-Mesh-Netting-Panels-1200-1024x768.jpg" alt="HVAC pre-filter" className="w-full h-full object-cover" />
+              <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/16-Garage-Door-Mosquito-Mesh-Netting-Panels-1200.jpg" alt="HVAC pre-filter" className="w-full h-full object-cover" />
             </Frame>
           </TwoColumn>
         </HeaderBarSection>
@@ -182,7 +187,7 @@ export default function IndustrialNettingPage() {
         <HeaderBarSection icon={Shield} label="Quality & Service" variant="dark">
           <TwoColumn gap="lg" className="items-center">
             <Frame ratio="16/9" className="rounded-2xl overflow-hidden">
-              <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Mosquito-Curtains-Team-1200-300x225.jpg" alt="Mosquito Curtains Team" className="w-full h-full object-cover" />
+              <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Mosquito-Curtains-Team-1200.jpg" alt="Mosquito Curtains Team" className="w-full h-full object-cover" />
             </Frame>
             <Stack gap="md">
               <Text className="text-gray-600">

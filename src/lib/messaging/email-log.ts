@@ -11,6 +11,8 @@ import { sendEmail, type SendEmailParams } from '@/lib/email/ses'
 export interface LoggedEmailParams extends SendEmailParams {
   /** UUID of the lead this email is for */
   leadId?: string
+  /** UUID of the project this email is about */
+  projectId?: string
   /** Thread grouping identifier */
   threadId?: string
 }
@@ -20,7 +22,7 @@ export interface LoggedEmailParams extends SendEmailParams {
  * Returns the SES message ID.
  */
 export async function sendAndLogEmail(params: LoggedEmailParams): Promise<string> {
-  const { leadId, threadId, ...sesParams } = params
+  const { leadId, projectId, threadId, ...sesParams } = params
 
   // Send via SES
   const sesMessageId = await sendEmail(sesParams)
@@ -31,6 +33,7 @@ export async function sendAndLogEmail(params: LoggedEmailParams): Promise<string
 
   await supabase.from('email_messages').insert({
     lead_id: leadId || null,
+    project_id: projectId || null,
     from_email: sesParams.from || process.env.SES_FROM_EMAIL || 'noreply@mosquitocurtains.com',
     to_email: toAddresses[0],
     subject: sesParams.subject,

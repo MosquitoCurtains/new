@@ -4,9 +4,9 @@ import { BreadcrumbSchema, breadcrumbsFromSlug, ProductSchema } from '@/lib/seo/
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Start Project',
-  description: 'Start Project - Shop custom mosquito curtains and screen enclosures. Configure your perfect fit online. Free shipping on qualifying orders.',
+  description: 'Start your project today. Choose mosquito curtains, clear vinyl panels, or raw mesh fabric. Expert assistance, instant quote, or DIY builder.',
   slug: '/start-project',
-  keywords: ['mosquito curtains', 'custom screens', 'screen enclosures', 'start', 'project'],
+  keywords: ['mosquito curtains', 'clear vinyl', 'raw netting', 'start project', 'expert assistance', 'instant quote', 'diy builder'],
 })
 
 export default function Layout({ children }: { children: React.ReactNode }) {

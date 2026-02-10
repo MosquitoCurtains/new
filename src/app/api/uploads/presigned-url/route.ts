@@ -25,16 +25,24 @@ const ALLOWED_TYPES: Record<string, string[]> = {
   'image/webp': ['.webp'],
   'image/heic': ['.heic'],
   'application/pdf': ['.pdf'],
+  'video/mp4': ['.mp4'],
+  'video/quicktime': ['.mov'],
+  'video/webm': ['.webm'],
 }
 
-// Max file size: 10MB
-const MAX_FILE_SIZE = 10 * 1024 * 1024
+// Video MIME types (for size limit differentiation)
+const VIDEO_TYPES = new Set(['video/mp4', 'video/quicktime', 'video/webm'])
+
+// Max file sizes
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024    // 10MB for images/PDFs
+const MAX_VIDEO_SIZE = 100 * 1024 * 1024   // 100MB for videos
 
 // Upload paths by type
 const UPLOAD_PATHS: Record<string, string> = {
   'project-photo': 'user-uploads/project-photos',
   'diagram': 'user-uploads/diagrams',
   'attachment': 'user-uploads/attachments',
+  'gallery-image': 'gallery/images',
 }
 
 // =============================================================================
@@ -89,10 +97,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate file size
-    if (fileSize && fileSize > MAX_FILE_SIZE) {
+    // Validate file size (different limits for video vs image)
+    const maxSize = VIDEO_TYPES.has(fileType) ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE
+    if (fileSize && fileSize > maxSize) {
       return NextResponse.json(
-        { error: `File too large. Max size: ${MAX_FILE_SIZE / 1024 / 1024}MB` },
+        { error: `File too large. Max size: ${maxSize / 1024 / 1024}MB` },
         { status: 400 }
       )
     }

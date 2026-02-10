@@ -236,8 +236,10 @@ export interface Database {
           id: string
           created_at: string
           updated_at: string
-          auth_user_id: string
+          auth_user_id: string | null
           name: string
+          first_name: string | null
+          last_name: string | null
           email: string
           role: string
           is_active: boolean
@@ -246,8 +248,10 @@ export interface Database {
           id?: string
           created_at?: string
           updated_at?: string
-          auth_user_id: string
+          auth_user_id?: string | null
           name: string
+          first_name?: string | null
+          last_name?: string | null
           email: string
           role?: string
           is_active?: boolean
@@ -256,8 +260,10 @@ export interface Database {
           id?: string
           created_at?: string
           updated_at?: string
-          auth_user_id?: string
+          auth_user_id?: string | null
           name?: string
+          first_name?: string | null
+          last_name?: string | null
           email?: string
           role?: string
           is_active?: boolean

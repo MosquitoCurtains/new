@@ -5,8 +5,9 @@ import {
   ArrowRight, 
   ArrowLeft,
   LayoutGrid,
-  Ruler,
-  Camera,
+  Columns2,
+  PlayCircle,
+  Map,
 } from 'lucide-react'
 import { 
   Container, 
@@ -23,6 +24,7 @@ import {
   HeaderBarSection,
   YouTubeEmbed,
 } from '@/lib/design-system'
+import { VIDEOS } from '@/lib/constants/videos'
 
 export default function TwoSidedPage() {
   return (
@@ -42,132 +44,152 @@ export default function TwoSidedPage() {
               <LayoutGrid className="w-8 h-8 text-[#406517]" />
             </div>
             <Heading level={1} className="!text-4xl md:!text-5xl">
-              2-Sided Exposure
+              Planning a 2-sided Exposure
             </Heading>
-            <Text className="text-xl text-gray-600">
-              Your space has two open sides that need coverage. This is common for corner porches 
-              and L-shaped spaces.
+            <Text className="text-lg text-gray-600">
+              By now you have probably decided on a{' '}
+              <Link href="/plan/mesh-colors" className="text-[#406517] underline">mesh-type &amp; color</Link> and either{' '}
+              <Link href="/plan/tracking" className="text-[#406517] underline">tracking or Velcro top attachment</Link>. 
+              Now you will choose a path and select a panel configuration to size individual panels for sealing to surfaces and positioning magnetic doorways.
             </Text>
           </Stack>
         </section>
 
-        {/* Overview */}
-        <HeaderBarSection icon={LayoutGrid} label="What Is 2-Sided Exposure?" variant="dark">
-          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg" className="items-center">
-            <Frame ratio="16/9" className="rounded-xl overflow-hidden">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/2-Sided-Example.jpg"
-                alt="2-Sided exposure example"
-                className="w-full h-full object-cover"
-              />
-            </Frame>
-            <Stack gap="md">
-              <Text className="text-gray-600">
-                A 2-sided exposure means your space has TWO open sides. This typically happens 
-                with corner porches where two adjacent sides face the yard.
-              </Text>
-              <BulletedList spacing="md">
-                <ListItem variant="checked" iconColor="#406517">Common configuration</ListItem>
-                <ListItem variant="checked" iconColor="#406517">Corner posts may be involved</ListItem>
-                <ListItem variant="checked" iconColor="#406517">Still DIY-friendly</ListItem>
-                <ListItem variant="checked" iconColor="#406517">Multiple doorway options</ListItem>
-              </BulletedList>
-            </Stack>
-          </Grid>
-        </HeaderBarSection>
-
-        {/* Common Scenarios */}
-        <HeaderBarSection icon={Camera} label="Common 2-Sided Scenarios" variant="dark">
-          <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="lg">
-            <Card variant="elevated" className="!p-6">
-              <Heading level={4} className="!mb-4">Corner Porch</Heading>
-              <Text className="text-gray-600 !mb-0">
-                L-shaped porch with two sides facing the yard and two sides against the house.
-              </Text>
-            </Card>
-            <Card variant="elevated" className="!p-6">
-              <Heading level={4} className="!mb-4">Attached Pergola</Heading>
-              <Text className="text-gray-600 !mb-0">
-                Pergola attached to house with two open sides facing the landscape.
-              </Text>
-            </Card>
-            <Card variant="elevated" className="!p-6">
-              <Heading level={4} className="!mb-4">Deck Addition</Heading>
-              <Text className="text-gray-600 !mb-0">
-                Covered deck extending from corner of home with adjacent open sides.
-              </Text>
-            </Card>
-          </Grid>
-        </HeaderBarSection>
-
-        {/* Corner Considerations */}
-        <HeaderBarSection icon={Ruler} label="Corner Post Considerations" variant="dark">
-          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg" className="items-center">
-            <YouTubeEmbed
-              videoId="Y5hh50u3trQ"
-              title="2-Sided Exposure Overview"
-              variant="card"
-            />
-            <Stack gap="md">
-              <Text className="text-gray-600">
-                The corner where your two sides meet requires special attention. We can seal 
-                the curtains together at the corner post or wrap around seamlessly.
-              </Text>
-              <BulletedList spacing="md">
-                <ListItem variant="checked" iconColor="#406517">Corner post seal options</ListItem>
-                <ListItem variant="checked" iconColor="#406517">Continuous wrap possible</ListItem>
-                <ListItem variant="checked" iconColor="#406517">Photos help us plan corners</ListItem>
-                <ListItem variant="checked" iconColor="#406517">Expert guidance available</ListItem>
-              </BulletedList>
-            </Stack>
-          </Grid>
-        </HeaderBarSection>
-
-        {/* How to Measure */}
+        {/* At this point, we recommend */}
         <Card className="!p-6 !bg-[#406517]/5 !border-[#406517]/20">
-          <Heading level={3} className="!mb-4">Measuring Tips for 2-Sided</Heading>
-          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
-            <Stack gap="md">
-              <Heading level={5} className="!text-[#406517]">For Each Side</Heading>
-              <BulletedList spacing="sm">
-                <ListItem variant="arrow" iconColor="#406517">Measure width at top and bottom</ListItem>
-                <ListItem variant="arrow" iconColor="#406517">Measure height at each end</ListItem>
-                <ListItem variant="arrow" iconColor="#406517">Note column positions and sizes</ListItem>
-                <ListItem variant="arrow" iconColor="#406517">Identify any obstructions</ListItem>
-              </BulletedList>
-            </Stack>
-            <Stack gap="md">
-              <Heading level={5} className="!text-[#406517]">For The Corner</Heading>
-              <BulletedList spacing="sm">
-                <ListItem variant="arrow" iconColor="#406517">Photo the corner post closeup</ListItem>
-                <ListItem variant="arrow" iconColor="#406517">Note corner post dimensions</ListItem>
-                <ListItem variant="arrow" iconColor="#406517">Show how ceiling meets at corner</ListItem>
-                <ListItem variant="arrow" iconColor="#406517">Include wide shot showing both sides</ListItem>
-              </BulletedList>
-            </Stack>
-          </Grid>
+          <Text className="font-medium text-gray-700 !mb-3">At this point, we recommend:</Text>
+          <BulletedList spacing="sm">
+            <ListItem variant="arrow" iconColor="#406517">Select a configuration to see our configuration-specific detailed planning instructions.</ListItem>
+            <ListItem variant="arrow" iconColor="#406517">Determine a path either inside or outside your columns depending on your particular column type.</ListItem>
+            <ListItem variant="arrow" iconColor="#406517">Watch our planning tutorial to see an example laid out step by step. This is optional but very helpful.</ListItem>
+          </BulletedList>
         </Card>
 
-        {/* CTA */}
-        <section className="bg-gradient-to-br from-[#406517]/10 via-white to-[#003365]/10 rounded-3xl p-8 md:p-12 text-center">
-          <Heading level={2} className="!mb-4">Ready to Plan Your 2-Sided Project?</Heading>
-          <Text className="text-gray-600 max-w-2xl mx-auto mb-8">
-            Start with our instant quote or talk to a planner about your corner configuration.
+        {/* ================================================================
+            1) Full Example Planning Session
+            ================================================================ */}
+        <HeaderBarSection icon={PlayCircle} label="1) Full Example Planning Session" variant="dark">
+          <Stack gap="md">
+            <Text className="text-gray-600">
+              We have created full example planning session videos to show you how to plan an entire project! This begins with your panel configuration and goes through guidelines for ordering the hardware you need to put it all together. Choose the video with a tracking or Velcro top attachment to get off to a fast start.
+            </Text>
+            <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
+              <div>
+                <YouTubeEmbed
+                  videoId={VIDEOS.EXPOSURE_OVERVIEW}
+                  title="Tracking Planning Session"
+                  variant="card"
+                />
+                <Text className="text-center mt-2 font-medium">Tracking Planning Session</Text>
+              </div>
+              <div>
+                <YouTubeEmbed
+                  videoId={VIDEOS.LAYOUT_PLANNING_OVERVIEW}
+                  title="Velcro Planning Session"
+                  variant="card"
+                />
+                <Text className="text-center mt-2 font-medium">Velcro Planning Session</Text>
+              </div>
+            </Grid>
+          </Stack>
+        </HeaderBarSection>
+
+        {/* ================================================================
+            2) Determine a Path
+            ================================================================ */}
+        <HeaderBarSection icon={Map} label="2) Determine a Path" variant="dark">
+          <Stack gap="md">
+            <Text className="text-gray-600">
+              There is a subtle difference in the path curtains will take depending on what type of columns you have. There are two types of paths to take, an inside hang (inside your columns), or an outside hang (outside your columns).
+            </Text>
+            <Text className="text-gray-600">
+              We group columns into two categories -- regular columns and irregular columns. The path you take depends on the &quot;shape&quot; of the columns that you have.
+            </Text>
+            <Text className="text-gray-600">
+              If you have regular columns and can seal to a perfectly straight edge, we want to take advantage of that opportunity to maximize space and performance of your curtains. You can pass intermediate columns but it is best to terminate panels at CORNER regular columns.
+            </Text>
+            <Text className="text-gray-600">
+              If you have irregularly shaped columns, we will need to plan such that we never have to directly seal to a non-linear edge so panels do not terminate at CORNER irregular columns.
+            </Text>
+          </Stack>
+        </HeaderBarSection>
+
+        {/* ================================================================
+            Regular or Irregular Columns
+            ================================================================ */}
+        <HeaderBarSection icon={Columns2} label="Regular or Irregular Columns" variant="dark">
+          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
+            <Card variant="elevated" className="!p-6">
+              <Frame ratio="16/9" className="rounded-xl overflow-hidden mb-4">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Regular-Columns-1.jpg"
+                  alt="Regular columns"
+                  className="w-full h-full object-cover"
+                />
+              </Frame>
+              <Heading level={4} className="!mb-4 text-[#406517]">Regular Columns</Heading>
+              <Text className="text-gray-600 !mb-0">
+                A regular column has a straight edge that makes for a good sealing surface with marine snaps. We recommend an outside hang ending panels at corner columns.
+              </Text>
+            </Card>
+            <Card variant="elevated" className="!p-6">
+              <Frame ratio="16/9" className="rounded-xl overflow-hidden mb-4">
+                <img
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Irregular-Columns-1.jpg"
+                  alt="Irregular columns"
+                  className="w-full h-full object-cover"
+                />
+              </Frame>
+              <Heading level={4} className="!mb-4 text-[#003365]">Irregular Columns</Heading>
+              <Text className="text-gray-600 !mb-0">
+                Irregular columns do not have this straight edge to snap to, so panels will straddle irregular corner columns with our elastic cord to &quot;pinch&quot; the center of the straddling panel to an irregular corner column.
+              </Text>
+            </Card>
+          </Grid>
+        </HeaderBarSection>
+
+        {/* ================================================================
+            3) Click 1 of 4 Options For Panel Configuration Guidelines
+            ================================================================ */}
+        <HeaderBarSection icon={ArrowRight} label="3) Click 1 of 4 Options For Panel Configuration Guidelines" variant="dark">
+          <Text className="text-gray-600 text-center mb-6">
+            Now choose a configuration based on your column type for details specific to your application.
           </Text>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="primary" asChild>
-              <Link href="/start-project?mode=quote">
-                Get Instant Quote
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/start-project?mode=planner">
-                Talk to a Planner
-              </Link>
-            </Button>
-          </div>
-        </section>
+          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
+            <Link href="/plan/2-sided/regular-tracking" className="group">
+              <Card variant="elevated" className="!p-4 text-center transition-all group-hover:border-[#406517] group-hover:shadow-lg group-hover:-translate-y-1 h-full">
+                <Frame ratio="16/8" className="rounded-xl overflow-hidden mb-3">
+                  <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Regular-Columns-W-Tracking-400x208-1.jpg" alt="Regular Columns With Tracking" className="w-full h-full object-cover" />
+                </Frame>
+                <Button variant="primary" className="w-full">Select</Button>
+              </Card>
+            </Link>
+            <Link href="/plan/2-sided/regular-velcro" className="group">
+              <Card variant="elevated" className="!p-4 text-center transition-all group-hover:border-[#406517] group-hover:shadow-lg group-hover:-translate-y-1 h-full">
+                <Frame ratio="16/8" className="rounded-xl overflow-hidden mb-3">
+                  <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Regular-Columns-W-Velcro-400x208-1.jpg" alt="Regular Columns With Velcro" className="w-full h-full object-cover" />
+                </Frame>
+                <Button variant="primary" className="w-full">Select</Button>
+              </Card>
+            </Link>
+            <Link href="/plan/2-sided/irregular-tracking" className="group">
+              <Card variant="elevated" className="!p-4 text-center transition-all group-hover:border-[#406517] group-hover:shadow-lg group-hover:-translate-y-1 h-full">
+                <Frame ratio="16/8" className="rounded-xl overflow-hidden mb-3">
+                  <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Irregular-Tracking-400x208-1.jpg" alt="Irregular Columns With Tracking" className="w-full h-full object-cover" />
+                </Frame>
+                <Button variant="primary" className="w-full">Select</Button>
+              </Card>
+            </Link>
+            <Link href="/plan/2-sided/irregular-velcro" className="group">
+              <Card variant="elevated" className="!p-4 text-center transition-all group-hover:border-[#406517] group-hover:shadow-lg group-hover:-translate-y-1 h-full">
+                <Frame ratio="16/8" className="rounded-xl overflow-hidden mb-3">
+                  <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Irregular-Columns-W-Velcro-400x208-1.jpg" alt="Irregular Columns With Velcro" className="w-full h-full object-cover" />
+                </Frame>
+                <Button variant="primary" className="w-full">Select</Button>
+              </Card>
+            </Link>
+          </Grid>
+        </HeaderBarSection>
 
         {/* Final CTA */}
         <FinalCTATemplate />

@@ -1,183 +1,205 @@
 'use client'
 
 import Link from 'next/link'
-import { 
-  ArrowRight, 
-  ArrowLeft,
-  Bug,
-  Ruler,
-  AlertCircle,
-  Play,
-} from 'lucide-react'
-import { 
-  Container, 
-  Stack, 
-  Grid, 
-  Text, 
-  Button, 
+import { ArrowRight, Bug, ShieldCheck, MapPin, Scissors } from 'lucide-react'
+import {
+  Container,
+  Stack,
+  Grid,
+  TwoColumn,
+  Frame,
+  Text,
+  Button,
   Card,
   Heading,
-  Frame,
   BulletedList,
   ListItem,
+  YouTubeEmbed,
+  PowerHeaderTemplate,
   FinalCTATemplate,
   HeaderBarSection,
-  YouTubeEmbed,
+  MC_HERO_ACTIONS,
 } from '@/lib/design-system'
 import { VIDEOS } from '@/lib/constants/videos'
+
+const IMG = 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads'
 
 export default function NoSeeUmPage() {
   return (
     <Container size="xl">
       <Stack gap="lg">
-        
-        {/* Back Link */}
-        <Link href="/raw-netting" className="inline-flex items-center text-gray-500 hover:text-gray-700 -mb-4">
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Raw Netting
-        </Link>
 
-        {/* Header */}
-        <section className="relative py-8 text-center">
-          <Stack gap="md" className="max-w-3xl mx-auto">
-            <div className="w-16 h-16 bg-[#003365]/10 rounded-full mx-auto flex items-center justify-center">
-              <Bug className="w-8 h-8 text-[#003365]" />
-            </div>
-            <Heading level={1} className="!text-4xl md:!text-5xl">
-              No-See-Um Netting
-            </Heading>
-            <Text className="text-xl text-gray-600">
-              Finer mesh designed to block tiny biting midges (no-see-ums) that regular 
-              mosquito netting can't stop.
-            </Text>
-          </Stack>
-        </section>
+        {/* Hero */}
+        <PowerHeaderTemplate
+          title="No-See-Um Mesh Fabric"
+          subtitle="Tiny holes with a much denser weave to keep out the pesky biting flies known as no-see-ums. Essential near water where these sand gnats, sand flies, and biting midges are common."
+          videoId={VIDEOS.RAW_NETTING}
+          videoTitle="Why Us For Raw Netting"
+          variant="compact"
+          actions={MC_HERO_ACTIONS}
+        />
 
-        {/* Why No-See-Um */}
-        <HeaderBarSection icon={AlertCircle} label="When You Need No-See-Um Mesh" variant="dark">
-          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg" className="items-center">
+        {/* Product Details */}
+        <HeaderBarSection icon={Bug} label="When You Need No-See-Um Mesh" variant="dark">
+          <TwoColumn gap="lg" className="items-center">
             <Frame ratio="4/3" className="rounded-xl overflow-hidden">
               <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/No-See-Um-Mesh.jpg"
-                alt="No-see-um netting material"
+                src={`${IMG}/2019/12/NoSeeUm-Mesh-WooCommerce.jpg`}
+                alt="Raw No-See-Um mesh fabric"
                 className="w-full h-full object-cover"
               />
             </Frame>
             <Stack gap="md">
-              <Card className="!p-4 !bg-amber-50 !border-amber-200">
-                <Text className="text-sm text-amber-800 !mb-0">
-                  <strong>Important:</strong> If you live near salt marshes, beaches, or 
-                  coastal areas, regular mosquito mesh may NOT protect you from no-see-ums 
-                  (also called midges, sand flies, or punkies).
+              <Card variant="outlined" className="!p-3 !bg-orange-50 !border-orange-200">
+                <Text size="sm" className="text-orange-800 !mb-0">
+                  <strong>Important:</strong> This mesh has elasticity making it difficult to spline screen. 
+                  It is designed for our curtain system, not for fixed screen frames.
                 </Text>
               </Card>
               <Text className="text-gray-600">
-                No-see-ums are tiny biting flies that can pass through standard mosquito 
-                mesh. Our no-see-um mesh has a tighter weave specifically designed to 
-                block these pests.
+                Our No-See-Um netting has tiny holes (800 holes per sq inch) with a much denser weave to 
+                keep out the pesky, biting flies known as no-see-ums that are commonly found near water.
               </Text>
-              <BulletedList spacing="md">
-                <ListItem variant="checked" iconColor="#003365">Tighter weave than mosquito mesh</ListItem>
-                <ListItem variant="checked" iconColor="#003365">Blocks no-see-ums and midges</ListItem>
-                <ListItem variant="checked" iconColor="#003365">Essential for coastal areas</ListItem>
-                <ListItem variant="checked" iconColor="#003365">Slightly reduces airflow (worth it!)</ListItem>
+              <BulletedList spacing="sm">
+                <ListItem variant="checked" iconColor="#406517">800 holes per square inch -- blocks no-see-ums</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Solution-dyed polyester, made for outdoors</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Lock stitch weave -- will not unravel when cut</ListItem>
+                <ListItem variant="checked" iconColor="#406517">CA fire rated (NFPA 701 small test)</ListItem>
+                <ListItem variant="checked" iconColor="#406517">Clear looking out, denser looking in</ListItem>
               </BulletedList>
             </Stack>
-          </Grid>
+          </TwoColumn>
         </HeaderBarSection>
 
-        {/* Colors */}
+        {/* Available Colors */}
         <HeaderBarSection icon={Bug} label="Available Colors" variant="dark">
-          <Grid responsiveCols={{ mobile: 2, tablet: 2 }} gap="lg" className="max-w-md mx-auto">
-            <Card variant="elevated" className="!p-6 text-center">
-              <div className="w-16 h-16 bg-gray-900 rounded-full mx-auto mb-3" />
-              <Heading level={5}>Black</Heading>
-              <Text className="text-xs text-gray-500 !mb-0">Better visibility</Text>
+          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
+            <Card variant="elevated" className="!p-5 text-center">
+              <div className="w-24 h-24 rounded-full bg-gray-900 mx-auto mb-3 border-4 border-gray-200" />
+              <Text className="font-bold text-gray-900 !mb-0">Black</Text>
+              <Text size="sm" className="text-gray-500 !mb-0">Most popular for no-see-um areas</Text>
             </Card>
-            <Card variant="elevated" className="!p-6 text-center">
-              <div className="w-16 h-16 bg-gray-100 border-2 border-gray-200 rounded-full mx-auto mb-3" />
-              <Heading level={5}>White</Heading>
-              <Text className="text-xs text-gray-500 !mb-0">Classic look</Text>
+            <Card variant="elevated" className="!p-5 text-center">
+              <div className="w-24 h-24 rounded-full bg-white mx-auto mb-3 border-4 border-gray-200" />
+              <Text className="font-bold text-gray-900 !mb-0">White</Text>
+              <Text size="sm" className="text-gray-500 !mb-0">Bright, clean appearance</Text>
             </Card>
           </Grid>
         </HeaderBarSection>
 
-        {/* Sizing */}
-        <HeaderBarSection icon={Ruler} label="Sizing & Ordering" variant="dark">
-          <Card className="!p-6">
-            <Text className="text-gray-600 mb-4 text-center">
-              Available by the yard in various widths. Contact us for current pricing.
+        {/* Pricing */}
+        <HeaderBarSection icon={Scissors} label="Sizing & Pricing" variant="dark">
+          <Stack gap="md">
+            <Text className="text-gray-600">
+              Our no-see-um rolls are very wide. Order by the linear foot from the respective roll. 
+              Your cost is determined by how much we cut (length).
             </Text>
-            <BulletedList spacing="sm" className="max-w-md mx-auto">
-              <ListItem variant="arrow" iconColor="#003365">54" wide - by the yard</ListItem>
-              <ListItem variant="arrow" iconColor="#003365">72" wide - by the yard or roll</ListItem>
-              <ListItem variant="arrow" iconColor="#003365">Custom widths available for large orders</ListItem>
-            </BulletedList>
-          </Card>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-[#406517] text-white">
+                    <th className="px-4 py-3 text-left text-sm font-semibold">Roll Width</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold">Price per Linear Foot</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold">Example (20ft)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b border-gray-200">
+                    <td className="px-4 py-3 font-medium">101-inch roll</td>
+                    <td className="px-4 py-3 text-[#406517] font-bold">$6.00 / ft</td>
+                    <td className="px-4 py-3 text-gray-600">20ft x $6.00 = $120.00</td>
+                  </tr>
+                  <tr className="bg-gray-50">
+                    <td className="px-4 py-3 font-medium">123-inch roll</td>
+                    <td className="px-4 py-3 text-[#406517] font-bold">$7.00 / ft</td>
+                    <td className="px-4 py-3 text-gray-600">20ft x $7.00 = $140.00</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div className="flex justify-center pt-2">
+              <Button variant="primary" asChild>
+                <Link href="/order/raw-netting">
+                  Order Now <ArrowRight className="ml-2 w-4 h-4" />
+                </Link>
+              </Button>
+            </div>
+          </Stack>
         </HeaderBarSection>
 
         {/* Geographic Areas */}
-        <Card className="!p-6 !bg-[#003365]/5 !border-[#003365]/20">
-          <Heading level={3} className="!mb-4 text-center">Common No-See-Um Areas</Heading>
-          <Text className="text-gray-600 text-center max-w-2xl mx-auto mb-4">
-            If you live in or near any of these areas, consider no-see-um mesh:
-          </Text>
-          <Grid responsiveCols={{ mobile: 2, tablet: 4 }} gap-md className="text-center">
-            <Text className="!mb-0 font-medium">Florida Gulf Coast</Text>
-            <Text className="!mb-0 font-medium">Carolinas Coast</Text>
-            <Text className="!mb-0 font-medium">Chesapeake Bay</Text>
-            <Text className="!mb-0 font-medium">New England Shore</Text>
-            <Text className="!mb-0 font-medium">Any Salt Marsh</Text>
-            <Text className="!mb-0 font-medium">Beach Communities</Text>
-            <Text className="!mb-0 font-medium">Bayous & Wetlands</Text>
-            <Text className="!mb-0 font-medium">Lake Properties</Text>
-          </Grid>
-        </Card>
+        <HeaderBarSection icon={MapPin} label="Common No-See-Um Areas" variant="dark">
+          <Stack gap="md">
+            <Text className="text-gray-600">
+              No-see-ums are most prevalent in coastal and wetland areas. If you live near any of 
+              these regions, no-see-um mesh is strongly recommended over standard mosquito netting.
+            </Text>
+            <Grid responsiveCols={{ mobile: 2, tablet: 4 }} gap="md">
+              {[
+                'Coastal Florida', 'Gulf Coast', 'South Carolina Lowcountry', 'Outer Banks NC',
+                'Chesapeake Bay', 'Hawaiian Islands', 'Caribbean Islands', 'Pacific Northwest Coast',
+              ].map((area) => (
+                <Card key={area} variant="outlined" className="!p-3 text-center">
+                  <MapPin className="w-4 h-4 text-[#406517] mx-auto mb-1" />
+                  <Text size="sm" className="font-medium text-gray-700 !mb-0">{area}</Text>
+                </Card>
+              ))}
+            </Grid>
+          </Stack>
+        </HeaderBarSection>
+
+        {/* Specs Table */}
+        <HeaderBarSection icon={ShieldCheck} label="Specifications" variant="dark">
+          <div className="flex justify-center">
+            <a href={`${IMG}/2024/05/All-Mesh-Netting-Specifications-Table-New.jpg`} target="_blank" rel="noopener noreferrer">
+              <img
+                src={`${IMG}/2024/05/All-Mesh-Netting-Specifications-Table-New.jpg`}
+                alt="All mesh netting specifications comparison table"
+                className="w-full max-w-4xl rounded-xl border border-gray-200 hover:shadow-lg transition-shadow"
+              />
+            </a>
+          </div>
+          <Text size="sm" className="text-gray-500 text-center mt-3">Click table to enlarge</Text>
+        </HeaderBarSection>
 
         {/* Videos */}
-        <HeaderBarSection icon={Play} label="No-See-Um Netting Videos" variant="dark">
+        <HeaderBarSection icon={Bug} label="Product Videos" variant="dark">
           <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
             <div>
-              <YouTubeEmbed
-                videoId={VIDEOS.RAW_NETTING}
-                title="Raw Netting Overview"
-                variant="card"
-              />
-              <Text className="text-center mt-2 font-medium text-sm">Raw Netting Overview</Text>
+              <YouTubeEmbed videoId={VIDEOS.RAW_NETTING} title="Why Us For Raw Netting" variant="card" />
+              <Text className="text-center mt-2 font-medium text-sm">Why Us For Raw Netting</Text>
             </div>
             <div>
-              <YouTubeEmbed
-                videoId={VIDEOS.RAW_NETTING_FABRIC}
-                title="Raw Netting Fabric Types"
-                variant="card"
-              />
-              <Text className="text-center mt-2 font-medium text-sm">Raw Netting Fabric Types</Text>
+              <YouTubeEmbed videoId={VIDEOS.RAW_NETTING_FABRIC} title="Mesh Types Overview" variant="card" />
+              <Text className="text-center mt-2 font-medium text-sm">Mesh Types Overview</Text>
             </div>
           </Grid>
         </HeaderBarSection>
 
-        {/* CTA */}
-        <section className="bg-gradient-to-br from-[#406517]/10 via-white to-[#003365]/10 rounded-3xl p-8 md:p-12 text-center">
-          <Heading level={2} className="!mb-4">Need No-See-Um Protection?</Heading>
-          <Text className="text-gray-600 max-w-2xl mx-auto mb-8">
-            Contact us for pricing and to place your order.
-          </Text>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="primary" asChild>
-              <Link href="/start-project">
-                Get a Quote
-                <ArrowRight className="ml-2 w-4 h-4" />
+        {/* Quick Links */}
+        <HeaderBarSection icon={Bug} label="Raw Netting Store Quick Links" variant="dark">
+          <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="md">
+            <Card className="!p-5 text-center hover:shadow-md transition-shadow">
+              <Link href="/order-mesh-netting-fabrics" className="block">
+                <Heading level={5} className="text-[#406517] !mb-1">1. See All Meshes</Heading>
+                <Text size="sm" className="text-gray-600 !mb-0">Several Mesh Types & Colors</Text>
               </Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/raw-netting">
-                View All Netting
+            </Card>
+            <Card className="!p-5 text-center hover:shadow-md transition-shadow">
+              <Link href="/raw-netting/rigging" className="block">
+                <Heading level={5} className="text-[#406517] !mb-1">2. Rigging Ideas</Heading>
+                <Text size="sm" className="text-gray-600 !mb-0">Helpful Ideas & Attachment Items</Text>
               </Link>
-            </Button>
-          </div>
-        </section>
+            </Card>
+            <Card className="!p-5 text-center hover:shadow-md transition-shadow">
+              <Link href="/raw-netting/custom" className="block">
+                <Heading level={5} className="text-[#406517] !mb-1">3. Let Us Make It</Heading>
+                <Text size="sm" className="text-gray-600 !mb-0">Ready to Hang Custom Panels</Text>
+              </Link>
+            </Card>
+          </Grid>
+        </HeaderBarSection>
 
-        {/* Final CTA */}
         <FinalCTATemplate />
 
       </Stack>

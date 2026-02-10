@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
-import { ChevronLeft, ChevronRight, ShoppingCart, X, Trash2 } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ShoppingCart, X, Trash2, Save, Send, CreditCard, Phone } from 'lucide-react'
 import { Text } from '@/lib/design-system'
 import type { CartLineItem } from '@/hooks/useCart'
 import { formatMoney } from '../types'
@@ -15,6 +15,12 @@ interface CartSidebarProps {
   clearCart: () => void
   collapsed: boolean
   onToggleCollapse: () => void
+  onSave?: () => void
+  onSend?: () => void
+  onPlaceOrder?: () => void
+  onPhoneOrder?: () => void
+  isSaving?: boolean
+  hasProject?: boolean
 }
 
 const GROUP_LABELS: Record<string, string> = {
@@ -33,6 +39,12 @@ export default function CartSidebar({
   clearCart,
   collapsed,
   onToggleCollapse,
+  onSave,
+  onSend,
+  onPlaceOrder,
+  onPhoneOrder,
+  isSaving,
+  hasProject,
 }: CartSidebarProps) {
   const groupedItems = useMemo(() => {
     const groups: Record<string, CartLineItem[]> = {
@@ -148,11 +160,52 @@ export default function CartSidebar({
 
           {/* Footer */}
           {items.length > 0 && (
-            <div className="border-t border-gray-100 px-2.5 py-2 shrink-0">
-              <div className="flex items-center justify-between mb-1.5">
+            <div className="border-t border-gray-100 px-2.5 py-2 shrink-0 space-y-1.5">
+              <div className="flex items-center justify-between mb-1">
                 <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Subtotal</span>
                 <span className="text-sm font-bold text-gray-900">${formatMoney(subtotal)}</span>
               </div>
+
+              {/* Action Buttons */}
+              {hasProject && (
+                <div className="space-y-1">
+                  <button
+                    onClick={onSave}
+                    disabled={isSaving}
+                    className="flex items-center justify-center gap-1.5 w-full py-1.5 text-[11px] font-medium bg-[#003365] text-white rounded-md hover:bg-[#002244] disabled:opacity-50 transition-colors"
+                  >
+                    <Save className="w-3 h-3" />
+                    {isSaving ? 'Saving...' : 'Save Cart'}
+                  </button>
+                  <button
+                    onClick={onSend}
+                    disabled={isSaving}
+                    className="flex items-center justify-center gap-1.5 w-full py-1.5 text-[10px] font-medium bg-teal-600 text-white rounded-md hover:bg-teal-700 disabled:opacity-50 transition-colors"
+                  >
+                    <Send className="w-2.5 h-2.5" />
+                    Send to Customer
+                  </button>
+                  <div className="flex gap-1">
+                    <button
+                      onClick={onPhoneOrder}
+                      disabled={isSaving}
+                      className="flex items-center justify-center gap-1 flex-1 py-1.5 text-[10px] font-medium bg-[#406517] text-white rounded-md hover:bg-[#365512] disabled:opacity-50 transition-colors"
+                    >
+                      <Phone className="w-2.5 h-2.5" />
+                      Phone Order
+                    </button>
+                    <button
+                      onClick={onPlaceOrder}
+                      disabled={isSaving}
+                      className="flex items-center justify-center gap-1 flex-1 py-1.5 text-[10px] font-medium bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 transition-colors"
+                    >
+                      <CreditCard className="w-2.5 h-2.5" />
+                      Quick Order
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <button
                 onClick={clearCart}
                 className="flex items-center justify-center gap-1 w-full py-1 text-[10px] text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"

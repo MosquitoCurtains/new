@@ -1,7 +1,7 @@
 'use client'
 
 import { SupportPageTemplate } from '@/lib/design-system/templates'
-import { Shield, RefreshCw, AlertTriangle, CheckCircle } from 'lucide-react'
+import { Shield, RefreshCw, AlertTriangle, CheckCircle, Bug } from 'lucide-react'
 import { Text, Grid, Card, Heading, BulletedList, ListItem } from '@/lib/design-system'
 import { ORDERS_SERVED_COUNT, ORDERS_SERVED_FORMATTED } from '@/lib/constants/orders-served'
 

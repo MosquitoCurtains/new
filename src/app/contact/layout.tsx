@@ -4,16 +4,16 @@ import { BreadcrumbSchema, breadcrumbsFromSlug, WebPageSchema } from '@/lib/seo/
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Contact',
-  description: 'Learn about contact from Mosquito Curtains. Expert guidance on custom screen enclosures, mosquito netting, and outdoor living solutions.',
+  description: 'Get started fast with a real person. Upload project photos, fill out our Quick Connect form, or call (770) 645-4745. Our planning team is ready to help with mosquito curtains, clear vinyl, and outdoor enclosures.',
   slug: '/contact',
-  keywords: ['mosquito curtains', 'custom screens', 'screen enclosures', 'contact'],
+  keywords: ['mosquito curtains', 'contact', 'project planning', 'screen enclosures', 'custom curtains', 'Alpharetta GA'],
 })
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(BreadcrumbSchema(breadcrumbsFromSlug('/contact', 'Contact')))} } />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(WebPageSchema({ title: 'Contact', description: 'Learn about contact from Mosquito Curtains. Expert guidance on custom screen enclosures, mosquito netting, and outdoor living solutions.', url: '/contact' })) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(WebPageSchema({ title: 'Contact', description: 'Get started fast with a real person. Upload project photos, fill out our Quick Connect form, or call (770) 645-4745. Our planning team is ready to help with mosquito curtains, clear vinyl, and outdoor enclosures.', url: '/contact' })) }} />
       {children}
     </>
   )

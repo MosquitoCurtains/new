@@ -1,141 +1,62 @@
 'use client'
 
 import Link from 'next/link'
-import { 
-  ArrowRight, 
-  ArrowLeft,
-  Layers,
-  AlertTriangle,
-  Users,
-} from 'lucide-react'
-import { 
-  Container, 
-  Stack, 
-  Grid, 
-  Text, 
-  Button, 
-  Card,
-  Heading,
-  Frame,
-  BulletedList,
-  ListItem,
-  FinalCTATemplate,
-  HeaderBarSection,
-} from '@/lib/design-system'
+import { ArrowLeft, AlertTriangle, Phone } from 'lucide-react'
+import { Container, Stack, Text, Button, Card, Heading, BulletedList, ListItem, FinalCTATemplate, HeaderBarSection } from '@/lib/design-system'
 
 export default function FourSidedIrregularVelcroPage() {
   return (
     <Container size="xl">
       <Stack gap="lg">
-        
-        {/* Back Link */}
         <Link href="/plan/4-sided" className="inline-flex items-center text-gray-500 hover:text-gray-700 -mb-4">
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to 4+ Sided Exposure
+          <ArrowLeft className="w-4 h-4 mr-2" />Back to 4+ Sided Exposure
         </Link>
 
-        {/* Header */}
         <section className="relative py-8 text-center">
           <Stack gap="md" className="max-w-3xl mx-auto">
             <div className="inline-flex items-center justify-center gap-2 text-sm text-gray-500 mb-2">
               <span className="px-2 py-1 bg-gray-100 rounded">4+ Sided</span>
-              <span className="px-2 py-1 bg-amber-100 text-amber-700 rounded">Irregular Shape</span>
-              <span className="px-2 py-1 bg-[#003365]/10 text-[#003365] rounded font-medium">Velcro</span>
+              <span className="px-2 py-1 bg-gray-100 rounded">Irregular Columns</span>
+              <span className="px-2 py-1 bg-[#406517]/10 text-[#406517] rounded font-medium">Velcro</span>
             </div>
-            <Heading level={1} className="!text-4xl md:!text-5xl">
-              4+ Sided Irregular Velcro
+            <Heading level={1} className="!text-3xl md:!text-4xl">
+              4+ Sided Exposure - Irregular Columns With Velcro Top Attachment
             </Heading>
-            <Text className="text-xl text-gray-600">
-              Your hexagonal gazebo, octagonal pavilion, or uniquely shaped structure 
-              with economical velcro attachment.
-            </Text>
           </Stack>
         </section>
 
-        {/* What This Means */}
-        <HeaderBarSection icon={AlertTriangle} label="Your Configuration" variant="dark">
-          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg" className="items-center">
-            <Frame ratio="16/9" className="rounded-xl overflow-hidden">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Hexagonal-Velcro-Example.jpg"
-                alt="Hexagonal structure with velcro"
-                className="w-full h-full object-cover"
-              />
-            </Frame>
+        <HeaderBarSection icon={AlertTriangle} label="Recommended Panel Configuration & Measuring" variant="dark">
+          <Card className="!p-6 !bg-amber-50 !border-amber-200">
             <Stack gap="md">
-              <BulletedList spacing="md">
-                <ListItem variant="checked" iconColor="#003365">4+ open sides (hexagons, octagons, etc.)</ListItem>
-                <ListItem variant="checked" iconColor="#003365">Non-rectangular openings or shapes</ListItem>
-                <ListItem variant="checked" iconColor="#003365">Velcro attachment (most economical)</ListItem>
-                <ListItem variant="checked" iconColor="#003365">Custom-shaped panels required</ListItem>
+              <Text className="text-gray-700">
+                This is a very rare configuration. Most porches have downspouts that obstruct a clear path AROUND the outside of your irregular corner columns. Velcro attachment requiring an outside path just isn&apos;t practical with obstructions. Instead, we direct you to an inside path with tracking hardware.
+              </Text>
+              <Text className="text-gray-700">If you do not have obstructions, these are still tricky and we would like to help.</Text>
+              <BulletedList spacing="sm">
+                <ListItem variant="arrow" iconColor="#406517">
+                  We strongly recommend selecting{' '}
+                  <Link href="/plan/4-sided/irregular-tracking" className="text-[#406517] underline font-medium">Tracking Attachment With Irregular Columns</Link>, or
+                </ListItem>
+                <ListItem variant="arrow" iconColor="#406517">Emailing us digital photos so we can help.</ListItem>
+                <ListItem variant="arrow" iconColor="#406517">
+                  You can be prepared with your options by exploring the topics above. Start with{' '}
+                  <Link href="/plan/mesh-colors" className="text-[#406517] underline font-medium">Mesh &amp; Colors</Link>
+                </ListItem>
               </BulletedList>
-              <Card className="!p-4 !bg-amber-50 !border-amber-200">
-                <Text className="text-sm text-amber-800 !mb-0">
-                  Custom shapes with velcro provides the best value for complex structures 
-                  where tracking would be extremely expensive.
-                </Text>
-              </Card>
             </Stack>
-          </Grid>
-        </HeaderBarSection>
-
-        {/* Best Value */}
-        <HeaderBarSection icon={Layers} label="Best Value for Complex Shapes" variant="dark">
-          <Card className="!p-6 !bg-green-50 !border-green-200">
-            <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg" className="text-center">
-              <Stack gap="sm">
-                <Heading level={4} className="!text-green-700">Major Cost Savings</Heading>
-                <Text className="text-sm text-gray-600 !mb-0">
-                  Curved tracking for hexagonal/octagonal shapes is extremely expensive. 
-                  Velcro gives you the same coverage for a fraction of the cost.
-                </Text>
-              </Stack>
-              <Stack gap="sm">
-                <Heading level={4} className="!text-green-700">Same Quality</Heading>
-                <Text className="text-sm text-gray-600 !mb-0">
-                  Your custom-shaped panels are identical quality. The only difference 
-                  is how they attach - and that saves you money.
-                </Text>
-              </Stack>
-            </Grid>
           </Card>
         </HeaderBarSection>
 
-        {/* Expert Required */}
-        <HeaderBarSection icon={Users} label="Expert Planning Required" variant="dark">
-          <Card className="!p-6 !bg-[#003365]/5 !border-[#003365]/20">
-            <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg" className="items-center">
-              <Stack gap="md">
-                <Heading level={3} className="!text-[#003365]">Complex Shapes Need Expert Eyes</Heading>
-                <Text className="text-gray-600">
-                  Hexagonal, octagonal, and uniquely shaped structures require careful 
-                  measurement and panel planning. We'll make sure everything fits perfectly.
-                </Text>
-                <BulletedList spacing="sm">
-                  <ListItem variant="arrow" iconColor="#003365">Document each opening shape</ListItem>
-                  <ListItem variant="arrow" iconColor="#003365">Plan corner transitions</ListItem>
-                  <ListItem variant="arrow" iconColor="#003365">Configure entry points</ListItem>
-                  <ListItem variant="arrow" iconColor="#003365">Custom panel engineering</ListItem>
-                </BulletedList>
-              </Stack>
-              <div className="text-center p-6 bg-white rounded-xl">
-                <Text className="text-sm text-gray-500 mb-4">
-                  Free consultation. We love unique projects!
-                </Text>
-                <Button variant="primary" asChild>
-                  <Link href="/start-project?mode=planner">
-                    Schedule Planning Call
-                    <ArrowRight className="ml-2 w-4 h-4" />
-                  </Link>
-                </Button>
-              </div>
-            </Grid>
-          </Card>
-        </HeaderBarSection>
+        <section className="bg-gradient-to-br from-[#406517]/10 via-white to-[#003365]/10 rounded-3xl p-8 md:p-12 text-center">
+          <Heading level={2} className="!mb-4">Need Help With This Configuration?</Heading>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button variant="primary" size="lg" asChild>
+              <Link href="/contact"><Phone className="w-5 h-5 mr-2" />Contact Us For Help Ordering</Link>
+            </Button>
+          </div>
+        </section>
 
-        {/* Final CTA */}
         <FinalCTATemplate />
-
       </Stack>
     </Container>
   )

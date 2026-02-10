@@ -236,6 +236,7 @@ const CONTENT = {
       { image: `${STATIC_BASE}/2025/09/2-Sided-Example-1024x1024.jpg`, label: null },
       { image: `${STATIC_BASE}/2025/03/3-Sided-Example-1024x1024.jpg`, label: null },
     ],
+    showVideoButtons: false,
     showNeedHelp: false,
     showLearnMore: false,
     showReviews: false,
@@ -273,6 +274,7 @@ const CONTENT = {
       { image: `${STATIC_BASE}/2022/01/CV-MC-1-1024x1024.jpg`, label: null },
       { image: `${STATIC_BASE}/2022/01/Gazebo-CV-3-1024x1024.jpg`, label: null },
     ],
+    showVideoButtons: true,
     showNeedHelp: true,
     showLearnMore: true,
     showReviews: true,
@@ -373,26 +375,28 @@ export function QuoteGuidance({ productType }: QuoteGuidanceProps) {
     <>
       <Stack gap="xl">
         {/* ============================================================
-            VIDEO BUTTONS
+            VIDEO BUTTONS (Clear Vinyl only)
             ============================================================ */}
-        <div className="flex flex-wrap justify-center gap-3">
-          <button
-            onClick={() => setActiveModal('video_overview')}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold text-white transition-all hover:shadow-lg hover:-translate-y-0.5"
-            style={{ backgroundColor: brandColor }}
-          >
-            <Play className="w-4 h-4" />
-            Product Overview Video
-          </button>
-          <button
-            onClick={() => setActiveModal('video_made')}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold border-2 transition-all hover:shadow-lg hover:-translate-y-0.5"
-            style={{ color: brandColor, borderColor: brandColor }}
-          >
-            <Play className="w-4 h-4" />
-            Watch How They&apos;re Made
-          </button>
-        </div>
+        {content.showVideoButtons && (
+          <div className="flex flex-wrap justify-center gap-3">
+            <button
+              onClick={() => setActiveModal('video_overview')}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold text-white transition-all hover:shadow-lg hover:-translate-y-0.5"
+              style={{ backgroundColor: brandColor }}
+            >
+              <Play className="w-4 h-4" />
+              Product Overview Video
+            </button>
+            <button
+              onClick={() => setActiveModal('video_made')}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold border-2 transition-all hover:shadow-lg hover:-translate-y-0.5"
+              style={{ color: brandColor, borderColor: brandColor }}
+            >
+              <Play className="w-4 h-4" />
+              Watch How They&apos;re Made
+            </button>
+          </div>
+        )}
 
         {/* ============================================================
             4 GUIDANCE SECTIONS

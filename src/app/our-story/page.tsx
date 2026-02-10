@@ -61,7 +61,7 @@ export default function OurStoryPage() {
                 </Stack>
                 <Frame ratio="4/3" className="rounded-2xl overflow-hidden">
                   <img
-                    src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/21-Mosquito-Netting-on-Screen-Porch-1200-1024x768.jpg"
+                    src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/21-Mosquito-Netting-on-Screen-Porch-1200.jpg"
                     alt="Screen porch with mosquito curtains"
                     className="w-full h-full object-cover"
                   />

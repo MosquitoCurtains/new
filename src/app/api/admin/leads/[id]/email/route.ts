@@ -13,7 +13,7 @@ export async function POST(
   try {
     const { id } = await params
     const body = await request.json()
-    const { subject, html, from, replyTo } = body
+    const { subject, html, from, replyTo, projectId } = body
 
     if (!subject || !html) {
       return NextResponse.json(
@@ -45,6 +45,7 @@ export async function POST(
       from,
       replyTo,
       leadId: lead.id,
+      projectId: projectId || undefined,
     })
 
     return NextResponse.json({
