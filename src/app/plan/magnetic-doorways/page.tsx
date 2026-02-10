@@ -170,7 +170,7 @@ export default function MagneticDoorwaysPage() {
             <Stack gap="md">
               <Frame ratio="4/3" className="rounded-xl overflow-hidden">
                 <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/08/STUCCO-STRIP-DIAGRAM-1024x791.png"
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/08/STUCCO-STRIP-DIAGRAM.png"
                   alt="When might a stucco strip be useful - diagram"
                   className="w-full h-full object-cover"
                 />
@@ -178,7 +178,7 @@ export default function MagneticDoorwaysPage() {
               <Text className="text-center text-sm text-gray-500 italic">When Might a Stucco Strip be Useful? (Click to Enlarge)</Text>
               <Frame ratio="4/3" className="rounded-xl overflow-hidden">
                 <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/08/NO-STUCCO-STRIP-DIAGRAM-1024x791.png"
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/08/NO-STUCCO-STRIP-DIAGRAM.png"
                   alt="When you do not need a stucco strip - diagram"
                   className="w-full h-full object-cover"
                 />

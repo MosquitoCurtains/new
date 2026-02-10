@@ -19,6 +19,7 @@ export interface RedirectEntry {
   source: string
   destination: string
   permanent: boolean
+  has?: { type: 'query' | 'header' | 'cookie'; key: string; value?: string }[]
 }
 
 export const REDIRECTS: RedirectEntry[] = [
@@ -229,4 +230,53 @@ export const REDIRECTS: RedirectEntry[] = [
   // Outdoor Projection Screens blog post (root-level redirect)
   // Note: /outdoor-projection-screens BUILD page exists, this is the blog alt
   { source: '/outdoor-projection-screens-blog', destination: '/blog/outdoor-projection-screens', permanent: true },
+
+  // =========================================================================
+  // PLAN PAGES -> /plan-screen-porch (pages renamed to match WordPress URLs)
+  // =========================================================================
+  { source: '/plan', destination: '/plan-screen-porch', permanent: true },
+  { source: '/plan/overview', destination: '/plan-screen-porch', permanent: true },
+  { source: '/plan/1-sided', destination: '/plan-screen-porch/single-sided-exposure', permanent: true },
+  { source: '/plan/2-sided', destination: '/plan-screen-porch/2-sided-exposure', permanent: true },
+  { source: '/plan/2-sided/regular-tracking', destination: '/plan-screen-porch/2-sided-exposure/regular-columns-tracking', permanent: true },
+  { source: '/plan/2-sided/regular-velcro', destination: '/plan-screen-porch/2-sided-exposure/regular-columns-velcro', permanent: true },
+  { source: '/plan/2-sided/irregular-tracking', destination: '/plan-screen-porch/2-sided-exposure/irregular-columns-tracking', permanent: true },
+  { source: '/plan/2-sided/irregular-velcro', destination: '/plan-screen-porch/2-sided-exposure/irregular-columns-velcro', permanent: true },
+  { source: '/plan/3-sided', destination: '/plan-screen-porch/3-sided-exposure', permanent: true },
+  { source: '/plan/3-sided/regular-tracking', destination: '/plan-screen-porch/3-sided-exposure/regular-columns-tracking', permanent: true },
+  { source: '/plan/3-sided/regular-velcro', destination: '/plan-screen-porch/3-sided-exposure/regular-columns-velcro', permanent: true },
+  { source: '/plan/3-sided/irregular-tracking', destination: '/plan-screen-porch/3-sided-exposure/irregular-columns-tracking', permanent: true },
+  { source: '/plan/3-sided/irregular-velcro', destination: '/plan-screen-porch/3-sided-exposure/irregular-columns-velcro', permanent: true },
+  { source: '/plan/4-sided', destination: '/plan-screen-porch/4-plus-sided-exposure', permanent: true },
+  { source: '/plan/4-sided/regular-tracking', destination: '/plan-screen-porch/4-plus-sided-exposure/regular-columns-tracking', permanent: true },
+  { source: '/plan/4-sided/regular-velcro', destination: '/plan-screen-porch/4-plus-sided-exposure/regular-columns-velcro', permanent: true },
+  { source: '/plan/4-sided/irregular-tracking', destination: '/plan-screen-porch/4-plus-sided-exposure/screen-a-wrap-around-porch-with-odd-shaped-columns-and-a-tracking-attachment', permanent: true },
+  { source: '/plan/4-sided/irregular-velcro', destination: '/plan-screen-porch/4-plus-sided-exposure/irregular-columns-velcro', permanent: true },
+  { source: '/plan/free-standing', destination: '/plan-screen-porch/free-standing', permanent: true },
+  { source: '/plan/how-to-order', destination: '/plan-screen-porch/how-to-order', permanent: true },
+  { source: '/plan/magnetic-doorways', destination: '/plan-screen-porch/magnetic-doorways', permanent: true },
+  { source: '/plan/mesh-colors', destination: '/plan-screen-porch/mesh-and-colors', permanent: true },
+  { source: '/plan/tracking', destination: '/plan-screen-porch/outdoor-curtain-tracking', permanent: true },
+  { source: '/plan/sealing-base', destination: '/plan-screen-porch/sealing-the-base', permanent: true },
+  { source: '/plan/tents-awnings', destination: '/plan-screen-porch/tents-and-awnings', permanent: true },
+
+  // =========================================================================
+  // START-PROJECT QUERY PARAM REDIRECTS -> /start-project/[product]/[path]
+  // (More specific redirects first - mode + product)
+  // =========================================================================
+  { source: '/start-project', has: [{ type: 'query', key: 'mode', value: 'quote' }, { type: 'query', key: 'product', value: 'clear_vinyl' }], destination: '/start-project/clear-vinyl/instant-quote', permanent: true },
+  { source: '/start-project', has: [{ type: 'query', key: 'mode', value: 'quote' }, { type: 'query', key: 'product', value: 'cv' }], destination: '/start-project/clear-vinyl/instant-quote', permanent: true },
+  { source: '/start-project', has: [{ type: 'query', key: 'mode', value: 'planner' }, { type: 'query', key: 'product', value: 'clear_vinyl' }], destination: '/start-project/clear-vinyl/expert-assistance', permanent: true },
+  { source: '/start-project', has: [{ type: 'query', key: 'mode', value: 'planner' }, { type: 'query', key: 'product', value: 'cv' }], destination: '/start-project/clear-vinyl/expert-assistance', permanent: true },
+  { source: '/start-project', has: [{ type: 'query', key: 'mode', value: 'diy' }, { type: 'query', key: 'product', value: 'clear_vinyl' }], destination: '/start-project/clear-vinyl/diy-builder', permanent: true },
+  { source: '/start-project', has: [{ type: 'query', key: 'mode', value: 'diy' }, { type: 'query', key: 'product', value: 'cv' }], destination: '/start-project/clear-vinyl/diy-builder', permanent: true },
+  { source: '/start-project', has: [{ type: 'query', key: 'mode', value: 'quote' }], destination: '/start-project/mosquito-curtains/instant-quote', permanent: true },
+  { source: '/start-project', has: [{ type: 'query', key: 'mode', value: 'planner' }], destination: '/start-project/mosquito-curtains/expert-assistance', permanent: true },
+  { source: '/start-project', has: [{ type: 'query', key: 'mode', value: 'diy' }], destination: '/start-project/mosquito-curtains/diy-builder', permanent: true },
+  { source: '/start-project', has: [{ type: 'query', key: 'product', value: 'clear_vinyl' }], destination: '/start-project/clear-vinyl', permanent: true },
+  { source: '/start-project', has: [{ type: 'query', key: 'product', value: 'cv' }], destination: '/start-project/clear-vinyl', permanent: true },
+
+  // Legacy instant quote pages -> new start-project routes
+  { source: '/mosquito-curtains-instant-quote', destination: '/start-project/mosquito-curtains/instant-quote', permanent: true },
+  { source: '/clear-vinyl-instant-quote', destination: '/start-project/clear-vinyl/instant-quote', permanent: true },
 ]

@@ -2,20 +2,15 @@
 
 import Link from 'next/link'
 import { 
-  ArrowRight, 
   Play, 
-  CheckCircle, 
   Settings, 
   Palette, 
   SlidersHorizontal,
   MessageSquare,
   Calculator,
   Hammer,
-  Camera,
   Images,
   Star,
-  Layers,
-  Bug,
 } from 'lucide-react'
 import {
   Container,
@@ -24,14 +19,12 @@ import {
   Card,
   Heading,
   Text,
-  Button,
   YouTubeEmbed,
   Frame,
   HeaderBarSection,
   PowerHeaderTemplate,
   BulletedList,
   ListItem,
-  TwoColumn,
 } from '@/lib/design-system'
 import { FinalCTATemplate } from '@/lib/design-system/templates'
 import type { PowerHeaderAction } from '@/lib/design-system/templates/PowerHeaderTemplate'
@@ -248,85 +241,10 @@ export default function OptionsPage() {
           </Stack>
         </HeaderBarSection>
 
-        {/* ================================================================
-            PHOTO GUIDELINES
-            ================================================================ */}
-        <HeaderBarSection icon={Camera} label="Photo Guidelines for Planning" variant="dark">
-          <Stack gap="lg">
-            <Text className="text-gray-600 text-center max-w-2xl mx-auto">
-              We're happy to help you plan your project with a quick planning session. For maximum 
-              speed and efficiency, photos of your space are extremely helpful.
-            </Text>
-
-            <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
-              <Card variant="elevated" className="!p-6">
-                <div className="flex items-start gap-3 mb-4">
-                  <CheckCircle className="w-6 h-6 text-[#406517] flex-shrink-0 mt-0.5" />
-                  <div>
-                    <Heading level={4} className="!mb-1">Good Photos</Heading>
-                    <Text size="sm" className="text-gray-500">
-                      Step BACK, zoom OUT. We need to see full sides with fastening surfaces.
-                    </Text>
-                  </div>
-                </div>
-                <Grid responsiveCols={{ mobile: 2, tablet: 2 }} gap="sm">
-                  <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                    <img
-                      src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Good-1-Big.jpg"
-                      alt="Good photo example 1"
-                      className="w-full h-full object-cover"
-                    />
-                  </Frame>
-                  <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                    <img
-                      src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Good-2-Big.jpg"
-                      alt="Good photo example 2"
-                      className="w-full h-full object-cover"
-                    />
-                  </Frame>
-                </Grid>
-              </Card>
-              <Card variant="outlined" className="!p-6 !border-red-200">
-                <div className="flex items-start gap-3 mb-4">
-                  <div className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-red-600 text-sm font-bold">X</span>
-                  </div>
-                  <div>
-                    <Heading level={4} className="!mb-1">Bad Photos</Heading>
-                    <Text size="sm" className="text-gray-500">
-                      Too close up - we can't see all fastening surfaces and corner transitions.
-                    </Text>
-                  </div>
-                </div>
-                <Grid responsiveCols={{ mobile: 2, tablet: 2 }} gap="sm">
-                  <Frame ratio="4/3" className="rounded-lg overflow-hidden opacity-60">
-                    <img
-                      src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Bad-1-Big.jpg"
-                      alt="Bad photo example 1"
-                      className="w-full h-full object-cover"
-                    />
-                  </Frame>
-                  <Frame ratio="4/3" className="rounded-lg overflow-hidden opacity-60">
-                    <img
-                      src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Bad-2-Big.jpg"
-                      alt="Bad photo example 2"
-                      className="w-full h-full object-cover"
-                    />
-                  </Frame>
-                </Grid>
-              </Card>
-            </Grid>
-
-            <div className="flex justify-center pt-4">
-              <Button variant="primary" size="lg" asChild>
-                <Link href="/start-project?mode=planner">
-                  Send Us Your Photos
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Link>
-              </Button>
-            </div>
-          </Stack>
-        </HeaderBarSection>
+        <FinalCTATemplate
+          primaryCTAText="Start Your Project"
+          showPhone={false}
+        />
 
         {/* ================================================================
             QUICK LINKS
@@ -357,63 +275,6 @@ export default function OptionsPage() {
             </Link>
           </Grid>
         </section>
-
-        {/* ================================================================
-            FINAL CTA
-            ================================================================ */}
-
-        <HeaderBarSection icon={Layers} label="1. Know Your Mesh Type & Color" variant="dark">
-          <TwoColumn gap="lg" className="items-center">
-            <Frame ratio="4/3" className="rounded-2xl overflow-hidden">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/10_Plastic-Drop-Panels-Patio-Inside-View-Forest-Green-Canvas-1200.jpg"
-                alt="Plastic Drop Panels Patio Inside View Forest Green Canvas"
-                className="w-full h-full object-cover"
-              />
-            </Frame>
-            <Stack gap="md">
-              <Text className="text-gray-600">
-                Your project will be made up of a series of mesh panels made from a mesh type and color of your choosing. There are three mesh types and three colors to choose from. Over 90 percent of orders choose Black Heavy Mosquito Mesh. The first exception is our Noseeum mesh where “No-seeum” biting flies are a problem. The second exception is our Shade Mesh for those trying to create shade in their application. We also have a roll-up shade screen design you can view here. All Materials are a durable outdoor polyester, made to get wet and will not fade.
-              </Text>
-              <Text className="text-gray-600">
-                Heavy Mosquito Mesh (90% Choose This in Black)
-              </Text>
-              <Text className="text-gray-600">
-                Shade Mesh  (For Shade & Projection)
-              </Text>
-            </Stack>
-          </TwoColumn>
-        </HeaderBarSection>
-
-        <HeaderBarSection icon={Bug} label="3. Understand Our Simple Attachment Hardware" variant="dark">
-          <TwoColumn gap="lg" className="items-center">
-            <Stack gap="md">
-              <Text className="text-gray-600">
-                One of our biggest focal points is the ease of installation and usability of your curtain. For simple installation, we use a series of versatile components like marine snaps to allow you to attach to different surfaces. Our magnetic doorways allow you easy entry and exit between panels and at the edge of panels. Each of these videos is under 90 seconds. Watch them and you will understand most of what you need to know about how your curtains will operate.
-              </Text>
-              <Text className="text-gray-600">
-                Marine Snaps in under 90 Seconds
-              </Text>
-              <Text className="text-gray-600">
-                Magnetic Doorways in under 90 Seconds
-              </Text>
-              <BulletedList spacing="sm">
-                <ListItem variant="checked" iconColor="#406517">Please provide 2-4 high resolution photos that show all complete sides of your project.</ListItem>
-                <ListItem variant="checked" iconColor="#406517">Step BACK and zoom OUT so we can see as much as possible. No close-ups.</ListItem>
-                <ListItem variant="checked" iconColor="#406517">Large file sizes – Small images do not provide enough resolution for planning sessions.</ListItem>
-              </BulletedList>
-            </Stack>
-            <Frame ratio="4/3" className="rounded-2xl overflow-hidden">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/26-Clear-Plastic-Porch-Enclosure-With-No-Canvas-1200.jpg"
-                alt="Clear Plastic Porch Enclosure With No Canvas"
-                className="w-full h-full object-cover"
-              />
-            </Frame>
-          </TwoColumn>
-        </HeaderBarSection>
-
-        <FinalCTATemplate />
 
       </Stack>
     </Container>

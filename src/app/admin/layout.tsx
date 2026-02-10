@@ -24,7 +24,8 @@ import { createClient } from '@/lib/supabase/client'
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
-  const [collapsed, setCollapsed] = useState(false)
+  const isMcSales = pathname?.startsWith('/admin/mc-sales') ?? false
+  const [collapsed, setCollapsed] = useState(isMcSales)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [authChecked, setAuthChecked] = useState(false)
   const [staffName, setStaffName] = useState<string | null>(null)
@@ -67,6 +68,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   // Close mobile drawer on navigation
   useEffect(() => {
     setMobileOpen(false)
+  }, [pathname])
+
+  // Start with admin sidebar collapsed when on mc-sales
+  useEffect(() => {
+    if (pathname?.startsWith('/admin/mc-sales')) {
+      setCollapsed(true)
+    }
   }, [pathname])
 
   // Lock body scroll when mobile drawer is open

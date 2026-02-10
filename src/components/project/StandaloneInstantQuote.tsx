@@ -23,6 +23,10 @@ import {
   Truck,
   CheckCircle,
   Info,
+  MessageSquare,
+  Hammer,
+  Check,
+  ArrowRight,
 } from 'lucide-react'
 import {
   Container,
@@ -34,6 +38,7 @@ import {
   Button,
   Input,
   Spinner,
+  Badge,
   FinalCTATemplate,
 } from '@/lib/design-system'
 import { PhotoUploader, UploadedPhoto } from '@/components/project'
@@ -377,26 +382,26 @@ export function StandaloneInstantQuote({ productType }: StandaloneInstantQuotePr
                 </Grid>
               </Card>
 
-              {/* Price Display */}
+              {/* Price Display - inline on desktop */}
               {allInputsFilled && (
                 <Card variant="elevated" className="!p-0 overflow-hidden !border-2" style={{ borderColor: `${brandColor}30` }}>
-                  <div className="divide-y divide-gray-100">
-                    <div className="flex items-center justify-between px-6 py-3.5">
-                      <div className="flex items-center gap-2">
+                  <div className="flex flex-col md:flex-row md:divide-x md:divide-gray-200 md:divide-y-0 divide-y divide-gray-100">
+                    <div className="flex items-center justify-between md:flex-1 px-6 py-3.5 md:flex-col md:items-center md:gap-1 md:py-5">
+                      <div className="flex items-center gap-2 md:flex-col">
                         <DollarSign className="w-4 h-4 text-gray-400" />
                         <span className="text-sm font-medium text-gray-600 uppercase tracking-wide">Subtotal</span>
                       </div>
                       <span className="text-lg font-semibold text-gray-900">{formatUSD(price.subtotal)}</span>
                     </div>
-                    <div className="flex items-center justify-between px-6 py-3.5">
-                      <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-between md:flex-1 px-6 py-3.5 md:flex-col md:items-center md:gap-1 md:py-5">
+                      <div className="flex items-center gap-2 md:flex-col">
                         <Truck className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm font-medium text-gray-600 uppercase tracking-wide">Shipping (USD$)</span>
+                        <span className="text-sm font-medium text-gray-600 uppercase tracking-wide">Shipping</span>
                       </div>
                       <span className="text-lg font-semibold text-gray-900">{formatUSD(price.shipping)}</span>
                     </div>
-                    <div className="flex items-center justify-between px-6 py-4" style={{ backgroundColor: `${brandColor}08` }}>
-                      <span className="text-base font-bold text-gray-900 uppercase tracking-wide">Estimated Total (USD)</span>
+                    <div className="flex items-center justify-between md:flex-1 px-6 py-4 md:flex-col md:items-center md:gap-1 md:py-5" style={{ backgroundColor: `${brandColor}08` }}>
+                      <span className="text-base font-bold text-gray-900 uppercase tracking-wide">Estimated Total</span>
                       <span className="text-2xl font-bold" style={{ color: brandColor }}>{formatUSD(price.total)}</span>
                     </div>
                   </div>
@@ -406,6 +411,78 @@ export function StandaloneInstantQuote({ productType }: StandaloneInstantQuotePr
                     </Text>
                   </div>
                 </Card>
+              )}
+
+              {/* Other options - same card style as path selection */}
+              {allInputsFilled && (
+                <Grid responsiveCols={{ mobile: 1, tablet: isMosquito ? 2 : 1 }} gap="md">
+                  <Link href={isMosquito ? "/start-project/mosquito-curtains/expert-assistance" : "/start-project/clear-vinyl/expert-assistance"}>
+                    <Card
+                      variant="elevated"
+                      className="relative h-full flex flex-col text-left p-5 rounded-2xl border-2 transition-all bg-white hover:transform hover:-translate-y-1 hover:shadow-lg hover:border-gray-300"
+                    >
+                      <Badge className="absolute -top-3 right-4 !text-white" style={{ backgroundColor: '#B30158', borderColor: '#B30158' }}>
+                        Recommended
+                      </Badge>
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ backgroundColor: '#B3015815' }}>
+                        <MessageSquare className="w-5 h-5" style={{ color: '#B30158' }} />
+                      </div>
+                      <Heading level={4} className="!mb-1">Expert Assistance</Heading>
+                      <Text size="sm" className="text-gray-600 !mb-2">
+                        {isMosquito ? 'Upload photos, get personalized guidance' : 'Upload photos and get a detailed quote within 24-48 hours'}
+                      </Text>
+                      <ul className="space-y-1 mb-4">
+                        {(
+                          isMosquito
+                            ? ['Upload photos of your space', 'Expert reviews your project', 'Detailed quote within 24-48 hours']
+                            : ['Share photos of your space', 'Our experts review your project', 'Custom quote within 24-48 hours']
+                        ).map((feature, i) => (
+                          <li key={i} className="flex items-center gap-2 text-sm text-gray-700">
+                            <Check className="w-3.5 h-3.5 text-[#406517] flex-shrink-0" />
+                            {feature}
+                          </li>
+                        ))}
+                      </ul>
+                      <div className="flex justify-end mt-auto">
+                        <span className="inline-flex items-center gap-1 px-4 py-2 rounded-full text-sm font-medium border-2 transition-all" style={{ color: '#B30158', borderColor: 'rgba(179,1,88,0.5)' }}>
+                          Get started
+                          <ArrowRight className="w-4 h-4" />
+                        </span>
+                      </div>
+                    </Card>
+                  </Link>
+                  {isMosquito && (
+                    <Link href="/start-project/mosquito-curtains/diy-builder">
+                      <Card
+                        variant="elevated"
+                        className="relative h-full flex flex-col text-left p-5 rounded-2xl border-2 transition-all bg-white hover:transform hover:-translate-y-1 hover:shadow-lg hover:border-gray-300"
+                      >
+                        <Badge className="absolute -top-3 right-4 !text-white" style={{ backgroundColor: '#FFA501', borderColor: '#FFA501' }}>
+                          Most Control
+                        </Badge>
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ backgroundColor: '#FFA50115' }}>
+                          <Hammer className="w-5 h-5" style={{ color: '#FFA501' }} />
+                        </div>
+                        <Heading level={4} className="!mb-1">DIY Builder</Heading>
+                        <Text size="sm" className="text-gray-600 !mb-2">Configure panels and add to cart</Text>
+                        <ul className="space-y-1 mb-4">
+                          {['Panel-by-panel config', 'Full control over options', 'Direct checkout'].map((feature, i) => (
+                            <li key={i} className="flex items-center gap-2 text-sm text-gray-700">
+                              <Check className="w-3.5 h-3.5 text-[#406517] flex-shrink-0" />
+                              {feature}
+                            </li>
+                          ))}
+                        </ul>
+                        <div className="flex justify-end mt-auto">
+                          <span className="inline-flex items-center gap-1 px-4 py-2 rounded-full text-sm font-medium border-2 transition-all" style={{ color: '#FFA501', borderColor: 'rgba(255,165,1,0.5)' }}>
+                            Get started
+                            <ArrowRight className="w-4 h-4" />
+                          </span>
+                        </div>
+                      </Card>
+                    </Link>
+                  )}
+                </Grid>
               )}
 
               {/* Contact Section */}

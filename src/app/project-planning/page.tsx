@@ -125,7 +125,7 @@ export default function ProjectPlanningPage() {
               </ul>
 
               <Button variant="outline" size="lg" className="w-full" asChild>
-                <Link href="/plan">
+                <Link href="/plan-screen-porch">
                   Visit The Planning Section
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Link>

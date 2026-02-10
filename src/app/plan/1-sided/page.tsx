@@ -93,7 +93,7 @@ export default function OneSidedPage() {
             <a href="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/SINGLE-PANEL-WITH-STUCCO-STRIP-2000-2.jpg" target="_blank" rel="noopener noreferrer">
               <Frame ratio="16/9" className="rounded-xl overflow-hidden">
                 <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/SINGLE-PANEL-WITH-STUCCO-STRIP-2000-2-768x461.jpg"
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/SINGLE-PANEL-WITH-STUCCO-STRIP-2000-2.jpg"
                   alt="Single panel with stucco strip configuration"
                   className="w-full h-full object-cover"
                 />
@@ -102,7 +102,7 @@ export default function OneSidedPage() {
             <a href="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/2-PANELS-WITH-MAGNETIC-DOORWAY-2000-1.jpg" target="_blank" rel="noopener noreferrer">
               <Frame ratio="16/9" className="rounded-xl overflow-hidden">
                 <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/2-PANELS-WITH-MAGNETIC-DOORWAY-2000-1-768x461.jpg"
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/2-PANELS-WITH-MAGNETIC-DOORWAY-2000-1.jpg"
                   alt="2 panels with magnetic doorway configuration"
                   className="w-full h-full object-cover"
                 />
@@ -111,7 +111,7 @@ export default function OneSidedPage() {
             <a href="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2024/08/SINGLE-PANEL-WITH-2-STUCCO-STRIPS-2000-1536x922-2.jpg" target="_blank" rel="noopener noreferrer">
               <Frame ratio="16/9" className="rounded-xl overflow-hidden">
                 <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2024/08/SINGLE-PANEL-WITH-2-STUCCO-STRIPS-2000-1536x922-2-768x461.jpg"
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2024/08/SINGLE-PANEL-WITH-2-STUCCO-STRIPS-2000-1536x922-2.jpg"
                   alt="Single panel with 2 stucco strips configuration"
                   className="w-full h-full object-cover"
                 />
@@ -120,7 +120,7 @@ export default function OneSidedPage() {
             <a href="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/SINGLE-PANEL-WITH-MARINE-SNAPS-ON-EACH-END-2000-1.jpg" target="_blank" rel="noopener noreferrer">
               <Frame ratio="16/9" className="rounded-xl overflow-hidden">
                 <img
-                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/SINGLE-PANEL-WITH-MARINE-SNAPS-ON-EACH-END-2000-1-300x180.jpg"
+                  src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/SINGLE-PANEL-WITH-MARINE-SNAPS-ON-EACH-END-2000-1.jpg"
                   alt="Single panel with marine snaps on each end"
                   className="w-full h-full object-cover"
                 />

@@ -1,10 +1,6 @@
 import type { Metadata } from 'next'
 
-export const metadata: Metadata = {
-  alternates: {
-    canonical: '/plan/how-to-order',
-  },
-}
+export const metadata: Metadata = ./how-to-order/layout.tsx
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return children

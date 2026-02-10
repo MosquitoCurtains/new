@@ -193,13 +193,13 @@ export default function TrackingPage() {
             <Stack gap="md">
               <a href="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/06/Columns-Interrupt-Path.jpg" target="_blank" rel="noopener noreferrer">
                 <Frame ratio="4/3" className="rounded-xl overflow-hidden">
-                  <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/06/Columns-Interrupt-Path-1024x768.jpg" alt="Columns interrupt track path" className="w-full h-full object-cover" />
+                  <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/06/Columns-Interrupt-Path.jpg" alt="Columns interrupt track path" className="w-full h-full object-cover" />
                 </Frame>
                 <Text className="text-center text-sm text-gray-500 mt-1">Columns Interrupt Track Path</Text>
               </a>
               <a href="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/06/Mounted-Wood-Strips.jpg" target="_blank" rel="noopener noreferrer">
                 <Frame ratio="4/3" className="rounded-xl overflow-hidden">
-                  <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/06/Mounted-Wood-Strips-1024x768.jpg" alt="Side-mount wood strips for clear path" className="w-full h-full object-cover" />
+                  <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/06/Mounted-Wood-Strips.jpg" alt="Side-mount wood strips for clear path" className="w-full h-full object-cover" />
                 </Frame>
                 <Text className="text-center text-sm text-gray-500 mt-1">Side-mount Wood Strips For Clear Path</Text>
               </a>

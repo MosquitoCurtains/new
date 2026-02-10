@@ -76,7 +76,7 @@ interface ProjectData {
 export default function SalesPageLayout({ mode }: { mode: SalesMode }) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [cartCollapsed, setCartCollapsed] = useState(false)
+  const [cartCollapsed, setCartCollapsed] = useState(true)
 
   const {
     cart,

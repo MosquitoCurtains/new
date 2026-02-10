@@ -73,6 +73,10 @@ interface QuickSetupProps {
   productType: ProductType
   options: QuickSetupOptions
   onChange: (options: QuickSetupOptions) => void
+  /** When true, only track + velcro attachment options, no velcro color choice */
+  simplifiedAttachments?: boolean
+  /** When true, hide the "Choose Your Options" heading (parent provides it) */
+  hideHeading?: boolean
 }
 
 // =============================================================================
@@ -121,8 +125,8 @@ const MESH_ATTACHMENTS = [
   {
     id: 'standard_track' as const,
     label: 'Standard Track',
-    subtitle: 'For panels under 10ft tall',
-    description: 'Slides side-to-side like elegant drapes',
+    subtitle: 'Slides side-to-side like elegant drapes',
+    description: '',
     image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Track-480-Optimized-1.gif',
     isGif: true,
   },
@@ -135,8 +139,8 @@ const MESH_ATTACHMENTS = [
   {
     id: 'velcro' as const,
     label: 'Velcro®',
-    subtitle: 'Most affordable option',
-    description: 'Fixed in place, easy to install',
+    subtitle: 'Fixed in place, easy to install',
+    description: '',
     image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/Velcro-480-Optimized.gif',
     isGif: true,
     showsVelcroColor: true,
@@ -197,8 +201,8 @@ const VINYL_ATTACHMENTS = [
   {
     id: 'standard_track' as const,
     label: 'Standard Track',
-    subtitle: 'For panels under 10ft tall',
-    description: 'Slides side-to-side',
+    subtitle: 'Slides side-to-side',
+    description: '',
   },
   {
     id: 'heavy_track' as const,
@@ -209,8 +213,8 @@ const VINYL_ATTACHMENTS = [
   {
     id: 'velcro' as const,
     label: 'Velcro®',
-    subtitle: 'Most affordable option',
-    description: 'Fixed in place',
+    subtitle: 'Fixed in place',
+    description: '',
     showsVelcroColor: true,
     popular: true,
   },
@@ -275,7 +279,7 @@ const RAW_MESH_TYPES = [
 // COMPONENT
 // =============================================================================
 
-export function QuickSetup({ productType, options, onChange }: QuickSetupProps) {
+export function QuickSetup({ productType, options, onChange, simplifiedAttachments, hideHeading }: QuickSetupProps) {
   // Type guards
   const isMesh = productType === 'mosquito_curtains'
   const isVinyl = productType === 'clear_vinyl'
@@ -306,22 +310,33 @@ export function QuickSetup({ productType, options, onChange }: QuickSetupProps) 
     }
   }, [isMesh ? meshOpts.meshType : rawOpts?.meshType])
 
-  // Check if velcro color should show
-  const showVelcroColor = (isMesh && meshOpts.topAttachment === 'velcro') || 
-                          (isVinyl && vinylOpts.topAttachment === 'velcro')
+  // Check if velcro color should show (hidden when simplifiedAttachments)
+  const showVelcroColor = !simplifiedAttachments &&
+    ((isMesh && meshOpts.topAttachment === 'velcro') || 
+     (isVinyl && vinylOpts.topAttachment === 'velcro'))
+
+  // Filter attachments to track + velcro only when simplified
+  const meshAttachments = simplifiedAttachments
+    ? MESH_ATTACHMENTS.filter(a => a.id === 'standard_track' || a.id === 'velcro')
+    : MESH_ATTACHMENTS
+  const vinylAttachments = simplifiedAttachments
+    ? VINYL_ATTACHMENTS.filter(a => a.id === 'standard_track' || a.id === 'velcro')
+    : VINYL_ATTACHMENTS
 
   // Check if canvas color should show
   const showCanvasColor = isVinyl && (vinylOpts.panelSize === 'medium' || vinylOpts.panelSize === 'tall')
 
   return (
     <Stack gap="lg">
-      <div className="text-center">
-        <Heading level={2} className="!mb-2">Choose Your Options</Heading>
-        <div className="flex items-center justify-center gap-2 text-gray-500">
-          <Info className="w-4 h-4" />
-          <Text size="sm" className="!mb-0">Don&apos;t worry - you can change these later!</Text>
+      {!hideHeading && (
+        <div className="text-center">
+          <Heading level={2} className="!mb-2">Choose Your Options</Heading>
+          <div className="flex items-center justify-center gap-2 text-gray-500">
+            <Info className="w-4 h-4" />
+            <Text size="sm" className="!mb-0">Don&apos;t worry - you can change these later!</Text>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ================================================================
           MESH PANELS - Options
@@ -434,7 +449,7 @@ export function QuickSetup({ productType, options, onChange }: QuickSetupProps) 
               <Heading level={3} className="!mb-0">Step 3: Top Attachment</Heading>
             </div>
             <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="md">
-              {MESH_ATTACHMENTS.slice(0, 2).map((att) => (
+              {meshAttachments.filter(a => a.image).map((att) => (
                 <button
                   key={att.id}
                   onClick={() => onChange({ ...meshOpts, topAttachment: att.id })}
@@ -463,18 +478,18 @@ export function QuickSetup({ productType, options, onChange }: QuickSetupProps) 
                     )}
                     <div className="p-4">
                       <div className="flex items-center justify-between">
-                        <Heading level={4} className="!mb-0">{att.label}</Heading>
+                        <Heading level={4} className="!mb-0">{att.id === 'standard_track' && simplifiedAttachments ? 'Track' : att.label}</Heading>
                         {meshOpts.topAttachment === att.id && <Check className="w-5 h-5 text-[#406517]" />}
                       </div>
                       <Text size="sm" className="text-[#406517] font-medium !mb-0">{att.subtitle}</Text>
-                      <Text size="sm" className="text-gray-500 !mb-0">{att.description}</Text>
+                      {att.description ? <Text size="sm" className="text-gray-500 !mb-0">{att.description}</Text> : null}
                     </div>
                   </Card>
                 </button>
               ))}
             </Grid>
-            <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="md" className="mt-4">
-              {MESH_ATTACHMENTS.slice(2).map((att) => (
+            <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="md" className={meshAttachments.some(a => !a.image) ? 'mt-4' : ''}>
+              {meshAttachments.filter(a => !a.image).map((att) => (
                 <button
                   key={att.id}
                   onClick={() => onChange({ ...meshOpts, topAttachment: att.id })}
@@ -487,12 +502,12 @@ export function QuickSetup({ productType, options, onChange }: QuickSetupProps) 
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="font-medium text-gray-900">{att.label}</span>
+                      <span className="font-medium text-gray-900">{att.id === 'standard_track' && simplifiedAttachments ? 'Track' : att.label}</span>
                       {att.popular && <Badge className="ml-2 !bg-[#406517]/10 !text-[#406517]">Popular</Badge>}
                     </div>
                     {meshOpts.topAttachment === att.id && <Check className="w-5 h-5 text-[#406517]" />}
                   </div>
-                  <Text size="sm" className="text-gray-500 !mb-0">{att.description}</Text>
+                  {att.description ? <Text size="sm" className="text-gray-500 !mb-0">{att.description}</Text> : null}
                 </button>
               ))}
             </Grid>
@@ -609,7 +624,7 @@ export function QuickSetup({ productType, options, onChange }: QuickSetupProps) 
               <Heading level={3} className="!mb-0">Step {showCanvasColor ? '3' : '2'}: Top Attachment</Heading>
             </div>
             <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="md">
-              {VINYL_ATTACHMENTS.map((att) => (
+              {vinylAttachments.map((att) => (
                 <button
                   key={att.id}
                   onClick={() => onChange({ ...vinylOpts, topAttachment: att.id })}
@@ -622,13 +637,13 @@ export function QuickSetup({ productType, options, onChange }: QuickSetupProps) 
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="font-medium text-gray-900">{att.label}</span>
+                      <span className="font-medium text-gray-900">{att.id === 'standard_track' && simplifiedAttachments ? 'Track' : att.label}</span>
                       {att.popular && <Badge className="ml-2 !bg-[#003365]/10 !text-[#003365]">Popular</Badge>}
                     </div>
                     {vinylOpts.topAttachment === att.id && <Check className="w-5 h-5 text-[#003365]" />}
                   </div>
                   <Text size="sm" className="text-[#003365] !mb-0">{att.subtitle}</Text>
-                  <Text size="sm" className="text-gray-500 !mb-0">{att.description}</Text>
+                  {att.description ? <Text size="sm" className="text-gray-500 !mb-0">{att.description}</Text> : null}
                 </button>
               ))}
             </Grid>
