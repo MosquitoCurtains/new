@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict SVZs8yFMR7gFvlKVyuzaFol1GcIdGIvICjCBaLD1K50kFohwHDXymPrR6hDtwx9
+\restrict 3sQ7sBI90Iuyg1fYksmgik4AgbZ6GVInix2AytHoqpxyxwsbY5GW4vb28npfD4m
 
 -- Dumped from database version 17.6
 -- Dumped by pg_dump version 17.7 (Homebrew)
@@ -137,7 +137,17 @@ CREATE TYPE public.page_type AS ENUM (
     'marketing',
     'ecommerce',
     'admin',
-    'utility'
+    'utility',
+    'product',
+    'ordering',
+    'landing',
+    'planning',
+    'quote',
+    'faq',
+    'installation',
+    'gallery',
+    'blog',
+    'sale'
 );
 
 
@@ -234,74 +244,56 @@ CREATE FUNCTION public.calculate_seo_score(audit_id uuid) RETURNS integer
     AS $$
 DECLARE
   score INTEGER := 0;
-  audit_row seo_audits%ROWTYPE;
+  audit_row audit_seo%ROWTYPE;
 BEGIN
-  SELECT * INTO audit_row FROM seo_audits WHERE id = audit_id;
-  
+  SELECT * INTO audit_row FROM audit_seo WHERE id = audit_id;
+
   -- Meta title (15 points)
-  IF audit_row.has_meta_title AND audit_row.meta_title_ok THEN
-    score := score + 15;
-  ELSIF audit_row.has_meta_title THEN
-    score := score + 8;
+  IF audit_row.has_meta_title AND audit_row.meta_title_ok THEN score := score + 15;
+  ELSIF audit_row.has_meta_title THEN score := score + 8;
   END IF;
-  
+
   -- Meta description (15 points)
-  IF audit_row.has_meta_description AND audit_row.meta_description_ok THEN
-    score := score + 15;
-  ELSIF audit_row.has_meta_description THEN
-    score := score + 8;
+  IF audit_row.has_meta_description AND audit_row.meta_description_ok THEN score := score + 15;
+  ELSIF audit_row.has_meta_description THEN score := score + 8;
   END IF;
-  
+
+  -- Canonical (5 points)
+  IF audit_row.has_canonical THEN score := score + 5; END IF;
+
+  -- OG tags (10 points)
+  IF audit_row.has_og_title AND audit_row.has_og_description AND audit_row.has_og_image THEN score := score + 10;
+  ELSIF audit_row.has_og_title OR audit_row.has_og_description THEN score := score + 5;
+  END IF;
+
+  -- Twitter card (5 points)
+  IF audit_row.has_twitter_card THEN score := score + 5; END IF;
+
   -- H1 (10 points)
-  IF audit_row.has_h1 AND audit_row.h1_count = 1 THEN
-    score := score + 10;
-  ELSIF audit_row.has_h1 THEN
-    score := score + 5;
+  IF audit_row.has_h1 AND audit_row.h1_count = 1 THEN score := score + 10;
+  ELSIF audit_row.has_h1 THEN score := score + 5;
   END IF;
-  
-  -- Heading hierarchy (10 points)
-  IF audit_row.heading_hierarchy_ok THEN
-    score := score + 10;
+
+  -- Heading hierarchy (5 points)
+  IF audit_row.heading_hierarchy_ok THEN score := score + 5; END IF;
+
+  -- Images (10 points)
+  IF audit_row.images_have_alt THEN score := score + 10;
+  ELSIF audit_row.images_missing_alt <= 2 THEN score := score + 7;
+  ELSIF audit_row.images_missing_alt > 0 THEN score := score + 3;
   END IF;
-  
-  -- Open Graph (10 points)
-  IF audit_row.has_og_title AND audit_row.has_og_description AND audit_row.has_og_image THEN
-    score := score + 10;
-  ELSIF audit_row.has_og_title OR audit_row.has_og_description THEN
-    score := score + 5;
+
+  -- Internal links (5 points)
+  IF audit_row.internal_links_count >= 3 THEN score := score + 5;
+  ELSIF audit_row.internal_links_count >= 1 THEN score := score + 3;
   END IF;
-  
-  -- Images with alt (10 points)
-  IF audit_row.images_have_alt THEN
-    score := score + 10;
-  ELSIF audit_row.images_missing_alt = 0 THEN
-    score := score + 10;
-  ELSIF audit_row.images_missing_alt < 3 THEN
-    score := score + 5;
-  END IF;
-  
-  -- Internal links (10 points)
-  IF audit_row.internal_links_count >= 3 THEN
-    score := score + 10;
-  ELSIF audit_row.internal_links_count >= 1 THEN
-    score := score + 5;
-  END IF;
-  
-  -- No broken links (10 points)
-  IF audit_row.broken_links_count = 0 THEN
-    score := score + 10;
-  END IF;
-  
-  -- Mobile friendly (5 points)
-  IF audit_row.is_mobile_friendly THEN
-    score := score + 5;
-  END IF;
-  
-  -- Canonical URL (5 points)
-  IF audit_row.has_canonical THEN
-    score := score + 5;
-  END IF;
-  
+
+  -- Sitemap (5 points)
+  IF audit_row.has_sitemap_entry THEN score := score + 5; END IF;
+
+  -- Viewport (5 points)
+  IF audit_row.viewport_configured THEN score := score + 5; END IF;
+
   RETURN score;
 END;
 $$;
@@ -764,56 +756,6 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- Name: ai_readiness_audits; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.ai_readiness_audits (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    page_id uuid NOT NULL,
-    ai_score integer,
-    ai_rating public.audit_rating DEFAULT 'not_audited'::public.audit_rating NOT NULL,
-    has_structured_data boolean DEFAULT false,
-    structured_data_types text[],
-    structured_data_valid boolean,
-    structured_data_errors jsonb DEFAULT '[]'::jsonb,
-    has_clear_headings boolean DEFAULT false,
-    has_faq_section boolean DEFAULT false,
-    has_how_to_content boolean DEFAULT false,
-    content_is_factual boolean,
-    has_specific_details boolean,
-    uses_semantic_html boolean DEFAULT false,
-    has_main_element boolean DEFAULT false,
-    has_article_element boolean DEFAULT false,
-    has_nav_element boolean DEFAULT false,
-    has_header_footer boolean DEFAULT false,
-    has_aria_labels boolean DEFAULT false,
-    has_skip_links boolean DEFAULT false,
-    form_labels_ok boolean,
-    content_in_html boolean DEFAULT true,
-    avoids_infinite_scroll boolean DEFAULT true,
-    has_clear_content_boundaries boolean,
-    has_ai_txt boolean DEFAULT false,
-    allows_ai_training boolean DEFAULT true,
-    has_author_info boolean DEFAULT false,
-    has_publish_date boolean DEFAULT false,
-    has_last_updated boolean DEFAULT false,
-    has_sources_citations boolean DEFAULT false,
-    issues jsonb DEFAULT '[]'::jsonb,
-    recommendations jsonb DEFAULT '[]'::jsonb,
-    audited_at timestamp with time zone DEFAULT now() NOT NULL,
-    audited_by uuid,
-    CONSTRAINT ai_readiness_audits_ai_score_check CHECK (((ai_score >= 0) AND (ai_score <= 100)))
-);
-
-
---
--- Name: TABLE ai_readiness_audits; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON TABLE public.ai_readiness_audits IS 'AI/LLM readiness audit results';
-
-
---
 -- Name: analytics_sync_log; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -926,6 +868,56 @@ COMMENT ON VIEW public.attribution_analysis IS 'Marketing attribution analysis f
 
 
 --
+-- Name: audit_ai_readiness; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.audit_ai_readiness (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    page_id uuid NOT NULL,
+    ai_score integer,
+    ai_rating public.audit_rating DEFAULT 'not_audited'::public.audit_rating NOT NULL,
+    has_structured_data boolean DEFAULT false,
+    structured_data_types text[],
+    structured_data_valid boolean,
+    structured_data_errors jsonb DEFAULT '[]'::jsonb,
+    has_clear_headings boolean DEFAULT false,
+    has_faq_section boolean DEFAULT false,
+    has_how_to_content boolean DEFAULT false,
+    content_is_factual boolean,
+    has_specific_details boolean,
+    uses_semantic_html boolean DEFAULT false,
+    has_main_element boolean DEFAULT false,
+    has_article_element boolean DEFAULT false,
+    has_nav_element boolean DEFAULT false,
+    has_header_footer boolean DEFAULT false,
+    has_aria_labels boolean DEFAULT false,
+    has_skip_links boolean DEFAULT false,
+    form_labels_ok boolean,
+    content_in_html boolean DEFAULT true,
+    avoids_infinite_scroll boolean DEFAULT true,
+    has_clear_content_boundaries boolean,
+    has_ai_txt boolean DEFAULT false,
+    allows_ai_training boolean DEFAULT true,
+    has_author_info boolean DEFAULT false,
+    has_publish_date boolean DEFAULT false,
+    has_last_updated boolean DEFAULT false,
+    has_sources_citations boolean DEFAULT false,
+    issues jsonb DEFAULT '[]'::jsonb,
+    recommendations jsonb DEFAULT '[]'::jsonb,
+    audited_at timestamp with time zone DEFAULT now() NOT NULL,
+    audited_by uuid,
+    CONSTRAINT audit_ai_readiness_score_check CHECK (((ai_score >= 0) AND (ai_score <= 100)))
+);
+
+
+--
+-- Name: TABLE audit_ai_readiness; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.audit_ai_readiness IS 'AI/LLM readiness audit results';
+
+
+--
 -- Name: audit_history; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -971,6 +963,113 @@ CREATE TABLE public.audit_log (
     user_agent text,
     CONSTRAINT audit_log_action_check CHECK ((action = ANY (ARRAY['INSERT'::text, 'UPDATE'::text, 'DELETE'::text])))
 );
+
+
+--
+-- Name: audit_performance; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.audit_performance (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    page_id uuid NOT NULL,
+    performance_score integer,
+    performance_rating public.audit_rating DEFAULT 'not_audited'::public.audit_rating NOT NULL,
+    lcp_ms integer,
+    lcp_rating public.audit_rating,
+    fid_ms integer,
+    fid_rating public.audit_rating,
+    cls_score numeric(5,3),
+    cls_rating public.audit_rating,
+    inp_ms integer,
+    inp_rating public.audit_rating,
+    ttfb_ms integer,
+    fcp_ms integer,
+    tti_ms integer,
+    speed_index integer,
+    total_blocking_time_ms integer,
+    total_page_size_kb integer,
+    html_size_kb integer,
+    css_size_kb integer,
+    js_size_kb integer,
+    image_size_kb integer,
+    font_size_kb integer,
+    total_requests integer,
+    js_requests integer,
+    css_requests integer,
+    image_requests integer,
+    font_requests integer,
+    third_party_requests integer,
+    lighthouse_performance integer,
+    lighthouse_accessibility integer,
+    lighthouse_best_practices integer,
+    lighthouse_seo integer,
+    device_type text DEFAULT 'mobile'::text,
+    issues jsonb DEFAULT '[]'::jsonb,
+    recommendations jsonb DEFAULT '[]'::jsonb,
+    audited_at timestamp with time zone DEFAULT now() NOT NULL,
+    audited_by uuid,
+    CONSTRAINT audit_performance_score_check CHECK (((performance_score >= 0) AND (performance_score <= 100)))
+);
+
+
+--
+-- Name: TABLE audit_performance; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.audit_performance IS 'Core Web Vitals and performance metrics';
+
+
+--
+-- Name: audit_seo; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.audit_seo (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    page_id uuid NOT NULL,
+    seo_score integer,
+    seo_rating public.audit_rating DEFAULT 'not_audited'::public.audit_rating NOT NULL,
+    has_meta_title boolean DEFAULT false,
+    meta_title text,
+    meta_title_length integer,
+    meta_title_ok boolean,
+    has_meta_description boolean DEFAULT false,
+    meta_description text,
+    meta_description_length integer,
+    meta_description_ok boolean,
+    has_canonical boolean DEFAULT false,
+    canonical_url text,
+    has_og_title boolean DEFAULT false,
+    has_og_description boolean DEFAULT false,
+    has_og_image boolean DEFAULT false,
+    og_image_url text,
+    has_twitter_card boolean DEFAULT false,
+    has_h1 boolean DEFAULT false,
+    h1_count integer DEFAULT 0,
+    h1_text text,
+    heading_hierarchy_ok boolean,
+    images_have_alt boolean,
+    images_missing_alt integer DEFAULT 0,
+    internal_links_count integer DEFAULT 0,
+    external_links_count integer DEFAULT 0,
+    broken_links_count integer DEFAULT 0,
+    has_robots_meta boolean DEFAULT false,
+    is_indexable boolean DEFAULT true,
+    has_sitemap_entry boolean DEFAULT false,
+    is_mobile_friendly boolean,
+    viewport_configured boolean DEFAULT false,
+    issues jsonb DEFAULT '[]'::jsonb,
+    recommendations jsonb DEFAULT '[]'::jsonb,
+    audited_at timestamp with time zone DEFAULT now() NOT NULL,
+    audited_by uuid,
+    CONSTRAINT audit_seo_score_check CHECK (((seo_score >= 0) AND (seo_score <= 100)))
+);
+
+
+--
+-- Name: TABLE audit_seo; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.audit_seo IS 'SEO audit results for each page';
 
 
 --
@@ -2417,113 +2516,6 @@ COMMENT ON TABLE public.page_approvals IS 'Approval workflow requests and review
 
 
 --
--- Name: performance_audits; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.performance_audits (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    page_id uuid NOT NULL,
-    performance_score integer,
-    performance_rating public.audit_rating DEFAULT 'not_audited'::public.audit_rating NOT NULL,
-    lcp_ms integer,
-    lcp_rating public.audit_rating,
-    fid_ms integer,
-    fid_rating public.audit_rating,
-    cls_score numeric(5,3),
-    cls_rating public.audit_rating,
-    inp_ms integer,
-    inp_rating public.audit_rating,
-    ttfb_ms integer,
-    fcp_ms integer,
-    tti_ms integer,
-    speed_index integer,
-    total_blocking_time_ms integer,
-    total_page_size_kb integer,
-    html_size_kb integer,
-    css_size_kb integer,
-    js_size_kb integer,
-    image_size_kb integer,
-    font_size_kb integer,
-    total_requests integer,
-    js_requests integer,
-    css_requests integer,
-    image_requests integer,
-    font_requests integer,
-    third_party_requests integer,
-    lighthouse_performance integer,
-    lighthouse_accessibility integer,
-    lighthouse_best_practices integer,
-    lighthouse_seo integer,
-    device_type text DEFAULT 'mobile'::text,
-    issues jsonb DEFAULT '[]'::jsonb,
-    recommendations jsonb DEFAULT '[]'::jsonb,
-    audited_at timestamp with time zone DEFAULT now() NOT NULL,
-    audited_by uuid,
-    CONSTRAINT performance_audits_performance_score_check CHECK (((performance_score >= 0) AND (performance_score <= 100)))
-);
-
-
---
--- Name: TABLE performance_audits; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON TABLE public.performance_audits IS 'Core Web Vitals and performance metrics';
-
-
---
--- Name: seo_audits; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.seo_audits (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    page_id uuid NOT NULL,
-    seo_score integer,
-    seo_rating public.audit_rating DEFAULT 'not_audited'::public.audit_rating NOT NULL,
-    has_meta_title boolean DEFAULT false,
-    meta_title text,
-    meta_title_length integer,
-    meta_title_ok boolean,
-    has_meta_description boolean DEFAULT false,
-    meta_description text,
-    meta_description_length integer,
-    meta_description_ok boolean,
-    has_canonical boolean DEFAULT false,
-    canonical_url text,
-    has_og_title boolean DEFAULT false,
-    has_og_description boolean DEFAULT false,
-    has_og_image boolean DEFAULT false,
-    og_image_url text,
-    has_twitter_card boolean DEFAULT false,
-    has_h1 boolean DEFAULT false,
-    h1_count integer DEFAULT 0,
-    h1_text text,
-    heading_hierarchy_ok boolean,
-    images_have_alt boolean,
-    images_missing_alt integer DEFAULT 0,
-    internal_links_count integer DEFAULT 0,
-    external_links_count integer DEFAULT 0,
-    broken_links_count integer DEFAULT 0,
-    has_robots_meta boolean DEFAULT false,
-    is_indexable boolean DEFAULT true,
-    has_sitemap_entry boolean DEFAULT false,
-    is_mobile_friendly boolean,
-    viewport_configured boolean DEFAULT false,
-    issues jsonb DEFAULT '[]'::jsonb,
-    recommendations jsonb DEFAULT '[]'::jsonb,
-    audited_at timestamp with time zone DEFAULT now() NOT NULL,
-    audited_by uuid,
-    CONSTRAINT seo_audits_seo_score_check CHECK (((seo_score >= 0) AND (seo_score <= 100)))
-);
-
-
---
--- Name: TABLE seo_audits; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON TABLE public.seo_audits IS 'SEO audit results for each page';
-
-
---
 -- Name: page_audit_dashboard; Type: VIEW; Schema: public; Owner: -
 --
 
@@ -2559,49 +2551,49 @@ CREATE VIEW public.page_audit_dashboard AS
     sp.updated_at,
     sp.last_audited_at
    FROM (((public.site_pages sp
-     LEFT JOIN public.seo_audits sa ON ((sa.page_id = sp.id)))
-     LEFT JOIN public.ai_readiness_audits ar ON ((ar.page_id = sp.id)))
-     LEFT JOIN LATERAL ( SELECT performance_audits.id,
-            performance_audits.page_id,
-            performance_audits.performance_score,
-            performance_audits.performance_rating,
-            performance_audits.lcp_ms,
-            performance_audits.lcp_rating,
-            performance_audits.fid_ms,
-            performance_audits.fid_rating,
-            performance_audits.cls_score,
-            performance_audits.cls_rating,
-            performance_audits.inp_ms,
-            performance_audits.inp_rating,
-            performance_audits.ttfb_ms,
-            performance_audits.fcp_ms,
-            performance_audits.tti_ms,
-            performance_audits.speed_index,
-            performance_audits.total_blocking_time_ms,
-            performance_audits.total_page_size_kb,
-            performance_audits.html_size_kb,
-            performance_audits.css_size_kb,
-            performance_audits.js_size_kb,
-            performance_audits.image_size_kb,
-            performance_audits.font_size_kb,
-            performance_audits.total_requests,
-            performance_audits.js_requests,
-            performance_audits.css_requests,
-            performance_audits.image_requests,
-            performance_audits.font_requests,
-            performance_audits.third_party_requests,
-            performance_audits.lighthouse_performance,
-            performance_audits.lighthouse_accessibility,
-            performance_audits.lighthouse_best_practices,
-            performance_audits.lighthouse_seo,
-            performance_audits.device_type,
-            performance_audits.issues,
-            performance_audits.recommendations,
-            performance_audits.audited_at,
-            performance_audits.audited_by
-           FROM public.performance_audits
-          WHERE (performance_audits.page_id = sp.id)
-          ORDER BY performance_audits.audited_at DESC
+     LEFT JOIN public.audit_seo sa ON ((sa.page_id = sp.id)))
+     LEFT JOIN public.audit_ai_readiness ar ON ((ar.page_id = sp.id)))
+     LEFT JOIN LATERAL ( SELECT audit_performance.id,
+            audit_performance.page_id,
+            audit_performance.performance_score,
+            audit_performance.performance_rating,
+            audit_performance.lcp_ms,
+            audit_performance.lcp_rating,
+            audit_performance.fid_ms,
+            audit_performance.fid_rating,
+            audit_performance.cls_score,
+            audit_performance.cls_rating,
+            audit_performance.inp_ms,
+            audit_performance.inp_rating,
+            audit_performance.ttfb_ms,
+            audit_performance.fcp_ms,
+            audit_performance.tti_ms,
+            audit_performance.speed_index,
+            audit_performance.total_blocking_time_ms,
+            audit_performance.total_page_size_kb,
+            audit_performance.html_size_kb,
+            audit_performance.css_size_kb,
+            audit_performance.js_size_kb,
+            audit_performance.image_size_kb,
+            audit_performance.font_size_kb,
+            audit_performance.total_requests,
+            audit_performance.js_requests,
+            audit_performance.css_requests,
+            audit_performance.image_requests,
+            audit_performance.font_requests,
+            audit_performance.third_party_requests,
+            audit_performance.lighthouse_performance,
+            audit_performance.lighthouse_accessibility,
+            audit_performance.lighthouse_best_practices,
+            audit_performance.lighthouse_seo,
+            audit_performance.device_type,
+            audit_performance.issues,
+            audit_performance.recommendations,
+            audit_performance.audited_at,
+            audit_performance.audited_by
+           FROM public.audit_performance
+          WHERE (audit_performance.page_id = sp.id)
+          ORDER BY audit_performance.audited_at DESC
          LIMIT 1) pa ON (true));
 
 
@@ -2694,59 +2686,52 @@ CREATE VIEW public.pages_needing_attention AS
             ELSE 'Needs Review'::text
         END AS attention_reason
    FROM (((public.site_pages sp
-     LEFT JOIN public.seo_audits sa ON ((sa.page_id = sp.id)))
-     LEFT JOIN public.ai_readiness_audits ar ON ((ar.page_id = sp.id)))
-     LEFT JOIN LATERAL ( SELECT performance_audits.id,
-            performance_audits.page_id,
-            performance_audits.performance_score,
-            performance_audits.performance_rating,
-            performance_audits.lcp_ms,
-            performance_audits.lcp_rating,
-            performance_audits.fid_ms,
-            performance_audits.fid_rating,
-            performance_audits.cls_score,
-            performance_audits.cls_rating,
-            performance_audits.inp_ms,
-            performance_audits.inp_rating,
-            performance_audits.ttfb_ms,
-            performance_audits.fcp_ms,
-            performance_audits.tti_ms,
-            performance_audits.speed_index,
-            performance_audits.total_blocking_time_ms,
-            performance_audits.total_page_size_kb,
-            performance_audits.html_size_kb,
-            performance_audits.css_size_kb,
-            performance_audits.js_size_kb,
-            performance_audits.image_size_kb,
-            performance_audits.font_size_kb,
-            performance_audits.total_requests,
-            performance_audits.js_requests,
-            performance_audits.css_requests,
-            performance_audits.image_requests,
-            performance_audits.font_requests,
-            performance_audits.third_party_requests,
-            performance_audits.lighthouse_performance,
-            performance_audits.lighthouse_accessibility,
-            performance_audits.lighthouse_best_practices,
-            performance_audits.lighthouse_seo,
-            performance_audits.device_type,
-            performance_audits.issues,
-            performance_audits.recommendations,
-            performance_audits.audited_at,
-            performance_audits.audited_by
-           FROM public.performance_audits
-          WHERE (performance_audits.page_id = sp.id)
-          ORDER BY performance_audits.audited_at DESC
+     LEFT JOIN public.audit_seo sa ON ((sa.page_id = sp.id)))
+     LEFT JOIN public.audit_ai_readiness ar ON ((ar.page_id = sp.id)))
+     LEFT JOIN LATERAL ( SELECT audit_performance.id,
+            audit_performance.page_id,
+            audit_performance.performance_score,
+            audit_performance.performance_rating,
+            audit_performance.lcp_ms,
+            audit_performance.lcp_rating,
+            audit_performance.fid_ms,
+            audit_performance.fid_rating,
+            audit_performance.cls_score,
+            audit_performance.cls_rating,
+            audit_performance.inp_ms,
+            audit_performance.inp_rating,
+            audit_performance.ttfb_ms,
+            audit_performance.fcp_ms,
+            audit_performance.tti_ms,
+            audit_performance.speed_index,
+            audit_performance.total_blocking_time_ms,
+            audit_performance.total_page_size_kb,
+            audit_performance.html_size_kb,
+            audit_performance.css_size_kb,
+            audit_performance.js_size_kb,
+            audit_performance.image_size_kb,
+            audit_performance.font_size_kb,
+            audit_performance.total_requests,
+            audit_performance.js_requests,
+            audit_performance.css_requests,
+            audit_performance.image_requests,
+            audit_performance.font_requests,
+            audit_performance.third_party_requests,
+            audit_performance.lighthouse_performance,
+            audit_performance.lighthouse_accessibility,
+            audit_performance.lighthouse_best_practices,
+            audit_performance.lighthouse_seo,
+            audit_performance.device_type,
+            audit_performance.issues,
+            audit_performance.recommendations,
+            audit_performance.audited_at,
+            audit_performance.audited_by
+           FROM public.audit_performance
+          WHERE (audit_performance.page_id = sp.id)
+          ORDER BY audit_performance.audited_at DESC
          LIMIT 1) pa ON (true))
   WHERE ((sp.migration_status = 'live'::public.page_migration_status) AND ((sa.seo_score < 50) OR (ar.ai_score < 50) OR (pa.performance_score < 50) OR (sp.approval_status = 'changes_requested'::public.approval_status)))
   ORDER BY LEAST(COALESCE(sa.seo_score, 100), COALESCE(ar.ai_score, 100), COALESCE(pa.performance_score, 100));
-
-
---
--- Name: VIEW pages_needing_attention; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON VIEW public.pages_needing_attention IS 'Pages with low scores that need work';
 
 
 --
@@ -2820,7 +2805,8 @@ CREATE TABLE public.product_options (
     is_default boolean DEFAULT false,
     sort_order integer DEFAULT 0,
     admin_only boolean DEFAULT false,
-    pricing_key text
+    pricing_key text,
+    valid_for text[]
 );
 
 
@@ -3281,27 +3267,27 @@ ALTER TABLE ONLY public.tax_rates ALTER COLUMN id SET DEFAULT nextval('public.ta
 
 
 --
--- Name: ai_readiness_audits ai_readiness_audits_page_id_key; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.ai_readiness_audits
-    ADD CONSTRAINT ai_readiness_audits_page_id_key UNIQUE (page_id);
-
-
---
--- Name: ai_readiness_audits ai_readiness_audits_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.ai_readiness_audits
-    ADD CONSTRAINT ai_readiness_audits_pkey PRIMARY KEY (id);
-
-
---
 -- Name: analytics_sync_log analytics_sync_log_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.analytics_sync_log
     ADD CONSTRAINT analytics_sync_log_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: audit_ai_readiness audit_ai_readiness_page_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.audit_ai_readiness
+    ADD CONSTRAINT audit_ai_readiness_page_id_key UNIQUE (page_id);
+
+
+--
+-- Name: audit_ai_readiness audit_ai_readiness_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.audit_ai_readiness
+    ADD CONSTRAINT audit_ai_readiness_pkey PRIMARY KEY (id);
 
 
 --
@@ -3318,6 +3304,30 @@ ALTER TABLE ONLY public.audit_history
 
 ALTER TABLE ONLY public.audit_log
     ADD CONSTRAINT audit_log_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: audit_performance audit_performance_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.audit_performance
+    ADD CONSTRAINT audit_performance_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: audit_seo audit_seo_page_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.audit_seo
+    ADD CONSTRAINT audit_seo_page_id_key UNIQUE (page_id);
+
+
+--
+-- Name: audit_seo audit_seo_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.audit_seo
+    ADD CONSTRAINT audit_seo_pkey PRIMARY KEY (id);
 
 
 --
@@ -3649,14 +3659,6 @@ ALTER TABLE ONLY public.page_views
 
 
 --
--- Name: performance_audits performance_audits_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.performance_audits
-    ADD CONSTRAINT performance_audits_pkey PRIMARY KEY (id);
-
-
---
 -- Name: pricing_history pricing_history_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3718,22 +3720,6 @@ ALTER TABLE ONLY public.projects
 
 ALTER TABLE ONLY public.projects
     ADD CONSTRAINT projects_share_token_key UNIQUE (share_token);
-
-
---
--- Name: seo_audits seo_audits_page_id_key; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.seo_audits
-    ADD CONSTRAINT seo_audits_page_id_key UNIQUE (page_id);
-
-
---
--- Name: seo_audits seo_audits_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.seo_audits
-    ADD CONSTRAINT seo_audits_pkey PRIMARY KEY (id);
 
 
 --
@@ -4097,7 +4083,7 @@ CREATE INDEX idx_gallery_assignments_image_id ON public.gallery_assignments USIN
 
 
 --
--- Name: idx_gallery_images_is_featured; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_gallery_images_canvas_color; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX idx_gallery_images_canvas_color ON public.gallery_images USING btree (canvas_color);
@@ -4618,7 +4604,7 @@ CREATE INDEX idx_page_views_visitor_id ON public.page_views USING btree (visitor
 -- Name: idx_performance_audits_page_latest; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_performance_audits_page_latest ON public.performance_audits USING btree (page_id, audited_at DESC);
+CREATE INDEX idx_performance_audits_page_latest ON public.audit_performance USING btree (page_id, audited_at DESC);
 
 
 --
@@ -5189,18 +5175,18 @@ CREATE TRIGGER update_staff_updated_at BEFORE UPDATE ON public.staff FOR EACH RO
 
 
 --
--- Name: ai_readiness_audits ai_readiness_audits_audited_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: audit_ai_readiness ai_readiness_audits_audited_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.ai_readiness_audits
+ALTER TABLE ONLY public.audit_ai_readiness
     ADD CONSTRAINT ai_readiness_audits_audited_by_fkey FOREIGN KEY (audited_by) REFERENCES auth.users(id);
 
 
 --
--- Name: ai_readiness_audits ai_readiness_audits_page_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: audit_ai_readiness ai_readiness_audits_page_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.ai_readiness_audits
+ALTER TABLE ONLY public.audit_ai_readiness
     ADD CONSTRAINT ai_readiness_audits_page_id_fkey FOREIGN KEY (page_id) REFERENCES public.site_pages(id) ON DELETE CASCADE;
 
 
@@ -5525,18 +5511,18 @@ ALTER TABLE ONLY public.page_views
 
 
 --
--- Name: performance_audits performance_audits_audited_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: audit_performance performance_audits_audited_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.performance_audits
+ALTER TABLE ONLY public.audit_performance
     ADD CONSTRAINT performance_audits_audited_by_fkey FOREIGN KEY (audited_by) REFERENCES auth.users(id);
 
 
 --
--- Name: performance_audits performance_audits_page_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: audit_performance performance_audits_page_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.performance_audits
+ALTER TABLE ONLY public.audit_performance
     ADD CONSTRAINT performance_audits_page_id_fkey FOREIGN KEY (page_id) REFERENCES public.site_pages(id) ON DELETE CASCADE;
 
 
@@ -5581,18 +5567,18 @@ ALTER TABLE ONLY public.projects
 
 
 --
--- Name: seo_audits seo_audits_audited_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: audit_seo seo_audits_audited_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.seo_audits
+ALTER TABLE ONLY public.audit_seo
     ADD CONSTRAINT seo_audits_audited_by_fkey FOREIGN KEY (audited_by) REFERENCES auth.users(id);
 
 
 --
--- Name: seo_audits seo_audits_page_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: audit_seo seo_audits_page_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.seo_audits
+ALTER TABLE ONLY public.audit_seo
     ADD CONSTRAINT seo_audits_page_id_fkey FOREIGN KEY (page_id) REFERENCES public.site_pages(id) ON DELETE CASCADE;
 
 
@@ -5716,10 +5702,10 @@ CREATE POLICY "Allow read for authenticated" ON public.page_notes FOR SELECT TO 
 
 
 --
--- Name: ai_readiness_audits Allow read for authenticated users; Type: POLICY; Schema: public; Owner: -
+-- Name: audit_ai_readiness Allow read for authenticated users; Type: POLICY; Schema: public; Owner: -
 --
 
-CREATE POLICY "Allow read for authenticated users" ON public.ai_readiness_audits FOR SELECT TO authenticated USING (true);
+CREATE POLICY "Allow read for authenticated users" ON public.audit_ai_readiness FOR SELECT TO authenticated USING (true);
 
 
 --
@@ -5730,24 +5716,24 @@ CREATE POLICY "Allow read for authenticated users" ON public.audit_history FOR S
 
 
 --
+-- Name: audit_performance Allow read for authenticated users; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow read for authenticated users" ON public.audit_performance FOR SELECT TO authenticated USING (true);
+
+
+--
+-- Name: audit_seo Allow read for authenticated users; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow read for authenticated users" ON public.audit_seo FOR SELECT TO authenticated USING (true);
+
+
+--
 -- Name: page_approvals Allow read for authenticated users; Type: POLICY; Schema: public; Owner: -
 --
 
 CREATE POLICY "Allow read for authenticated users" ON public.page_approvals FOR SELECT TO authenticated USING (true);
-
-
---
--- Name: performance_audits Allow read for authenticated users; Type: POLICY; Schema: public; Owner: -
---
-
-CREATE POLICY "Allow read for authenticated users" ON public.performance_audits FOR SELECT TO authenticated USING (true);
-
-
---
--- Name: seo_audits Allow read for authenticated users; Type: POLICY; Schema: public; Owner: -
---
-
-CREATE POLICY "Allow read for authenticated users" ON public.seo_audits FOR SELECT TO authenticated USING (true);
 
 
 --
@@ -5901,10 +5887,10 @@ CREATE POLICY "Service role can insert sms messages" ON public.sms_messages FOR 
 
 
 --
--- Name: ai_readiness_audits Service role full access; Type: POLICY; Schema: public; Owner: -
+-- Name: audit_ai_readiness Service role full access; Type: POLICY; Schema: public; Owner: -
 --
 
-CREATE POLICY "Service role full access" ON public.ai_readiness_audits TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY "Service role full access" ON public.audit_ai_readiness TO service_role USING (true) WITH CHECK (true);
 
 
 --
@@ -5912,6 +5898,20 @@ CREATE POLICY "Service role full access" ON public.ai_readiness_audits TO servic
 --
 
 CREATE POLICY "Service role full access" ON public.audit_history TO service_role USING (true) WITH CHECK (true);
+
+
+--
+-- Name: audit_performance Service role full access; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Service role full access" ON public.audit_performance TO service_role USING (true) WITH CHECK (true);
+
+
+--
+-- Name: audit_seo Service role full access; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Service role full access" ON public.audit_seo TO service_role USING (true) WITH CHECK (true);
 
 
 --
@@ -5947,20 +5947,6 @@ CREATE POLICY "Service role full access" ON public.page_issues TO service_role U
 --
 
 CREATE POLICY "Service role full access" ON public.page_notes TO service_role USING (true) WITH CHECK (true);
-
-
---
--- Name: performance_audits Service role full access; Type: POLICY; Schema: public; Owner: -
---
-
-CREATE POLICY "Service role full access" ON public.performance_audits TO service_role USING (true) WITH CHECK (true);
-
-
---
--- Name: seo_audits Service role full access; Type: POLICY; Schema: public; Owner: -
---
-
-CREATE POLICY "Service role full access" ON public.seo_audits TO service_role USING (true) WITH CHECK (true);
 
 
 --
@@ -6213,16 +6199,16 @@ CREATE POLICY "Users can view own cart by session" ON public.carts FOR SELECT US
 
 
 --
--- Name: ai_readiness_audits; Type: ROW SECURITY; Schema: public; Owner: -
---
-
-ALTER TABLE public.ai_readiness_audits ENABLE ROW LEVEL SECURITY;
-
---
 -- Name: analytics_sync_log; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
 ALTER TABLE public.analytics_sync_log ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: audit_ai_readiness; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.audit_ai_readiness ENABLE ROW LEVEL SECURITY;
 
 --
 -- Name: audit_history; Type: ROW SECURITY; Schema: public; Owner: -
@@ -6235,6 +6221,18 @@ ALTER TABLE public.audit_history ENABLE ROW LEVEL SECURITY;
 --
 
 ALTER TABLE public.audit_log ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: audit_performance; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.audit_performance ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: audit_seo; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.audit_seo ENABLE ROW LEVEL SECURITY;
 
 --
 -- Name: carts; Type: ROW SECURITY; Schema: public; Owner: -
@@ -6387,12 +6385,6 @@ ALTER TABLE public.page_notes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.page_views ENABLE ROW LEVEL SECURITY;
 
 --
--- Name: performance_audits; Type: ROW SECURITY; Schema: public; Owner: -
---
-
-ALTER TABLE public.performance_audits ENABLE ROW LEVEL SECURITY;
-
---
 -- Name: pricing_history; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
@@ -6437,12 +6429,6 @@ ALTER TABLE public.project_photos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
 
 --
--- Name: seo_audits; Type: ROW SECURITY; Schema: public; Owner: -
---
-
-ALTER TABLE public.seo_audits ENABLE ROW LEVEL SECURITY;
-
---
 -- Name: sessions; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
@@ -6482,5 +6468,5 @@ ALTER TABLE public.visitors ENABLE ROW LEVEL SECURITY;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict SVZs8yFMR7gFvlKVyuzaFol1GcIdGIvICjCBaLD1K50kFohwHDXymPrR6hDtwx9
+\unrestrict 3sQ7sBI90Iuyg1fYksmgik4AgbZ6GVInix2AytHoqpxyxwsbY5GW4vb28npfD4m
 

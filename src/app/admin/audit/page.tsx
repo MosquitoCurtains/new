@@ -40,6 +40,7 @@ import {
   BookOpen,
   Shield,
   Quote,
+  Copy,
 } from 'lucide-react'
 import {
   Container,
@@ -76,6 +77,8 @@ interface PageReview {
   reviewed_at: string | null
   reviewed_by: string | null
   last_audited_at: string | null
+  duplicate_canonical_url: string | null
+  is_wordpress_original: boolean
   seo_score?: number | null
   ai_score?: number | null
   performance_score?: number | null
@@ -423,6 +426,9 @@ function ReviewsTab({
   const [filterCategory, setFilterCategory] = useState<string>('all')
   const [filterBuilt, setFilterBuilt] = useState<'all' | 'built' | 'not_built'>('all')
   const [filterReviewedBy, setFilterReviewedBy] = useState<string>('all')
+  const [filterCanonical, setFilterCanonical] = useState<'all' | 'has_canonical' | 'no_canonical'>('all')
+  const [filterWordpress, setFilterWordpress] = useState<'all' | 'wp_original' | 'new_page'>('all')
+  const [sortBy, setSortBy] = useState<'default' | 'canonical' | 'wordpress'>('default')
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
   
   const toggleRow = (id: string) => {
@@ -444,8 +450,27 @@ function ReviewsTab({
     const matchesBuilt = filterBuilt === 'all' || (filterBuilt === 'built' && built) || (filterBuilt === 'not_built' && !built)
     const matchesReviewedBy = filterReviewedBy === 'all' || 
       (filterReviewedBy === '_none' ? !page.reviewed_by : page.reviewed_by === filterReviewedBy)
-    return matchesSearch && matchesStatus && matchesCategory && matchesBuilt && matchesReviewedBy
+    const matchesCanonical = filterCanonical === 'all' ||
+      (filterCanonical === 'has_canonical' ? !!page.duplicate_canonical_url : !page.duplicate_canonical_url)
+    const matchesWordpress = filterWordpress === 'all' ||
+      (filterWordpress === 'wp_original' ? page.is_wordpress_original : !page.is_wordpress_original)
+    return matchesSearch && matchesStatus && matchesCategory && matchesBuilt && matchesReviewedBy && matchesCanonical && matchesWordpress
   })
+
+  // Apply sort
+  const sortedFilteredPages = sortBy === 'canonical'
+    ? [...filteredPages].sort((a, b) => {
+        if (a.duplicate_canonical_url && !b.duplicate_canonical_url) return -1
+        if (!a.duplicate_canonical_url && b.duplicate_canonical_url) return 1
+        return a.title.localeCompare(b.title)
+      })
+    : sortBy === 'wordpress'
+    ? [...filteredPages].sort((a, b) => {
+        if (a.is_wordpress_original && !b.is_wordpress_original) return -1
+        if (!a.is_wordpress_original && b.is_wordpress_original) return 1
+        return a.title.localeCompare(b.title)
+      })
+    : filteredPages
   
   const pageTypes = [...new Set(pages.map(p => p.page_type))].sort()
   const reviewedByValues = [...new Set(pages.map(p => p.reviewed_by).filter(Boolean))].sort() as string[]
@@ -453,12 +478,14 @@ function ReviewsTab({
   return (
     <Stack gap="md">
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
         <StatCard label="Total Pages" value={stats.total} icon={Filter} color="#6B7280" />
         <StatCard label="Pending" value={stats.pending} icon={Clock} color="#6B7280" />
         <StatCard label="Complete" value={stats.complete} icon={CheckCircle2} color="#059669" />
         <StatCard label="Needs Revision" value={stats.needs_revision} icon={AlertTriangle} color="#EA580C" />
         <StatCard label="Built" value={stats.built} icon={CheckCircle2} color="#406517" />
+        <StatCard label="WP Original" value={pages.filter(p => p.is_wordpress_original).length} icon={Globe} color="#2563EB" />
+        <StatCard label="Has Canonical" value={pages.filter(p => p.duplicate_canonical_url).length} icon={Copy} color="#7C3AED" />
       </div>
       
       {/* Filters */}
@@ -493,6 +520,33 @@ function ReviewsTab({
             <option value="_none">Not Reviewed</option>
             {reviewedByValues.map(name => <option key={name} value={name}>{name}</option>)}
           </select>
+          <select value={filterCanonical} onChange={(e) => setFilterCanonical(e.target.value as typeof filterCanonical)}
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#406517]/20">
+            <option value="all">All Canonical</option>
+            <option value="has_canonical">Has Canonical</option>
+            <option value="no_canonical">No Canonical</option>
+          </select>
+          <select value={filterWordpress} onChange={(e) => setFilterWordpress(e.target.value as typeof filterWordpress)}
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#406517]/20">
+            <option value="all">All Origin</option>
+            <option value="wp_original">WordPress Original</option>
+            <option value="new_page">New Page</option>
+          </select>
+        </div>
+        <div className="flex items-center gap-2 mt-2">
+          <span className="text-xs text-gray-500">Sort:</span>
+          <button onClick={() => setSortBy('default')}
+            className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${sortBy === 'default' ? 'bg-[#406517] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+            Default
+          </button>
+          <button onClick={() => setSortBy('canonical')}
+            className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${sortBy === 'canonical' ? 'bg-[#406517] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+            <span className="flex items-center gap-1"><Copy className="w-3 h-3" /> Canonical First</span>
+          </button>
+          <button onClick={() => setSortBy('wordpress')}
+            className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${sortBy === 'wordpress' ? 'bg-[#406517] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+            <span className="flex items-center gap-1"><Globe className="w-3 h-3" /> WP Original First</span>
+          </button>
         </div>
       </Card>
       
@@ -527,7 +581,13 @@ function ReviewsTab({
                   <th className="text-left px-4 py-3 text-xs font-medium text-black uppercase tracking-wider">Page</th>
                   <th className="text-center px-3 py-3 text-xs font-medium text-black uppercase tracking-wider w-16">SEO</th>
                   <th className="text-center px-3 py-3 text-xs font-medium text-black uppercase tracking-wider w-16">AI</th>
+                  <th className="text-center px-3 py-3 text-xs font-medium text-black uppercase tracking-wider w-16">
+                    <span className="flex items-center justify-center gap-1" title="WordPress Original"><Globe className="w-3 h-3" /> WP</span>
+                  </th>
                   <th className="text-left px-4 py-3 text-xs font-medium text-black uppercase tracking-wider w-28">Built</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-black uppercase tracking-wider w-40 hidden xl:table-cell">
+                    <span className="flex items-center gap-1"><Copy className="w-3 h-3" /> Canonical</span>
+                  </th>
                   <th className="text-left px-4 py-3 text-xs font-medium text-black uppercase tracking-wider w-28">Review</th>
                   <th className="text-left px-4 py-3 text-xs font-medium text-black uppercase tracking-wider w-36 hidden lg:table-cell">Reviewed By</th>
                   <th className="text-left px-4 py-3 text-xs font-medium text-black uppercase tracking-wider w-24 hidden md:table-cell">Reviewed</th>
@@ -535,7 +595,7 @@ function ReviewsTab({
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {filteredPages.map((page) => {
+                {sortedFilteredPages.map((page) => {
                   const reviewStatus = page.review_status || 'pending'
                   const statusInfo = getStatusInfo(reviewStatus)
                   const StatusIcon = statusInfo.icon
@@ -563,7 +623,7 @@ function ReviewsTab({
                   
                   return (
                     <tr key={page.id} className="group">
-                      <td colSpan={9} className="p-0">
+                      <td colSpan={11} className="p-0">
                         {/* Main row */}
                         <div className="flex items-center hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => toggleRow(page.id)}>
                           <div className="px-4 py-3 w-8 flex-shrink-0">
@@ -589,8 +649,29 @@ function ReviewsTab({
                           </div>
                           <div className="px-3 py-3 w-16 text-center"><ScoreBadge score={page.seo_score} /></div>
                           <div className="px-3 py-3 w-16 text-center"><ScoreBadge score={page.ai_score} /></div>
+                          <div className="px-3 py-3 w-16 text-center">
+                            {page.is_wordpress_original ? (
+                              <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 border border-blue-200" title="WordPress Original">
+                                <Globe className="w-3.5 h-3.5 text-blue-600" />
+                              </span>
+                            ) : (
+                              <span className="text-xs text-gray-300">--</span>
+                            )}
+                          </div>
                           <div className="px-4 py-3 w-28">
                             <Badge className={`${migrationBadge.className} text-xs whitespace-nowrap`}>{migrationBadge.label}</Badge>
+                          </div>
+                          <div className="px-4 py-3 w-40 hidden xl:block">
+                            {page.duplicate_canonical_url ? (
+                              <Link href={page.duplicate_canonical_url} target="_blank" onClick={(e) => e.stopPropagation()}
+                                className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700 border border-purple-200 hover:bg-purple-200 transition-colors truncate max-w-full"
+                                title={`Canonical: ${page.duplicate_canonical_url}`}>
+                                <Copy className="w-3 h-3 flex-shrink-0" />
+                                <span className="truncate">{page.duplicate_canonical_url}</span>
+                              </Link>
+                            ) : (
+                              <span className="text-xs text-gray-300">--</span>
+                            )}
                           </div>
                           <div className="px-4 py-3 w-28">
                             <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${statusInfo.bg} ${statusInfo.text}`}>
@@ -698,7 +779,25 @@ function ReviewsTab({
                               </div>
                             )}
                             
-                            {!page.review_notes && !page.revision_items && (
+                            {/* Canonical URL */}
+                            {page.duplicate_canonical_url && (
+                              <div className="mt-3 px-4 py-3 rounded-lg border bg-purple-50 border-purple-200">
+                                <p className="text-sm font-semibold text-purple-800 flex items-center gap-2">
+                                  <Copy className="w-4 h-4 text-purple-500" />
+                                  Duplicate / Canonical Wrapper
+                                </p>
+                                <p className="text-sm text-purple-700 mt-1">
+                                  This page serves the same content as{' '}
+                                  <Link href={page.duplicate_canonical_url} target="_blank"
+                                    className="font-mono font-medium text-purple-900 hover:underline">
+                                    {page.duplicate_canonical_url}
+                                  </Link>
+                                  {' '}and includes a <code className="bg-purple-100 px-1 py-0.5 rounded text-xs">{'<link rel="canonical">'}</code> tag.
+                                </p>
+                              </div>
+                            )}
+
+                            {!page.review_notes && !page.revision_items && !page.duplicate_canonical_url && (
                               <div className="mt-3 text-sm text-gray-400 italic">
                                 No audit notes yet. Run the content audit to populate.
                               </div>
@@ -753,7 +852,7 @@ function ReviewsTab({
             </table>
           </div>
           
-          {filteredPages.length === 0 && pages.length > 0 && (
+          {sortedFilteredPages.length === 0 && pages.length > 0 && (
             <div className="p-8 text-center text-black">
               <Search className="w-12 h-12 mx-auto mb-3 text-black/50" />
               <p>No pages match your filters</p>
@@ -763,7 +862,12 @@ function ReviewsTab({
       )}
       
       <Text size="sm" className="text-black text-center !mb-0">
-        Showing {filteredPages.length} of {pages.length} pages
+        Showing {sortedFilteredPages.length} of {pages.length} pages
+        {pages.filter(p => p.duplicate_canonical_url).length > 0 && (
+          <span className="ml-2 text-purple-600">
+            ({pages.filter(p => p.duplicate_canonical_url).length} with canonical)
+          </span>
+        )}
       </Text>
     </Stack>
   )

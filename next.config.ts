@@ -1,17 +1,11 @@
 import type { NextConfig } from "next";
+import { REDIRECTS } from "./src/lib/redirects";
 
 const nextConfig: NextConfig = {
-  // 301 Redirects: old /raw-netting/* placeholder pages -> new SEO URLs
+  // Centralized redirect map: old WordPress URLs -> new Next.js routes
+  // See src/lib/redirects.ts for the full list (~130 entries)
   async redirects() {
-    return [
-      { source: '/raw-netting/mosquito-net', destination: '/mosquito-netting/', permanent: true },
-      { source: '/raw-netting/no-see-um', destination: '/no-see-um-netting-screen/', permanent: true },
-      { source: '/raw-netting/shade-mesh', destination: '/shade-screen-mesh/', permanent: true },
-      { source: '/raw-netting/scrim', destination: '/theatre-scrim/', permanent: true },
-      { source: '/raw-netting/industrial', destination: '/industrial-mesh/', permanent: true },
-      { source: '/industrial-netting', destination: '/industrial-mesh/', permanent: true },
-      { source: '/theater-scrims', destination: '/theatre-scrim/', permanent: true },
-    ]
+    return REDIRECTS
   },
   // Allow external images from S3 and YouTube
   images: {
