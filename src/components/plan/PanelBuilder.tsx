@@ -19,9 +19,9 @@ import {
 import {
   Save, CheckCircle, Loader2, Info, ChevronDown, ChevronUp,
   ArrowRight, Users, Zap, Check, Play, X, Plus, Minus,
-  Wrench, Magnet, Grip, Ruler,
 } from 'lucide-react'
 import type { MeshType, MeshColor } from '@/lib/pricing/types'
+import { useProducts, type DBProduct } from '@/hooks/useProducts'
 
 /* ─── Product images ─── */
 const TRACK_IMAGE = 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/Track-Color-White-Black-700x700.jpg'
@@ -34,7 +34,7 @@ const MESH_TYPE_CARDS = [
     label: 'Heavy Mosquito',
     subtitle: '90% of customers choose this',
     description: 'Our most popular mesh. Perfect for mosquitoes, gnats, and black flies. Durable outdoor polyester.',
-    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/Square-Mosquito-Netting-500x500.jpg',
+    image: 'https://media.mosquitocurtains.com/site-assets/raw-netting-images/mosquito-mesh-1600.jpg',
     colors: ['black', 'white', 'ivory'] as MeshColor[],
     popular: true,
   },
@@ -43,7 +43,7 @@ const MESH_TYPE_CARDS = [
     label: 'No-See-Um',
     subtitle: 'For tiny biting flies',
     description: 'Finer weave blocks tiny midge flies common near coastal areas. Slightly reduced airflow.',
-    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/Square-Noseeum-Mosquito-Netting-500x500.jpg',
+    image: 'https://media.mosquitocurtains.com/site-assets/raw-netting-images/noseeum-mesh-1600.jpg',
     colors: ['black', 'white'] as MeshColor[],
   },
   {
@@ -51,7 +51,7 @@ const MESH_TYPE_CARDS = [
     label: 'Shade',
     subtitle: 'Shade + privacy + bugs',
     description: 'Provides shade, privacy and insect protection all in one. Also works as a projection screen.',
-    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/Sqaure-Heavy-Shade-Mesh-Mosquito-Netting-500x500.jpg',
+    image: 'https://media.mosquitocurtains.com/site-assets/raw-netting-images/shade-mesh-1600.jpg',
     colors: ['black', 'white'] as MeshColor[],
   },
 ]
@@ -150,17 +150,22 @@ function useIsDesktop() {
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    Modal overlay
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-function DetailModal({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: React.ReactNode }) {
+function LightboxModal({ open, onClose, title, image, isGif, children }: { open: boolean; onClose: () => void; title: string; image: string; isGif?: boolean; children: React.ReactNode }) {
   if (!open) return null
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-      <div className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[85vh] overflow-auto" onClick={e => e.stopPropagation()}>
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-5 py-3 flex items-center justify-between rounded-t-2xl z-10">
-          <span className="font-bold text-gray-800">{title}</span>
-          <button type="button" onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"><X className="w-4 h-4 text-gray-600" /></button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+      <div className="relative inline-flex flex-col max-h-[90vh] mx-4" onClick={e => e.stopPropagation()}>
+        {/* Close button */}
+        <button type="button" onClick={onClose} className="absolute -top-2 -right-2 z-20 w-9 h-9 rounded-full bg-white shadow-lg hover:bg-gray-100 flex items-center justify-center transition-colors"><X className="w-5 h-5 text-gray-700" /></button>
+        {/* Image drives the width — block display, no wrapper bg */}
+        <div className="relative">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={image} alt={title} className="block max-h-[60vh] rounded-t-2xl" />
+          {isGif && <div className="absolute bottom-3 left-3 bg-black/60 text-white text-[10px] px-2 py-1 rounded flex items-center gap-1"><Play className="w-3 h-3" /> Animated</div>}
         </div>
-        <div className="p-5">{children}</div>
+        {/* Compact info bar at bottom */}
+        <div className="bg-white rounded-b-2xl px-5 py-4">{children}</div>
       </div>
     </div>
   )
@@ -319,49 +324,170 @@ function ConfigCard({ config, selected, onClick }: { config: SideConfig; selecte
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   Compute recommended hardware from panels
+   Compute recommended hardware from panels + DB
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-interface RecommendedItem {
-  key: string; label: string; description: string; qty: number; unit: string;
-  icon: React.ReactNode;
+interface ProductRecommendation {
+  key: string
+  sku: string
+  label: string
+  description: string
+  qty: number
+  unit: string
+  unitPrice: number
+  totalPrice: number
+  image: string | null
 }
 
-function computeRecommendations(panels: SavedPanel[]): RecommendedItem[] {
-  if (panels.length === 0) return []
+function fmt$(n: number): string {
+  return n % 1 === 0 ? n.toFixed(0) : n.toFixed(2)
+}
 
-  // Track: total linear feet for panels with tracking
+function computeProductRecommendations(
+  panels: SavedPanel[],
+  products: DBProduct[] | null,
+  meshColor: MeshColor,
+): ProductRecommendation[] {
+  if (panels.length === 0 || !products) return []
+
+  const find = (sku: string) => products.find(p => p.sku === sku)
+  const items: ProductRecommendation[] = []
+
+  /* ── Track hardware (for tracking top attachment) ── */
   const trackingPanels = panels.filter(p => p.topAttachment === 'tracking')
-  const trackFeet = Math.ceil(trackingPanels.reduce((sum, p) => sum + p.finalWidth, 0) / 12)
+  if (trackingPanels.length > 0) {
+    const totalInches = trackingPanels.reduce((sum, p) => sum + p.finalWidth, 0)
+    const totalFeet = totalInches / 12
+    const trackPieces = Math.ceil(totalFeet / 7) // 7ft pieces
 
-  // Snap carriers: 1 per tracking panel (to hang from track)
-  const snapCarriers = trackingPanels.length
+    const straightTrack = find('track_standard_straight')
+    if (straightTrack) {
+      items.push({
+        key: 'track_straight', sku: straightTrack.sku,
+        label: `${straightTrack.name} (7ft)`,
+        description: `${trackPieces} piece${trackPieces !== 1 ? 's' : ''} for ~${Math.ceil(totalFeet)}ft of track`,
+        qty: trackPieces, unit: 'pcs',
+        unitPrice: straightTrack.base_price,
+        totalPrice: trackPieces * straightTrack.base_price,
+        image: straightTrack.image_url,
+      })
+    }
 
-  // Velcro: total linear feet for panels with velcro top
-  const velcroPanels = panels.filter(p => p.topAttachment === 'velcro')
-  const velcroFeet = Math.ceil(velcroPanels.reduce((sum, p) => sum + p.finalWidth, 0) / 12)
+    // Splices: 1 per joint between track pieces in a continuous run
+    // Rough: total pieces minus number of separate runs (1 run per side)
+    const sidesWithTracking = new Set(trackingPanels.map(p => p.side)).size
+    const splices = Math.max(0, trackPieces - sidesWithTracking)
+    const spliceProduct = find('track_standard_splice')
+    if (splices > 0 && spliceProduct) {
+      items.push({
+        key: 'track_splice', sku: spliceProduct.sku,
+        label: spliceProduct.name,
+        description: `Connects track pieces end-to-end`,
+        qty: splices, unit: 'pcs',
+        unitPrice: spliceProduct.base_price,
+        totalPrice: splices * spliceProduct.base_price,
+        image: spliceProduct.image_url,
+      })
+    }
 
-  // Marine snap edges: count how many edges use marine_snaps
+    // End caps: 2 per continuous track run
+    const endCapQty = sidesWithTracking * 2
+    const endCapProduct = find('track_standard_endcap')
+    if (endCapProduct) {
+      items.push({
+        key: 'track_endcap', sku: endCapProduct.sku,
+        label: `${endCapProduct.name}s`,
+        description: `2 per track run (${sidesWithTracking} run${sidesWithTracking !== 1 ? 's' : ''})`,
+        qty: endCapQty, unit: 'pcs',
+        unitPrice: endCapProduct.base_price,
+        totalPrice: endCapQty * endCapProduct.base_price,
+        image: endCapProduct.image_url,
+      })
+    }
+
+    // Note: snap carriers & velcro are included free of charge with panels/track
+  }
+
+  /* ── Marine snaps (for snap side edges) ── */
   const snapEdges = panels.reduce((n, p) => n + (p.side1 === 'marine_snaps' ? 1 : 0) + (p.side2 === 'marine_snaps' ? 1 : 0), 0)
+  if (snapEdges > 0) {
+    const snapSku = (meshColor === 'white' || meshColor === 'ivory') ? 'marine_snap_white' : 'marine_snap_black'
+    const snapProduct = find(snapSku)
+    if (snapProduct) {
+      items.push({
+        key: 'marine_snaps', sku: snapProduct.sku,
+        label: snapProduct.name,
+        description: `Pack of ${snapProduct.pack_quantity} — 1 pack per snap edge`,
+        qty: snapEdges, unit: 'packs',
+        unitPrice: snapProduct.base_price,
+        totalPrice: snapEdges * snapProduct.base_price,
+        image: snapProduct.image_url,
+      })
+    }
+  }
 
-  // Magnetic door edges: count edges with magnetic_door
+  /* ── Magnetic doorways ── */
   const magnetEdges = panels.reduce((n, p) => n + (p.side1 === 'magnetic_door' ? 1 : 0) + (p.side2 === 'magnetic_door' ? 1 : 0), 0)
-  // Magnetic doors come in pairs (both edges of the doorway), so count unique doorways
   const magnetDoorways = Math.ceil(magnetEdges / 2)
+  if (magnetDoorways > 0) {
+    const magnetProduct = find('block_magnet')
+    if (magnetProduct) {
+      const magnetQty = magnetDoorways * 8
+      items.push({
+        key: 'block_magnets', sku: magnetProduct.sku,
+        label: magnetProduct.name,
+        description: `8 per doorway × ${magnetDoorways} doorway${magnetDoorways !== 1 ? 's' : ''}`,
+        qty: magnetQty, unit: 'pcs',
+        unitPrice: magnetProduct.base_price,
+        totalPrice: magnetQty * magnetProduct.base_price,
+        image: magnetProduct.image_url,
+      })
+    }
 
-  // Stucco strips: count edges with stucco_strip
+    const rodProduct = find('fiberglass_rod')
+    if (rodProduct) {
+      const rodQty = magnetDoorways * 2
+      items.push({
+        key: 'fiberglass_rods', sku: rodProduct.sku,
+        label: rodProduct.name,
+        description: `2 per doorway × ${magnetDoorways} doorway${magnetDoorways !== 1 ? 's' : ''}`,
+        qty: rodQty, unit: 'sets',
+        unitPrice: rodProduct.base_price,
+        totalPrice: rodQty * rodProduct.base_price,
+        image: rodProduct.image_url,
+      })
+    }
+  }
+
+  /* ── Stucco strips ── */
   const stuccoEdges = panels.reduce((n, p) => n + (p.side1 === 'stucco_strip' ? 1 : 0) + (p.side2 === 'stucco_strip' ? 1 : 0), 0)
+  if (stuccoEdges > 0) {
+    const stuccoProduct = find('stucco_standard')
+    if (stuccoProduct) {
+      items.push({
+        key: 'stucco', sku: stuccoProduct.sku,
+        label: stuccoProduct.name,
+        description: `1 per stucco edge`,
+        qty: stuccoEdges, unit: 'strips',
+        unitPrice: stuccoProduct.base_price,
+        totalPrice: stuccoEdges * stuccoProduct.base_price,
+        image: stuccoProduct.image_url,
+      })
+    }
+  }
 
-  const items: RecommendedItem[] = []
-
-  if (trackFeet > 0) items.push({ key: 'track', label: 'Curtain Track', description: `${trackFeet} ft of track for ${trackingPanels.length} panel${trackingPanels.length !== 1 ? 's' : ''}`, qty: trackFeet, unit: 'ft', icon: <Ruler className="w-5 h-5" /> })
-  if (snapCarriers > 0) items.push({ key: 'carriers', label: 'Snap Carriers', description: '1 per tracking panel - snaps into track', qty: snapCarriers, unit: 'sets', icon: <Grip className="w-5 h-5" /> })
-  if (velcroFeet > 0) items.push({ key: 'velcro', label: 'Velcro Strips', description: `${velcroFeet} ft of hook & loop for ${velcroPanels.length} panel${velcroPanels.length !== 1 ? 's' : ''}`, qty: velcroFeet, unit: 'ft', icon: <Grip className="w-5 h-5" /> })
-  if (snapEdges > 0) items.push({ key: 'snaps', label: 'Marine Snap Kits', description: `For ${snapEdges} snap edge${snapEdges !== 1 ? 's' : ''}`, qty: snapEdges, unit: 'kits', icon: <Grip className="w-5 h-5" /> })
-  if (magnetDoorways > 0) items.push({ key: 'magnets', label: 'Magnetic Door Strips', description: `${magnetDoorways} magnetic doorway${magnetDoorways !== 1 ? 's' : ''} (pair per doorway)`, qty: magnetDoorways, unit: 'pairs', icon: <Magnet className="w-5 h-5" /> })
-  if (stuccoEdges > 0) items.push({ key: 'stucco', label: 'Stucco Strips', description: `For ${stuccoEdges} stucco edge${stuccoEdges !== 1 ? 's' : ''}`, qty: stuccoEdges, unit: 'strips', icon: <Ruler className="w-5 h-5" /> })
-
-  // Snap tool always recommended
-  items.push({ key: 'snap_tool', label: 'Snap Tool', description: 'Required for installing snaps. Fully refundable if returned.', qty: 1, unit: 'tool', icon: <Wrench className="w-5 h-5" /> })
+  /* ── Snap tool (always recommended) ── */
+  const snapToolProduct = find('snap_tool')
+  if (snapToolProduct) {
+    items.push({
+      key: 'snap_tool', sku: snapToolProduct.sku,
+      label: snapToolProduct.name,
+      description: 'Required for installing snaps. Fully refundable if returned.',
+      qty: 1, unit: 'tool',
+      unitPrice: snapToolProduct.base_price,
+      totalPrice: snapToolProduct.base_price,
+      image: snapToolProduct.image_url,
+    })
+  }
 
   return items
 }
@@ -490,6 +616,7 @@ function buildCartData(sides: SideState[], meshType: MeshType, meshColor: MeshCo
    Main Export
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 export default function PanelBuilder({ initialMeshType, initialMeshColor, contactInfo, basePath = '/start-project/mosquito-curtains/diy-builder' }: PanelBuilderProps = {}) {
+  const { products } = useProducts()
   const [numSides, setNumSides] = useState(2)
   const [sides, setSides] = useState<SideState[]>([defaultSideState(), defaultSideState()])
   const [meshType, setMeshType] = useState<MeshType>(initialMeshType || 'heavy_mosquito')
@@ -522,8 +649,8 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
   const allPanels = useMemo(() => sides.flatMap((s, i) => { const c = SIDE_CONFIGS.find(x => x.id === s.configId)!; const tw = parseFloat(s.totalWidth) || 0; const lh = parseFloat(s.leftHeight) || 0; const rh = parseFloat(s.rightHeight) || 0; if (tw <= 0 || lh <= 0 || rh <= 0) return []; return generateSidePanels({ sideNum: i + 1, totalWidth: tw, leftHeight: lh, rightHeight: rh, config: c, topAttachment: s.topAttachment, leftEdge: s.leftEdge, rightEdge: s.rightEdge }) }), [sides])
   const allSidesReady = sides.every(s => { const tw = parseFloat(s.totalWidth) || 0; const lh = parseFloat(s.leftHeight) || 0; const rh = parseFloat(s.rightHeight) || 0; return tw > 0 && lh > 0 && rh > 0 })
 
-  // Recommendations
-  const baseRecs = useMemo(() => computeRecommendations(allPanels), [allPanels])
+  // Recommendations — real products from DB
+  const baseRecs = useMemo(() => computeProductRecommendations(allPanels, products, meshColor), [allPanels, products, meshColor])
 
   // Reset overrides when panels change
   useEffect(() => { setRecOverrides({}) }, [allPanels.length])
@@ -544,114 +671,101 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
     <Stack gap="lg">
       {/* ── 50/50: Mesh Type + Top Attachment ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* LEFT: Mesh Type */}
+        {/* LEFT: Mesh Type — 3-across image cards */}
         <Card className="!p-4 !bg-white !border-2 !border-gray-200">
-          <div className="text-xs text-gray-600 font-semibold uppercase tracking-wide mb-3">Mesh Type</div>
-          <div className="space-y-2 mb-3">
+          <div className="text-sm text-gray-700 font-semibold uppercase tracking-wide mb-3">Mesh Type</div>
+          <div className="grid grid-cols-3 gap-2 mb-3">
             {MESH_TYPE_CARDS.map(m => (
-              <button key={m.id} type="button" onClick={() => setMeshType(m.id)} className={`w-full flex items-center gap-3 p-2.5 rounded-xl border-2 transition-all text-left ${meshType === m.id ? 'border-[#406517] bg-[#406517]/5' : 'border-gray-200 hover:border-gray-300'}`}>
-                <div className="w-14 h-14 rounded-lg overflow-hidden shrink-0 relative">
+              <div key={m.id} role="button" tabIndex={0} onClick={() => setMeshType(m.id)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setMeshType(m.id) }}
+                className={`rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${meshType === m.id ? 'border-[#406517] ring-2 ring-[#406517]/20 shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}>
+                <div className="aspect-video relative">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={m.image} alt={m.label} className="w-full h-full object-cover" />
-                  {meshType === m.id && <div className="absolute inset-0 bg-[#406517]/20 flex items-center justify-center"><Check className="w-5 h-5 text-white drop-shadow" /></div>}
+                  {m.popular && <span className="absolute top-1.5 right-1.5 text-[10px] font-bold bg-[#406517] text-white px-2 py-0.5 rounded-full leading-none">90%</span>}
+                  {meshType === m.id && <div className="absolute top-1.5 left-1.5 w-6 h-6 bg-[#406517] rounded-full flex items-center justify-center"><Check className="w-3.5 h-3.5 text-white" /></div>}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-gray-800 text-sm">{m.label}</span>
-                    {m.popular && <span className="text-[9px] font-bold bg-[#406517] text-white px-1.5 py-0.5 rounded-full">90%</span>}
-                  </div>
-                  <div className="text-xs text-gray-600">{m.subtitle}</div>
+                <div className="p-2.5 text-center">
+                  <div className="font-bold text-gray-800 text-sm leading-tight">{m.label}</div>
+                  <button type="button" onClick={(e) => { e.stopPropagation(); setMeshDetail(m) }} className="text-xs text-[#406517] font-semibold hover:underline mt-0.5">See details</button>
                 </div>
-                <button type="button" onClick={(e) => { e.stopPropagation(); setMeshDetail(m) }} className="text-[10px] text-[#406517] font-semibold hover:underline shrink-0">Details</button>
-              </button>
+              </div>
             ))}
           </div>
           {/* Color swatches */}
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[10px] text-gray-600 font-semibold uppercase tracking-wide">Color:</span>
+            <span className="text-xs text-gray-700 font-semibold uppercase tracking-wide">Color:</span>
             {MESH_COLOR_SWATCHES.filter(c => availableColors.includes(c.id)).map(c => (
-              <button key={c.id} type="button" onClick={() => setMeshColor(c.id)} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${meshColor === c.id ? 'ring-2 ring-[#406517] bg-[#406517]/5' : 'bg-gray-50 hover:bg-gray-100'}`}>
+              <button key={c.id} type="button" onClick={() => setMeshColor(c.id)} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${meshColor === c.id ? 'ring-2 ring-[#406517] bg-[#406517]/5' : 'bg-gray-50 hover:bg-gray-100'}`}>
                 <div className="w-5 h-5 rounded-full border-2 border-gray-300" style={{ backgroundColor: c.hex }} />
                 <span className="text-gray-700">{c.label}</span>
-                {meshColor === c.id && <Check className="w-3 h-3 text-[#406517]" />}
+                {meshColor === c.id && <Check className="w-3.5 h-3.5 text-[#406517]" />}
               </button>
             ))}
           </div>
         </Card>
 
-        {/* RIGHT: Top Attachment */}
+        {/* RIGHT: Top Attachment — 2 GIF cards side by side */}
         <Card className="!p-4 !bg-white !border-2 !border-gray-200">
-          <div className="text-xs text-gray-600 font-semibold uppercase tracking-wide mb-3">Top Attachment</div>
-          <div className="space-y-2">
+          <div className="text-sm text-gray-700 font-semibold uppercase tracking-wide mb-3">Top Attachment</div>
+          <div className="grid grid-cols-2 gap-2">
             {TOP_ATTACHMENT_CARDS.map(att => {
               const currentTop = sides[0]?.topAttachment
               const isActive = att.id === currentTop
               return (
-                <button key={att.id} type="button" onClick={() => setSides(prev => prev.map(s => ({ ...s, topAttachment: att.id })))}
-                  className={`w-full flex items-center gap-3 p-2.5 rounded-xl border-2 transition-all text-left ${isActive ? 'border-[#406517] bg-[#406517]/5' : 'border-gray-200 hover:border-gray-300'}`}>
-                  <div className="w-14 h-14 rounded-lg overflow-hidden bg-gray-100 shrink-0 relative">
+                <div key={att.id} role="button" tabIndex={0} onClick={() => setSides(prev => prev.map(s => ({ ...s, topAttachment: att.id })))} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setSides(prev => prev.map(s => ({ ...s, topAttachment: att.id }))) }}
+                  className={`rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${isActive ? 'border-[#406517] ring-2 ring-[#406517]/20 shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}>
+                  <div className="aspect-video relative bg-gray-100">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={att.staticThumb} alt={att.label} className="w-full h-full object-cover" />
-                    {isActive && <div className="absolute inset-0 bg-[#406517]/20 flex items-center justify-center"><Check className="w-5 h-5 text-white drop-shadow" /></div>}
+                    <img src={att.image} alt={att.label} className="w-full h-full object-contain" />
+                    {att.isGif && <div className="absolute bottom-1.5 left-1.5 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded flex items-center gap-0.5"><Play className="w-3 h-3" /> GIF</div>}
+                    {isActive && <div className="absolute top-1.5 left-1.5 w-6 h-6 bg-[#406517] rounded-full flex items-center justify-center"><Check className="w-3.5 h-3.5 text-white" /></div>}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-bold text-gray-800 text-sm">{att.label}</div>
-                    <div className="text-xs text-gray-600">{att.subtitle}</div>
+                  <div className="p-2.5 text-center">
+                    <div className="font-bold text-gray-800 text-sm leading-tight">{att.label}</div>
+                    <div className="text-xs text-gray-600 leading-tight">{att.subtitle}</div>
+                    <button type="button" onClick={(e) => { e.stopPropagation(); setAttachDetail(att) }} className="text-xs text-[#406517] font-semibold hover:underline mt-0.5">See details</button>
                   </div>
-                  <button type="button" onClick={(e) => { e.stopPropagation(); setAttachDetail(att) }} className="text-[10px] text-[#406517] font-semibold hover:underline shrink-0">Details</button>
-                </button>
+                </div>
               )
             })}
           </div>
         </Card>
       </div>
 
-      {/* Mesh Detail Modal */}
-      <DetailModal open={!!meshDetail} onClose={() => setMeshDetail(null)} title={meshDetail?.label || ''}>
+      {/* Mesh Detail Lightbox */}
+      <LightboxModal open={!!meshDetail} onClose={() => setMeshDetail(null)} title={meshDetail?.label || ''} image={meshDetail?.image || ''}>
         {meshDetail && (
-          <div className="space-y-4">
-            <div className="rounded-xl overflow-hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={meshDetail.image} alt={meshDetail.label} className="w-full aspect-square object-cover" />
-            </div>
+          <div className="flex items-center justify-between gap-4 flex-wrap">
             <div>
-              <div className="font-bold text-lg text-gray-800 mb-1">{meshDetail.label}</div>
-              <div className="text-sm text-[#406517] font-medium mb-2">{meshDetail.subtitle}</div>
-              <div className="text-sm text-gray-700 leading-relaxed">{meshDetail.description}</div>
-            </div>
-            <div>
-              <div className="text-xs text-gray-600 font-semibold uppercase tracking-wide mb-2">Available Colors</div>
-              <div className="flex gap-2">
-                {meshDetail.colors.map(c => { const sw = MESH_COLOR_SWATCHES.find(s => s.id === c); return sw ? <div key={c} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-50 text-xs"><div className="w-4 h-4 rounded-full border border-gray-300" style={{ backgroundColor: sw.hex }} />{sw.label}</div> : null })}
+              <div className="font-bold text-lg text-gray-800">{meshDetail.label}</div>
+              <div className="text-sm text-[#406517] font-medium">{meshDetail.subtitle}</div>
+              <div className="text-sm text-gray-600 mt-1">{meshDetail.description}</div>
+              <div className="flex gap-2 mt-2">
+                {meshDetail.colors.map(c => { const sw = MESH_COLOR_SWATCHES.find(s => s.id === c); return sw ? <div key={c} className="flex items-center gap-1 px-2 py-1 rounded-full bg-gray-100 text-xs"><div className="w-4 h-4 rounded-full border border-gray-300" style={{ backgroundColor: sw.hex }} />{sw.label}</div> : null })}
               </div>
             </div>
-            <Button variant="primary" className="w-full" onClick={() => { setMeshType(meshDetail.id); setMeshDetail(null) }}>
-              <Check className="w-4 h-4 mr-2" /> Select {meshDetail.label}
+            <Button variant="primary" onClick={() => { setMeshType(meshDetail.id); setMeshDetail(null) }}>
+              <Check className="w-4 h-4 mr-2" /> Select
             </Button>
           </div>
         )}
-      </DetailModal>
+      </LightboxModal>
 
-      {/* Attachment Detail Modal */}
-      <DetailModal open={!!attachDetail} onClose={() => setAttachDetail(null)} title={attachDetail?.label || ''}>
+      {/* Attachment Detail Lightbox */}
+      <LightboxModal open={!!attachDetail} onClose={() => setAttachDetail(null)} title={attachDetail?.label || ''} image={attachDetail?.image || ''} isGif={attachDetail?.isGif}>
         {attachDetail && (
-          <div className="space-y-4">
-            <div className="rounded-xl overflow-hidden bg-gray-100">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={attachDetail.image} alt={attachDetail.label} className="w-full aspect-video object-contain" />
-              {attachDetail.isGif && <div className="text-center text-[10px] text-gray-500 py-1">Animated preview</div>}
-            </div>
+          <div className="flex items-center justify-between gap-4 flex-wrap">
             <div>
-              <div className="font-bold text-lg text-gray-800 mb-1">{attachDetail.label}</div>
-              <div className="text-sm text-[#406517] font-medium mb-2">{attachDetail.subtitle}</div>
-              <div className="text-sm text-gray-700 leading-relaxed">{attachDetail.description}</div>
+              <div className="font-bold text-lg text-gray-800">{attachDetail.label}</div>
+              <div className="text-sm text-[#406517] font-medium">{attachDetail.subtitle}</div>
+              <div className="text-sm text-gray-600 mt-1">{attachDetail.description}</div>
             </div>
-            <Button variant="primary" className="w-full" onClick={() => { setSides(prev => prev.map(s => ({ ...s, topAttachment: attachDetail.id }))); setAttachDetail(null) }}>
-              <Check className="w-4 h-4 mr-2" /> Select {attachDetail.label}
+            <Button variant="primary" onClick={() => { setSides(prev => prev.map(s => ({ ...s, topAttachment: attachDetail.id }))); setAttachDetail(null) }}>
+              <Check className="w-4 h-4 mr-2" /> Select
             </Button>
           </div>
         )}
-      </DetailModal>
+      </LightboxModal>
 
       {/* ── Number of Sides ── */}
       <Card className="!p-5 !bg-white !border-2 !border-gray-200">
@@ -672,32 +786,69 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
       ))}
 
       {/* ── Hardware Recommendations ── */}
-      {allSidesReady && baseRecs.length > 0 && (
-        <Card className="!p-5 !bg-white !border-2 !border-gray-200">
-          <div className="text-center mb-4">
-            <div className="text-lg font-bold text-gray-800">Recommended Hardware & Accessories</div>
-            <div className="text-sm text-gray-600">Based on your {allPanels.length} panel{allPanels.length !== 1 ? 's' : ''} configuration. Adjust quantities as needed.</div>
-          </div>
-          <div className="space-y-3">
-            {baseRecs.map(item => {
-              const qty = recOverrides[item.key] ?? item.qty
-              return (
-                <div key={item.key} className="flex items-center gap-4 p-3 rounded-xl bg-gray-50 border border-gray-200">
-                  <div className="w-10 h-10 rounded-lg bg-[#406517]/10 flex items-center justify-center text-[#406517] shrink-0">{item.icon}</div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-gray-800 text-sm">{item.label}</div>
-                    <div className="text-xs text-gray-600">{item.description}</div>
+      {allSidesReady && baseRecs.length > 0 && (() => {
+        const recsWithQty = baseRecs.map(item => {
+          const qty = recOverrides[item.key] ?? item.qty
+          return { ...item, qty, totalPrice: qty * item.unitPrice }
+        })
+        const grandTotal = recsWithQty.reduce((sum, r) => sum + r.totalPrice, 0)
+        return (
+          <Card className="!p-5 !bg-white !border-2 !border-gray-200">
+            <div className="text-center mb-4">
+              <div className="text-lg font-bold text-gray-800">Recommended Hardware & Accessories</div>
+              <div className="text-sm text-gray-600">Based on your {allPanels.length} panel{allPanels.length !== 1 ? 's' : ''} configuration. Adjust quantities as needed.</div>
+            </div>
+            <div className="space-y-2">
+              {/* Header row */}
+              <div className="hidden sm:grid grid-cols-[52px_1fr_100px_80px_70px] gap-3 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-500">
+                <div />
+                <div>Product</div>
+                <div className="text-center">Qty</div>
+                <div className="text-right">Each</div>
+                <div className="text-right">Total</div>
+              </div>
+
+              {recsWithQty.map(item => (
+                <div key={item.key} className="flex items-center sm:grid sm:grid-cols-[52px_1fr_100px_80px_70px] gap-3 p-3 rounded-xl bg-gray-50 border border-gray-200">
+                  {/* Product image */}
+                  <div className="w-12 h-12 rounded-lg overflow-hidden bg-white border border-gray-200 shrink-0">
+                    {item.image ? (
+                      <Image src={item.image} alt={item.label} width={48} height={48} className="object-cover w-full h-full" />
+                    ) : (
+                      <div className="w-full h-full bg-gray-100" />
+                    )}
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <QtyStepper value={qty} onChange={v => setRecOverrides(prev => ({ ...prev, [item.key]: v }))} min={0} />
-                    <span className="text-xs text-gray-500 w-8">{item.unit}</span>
+
+                  {/* Name + description */}
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-gray-800 text-sm leading-tight">{item.label}</div>
+                    <div className="text-xs text-gray-500 leading-tight">{item.description}</div>
+                  </div>
+
+                  {/* Qty stepper */}
+                  <div className="flex items-center justify-center shrink-0">
+                    <QtyStepper value={item.qty} onChange={v => setRecOverrides(prev => ({ ...prev, [item.key]: v }))} min={0} />
+                  </div>
+
+                  {/* Unit price */}
+                  <div className="text-sm text-gray-600 text-right tabular-nums shrink-0 hidden sm:block">${fmt$(item.unitPrice)}</div>
+
+                  {/* Line total */}
+                  <div className="text-sm font-semibold text-gray-800 text-right tabular-nums shrink-0">
+                    {item.totalPrice > 0 ? `$${fmt$(item.totalPrice)}` : <span className="text-green-600">FREE</span>}
                   </div>
                 </div>
-              )
-            })}
-          </div>
-        </Card>
-      )}
+              ))}
+            </div>
+
+            {/* Grand total */}
+            <div className="mt-4 pt-3 border-t-2 border-gray-200 flex items-center justify-between">
+              <div className="text-sm text-gray-600">Hardware & Accessories Total</div>
+              <div className="text-lg font-bold text-[#406517]">${fmt$(grandTotal)}</div>
+            </div>
+          </Card>
+        )
+      })()}
 
       {/* ── Project Summary ── */}
       {allSidesReady && allPanels.length > 0 && (

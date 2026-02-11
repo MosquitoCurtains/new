@@ -40,8 +40,10 @@ export async function POST(request: NextRequest) {
       CacheControl: 'public, max-age=31536000, immutable',
     })
 
+    // 2 hours - large files (e.g. 300MB) can take 20-40 min on slow connections
+    const expiresIn = 7200
     const presignedUrl = await getSignedUrl(s3Client, command, {
-      expiresIn: 3600,
+      expiresIn,
     })
 
     const publicUrl = `${CDN_URL}/${key}`
@@ -51,7 +53,7 @@ export async function POST(request: NextRequest) {
       uploadUrl: presignedUrl,
       publicUrl,
       key,
-      expiresIn: 3600,
+      expiresIn,
     })
   } catch (error) {
     console.error('Error generating presigned URL:', error)

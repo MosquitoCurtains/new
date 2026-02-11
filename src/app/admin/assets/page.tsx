@@ -344,24 +344,40 @@ export default function AssetsAdminPage() {
     setIsDragging(false)
 
     const items = e.dataTransfer.items
-    const hasEntry = items?.length && (items[0] as DataTransferItem & { webkitGetAsEntry?: () => unknown }).webkitGetAsEntry
+    const filesSnapshot = Array.from(e.dataTransfer.files || [])
 
-    if (hasEntry) {
-      try {
-        const parsed = await readEntriesFromDrop(items)
-        if (parsed.length > 0) processSelectedItems(parsed)
-      } catch (err) {
-        console.error('Error reading dropped folder:', err)
-        const files = Array.from(e.dataTransfer.files)
-        if (files.length > 0) {
-          processSelectedItems(files.map(f => ({ file: f, relativePath: f.name })))
+    // Check if any dropped item is a directory (webkitGetAsEntry API)
+    let hasDirectory = false
+    const getEntry = (item: DataTransferItem) =>
+      (item as DataTransferItem & { webkitGetAsEntry?: () => FileSystemEntry | null }).webkitGetAsEntry?.()
+
+    if (items?.length) {
+      for (let i = 0; i < items.length; i++) {
+        const entry = getEntry(items[i])
+        if (entry?.isDirectory) {
+          hasDirectory = true
+          break
         }
       }
-    } else {
-      const dropped = Array.from(e.dataTransfer.files)
-      if (dropped.length > 0) {
-        processSelectedItems(dropped.map(f => ({ file: f, relativePath: f.name })))
+    }
+
+    // If folders were dropped, use webkitGetAsEntry to preserve hierarchy
+    if (hasDirectory && items?.length) {
+      try {
+        const parsed = await readEntriesFromDrop(items)
+        if (parsed.length > 0) {
+          processSelectedItems(parsed)
+          return
+        }
+      } catch (err) {
+        console.error('Error reading dropped folder:', err)
+        // Fall through to flat file handling
       }
+    }
+
+    // Plain files (no folders) - use dataTransfer.files (synchronous, reliable)
+    if (filesSnapshot.length > 0) {
+      processSelectedItems(filesSnapshot.map(f => ({ file: f, relativePath: f.name })))
     }
   }
 

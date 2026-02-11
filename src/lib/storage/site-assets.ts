@@ -40,7 +40,9 @@ async function uploadWithXHRProgress(
 
     xhr.onerror = () => reject(new Error('Network error during upload'))
     xhr.ontimeout = () => reject(new Error('Upload timed out'))
-    xhr.timeout = 600000
+    // 10 min base; 2 hours for files > 100MB (300MB can take 20-40 min on slow connections)
+    const timeoutMs = file.size > 100 * 1024 * 1024 ? 7200000 : 600000
+    xhr.timeout = timeoutMs
 
     xhr.open('PUT', url)
     xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream')
