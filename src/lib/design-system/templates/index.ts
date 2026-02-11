@@ -3,6 +3,7 @@
 
 // Content Block Templates
 export { WhyChooseUsTemplate } from './WhyChooseUsTemplate'
+export { ClientReviewsTemplate } from './ClientReviewsTemplate'
 export { HowItWorksTemplate } from './HowItWorksTemplate'
 export { WhoWeAreWhatWeDoTemplate } from './WhoWeAreWhatWeDoTemplate'
 export { FinalCTATemplate } from './FinalCTATemplate'

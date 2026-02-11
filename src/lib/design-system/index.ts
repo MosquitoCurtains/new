@@ -90,6 +90,7 @@ export {
 export {
   // Content Block Templates
   WhyChooseUsTemplate,
+  ClientReviewsTemplate,
   HowItWorksTemplate,
   WhoWeAreWhatWeDoTemplate,
   FinalCTATemplate,

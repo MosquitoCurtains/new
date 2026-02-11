@@ -29,6 +29,7 @@ import {
   Download,
   Megaphone,
   Briefcase,
+  FolderOpen,
 } from 'lucide-react'
 
 export interface NavItem {
@@ -231,6 +232,7 @@ export const adminNavSections: AdminNavSection[] = [
     label: 'Content & Media',
     items: [
       { name: 'Galleries', href: '/admin/galleries', icon: Image },
+      { name: 'Site Assets', href: '/admin/assets', icon: FolderOpen },
       { name: 'Site Audit', href: '/admin/audit', icon: Shield },
       { name: 'Sitemap', href: '/admin/sitemap', icon: Map },
     ],

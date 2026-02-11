@@ -26,6 +26,7 @@ import {
   Heading,
   Frame,
   WhyChooseUsTemplate,
+  ClientReviewsTemplate,
   FinalCTATemplate,
   HeaderBarSection,
   PowerHeaderTemplate,
@@ -108,29 +109,6 @@ const PROJECT_TYPES = [
   },
 ]
 
-// Testimonials from WordPress - full-res URLs (same as /reviews, 2019/08)
-const STATIC_BASE = 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads'
-const TESTIMONIALS = [
-  {
-    quote: "Thank you for the follow-up email about the snap tool. I should have taken a picture during the winter. We had one of the worst winters on record in Maryland. We were able to use our porch all winter long because of the protection and insulation the vinyl Mosquito Curtains provide.",
-    author: "Amy & David",
-    location: "Maui",
-    image: `${STATIC_BASE}/2019/08/Hawaii-Porch-Screen.jpg`,
-  },
-  {
-    quote: "Here is a night shot of the curtains you sent to us last week. Covering the entire courtyard opening had the effect that I wanted and made it a cozy area for guests at dinner. We are once again very happy, satisfied customers of Mosquito Curtains.",
-    author: "Bill",
-    location: "Wisconsin",
-    image: `${STATIC_BASE}/2019/08/Screen-Porch-1.jpg`,
-  },
-  {
-    quote: "We just installed our curtains on a section of our porch and are very pleased. Installation went well, we were very pleased. We have used our porch more in the past week than we did all last summer. Love it!",
-    author: "Eric",
-    location: "Prince Edward Island",
-    image: `${STATIC_BASE}/2019/08/Canadian-Porch.jpg`,
-  },
-]
-
 export default function ScreenedPorchEnclosuresPage() {
   return (
     <Container size="xl">
@@ -197,93 +175,9 @@ export default function ScreenedPorchEnclosuresPage() {
         </Card>
 
         {/* ================================================================
-            TESTIMONIALS
+            CLIENT REVIEWS (design-system template: order count + 6 reviews)
             ================================================================ */}
-        <HeaderBarSection icon={Bug} label="92,000+ Happy Clients Since 2004" variant="dark">
-          <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="lg">
-            {TESTIMONIALS.map((testimonial, idx) => (
-              <Card key={idx} variant="elevated" className="!p-6">
-                <Stack gap="md">
-                  <Frame ratio="16/9" className="rounded-lg overflow-hidden">
-                    <img
-                      src={testimonial.image}
-                      alt={`${testimonial.author}'s project`}
-                      className="w-full h-full object-cover"
-                    />
-                  </Frame>
-                  <Text className="text-gray-600 italic text-sm leading-relaxed">
-                    "{testimonial.quote}"
-                  </Text>
-                  <Text className="font-semibold text-[#406517] !mb-0">
-                    {testimonial.author} | {testimonial.location}
-                  </Text>
-                </Stack>
-              </Card>
-            ))}
-          </Grid>
-          <div className="flex justify-center pt-6">
-            <Button variant="outline" asChild>
-              <Link href="/reviews">
-                Read More Reviews
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Link>
-            </Button>
-          </div>
-        </HeaderBarSection>
-
-        {/* ================================================================
-            QUICK TESTIMONIAL CARDS
-            ================================================================ */}
-        <Grid responsiveCols={{ mobile: 2, tablet: 4 }} gap="md">
-          <Card className="!p-4">
-            <Frame ratio="4/3" className="rounded-lg overflow-hidden mb-3">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/White-Porch-Curtains-1.jpg"
-                alt="White porch curtains"
-                className="w-full h-full object-cover"
-              />
-            </Frame>
-            <Text className="text-xs text-gray-600 italic">
-              "We love the curtains. Everyone was sooo helpful and installing was trouble-free."
-            </Text>
-          </Card>
-          <Card className="!p-4">
-            <Frame ratio="4/3" className="rounded-lg overflow-hidden mb-3">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/Shade-Fabric-Porch.jpg"
-                alt="Shade fabric porch"
-                className="w-full h-full object-cover"
-              />
-            </Frame>
-            <Text className="text-xs text-gray-600 italic">
-              "Could not be happier! What a great product. Top quality materials, superior customer service."
-            </Text>
-          </Card>
-          <Card className="!p-4">
-            <Frame ratio="4/3" className="rounded-lg overflow-hidden mb-3">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/Garage-Screen.jpg"
-                alt="Garage screen"
-                className="w-full h-full object-cover"
-              />
-            </Frame>
-            <Text className="text-xs text-gray-600 italic">
-              "I have just come in from our bug free carport to thank you again for the Mosquito Curtain."
-            </Text>
-          </Card>
-          <Card className="!p-4">
-            <Frame ratio="4/3" className="rounded-lg overflow-hidden mb-3">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/Shade-Fabric.jpg"
-                alt="Shade fabric"
-                className="w-full h-full object-cover"
-              />
-            </Frame>
-            <Text className="text-xs text-gray-600 italic">
-              "Thank you for a great product. We have been able to re-claim our porch in the evenings."
-            </Text>
-          </Card>
-        </Grid>
+        <ClientReviewsTemplate />
 
         <FinalCTATemplate />
 

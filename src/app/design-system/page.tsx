@@ -22,6 +22,7 @@ import {
   TwoColumnSection,
   // Templates
   WhyChooseUsTemplate,
+  ClientReviewsTemplate,
   HowItWorksTemplate,
   WhoWeAreWhatWeDoTemplate,
   FinalCTATemplate,
@@ -59,6 +60,11 @@ const TEMPLATES = [
     name: 'WhyChooseUsTemplate', 
     description: '"Why 92,000+ Customers Choose Us" section with Google Reviews and 4 feature cards',
     component: 'WhyChooseUsTemplate',
+  },
+  { 
+    name: 'ClientReviewsTemplate', 
+    description: '"X+ Happy Clients Since 2004" section with 6 review cards and See more reviews button (order count from DB)',
+    component: 'ClientReviewsTemplate',
   },
   { 
     name: 'HowItWorksTemplate', 
@@ -462,6 +468,8 @@ export default function DesignSystemPage() {
         </Card>
 
         <WhyChooseUsTemplate showReviews={false} />
+
+        <ClientReviewsTemplate />
         
         <HowItWorksTemplate />
         
@@ -478,6 +486,7 @@ export default function DesignSystemPage() {
 {`import { 
   // PRE-BUILT TEMPLATES (drop-in content blocks)
   WhyChooseUsTemplate,    // "Why 92,000+ Customers Choose Us"
+  ClientReviewsTemplate,  // X+ Happy Clients, 6 reviews, See more reviews
   HowItWorksTemplate,     // 3-step process
   WhoWeAreWhatWeDoTemplate,
   FinalCTATemplate,       // Big gradient CTA
@@ -508,7 +517,7 @@ export default function DesignSystemPage() {
         <Card variant="outlined" className="!p-6">
           <div className="flex flex-wrap justify-center gap-8">
             <div className="text-center">
-              <div className="text-3xl font-bold text-[#406517]">5</div>
+              <div className="text-3xl font-bold text-[#406517]">{TEMPLATES.length}</div>
               <div className="text-sm text-gray-500">Templates</div>
             </div>
             <div className="text-center">

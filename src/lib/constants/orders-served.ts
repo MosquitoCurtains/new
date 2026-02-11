@@ -38,6 +38,9 @@ export const ORDERS_SERVED_STRINGS = {
   
   // "Over 92,035 happy clients"
   happyClients: `Over ${ORDERS_SERVED_COUNT.toLocaleString('en-US')} happy clients`,
+
+  // "92,035+ Happy Clients Since 2004" (for ClientReviewsTemplate header)
+  happyClientsSince2004: `${ORDERS_SERVED_FORMATTED} Happy Clients Since 2004`,
   
   // For metadata descriptions
   metaDescription: `Over ${ORDERS_SERVED_COUNT.toLocaleString('en-US')} happy clients since 2004`,
