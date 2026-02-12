@@ -16,6 +16,7 @@
 import { useState } from 'react'
 import { Mail, Lock, ArrowRight, Sparkles, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { Spinner } from '@/lib/design-system'
 import { useTracking } from '@/components/tracking'
 
 // =============================================================================
@@ -163,7 +164,7 @@ export function EmailGate({
         >
           {isLoading ? (
             <>
-              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              <Spinner size="sm" />
               Saving...
             </>
           ) : (

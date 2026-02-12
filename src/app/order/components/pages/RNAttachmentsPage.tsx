@@ -21,8 +21,9 @@ import {
   Spinner,
   Grid,
 } from '@/lib/design-system'
-import { PowerHeaderTemplate, FinalCTATemplate } from '@/lib/design-system/templates'
-import { VIDEOS } from '@/lib/constants/videos'
+import { FinalCTATemplate } from '@/lib/design-system/templates'
+import { OrderPageHeader } from '../OrderPageHeader'
+import StepNav from '../StepNav'
 import { useCartContext } from '@/contexts/CartContext'
 import { useProducts, getPriceLabel } from '@/hooks/useProducts'
 
@@ -74,13 +75,12 @@ export function RNAttachmentsPage() {
   return (
     <Container size="xl">
       <Stack gap="xl">
-        <PowerHeaderTemplate
+        <OrderPageHeader
           title="Raw Netting Attachment Hardware"
           subtitle="Marine snaps, elastic cord, webbing, and everything you need to rig your raw netting."
-          videoId={VIDEOS.MARINE_SNAPS_90_SEC}
-          videoTitle="Marine Snaps in 90 Seconds"
-          variant="compact"
         />
+
+        <StepNav flow="rn" currentStep={2} />
 
         {/* Snap Tool CTA */}
         {snapTool && (

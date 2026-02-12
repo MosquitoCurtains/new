@@ -12,8 +12,8 @@
  */
 
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
-import { ShoppingCart, Check, Plus, Minus, Ruler, Loader2 } from 'lucide-react'
-import { Card, Text, Button, Heading } from '@/lib/design-system'
+import { ShoppingCart, Check, Plus, Minus, Ruler } from 'lucide-react'
+import { Card, Text, Button, Heading, Spinner } from '@/lib/design-system'
 import { HeaderBarSection } from '@/lib/design-system/components/sections/HeaderBarSection'
 import { ImageLightbox, type ImageLightboxImage } from '@/lib/design-system/components/media/ImageLightbox'
 import PillSelector, { type PillOption } from '@/app/order/components/PillSelector'
@@ -370,7 +370,7 @@ export default function RawNettingProductOrder({
           {/* RIGHT — Hero image (first from gallery) */}
           {galleryLoading ? (
             <div className="flex items-center justify-center aspect-[3/2] rounded-xl bg-gray-50 border-2 border-gray-100">
-              <Loader2 className="w-8 h-8 text-gray-300 animate-spin" />
+              <Spinner size="lg" />
             </div>
           ) : heroImage ? (
             <button

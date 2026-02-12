@@ -2,14 +2,14 @@
 
 /**
  * CartContext — Wraps useCart with sidebar open/close state and auto-open behavior.
- * 
+ *
  * Provides:
  * - All useCart return values
  * - sidebarOpen / setSidebarOpen state
- * - addItemWithSidebar() — adds item + auto-opens sidebar + auto-closes after 5s
+ * - addItem opens sidebar; sidebar stays open until user closes it.
  */
 
-import { createContext, useContext, useState, useCallback, useRef, type ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
 import { useCart, type CartLineItem, type CartData } from '@/hooks/useCart'
 import type { PricingMap } from '@/lib/pricing/types'
 
@@ -40,6 +40,9 @@ interface CartContextValue {
   setSidebarOpen: (open: boolean) => void
   openSidebar: () => void
   closeSidebar: () => void
+  /** Desktop only: collapsed = narrow strip. Used so main content can apply matching margin. */
+  sidebarCollapsed: boolean
+  setSidebarCollapsed: (collapsed: boolean) => void
 }
 
 // =============================================================================
@@ -52,43 +55,18 @@ const CartContext = createContext<CartContextValue | null>(null)
 // PROVIDER
 // =============================================================================
 
-const AUTO_CLOSE_DELAY = 5000 // 5 seconds
-
 export function CartProvider({ children }: { children: ReactNode }) {
   const cartHook = useCart()
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const autoCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
-  const clearAutoClose = useCallback(() => {
-    if (autoCloseTimerRef.current) {
-      clearTimeout(autoCloseTimerRef.current)
-      autoCloseTimerRef.current = null
-    }
-  }, [])
+  const openSidebar = useCallback(() => setSidebarOpen(true), [])
+  const closeSidebar = useCallback(() => setSidebarOpen(false), [])
 
-  const openSidebar = useCallback(() => {
-    setSidebarOpen(true)
-    clearAutoClose()
-  }, [clearAutoClose])
-
-  const closeSidebar = useCallback(() => {
-    setSidebarOpen(false)
-    clearAutoClose()
-  }, [clearAutoClose])
-
-  const scheduleAutoClose = useCallback(() => {
-    clearAutoClose()
-    autoCloseTimerRef.current = setTimeout(() => {
-      setSidebarOpen(false)
-    }, AUTO_CLOSE_DELAY)
-  }, [clearAutoClose])
-
-  // Override addItem to auto-open sidebar
   const addItem = useCallback((item: Omit<CartLineItem, 'id'>) => {
     cartHook.addItem(item)
     setSidebarOpen(true)
-    scheduleAutoClose()
-  }, [cartHook, scheduleAutoClose])
+  }, [cartHook])
 
   const value: CartContextValue = {
     // Cart state
@@ -113,6 +91,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setSidebarOpen,
     openSidebar,
     closeSidebar,
+    sidebarCollapsed,
+    setSidebarCollapsed,
   }
 
   return (

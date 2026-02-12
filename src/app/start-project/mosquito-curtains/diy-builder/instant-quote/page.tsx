@@ -1,9 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Zap, ArrowLeft, Loader2, Users } from 'lucide-react'
+import { Zap, ArrowLeft, Users } from 'lucide-react'
 import Link from 'next/link'
-import { Container, Stack, Card, Button, Text } from '@/lib/design-system'
+import { Container, Stack, Card, Button, Text, Spinner } from '@/lib/design-system'
 import { usePricing } from '@/hooks/usePricing'
 import { calculateMeshPanelPrice } from '@/lib/pricing/formulas'
 import type { MeshType, MeshColor, MeshTopAttachment } from '@/lib/pricing/types'
@@ -125,7 +125,7 @@ export default function InstantQuotePage() {
 
         {isLoading ? (
           <Card className="!p-8 text-center">
-            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3 text-gray-400" />
+            <Spinner size="lg" className="mx-auto mb-3" />
             <Text className="text-gray-500 !mb-0">Loading pricing...</Text>
           </Card>
         ) : (

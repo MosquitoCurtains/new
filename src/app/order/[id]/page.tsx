@@ -4,6 +4,7 @@
  * Order Confirmation Page
  * 
  * Shows order details after successful checkout.
+ * Fetches real order data from the database.
  * Follows Mosquito Curtains Design System patterns.
  */
 
@@ -21,6 +22,8 @@ import {
   Printer,
   Home,
   User,
+  AlertCircle,
+  MapPin,
 } from 'lucide-react'
 import {
   Container,
@@ -38,73 +41,46 @@ import {
 // TYPES
 // =============================================================================
 
+interface OrderItem {
+  id: string
+  name: string
+  sku: string
+  quantity: number
+  unitPrice: number
+  totalPrice: number
+  widthInches?: number
+  heightInches?: number
+  lengthFeet?: number
+  specs?: Record<string, unknown>
+  options?: Array<{
+    option_name: string
+    option_value: string
+    option_display?: string
+  }>
+}
+
 interface OrderDetails {
   id: string
   orderNumber: string
   status: string
   paymentStatus: string
-  total: number
-  subtotal: number
-  shipping: number
-  tax: number
-  customerEmail: string
+  email: string
   customerFirstName: string
   customerLastName: string
+  subtotal: number
+  tax: number
+  shipping: number
+  discount: number
+  total: number
   createdAt: string
-  items: Array<{
-    id: string
-    name: string
-    description: string
-    quantity: number
-    unitPrice: number
-    totalPrice: number
-  }>
-}
-
-// =============================================================================
-// MOCK DATA (until database is connected)
-// =============================================================================
-
-function getMockOrder(id: string): OrderDetails {
-  return {
-    id,
-    orderNumber: `MC-${id.toUpperCase().slice(0, 8)}`,
-    status: 'processing',
-    paymentStatus: 'paid',
-    total: 847.50,
-    subtotal: 812.50,
-    shipping: 35.00,
-    tax: 0,
-    customerEmail: 'customer@example.com',
-    customerFirstName: 'John',
-    customerLastName: 'Smith',
-    createdAt: new Date().toISOString(),
-    items: [
-      {
-        id: 'panel-1',
-        name: 'Panel 1: Front Left',
-        description: '5.5ft x 96in Heavy Mosquito - Black',
-        quantity: 1,
-        unitPrice: 123.00,
-        totalPrice: 123.00,
-      },
-      {
-        id: 'panel-2',
-        name: 'Panel 2: Front Right',
-        description: '5.5ft x 96in Heavy Mosquito - Black',
-        quantity: 1,
-        unitPrice: 123.00,
-        totalPrice: 123.00,
-      },
-      {
-        id: 'track-1',
-        name: 'Standard Track 7ft',
-        description: 'White standard track',
-        quantity: 4,
-        unitPrice: 30.00,
-        totalPrice: 120.00,
-      },
-    ],
+  shippingAddress?: {
+    firstName?: string
+    lastName?: string
+    street?: string
+    city?: string
+    state?: string
+    zip?: string
+    country?: string
   }
 }
 
@@ -116,7 +92,9 @@ export default function OrderConfirmationPage() {
   const params = useParams()
   const searchParams = useSearchParams()
   const [order, setOrder] = useState<OrderDetails | null>(null)
+  const [items, setItems] = useState<OrderItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   const orderId = params.id as string
   const isSuccess = searchParams.get('success') === 'true'
@@ -124,10 +102,23 @@ export default function OrderConfirmationPage() {
   useEffect(() => {
     async function fetchOrder() {
       try {
-        await new Promise(resolve => setTimeout(resolve, 500))
-        setOrder(getMockOrder(orderId))
-      } catch (error) {
-        console.error('Failed to fetch order:', error)
+        const res = await fetch(`/api/orders/${orderId}`)
+        
+        if (!res.ok) {
+          if (res.status === 404) {
+            setError('not_found')
+          } else {
+            setError('fetch_failed')
+          }
+          return
+        }
+
+        const data = await res.json()
+        setOrder(data.order)
+        setItems(data.items || [])
+      } catch (err) {
+        console.error('Failed to fetch order:', err)
+        setError('fetch_failed')
       } finally {
         setIsLoading(false)
       }
@@ -143,19 +134,29 @@ export default function OrderConfirmationPage() {
     )
   }
 
-  if (!order) {
+  if (error || !order) {
     return (
       <Container size="md">
         <Stack gap="lg">
           <section className="text-center py-12">
             <div className="bg-gradient-to-br from-[#406517]/5 via-white to-[#003365]/5 border-[#406517]/20 border-2 rounded-3xl p-8 md:p-12">
+              <div className="w-16 h-16 bg-gray-100 rounded-full mx-auto mb-4 flex items-center justify-center">
+                <AlertCircle className="w-8 h-8 text-gray-400" />
+              </div>
               <Heading level={2} className="!mb-2">Order Not Found</Heading>
               <Text className="text-gray-600 mb-6">
-                We couldn&apos;t find an order with that ID.
+                We couldn&apos;t find an order with that ID. If you just placed an order, 
+                please check your email for confirmation.
               </Text>
-              <div className="flex justify-center">
+              <div className="flex justify-center gap-4">
                 <Button variant="primary" asChild>
                   <Link href="/">Return Home</Link>
+                </Button>
+                <Button variant="outline" asChild>
+                  <a href="tel:7706454745">
+                    <Phone className="w-4 h-4 mr-2" />
+                    Call Us
+                  </a>
                 </Button>
               </div>
             </div>
@@ -164,6 +165,26 @@ export default function OrderConfirmationPage() {
       </Container>
     )
   }
+
+  // Build a description string for each item
+  function getItemDescription(item: OrderItem): string {
+    const parts: string[] = []
+    if (item.widthInches) parts.push(`${item.widthInches}" wide`)
+    if (item.heightInches) parts.push(`${item.heightInches}" tall`)
+    if (item.lengthFeet) parts.push(`${item.lengthFeet} ft`)
+    if (item.options && item.options.length > 0) {
+      item.options.forEach(opt => {
+        if (opt.option_display) {
+          parts.push(opt.option_display)
+        } else if (opt.option_value) {
+          parts.push(opt.option_value)
+        }
+      })
+    }
+    return parts.join(' - ') || item.sku || ''
+  }
+
+  const hasShippingAddress = order.shippingAddress?.street
 
   return (
     <Container size="xl">
@@ -186,7 +207,7 @@ export default function OrderConfirmationPage() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-gray-200">
             <div>
               <div className="flex items-center gap-3">
-                <Heading level={2} className="!mb-0">Order {order.orderNumber}</Heading>
+                <Heading level={2} className="!mb-0">Order #{order.orderNumber}</Heading>
                 <Badge 
                   className={order.paymentStatus === 'paid' 
                     ? '!bg-[#406517]/10 !text-[#406517] !border-[#406517]/30' 
@@ -228,27 +249,35 @@ export default function OrderConfirmationPage() {
                       <Heading level={3} className="!mb-0">Order Items</Heading>
                     </div>
 
-                    <div className="space-y-4">
-                      {order.items.map((item) => (
-                        <div 
-                          key={item.id} 
-                          className="flex justify-between items-start py-3 border-b border-gray-100 last:border-0"
-                        >
-                          <div>
-                            <Text className="font-medium text-gray-900 !mb-0">{item.name}</Text>
-                            <Text size="sm" className="text-gray-500 !mb-0">{item.description}</Text>
-                            {item.quantity > 1 && (
-                              <Text size="sm" className="text-gray-400 !mb-0">
-                                Qty: {item.quantity} x ${item.unitPrice.toFixed(2)}
+                    {items.length > 0 ? (
+                      <div className="space-y-4">
+                        {items.map((item) => (
+                          <div 
+                            key={item.id} 
+                            className="flex justify-between items-start py-3 border-b border-gray-100 last:border-0"
+                          >
+                            <div>
+                              <Text className="font-medium text-gray-900 !mb-0">{item.name}</Text>
+                              <Text size="sm" className="text-gray-500 !mb-0">
+                                {getItemDescription(item)}
                               </Text>
-                            )}
+                              {item.quantity > 1 && (
+                                <Text size="sm" className="text-gray-400 !mb-0">
+                                  Qty: {item.quantity} x ${item.unitPrice.toFixed(2)}
+                                </Text>
+                              )}
+                            </div>
+                            <Text className="font-semibold text-gray-900 !mb-0">
+                              ${item.totalPrice.toFixed(2)}
+                            </Text>
                           </div>
-                          <Text className="font-semibold text-gray-900 !mb-0">
-                            ${item.totalPrice.toFixed(2)}
-                          </Text>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <Text className="text-gray-500">
+                        Order items will appear here once fully processed.
+                      </Text>
+                    )}
 
                     {/* Totals */}
                     <div className="border-t border-gray-200 mt-4 pt-4 space-y-2">
@@ -262,6 +291,18 @@ export default function OrderConfirmationPage() {
                           {order.shipping === 0 ? 'FREE' : `$${order.shipping.toFixed(2)}`}
                         </span>
                       </div>
+                      {order.tax > 0 && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-600">Tax</span>
+                          <span className="text-gray-900">${order.tax.toFixed(2)}</span>
+                        </div>
+                      )}
+                      {order.discount > 0 && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-600">Discount</span>
+                          <span className="text-[#406517]">-${order.discount.toFixed(2)}</span>
+                        </div>
+                      )}
                       <div className="flex justify-between pt-2 border-t border-gray-200">
                         <span className="font-semibold text-gray-900">Total</span>
                         <span className="text-xl font-bold text-[#406517]">${order.total.toFixed(2)}</span>
@@ -284,7 +325,7 @@ export default function OrderConfirmationPage() {
                         <div>
                           <Text className="font-medium text-gray-900 !mb-1">Order Confirmation</Text>
                           <Text size="sm" className="text-gray-600 !mb-0">
-                            You&apos;ll receive an email confirmation at {order.customerEmail}
+                            You&apos;ll receive an email confirmation at {order.email}
                           </Text>
                         </div>
                       </div>
@@ -336,18 +377,35 @@ export default function OrderConfirmationPage() {
                   <Card variant="outlined" className="!p-4">
                     <Heading level={4} className="!mb-3">Customer</Heading>
                     <Stack gap="sm">
-                      <div className="flex items-center gap-2">
-                        <User className="w-4 h-4 text-gray-400" />
-                        <Text className="text-gray-700 !mb-0">
-                          {order.customerFirstName} {order.customerLastName}
-                        </Text>
-                      </div>
+                      {(order.customerFirstName || order.customerLastName) && (
+                        <div className="flex items-center gap-2">
+                          <User className="w-4 h-4 text-gray-400" />
+                          <Text className="text-gray-700 !mb-0">
+                            {order.customerFirstName} {order.customerLastName}
+                          </Text>
+                        </div>
+                      )}
                       <div className="flex items-center gap-2">
                         <Mail className="w-4 h-4 text-gray-400" />
-                        <Text className="text-gray-700 !mb-0">{order.customerEmail}</Text>
+                        <Text className="text-gray-700 !mb-0">{order.email}</Text>
                       </div>
                     </Stack>
                   </Card>
+
+                  {/* Shipping Address */}
+                  {hasShippingAddress && (
+                    <Card variant="outlined" className="!p-4">
+                      <Heading level={4} className="!mb-3">Shipping To</Heading>
+                      <div className="flex items-start gap-2">
+                        <MapPin className="w-4 h-4 text-gray-400 mt-0.5" />
+                        <Text className="text-gray-700 !mb-0">
+                          {order.shippingAddress?.firstName} {order.shippingAddress?.lastName}<br />
+                          {order.shippingAddress?.street}<br />
+                          {order.shippingAddress?.city}, {order.shippingAddress?.state} {order.shippingAddress?.zip}
+                        </Text>
+                      </div>
+                    </Card>
+                  )}
 
                   {/* Need Help */}
                   <Card variant="outlined" className="!p-4">
@@ -378,14 +436,6 @@ export default function OrderConfirmationPage() {
                   <Stack gap="sm">
                     <div className="flex justify-center">
                       <Button variant="primary" asChild>
-                        <Link href="/my-orders">
-                          View All Orders
-                          <ArrowRight className="w-4 h-4 ml-2" />
-                        </Link>
-                      </Button>
-                    </div>
-                    <div className="flex justify-center">
-                      <Button variant="ghost" asChild>
                         <Link href="/">
                           <Home className="w-4 h-4 mr-2" />
                           Return Home

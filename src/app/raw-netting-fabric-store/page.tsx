@@ -10,8 +10,6 @@
 import Link from 'next/link'
 import {
   ArrowRight,
-  Ruler,
-  Truck,
   ShieldCheck,
   Layers,
   Scissors,
@@ -88,13 +86,6 @@ const MESH_PRODUCTS = [
   },
 ]
 
-const TRUST_BADGES = [
-  { icon: Ruler, label: 'Custom-Size', description: 'Cut to your exact length' },
-  { icon: Truck, label: 'Fast Delivery', description: '3-7 business days' },
-  { icon: ShieldCheck, label: 'Marine-Grade', description: 'Built to last outdoors' },
-  { icon: Layers, label: 'Multi-Purpose', description: 'Limitless applications' },
-]
-
 export default function RawNettingStorePage() {
   return (
     <Container size="xl">
@@ -110,22 +101,6 @@ export default function RawNettingStorePage() {
           ctaHref="/order/raw-netting"
           actions={[]}
         />
-
-        {/* Trust Badges */}
-        <section>
-          <Grid responsiveCols={{ mobile: 2, tablet: 4 }} gap="md">
-            {TRUST_BADGES.map((badge) => {
-              const Icon = badge.icon
-              return (
-                <Card key={badge.label} variant="outlined" className="!p-4 text-center">
-                  <Icon className="w-6 h-6 text-[#406517] mx-auto mb-2" />
-                  <Text className="font-semibold text-gray-900 !mb-0.5">{badge.label}</Text>
-                  <Text size="sm" className="text-gray-500 !mb-0">{badge.description}</Text>
-                </Card>
-              )
-            })}
-          </Grid>
-        </section>
 
         {/* Mesh Product Cards */}
         <section>

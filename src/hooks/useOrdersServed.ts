@@ -31,8 +31,8 @@ interface UseOrdersServedReturn {
 }
 
 // Default fallback values
-const DEFAULT_COUNT = 92000
-const DEFAULT_FORMATTED = '92,000+'
+const DEFAULT_COUNT = 95000
+const DEFAULT_FORMATTED = '95,000+'
 
 // Module-level cache for SSR/ISR
 let cachedData: OrdersServedData | null = null

@@ -254,14 +254,13 @@ export function useCart() {
   const saveToDb = useCallback(async (
     projId: string,
     salespersonId?: string,
-    salespersonName?: string,
     salesMode?: string,
-  ) => {
-    if (!cart) return null
+  ): Promise<string> => {
+    if (!cart) throw new Error('Cart is empty')
+    if (cart.items.length === 0) throw new Error('No items in cart')
     setIsSaving(true)
     try {
       const items = cart.items.map((item) => ({
-        product_id: item.productSku, // Use SKU as product reference
         product_sku: item.productSku,
         product_name: item.name,
         quantity: item.quantity,
@@ -277,7 +276,6 @@ export function useCart() {
       const payload = {
         project_id: projId,
         salesperson_id: salespersonId || null,
-        salesperson_name: salespersonName || null,
         sales_mode: salesMode || null,
         items,
         subtotal: cart.subtotal,
@@ -310,16 +308,24 @@ export function useCart() {
         })
       }
 
+      if (!res.ok) {
+        const text = await res.text().catch(() => '')
+        let detail = ''
+        try { detail = JSON.parse(text)?.error || '' } catch { detail = text.slice(0, 120) }
+        throw new Error(detail || `Server error (${res.status})`)
+      }
+
       const data = await res.json()
       if (data.success && data.cart) {
         setDbCartId(data.cart.id)
         setProjectId(projId)
         return data.cart.id as string
       }
-      return null
+      throw new Error(data.error || 'Unexpected response from server')
     } catch (err) {
-      console.error('Error saving cart to DB:', err)
-      return null
+      // Re-throw so callers can surface the message
+      if (err instanceof Error) throw err
+      throw new Error('Network error saving cart')
     } finally {
       setIsSaving(false)
     }

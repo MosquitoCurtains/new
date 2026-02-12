@@ -103,7 +103,7 @@ export default function AdminPricingPage() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [editMode, setEditMode] = useState(false)
-  const [editedValues, setEditedValues] = useState<Record<string, number>>({})
+  const [editedValues, setEditedValues] = useState<Record<string, number | boolean>>({})
   const [expandedProducts, setExpandedProducts] = useState<Set<string>>(new Set())
 
   // Fetch prices from database
@@ -148,16 +148,25 @@ export default function AdminPricingPage() {
     }
   }
 
+  const handleProductAdminOnlyChange = (id: string, checked: boolean) => {
+    setEditedValues(prev => ({ ...prev, [`product:${id}:admin_only`]: checked }))
+  }
+
   const getProductPrice = (product: ProductItem): number => {
-    return editedValues[`product:${product.id}:base_price`] ?? product.base_price
+    return (editedValues[`product:${product.id}:base_price`] as number) ?? product.base_price
+  }
+
+  const getProductAdminOnly = (product: ProductItem): boolean => {
+    const edited = editedValues[`product:${product.id}:admin_only`]
+    return edited !== undefined ? (edited as boolean) : product.admin_only
   }
 
   const getOptionPrice = (option: OptionItem): number => {
-    return editedValues[`option:${option.id}:price`] ?? option.price
+    return (editedValues[`option:${option.id}:price`] as number) ?? option.price
   }
 
   const getOptionFee = (option: OptionItem): number => {
-    return editedValues[`option:${option.id}:fee`] ?? option.fee
+    return (editedValues[`option:${option.id}:fee`] as number) ?? option.fee
   }
 
   const hasChanges = Object.keys(editedValues).length > 0
@@ -398,7 +407,7 @@ export default function AdminPricingPage() {
                           <div 
                             className={`px-4 py-3 grid grid-cols-[1fr_100px_80px] gap-4 items-center ${
                               idx !== sectionProducts.length - 1 || isExpanded ? 'border-b border-gray-100' : ''
-                            } ${editedValues[`product:${product.id}:base_price`] !== undefined ? 'bg-amber-50/50' : ''}`}
+                            } ${(editedValues[`product:${product.id}:base_price`] !== undefined || editedValues[`product:${product.id}:admin_only`] !== undefined) ? 'bg-amber-50/50' : ''}`}
                           >
                             <div className="flex items-center gap-2">
                               {hasOptions && (
@@ -413,8 +422,20 @@ export default function AdminPricingPage() {
                                 <Text className="font-medium text-gray-900 !mb-0">{product.name}</Text>
                                 <Text size="sm" className="text-gray-400 !mb-0 font-mono text-xs">{product.sku}</Text>
                               </div>
-                              {product.admin_only && (
-                                <span className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">admin</span>
+                              {editMode ? (
+                                <label className="flex items-center gap-1 cursor-pointer select-none">
+                                  <input
+                                    type="checkbox"
+                                    checked={getProductAdminOnly(product)}
+                                    onChange={(e) => handleProductAdminOnlyChange(product.id, e.target.checked)}
+                                    className="w-3.5 h-3.5 rounded border-gray-300 text-[#003365] focus:ring-[#003365]"
+                                  />
+                                  <span className="text-[10px] text-gray-500">admin only</span>
+                                </label>
+                              ) : (
+                                product.admin_only && (
+                                  <span className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">admin</span>
+                                )
                               )}
                             </div>
                             <div className="text-right">

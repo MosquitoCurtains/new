@@ -11,8 +11,8 @@ import { useMemo, useState } from 'react'
 import Image from 'next/image'
 import { Plus, Minus, ShoppingCart } from 'lucide-react'
 import { Container, Stack, Card, Heading, Text, Button, Spinner } from '@/lib/design-system'
-import { PowerHeaderTemplate, FinalCTATemplate } from '@/lib/design-system/templates'
-import { VIDEOS } from '@/lib/constants/videos'
+import { FinalCTATemplate } from '@/lib/design-system/templates'
+import { OrderPageHeader } from '../OrderPageHeader'
 import { useCartContext } from '@/contexts/CartContext'
 import { useProducts, getProductOptions } from '@/hooks/useProducts'
 import { usePricing } from '@/hooks/usePricing'
@@ -124,12 +124,9 @@ export function RollUpShadesPage() {
   return (
     <Container size="xl">
       <Stack gap="xl">
-        <PowerHeaderTemplate
+        <OrderPageHeader
           title="Order Roll-Up Shade Screens"
           subtitle="Custom roll-up shade screens in single or double ply. Enter width and choose ply for an instant quote."
-          videoId={VIDEOS.ROLL_UP_SHADE}
-          videoTitle="Roll-Up Shade Screens"
-          variant="compact"
         />
 
         <StepNav flow="ru" currentStep={1} />

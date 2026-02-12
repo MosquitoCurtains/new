@@ -60,6 +60,15 @@ export interface LeadEmailData {
   createdAt: string
 }
 
+export interface SalespersonAssignedEmailData {
+  salespersonName: string
+  salespersonEmail: string
+  customerName: string
+  customerEmail: string
+  productType: string
+  projectId: string
+}
+
 // ---------------------------------------------------------------------------
 // Merge tag definitions per template type
 // ---------------------------------------------------------------------------
@@ -101,6 +110,13 @@ export const TEMPLATE_MERGE_TAGS: Record<string, { tag: string; description: str
     { tag: '{{lead_message}}', description: 'Lead message text' },
     { tag: '{{lead_source}}', description: 'Form source (Contact Page / Quick Connect)' },
     { tag: '{{lead_date}}', description: 'Submission date formatted' },
+  ],
+  salesperson_assigned: [
+    { tag: '{{salesperson_name}}', description: 'Salesperson full name' },
+    { tag: '{{customer_name}}', description: 'Customer full name' },
+    { tag: '{{customer_email}}', description: 'Customer email address' },
+    { tag: '{{product_type}}', description: 'Product type for the project' },
+    { tag: '{{project_url}}', description: 'Link to the project in admin' },
   ],
 }
 
@@ -156,6 +172,13 @@ export const SAMPLE_DATA: Record<string, Record<string, string>> = {
     '{{lead_message}}': 'Hi, I have a 12x16 screened porch and I\'m interested in getting mosquito curtains installed. Can you give me a rough estimate?',
     '{{lead_source}}': 'Contact Page',
     '{{lead_date}}': 'Thursday, February 6, 2026',
+  },
+  salesperson_assigned: {
+    '{{salesperson_name}}': 'Jordan B.',
+    '{{customer_name}}': 'Sarah Johnson',
+    '{{customer_email}}': 'sarah.johnson@example.com',
+    '{{product_type}}': 'Clear Vinyl Panels',
+    '{{project_url}}': 'https://mosquitocurtains.com/admin/projects/abc-123',
   },
 }
 
@@ -266,6 +289,8 @@ export function getDefaultTemplateBody(type: string): { subject: string; body: s
       return { subject: 'Snap Tool Refund Processed - {{order_number}} | Mosquito Curtains', body: DEFAULT_BODIES.snap_tool_refund }
     case 'new_lead':
       return { subject: 'New Lead: {{lead_name}} - {{lead_source}}', body: DEFAULT_BODIES.new_lead }
+    case 'salesperson_assigned':
+      return { subject: 'New Project Assigned: {{customer_name}} - {{product_type}}', body: DEFAULT_BODIES.salesperson_assigned }
     default:
       return null
   }
@@ -403,6 +428,27 @@ const DEFAULT_BODIES: Record<string, string> = {
 
 <div style="text-align:center;margin-top:24px;">
   <p style="color:#6b7280;font-size:14px;margin:0;">Questions? Call us at <a href="tel:7706454745" style="color:#406517;text-decoration:none;font-weight:600;">(770) 645-4745</a> or email <a href="mailto:help@mosquitocurtains.com" style="color:#406517;text-decoration:none;font-weight:600;">help@mosquitocurtains.com</a></p>
+</div>`,
+
+  salesperson_assigned: `<div style="margin-bottom:20px;">
+  <h2 style="margin:0 0 4px;color:#1f2937;font-size:20px;">New Project Assigned to You</h2>
+  <p style="margin:0;color:#6b7280;">A returning customer has been assigned to you.</p>
+</div>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;background-color:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;">
+  <tr><td style="padding:16px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+      <tr><td style="padding:6px 0;color:#6b7280;font-size:13px;width:90px;">Customer</td><td style="padding:6px 0;color:#1f2937;font-size:14px;font-weight:600;">{{customer_name}}</td></tr>
+      <tr><td style="padding:6px 0;color:#6b7280;font-size:13px;">Email</td><td style="padding:6px 0;"><a href="mailto:{{customer_email}}" style="color:#003365;text-decoration:none;font-weight:600;">{{customer_email}}</a></td></tr>
+      <tr><td style="padding:6px 0;color:#6b7280;font-size:13px;">Product</td><td style="padding:6px 0;color:#1f2937;font-size:14px;">{{product_type}}</td></tr>
+    </table>
+  </td></tr>
+</table>
+
+<p style="color:#6b7280;font-size:14px;line-height:1.5;">Hi {{salesperson_name}}, this customer previously worked with you and has started a new project. You have been automatically assigned as their salesperson.</p>
+
+<div style="text-align:center;margin-top:16px;">
+  <a href="{{project_url}}" style="display:inline-block;background-color:#003365;color:#ffffff;padding:10px 24px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;">View Project</a>
 </div>`,
 
   new_lead: `<div style="margin-bottom:20px;">
@@ -702,6 +748,56 @@ export function snapToolRefundTemplate(data: SnapToolRefundEmailData): { subject
       <p style="color:#6b7280;font-size:14px;margin:0;">
         Questions? Call us at <a href="tel:7706454745" style="color:#406517;text-decoration:none;font-weight:600;">(770) 645-4745</a> or email <a href="mailto:help@mosquitocurtains.com" style="color:#406517;text-decoration:none;font-weight:600;">help@mosquitocurtains.com</a>
       </p>
+    </div>
+  `
+
+  return { subject, html: baseLayout(content) }
+}
+
+/**
+ * Salesperson Assigned - sent when a salesperson is auto-assigned to a returning customer's project
+ */
+export function salespersonAssignedTemplate(data: SalespersonAssignedEmailData): { subject: string; html: string } {
+  const productLabel = data.productType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+  const subject = `New Project Assigned: ${data.customerName} - ${productLabel}`
+  const projectUrl = `https://mosquitocurtains.com/admin/projects/${data.projectId}`
+
+  const content = `
+    <div style="margin-bottom:20px;">
+      <h2 style="margin:0 0 4px;color:#1f2937;font-size:20px;">New Project Assigned to You</h2>
+      <p style="margin:0;color:#6b7280;">A returning customer has been assigned to you.</p>
+    </div>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;background-color:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;">
+      <tr>
+        <td style="padding:16px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+              <td style="padding:6px 0;color:#6b7280;font-size:13px;width:90px;">Customer</td>
+              <td style="padding:6px 0;color:#1f2937;font-size:14px;font-weight:600;">${data.customerName}</td>
+            </tr>
+            <tr>
+              <td style="padding:6px 0;color:#6b7280;font-size:13px;">Email</td>
+              <td style="padding:6px 0;"><a href="mailto:${data.customerEmail}" style="color:#003365;text-decoration:none;font-weight:600;">${data.customerEmail}</a></td>
+            </tr>
+            <tr>
+              <td style="padding:6px 0;color:#6b7280;font-size:13px;">Product</td>
+              <td style="padding:6px 0;color:#1f2937;font-size:14px;">${productLabel}</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+
+    <p style="color:#6b7280;font-size:14px;line-height:1.5;">
+      Hi ${data.salespersonName}, this customer previously worked with you and has started a new project.
+      You have been automatically assigned as their salesperson.
+    </p>
+
+    <div style="text-align:center;margin-top:16px;">
+      <a href="${projectUrl}" style="display:inline-block;background-color:#003365;color:#ffffff;padding:10px 24px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;">
+        View Project
+      </a>
     </div>
   `
 

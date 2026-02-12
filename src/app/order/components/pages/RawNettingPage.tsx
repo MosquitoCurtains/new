@@ -11,8 +11,8 @@ import { useMemo, useState } from 'react'
 import Image from 'next/image'
 import { Plus, Minus, ShoppingCart, Info, X } from 'lucide-react'
 import { Container, Stack, Card, Heading, Text, Button, Spinner } from '@/lib/design-system'
-import { PowerHeaderTemplate, FinalCTATemplate } from '@/lib/design-system/templates'
-import { VIDEOS } from '@/lib/constants/videos'
+import { FinalCTATemplate } from '@/lib/design-system/templates'
+import { OrderPageHeader } from '../OrderPageHeader'
 import { useCartContext } from '@/contexts/CartContext'
 import { useProducts, getProductOptions } from '@/hooks/useProducts'
 import { usePricing } from '@/hooks/usePricing'
@@ -270,12 +270,9 @@ export function RawNettingPage() {
   return (
     <Container size="xl">
       <Stack gap="xl">
-        <PowerHeaderTemplate
+        <OrderPageHeader
           title="Order Raw Netting"
           subtitle="Raw mesh netting by the foot. Heavy mosquito, no-see-um, pet screen, and industrial mesh options available."
-          videoId={VIDEOS.RAW_NETTING}
-          videoTitle="Raw Netting Overview"
-          variant="compact"
         />
 
         <StepNav flow="rn" currentStep={1} />

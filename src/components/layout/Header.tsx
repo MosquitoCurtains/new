@@ -3,7 +3,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu, X, Phone, ChevronDown, ChevronRight } from 'lucide-react'
+import { Menu, X, Phone, ChevronDown, ChevronRight, ShoppingCart } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 // ---------------------------------------------------------------------------
@@ -551,8 +551,15 @@ export function Header() {
             ))}
           </div>
 
-          {/* ── CTA and Phone ────────────────────────────────────── */}
+          {/* ── Cart, CTA and Phone ───────────────────────────────── */}
           <div className="hidden xl:flex xl:items-center xl:gap-3">
+            <Link
+              href="/cart"
+              className="flex items-center justify-center p-2 text-gray-700 hover:text-[#003365] hover:bg-gray-100 rounded-lg transition-colors"
+              aria-label="View cart"
+            >
+              <ShoppingCart className="w-5 h-5" />
+            </Link>
             <a
               href="tel:7706454745"
               className="flex items-center gap-1.5 text-xs font-medium text-gray-700 hover:text-[#406517] transition-colors"
@@ -568,8 +575,15 @@ export function Header() {
             </Link>
           </div>
 
-          {/* ── Mobile menu button ───────────────────────────────── */}
+          {/* ── Mobile: cart, phone, menu button ──────────────────── */}
           <div className="xl:hidden flex items-center gap-3">
+            <Link
+              href="/cart"
+              className="p-2 text-gray-700 hover:text-[#003365] hover:bg-gray-100 rounded-lg transition-colors"
+              aria-label="View cart"
+            >
+              <ShoppingCart className="w-5 h-5" />
+            </Link>
             <a
               href="tel:7706454745"
               className="flex items-center gap-1.5 text-xs font-medium text-gray-700 hover:text-[#406517]"

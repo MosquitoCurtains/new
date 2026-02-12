@@ -11,8 +11,8 @@ import { useMemo, useState } from 'react'
 import Image from 'next/image'
 import { ShoppingCart, Info, X } from 'lucide-react'
 import { Container, Stack, Grid, Card, Heading, Text, Button, Spinner } from '@/lib/design-system'
-import { PowerHeaderTemplate, FinalCTATemplate } from '@/lib/design-system/templates'
-import { VIDEOS } from '@/lib/constants/videos'
+import { FinalCTATemplate } from '@/lib/design-system/templates'
+import { OrderPageHeader } from '../OrderPageHeader'
 import { useCartContext } from '@/contexts/CartContext'
 import { useProducts, getPriceLabel, getProductOptions } from '@/hooks/useProducts'
 import type { DBProduct } from '@/hooks/useProducts'
@@ -136,12 +136,9 @@ export function TrackHardwarePage() {
   return (
     <Container size="xl">
       <Stack gap="xl">
-        <PowerHeaderTemplate
+        <OrderPageHeader
           title="Order Track Hardware"
           subtitle="Standard and heavy-duty ceiling track systems. Straight tracks, curves, splices, end caps, and snap carriers."
-          videoId={VIDEOS.TRACKING_OVERVIEW}
-          videoTitle="Tracking System Overview"
-          variant="compact"
         />
 
         <StepNav flow="mc" currentStep={2} />

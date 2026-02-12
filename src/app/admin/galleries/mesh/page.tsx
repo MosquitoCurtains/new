@@ -28,6 +28,7 @@ import {
   Text,
   Button,
   Badge,
+  Spinner,
 } from '@/lib/design-system'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -291,7 +292,7 @@ export default function MeshGalleryAdminPage() {
         {/* Image Grid */}
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+            <Spinner size="lg" />
           </div>
         ) : images.length === 0 ? (
           <Card variant="outlined" className="!p-12">

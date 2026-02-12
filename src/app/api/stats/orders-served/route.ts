@@ -1,84 +1,54 @@
 /**
  * Orders Served Count API
  * 
- * Returns the current "orders served" count for display on the website.
- * This is a public endpoint that can be cached.
+ * Returns the current "orders served" count pulled live from the
+ * order_number_seq sequence in the database.
  * 
  * GET /api/stats/orders-served
- * Response: { count: number, formatted: string }
+ * Response: { count: number, formatted: string, source: string }
  */
 
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
+const FALLBACK_COUNT = 95000
+
+function buildResponse(count: number, source: string) {
+  const formatted = `${count.toLocaleString('en-US')}+`
+  return NextResponse.json(
+    { count, formatted, source },
+    {
+      status: 200,
+      headers: {
+        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
+      },
+    }
+  )
+}
+
 export async function GET() {
   try {
-    // Create client inside function to avoid build-time errors
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    
+
     if (!supabaseUrl || !supabaseKey) {
-      // Return fallback if env vars not available
-      return NextResponse.json(
-        { count: 92000, formatted: '92,000+', source: 'env-fallback' },
-        { status: 200 }
-      )
+      return buildResponse(FALLBACK_COUNT, 'env-fallback')
     }
-    
+
     const supabase = createClient(supabaseUrl, supabaseKey)
-    
-    // Get the orders served count from site_settings
-    const { data, error } = await supabase
-      .rpc('get_site_setting', { setting_key: 'orders_served_count' })
+
+    // Call the DB function that reads the sequence value directly
+    const { data, error } = await supabase.rpc('get_orders_served_count')
 
     if (error) {
       console.error('Error fetching orders served count:', error)
-      // Fallback to a reasonable default
-      return NextResponse.json(
-        { 
-          count: 92000, 
-          formatted: '92,000+',
-          source: 'fallback'
-        },
-        { 
-          status: 200,
-          headers: {
-            'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
-          }
-        }
-      )
+      return buildResponse(FALLBACK_COUNT, 'fallback')
     }
 
-    const count = data?.count || 92000
-    const displayFormat = data?.display_format || '{count}+'
-    
-    // Format the count with commas
-    const formattedCount = count.toLocaleString('en-US')
-    const formatted = displayFormat.replace('{count}', formattedCount)
-
-    return NextResponse.json(
-      { 
-        count,
-        formatted,
-        source: data?.source || 'database'
-      },
-      {
-        status: 200,
-        headers: {
-          // Cache for 1 hour, allow stale for 24 hours while revalidating
-          'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
-        }
-      }
-    )
+    const count = typeof data === 'number' ? data : FALLBACK_COUNT
+    return buildResponse(count, 'database')
   } catch (error) {
     console.error('Orders served API error:', error)
-    return NextResponse.json(
-      { 
-        count: 92000, 
-        formatted: '92,000+',
-        source: 'error-fallback'
-      },
-      { status: 200 }
-    )
+    return buildResponse(FALLBACK_COUNT, 'error-fallback')
   }
 }

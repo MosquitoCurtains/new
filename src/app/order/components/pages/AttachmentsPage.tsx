@@ -12,8 +12,8 @@ import { useMemo, useState } from 'react'
 import Image from 'next/image'
 import { ShoppingCart, Info, X } from 'lucide-react'
 import { Container, Stack, Card, Heading, Text, Button, Spinner } from '@/lib/design-system'
-import { PowerHeaderTemplate, FinalCTATemplate } from '@/lib/design-system/templates'
-import { VIDEOS } from '@/lib/constants/videos'
+import { FinalCTATemplate } from '@/lib/design-system/templates'
+import { OrderPageHeader } from '../OrderPageHeader'
 import { useCartContext } from '@/contexts/CartContext'
 import { useProducts, getPriceLabel } from '@/hooks/useProducts'
 import type { DBProduct } from '@/hooks/useProducts'
@@ -176,12 +176,9 @@ export function AttachmentsPage() {
   return (
     <Container size="xl">
       <Stack gap="xl">
-        <PowerHeaderTemplate
+        <OrderPageHeader
           title="Order Attachment Items"
           subtitle="Marine snaps, magnetic strips, velcro, and other attachment hardware for your curtains."
-          videoId={VIDEOS.OPTIONS_OVERVIEW}
-          videoTitle="Hardware Options Overview"
-          variant="compact"
         />
 
         <StepNav flow="mc" currentStep={3} />

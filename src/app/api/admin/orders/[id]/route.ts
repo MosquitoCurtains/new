@@ -13,18 +13,26 @@ export async function GET(
     const { id } = await params
     const supabase = createAdminClient()
 
-    // Fetch order
-    const { data: order, error: orderError } = await supabase
+    // Fetch order with salesperson join
+    const { data: rawOrder, error: orderError } = await supabase
       .from('orders')
-      .select('*')
+      .select('*, staff!salesperson_id(id, name)')
       .eq('id', id)
       .single()
 
-    if (orderError || !order) {
+    if (orderError || !rawOrder) {
       return NextResponse.json(
         { error: 'Order not found' },
         { status: 404 }
       )
+    }
+
+    // Flatten joined staff name into salesperson_name for frontend compat
+    const staffJoin = (rawOrder as Record<string, unknown>).staff as { id: string; name: string } | null
+    const order = {
+      ...rawOrder,
+      salesperson_name: staffJoin?.name || null,
+      staff: undefined,
     }
 
     // Fetch line items with options
@@ -97,7 +105,7 @@ export async function PUT(
     const allowedFields = [
       'status', 'payment_status', 'payment_method', 'payment_transaction_id',
       'paid_at', 'shipped_at', 'diagram_url', 'customer_note', 'internal_note',
-      'salesperson_name', 'salesperson_id', 'salesperson_username',
+      'salesperson_id', 'salesperson_username',
       'billing_first_name', 'billing_last_name', 'billing_phone',
       'billing_address_1', 'billing_address_2', 'billing_city',
       'billing_state', 'billing_zip', 'billing_country',

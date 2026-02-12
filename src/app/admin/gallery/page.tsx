@@ -27,6 +27,7 @@ import {
   Input,
   Badge,
   Frame,
+  Spinner,
 } from '@/lib/design-system'
 
 // ============================================================================
@@ -603,7 +604,7 @@ export default function AdminGalleryPage() {
         {/* Image Grid */}
         {loading ? (
           <div className="flex justify-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+            <Spinner size="lg" />
           </div>
         ) : (
           <Grid responsiveCols={{ mobile: 2, tablet: 3, desktop: 4 }} gap="md">

@@ -25,6 +25,7 @@ const FLOWS: Record<OrderFlow, { label: string; href: string }[]> = {
   ],
   rn: [
     { label: 'Raw Netting', href: '/order/raw-netting' },
+    { label: 'Attachment Items', href: '/order/raw-netting-attachments' },
   ],
   ru: [
     { label: 'Roll-Up Shades', href: '/order/roll-up-shades' },

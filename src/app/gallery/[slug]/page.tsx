@@ -4,6 +4,7 @@ import { use, useState, useEffect } from 'react'
 import { notFound } from 'next/navigation'
 import { GalleryPageTemplate } from '@/lib/design-system/templates'
 import type { GalleryImage } from '@/lib/design-system/templates'
+import { Spinner } from '@/lib/design-system'
 
 /**
  * Map database row to GalleryImage template interface
@@ -72,7 +73,7 @@ export default function GalleryCollectionPage({ params }: PageProps) {
   if (loading || !collection) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
-        <div className="w-8 h-8 border-4 border-gray-200 border-t-[#406517] rounded-full animate-spin" />
+        <Spinner size="lg" />
       </div>
     )
   }

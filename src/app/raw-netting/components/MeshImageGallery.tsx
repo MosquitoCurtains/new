@@ -7,8 +7,8 @@
  * `onImageClick(globalIndex)` so the parent can control the lightbox.
  */
 
-import { Images, Loader2 } from 'lucide-react'
-import { Text } from '@/lib/design-system'
+import { Images } from 'lucide-react'
+import { Text, Spinner } from '@/lib/design-system'
 
 export interface GalleryImage {
   id: string
@@ -42,7 +42,7 @@ export default function MeshImageGallery({
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-gray-400">
-        <Loader2 className="w-8 h-8 mb-2 animate-spin" />
+        <Spinner size="lg" className="mb-2" />
         <Text size="sm" className="text-gray-400 !mb-0">Loading photos...</Text>
       </div>
     )

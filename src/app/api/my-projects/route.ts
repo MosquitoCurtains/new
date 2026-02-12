@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     // Fetch orders for this email
     const { data: orders } = await supabase
       .from('orders')
-      .select('id, order_number, email, status, total, payment_status, created_at, salesperson_name, shipping_first_name, shipping_last_name')
+      .select('id, order_number, email, status, total, payment_status, created_at, salesperson_id, staff!salesperson_id(name), shipping_first_name, shipping_last_name')
       .eq('email', email)
       .order('created_at', { ascending: false })
 
@@ -77,12 +77,17 @@ export async function GET(request: NextRequest) {
       notesByOrder[oid].push(n)
     })
 
-    // Enrich orders with tracking and notes
-    const enrichedOrders = (orders || []).map((order) => ({
-      ...order,
-      tracking_numbers: trackingByOrder[order.id] || [],
-      customer_notes: notesByOrder[order.id] || [],
-    }))
+    // Enrich orders with tracking, notes, and flattened salesperson name
+    const enrichedOrders = (orders || []).map((order) => {
+      const staffJoin = (order as Record<string, unknown>).staff as { name: string } | null
+      return {
+        ...order,
+        salesperson_name: staffJoin?.name || null,
+        staff: undefined,
+        tracking_numbers: trackingByOrder[order.id] || [],
+        customer_notes: notesByOrder[order.id] || [],
+      }
+    })
 
     return NextResponse.json({
       projects: projects || [],

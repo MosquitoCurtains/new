@@ -52,6 +52,7 @@ import {
   Input,
   Button,
   Textarea,
+  Spinner,
 } from '@/lib/design-system'
 
 // =============================================================================
@@ -573,7 +574,7 @@ function ReviewsTab({
       {loading && pages.length === 0 && (
         <Card variant="elevated" className="!p-8">
           <div className="flex items-center justify-center gap-3 text-gray-500">
-            <Loader2 className="w-6 h-6 animate-spin" /> <span>Loading pages...</span>
+            <Spinner size="md" /> <span>Loading pages...</span>
           </div>
         </Card>
       )}
@@ -963,7 +964,7 @@ function SEOAuditTab() {
     return (
       <Card variant="elevated" className="!p-8">
         <div className="flex items-center justify-center gap-3 text-gray-500">
-          <Loader2 className="w-6 h-6 animate-spin" /> <span>Loading SEO audits...</span>
+          <Spinner size="md" /> <span>Loading SEO audits...</span>
         </div>
       </Card>
     )
@@ -1268,7 +1269,7 @@ function AIAuditTab() {
     return (
       <Card variant="elevated" className="!p-8">
         <div className="flex items-center justify-center gap-3 text-gray-500">
-          <Loader2 className="w-6 h-6 animate-spin" /> <span>Loading AI audits...</span>
+          <Spinner size="md" /> <span>Loading AI audits...</span>
         </div>
       </Card>
     )

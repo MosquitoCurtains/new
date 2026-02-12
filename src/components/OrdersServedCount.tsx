@@ -58,7 +58,7 @@ export function OrdersServedCountStatic({
   prefix = '',
   suffix = '+',
   className = '',
-  fallbackCount = 92000
+  fallbackCount = 95000
 }: OrdersServedCountProps & { fallbackCount?: number }) {
   const formattedCount = fallbackCount.toLocaleString('en-US')
 

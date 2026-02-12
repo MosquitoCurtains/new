@@ -67,12 +67,24 @@ export async function PATCH(
       .from('projects')
       .update(update)
       .eq('id', id)
-      .select('*')
+      .select('*, customer_id')
       .single()
 
     if (error || !data) {
       console.error('Project update error:', error)
       return NextResponse.json({ error: 'Failed to update project' }, { status: 500 })
+    }
+
+    // Cascade salesperson change to customer record
+    if (update.assigned_to !== undefined && data.customer_id) {
+      try {
+        await supabase
+          .from('customers')
+          .update({ assigned_salesperson_id: update.assigned_to || null })
+          .eq('id', data.customer_id)
+      } catch (cascadeErr) {
+        console.error('Customer salesperson cascade error (non-blocking):', cascadeErr)
+      }
     }
 
     return NextResponse.json({ project: data })

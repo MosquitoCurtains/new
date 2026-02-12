@@ -11,35 +11,35 @@
  */
 
 // The current orders served count (update this when launching)
-export const ORDERS_SERVED_COUNT = 92035
+export const ORDERS_SERVED_COUNT = 95000
 
 // Formatted versions for common display patterns
 export const ORDERS_SERVED_FORMATTED = `${ORDERS_SERVED_COUNT.toLocaleString('en-US')}+`
 
 // Common display strings
 export const ORDERS_SERVED_STRINGS = {
-  // "92,035+"
+  // "95,000+"
   short: ORDERS_SERVED_FORMATTED,
   
-  // "92,035+ customers"
+  // "95,000+ customers"
   customers: `${ORDERS_SERVED_FORMATTED} customers`,
   
-  // "92,035+ happy customers"
+  // "95,000+ happy customers"
   happyCustomers: `${ORDERS_SERVED_FORMATTED} happy customers`,
   
-  // "Over 92,035 customers"
+  // "Over 95,000 customers"
   overCustomers: `Over ${ORDERS_SERVED_COUNT.toLocaleString('en-US')} customers`,
   
-  // "Trusted by 92,035+ customers since 2004"
+  // "Trusted by 95,000+ customers since 2004"
   trustedBy: `Trusted by ${ORDERS_SERVED_FORMATTED} customers since 2004`,
   
-  // "Why 92,035+ Customers Choose Us"
+  // "Why 95,000+ Customers Choose Us"
   whyChooseUs: `Why ${ORDERS_SERVED_FORMATTED} Customers Choose Us`,
   
-  // "Over 92,035 happy clients"
+  // "Over 95,000 happy clients"
   happyClients: `Over ${ORDERS_SERVED_COUNT.toLocaleString('en-US')} happy clients`,
 
-  // "92,035+ Happy Clients Since 2004" (for ClientReviewsTemplate header)
+  // "95,000+ Happy Clients Since 2004" (for ClientReviewsTemplate header)
   happyClientsSince2004: `${ORDERS_SERVED_FORMATTED} Happy Clients Since 2004`,
   
   // For metadata descriptions

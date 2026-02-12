@@ -11,8 +11,8 @@ import { useMemo, useState } from 'react'
 import Image from 'next/image'
 import { Plus, Minus, ShoppingCart } from 'lucide-react'
 import { Container, Stack, Grid, Card, Heading, Text, Button, Spinner } from '@/lib/design-system'
-import { PowerHeaderTemplate, FinalCTATemplate } from '@/lib/design-system/templates'
-import { VIDEOS } from '@/lib/constants/videos'
+import { FinalCTATemplate } from '@/lib/design-system/templates'
+import { OrderPageHeader } from '../OrderPageHeader'
 import { useCartContext } from '@/contexts/CartContext'
 import { useProducts, getProductOptions } from '@/hooks/useProducts'
 import { usePricing } from '@/hooks/usePricing'
@@ -206,12 +206,9 @@ export function ClearVinylPage() {
   return (
     <Container size="xl">
       <Stack gap="xl">
-        <PowerHeaderTemplate
+        <OrderPageHeader
           title="Order Clear Vinyl Panels"
           subtitle="Custom-made clear vinyl enclosure panels with canvas aprons. Choose your size, attachment type, and canvas color."
-          videoId={VIDEOS.CLEAR_VINYL_OVERVIEW}
-          videoTitle="Clear Vinyl Overview"
-          variant="compact"
         />
 
         <StepNav flow="cv" currentStep={1} />

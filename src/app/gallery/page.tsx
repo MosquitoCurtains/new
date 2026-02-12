@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import { GalleryPageTemplate } from '@/lib/design-system/templates'
 import type { GalleryImage } from '@/lib/design-system/templates'
 import { ORDERS_SERVED_FORMATTED } from '@/lib/constants/orders-served'
+import { Spinner } from '@/lib/design-system'
 
 // ============================================================================
 // Filter options — context-aware, shown/hidden based on product type
@@ -102,7 +103,7 @@ export default function GalleryPage() {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
-        <div className="w-8 h-8 border-4 border-gray-200 border-t-[#406517] rounded-full animate-spin" />
+        <Spinner size="lg" />
       </div>
     )
   }
