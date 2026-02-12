@@ -13,8 +13,6 @@ import {
   Calculator,
   MessageSquare,
   Camera,
-  CheckCircle,
-  XCircle,
 } from 'lucide-react'
 import { 
   Container, 
@@ -29,19 +27,18 @@ import {
   BulletedList,
   ListItem,
   WhyChooseUsTemplate,
-  FinalCTATemplate,
   HeaderBarSection,
   PowerHeaderTemplate,
   YouTubeEmbed,
   MC_HERO_ACTIONS,
 } from '@/lib/design-system'
+import { ClearVinylFooter } from '@/components/marketing/ClearVinylFooter'
 
 // Gallery images matched exactly to WordPress /clear-vinyl-plastic-patio-enclosures/
 const GALLERY_IMAGES = [
   { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/00-Clear-Plastic-Winter-Panels-Porch-Gray-1200.jpg', alt: 'Clear vinyl plastic winter enclosure panels' },
   { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/22-Small-Business-Plastic-Panels-On-Patio-With-Black-Canvas-1200.jpg', alt: 'Small Business Plastic Panels On Patio With Black Canvas' },
   { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/12-Winterized-Porch-Plastic-Panels-Black-Canvas-1200.jpg', alt: 'Winterized Porch Plastic Panels Black Canvas' },
-  { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/07-Winterized-Porch-Plastic-Panels-Black-Canvas-1200.jpg', alt: 'Winterized Porch Plastic Panels Black Canvas' },
   { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/23-Winterized-Porch-and-Patio-Enclosure-Black-1200.jpg', alt: 'DIY Winter Porch Enclosures are a great way to protect porch and patio' },
   { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/21-Gazebo-Clear-Vinyl-Plastic-Porch-Enclosure-Red.jpg', alt: 'Clear Vinyl Plastic enclosure for Gazebo' },
   { src: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/01-Clear-Vinyl-Panels-Porch-Chocolate-Brown-1200.jpg', alt: 'How to keep snow off porch with clear plastic curtains' },
@@ -187,85 +184,6 @@ export default function ClearVinylPage() {
           </Text>
         </HeaderBarSection>
 
-        <HeaderBarSection icon={Camera} label="How to Get Started" variant="dark">
-          <TwoColumn gap="lg" className="items-center">
-            <Stack gap="md">
-              <Heading level={3}>Get Started Fast With a Real Person!</Heading>
-              <Text className="text-gray-600">
-                We are happy to help you plan your project with a quick planning session.
-                For maximum speed and efficiency, photos of your space are extremely helpful.
-              </Text>
-              <Text className="text-gray-600">
-                <strong>If you have a general question, call us at{' '}
-                <a href="tel:7706454745" className="text-[#406517] underline">(770) 645-4745</a>.</strong>
-              </Text>
-              <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <Button variant="primary" asChild>
-                  <Link href="/contact">
-                    Send Us Photos
-                    <ArrowRight className="ml-2 w-4 h-4" />
-                  </Link>
-                </Button>
-                <Button variant="outline" asChild>
-                  <Link href="/work-with-a-planner">
-                    Work With A Planner
-                  </Link>
-                </Button>
-              </div>
-            </Stack>
-            <Frame ratio="16/9" className="rounded-2xl overflow-hidden">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2024/11/Planner-Image-1920.jpg"
-                alt="Our planning team"
-                className="w-full h-full object-cover"
-              />
-            </Frame>
-          </TwoColumn>
-
-          {/* Photo Guidelines */}
-          <div className="mt-8 pt-8 border-t border-gray-200">
-            <Heading level={4} className="text-center !mb-2">Photo Guidelines</Heading>
-            <BulletedList spacing="sm" className="max-w-2xl mx-auto mb-6">
-              <ListItem variant="checked" iconColor="#406517">Please provide <strong>2-4 high resolution photos</strong> that show all complete sides of your project.</ListItem>
-              <ListItem variant="checked" iconColor="#406517"><strong>Step BACK and zoom OUT</strong> so we can see as much as possible. No close-ups.</ListItem>
-              <ListItem variant="checked" iconColor="#406517"><strong>Large file sizes</strong> - Small images do not provide enough resolution for planning sessions.</ListItem>
-            </BulletedList>
-
-            <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
-              <Stack gap="sm">
-                <div className="flex items-center gap-2 mb-2">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
-                  <Heading level={5} className="!mb-0 text-green-800">Good Photos</Heading>
-                </div>
-                <Grid responsiveCols={{ mobile: 2 }} gap="md">
-                  <Frame ratio="4/3" className="rounded-xl overflow-hidden">
-                    <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Good-1-Big.jpg" alt="Good photo example 1" className="w-full h-full object-cover" />
-                  </Frame>
-                  <Frame ratio="4/3" className="rounded-xl overflow-hidden">
-                    <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Good-2-Big.jpg" alt="Good photo example 2" className="w-full h-full object-cover" />
-                  </Frame>
-                </Grid>
-                <Text className="text-sm text-green-700"><strong>Why?</strong> We can see each full side with fastening surfaces in each high resolution photo.</Text>
-              </Stack>
-              <Stack gap="sm">
-                <div className="flex items-center gap-2 mb-2">
-                  <XCircle className="w-5 h-5 text-red-600" />
-                  <Heading level={5} className="!mb-0 text-red-800">Bad Photos</Heading>
-                </div>
-                <Grid responsiveCols={{ mobile: 2 }} gap="md">
-                  <Frame ratio="4/3" className="rounded-xl overflow-hidden">
-                    <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Bad-2-Big.jpg" alt="Bad photo example 1" className="w-full h-full object-cover" />
-                  </Frame>
-                  <Frame ratio="4/3" className="rounded-xl overflow-hidden">
-                    <img src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Bad-1-Big.jpg" alt="Bad photo example 2" className="w-full h-full object-cover" />
-                  </Frame>
-                </Grid>
-                <Text className="text-sm text-red-700"><strong>Why?</strong> They are too close up so we can&apos;t see ALL fastening surfaces and corner transitions.</Text>
-              </Stack>
-            </Grid>
-          </div>
-        </HeaderBarSection>
-
         <HeaderBarSection icon={Layers} label="Interchangeable With Our Summer Mosquito Curtains" variant="dark">
           <Stack gap="md">
             <Text className="text-gray-600 text-center max-w-3xl mx-auto">
@@ -344,37 +262,43 @@ export default function ClearVinylPage() {
           </Grid>
         </HeaderBarSection>
 
-        <Card className="!p-8 !bg-[#003365] text-white text-center">
-          <Heading level={2} className="!mb-4 text-white">Clear Vinyl Plastic Porch Enclosures</Heading>
-          <Text className="text-white/90 max-w-3xl mx-auto !mb-6">
-            Are you wasting usable living space in your own home? Think about the possibilities if that porch 
-            or patio wasn't so cold in the winter. A cozy dinner outside, board games with the kids, a hangout 
-            for football games, or maybe just a good smooch on a porch swing during a snow storm.
-          </Text>
-          <Text className="text-white font-semibold !mb-0">
-            Congratulations! You just found a needle in a haystack and the best Quality / Price anywhere!
-          </Text>
-        </Card>
+        <HeaderBarSection icon={Camera} label="How to Get Started" variant="dark">
+          <TwoColumn gap="lg" className="items-center">
+            <Stack gap="md">
+              <Heading level={3}>Get Started Fast With a Real Person!</Heading>
+              <Text className="text-gray-600">
+                We are happy to help you plan your project with a quick planning session.
+                For maximum speed and efficiency, photos of your space are extremely helpful.
+              </Text>
+              <Text className="text-gray-600">
+                <strong>If you have a general question, call us at{' '}
+                <a href="tel:7706454745" className="text-[#406517] underline">(770) 645-4745</a>.</strong>
+              </Text>
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                <Button variant="primary" asChild>
+                  <Link href="/contact">
+                    Send Us Photos
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </Link>
+                </Button>
+                <Button variant="outline" asChild>
+                  <Link href="/work-with-a-planner">
+                    Work With A Planner
+                  </Link>
+                </Button>
+              </div>
+            </Stack>
+            <Frame ratio="16/9" className="rounded-2xl overflow-hidden">
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2024/11/Planner-Image-1920.jpg"
+                alt="Our planning team"
+                className="w-full h-full object-cover"
+              />
+            </Frame>
+          </TwoColumn>
+        </HeaderBarSection>
 
-        <Grid responsiveCols={{ mobile: 2, tablet: 3 }} gap="md">
-          <Card variant="elevated" className="!p-4">
-            <Button variant="primary" className="w-full" asChild>
-              <Link href="/what-makes-our-clear-vinyl-product-better">Why Our System?</Link>
-            </Button>
-          </Card>
-          <Card variant="elevated" className="!p-4">
-            <Button variant="outline" className="w-full" asChild>
-              <Link href="/clear-vinyl-self-installation-advantages">Self-Installation</Link>
-            </Button>
-          </Card>
-          <Card variant="elevated" className="!p-4">
-            <Button variant="outline" className="w-full" asChild>
-              <Link href="/satisfaction-guarantee">Guarantee</Link>
-            </Button>
-          </Card>
-        </Grid>
-
-        <FinalCTATemplate />
+        <ClearVinylFooter />
 
       </Stack>
     </Container>

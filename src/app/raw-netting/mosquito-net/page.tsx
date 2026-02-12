@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowRight, Bug, ShieldCheck, Flame, Scissors, Droplets } from 'lucide-react'
+import { Bug, ShieldCheck, Flame, Scissors, Droplets, ArrowDown, ExternalLink } from 'lucide-react'
 import {
   Container,
   Stack,
@@ -9,8 +9,8 @@ import {
   TwoColumn,
   Frame,
   Text,
-  Button,
   Card,
+  Button,
   Heading,
   BulletedList,
   ListItem,
@@ -19,25 +19,64 @@ import {
   WhyChooseUsTemplate,
   FinalCTATemplate,
   HeaderBarSection,
-  MC_HERO_ACTIONS,
 } from '@/lib/design-system'
 import { VIDEOS } from '@/lib/constants/videos'
+import RawNettingProductOrder from '../components/RawNettingProductOrder'
 
 const IMG = 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads'
+
+// ---------------------------------------------------------------------------
+// Product config for the order section
+// ---------------------------------------------------------------------------
+const MOSQUITO_ROLL_SIZES = [
+  { value: '101', label: '101"', priceLabel: '$5.50/ft', pricingKey: 'raw_heavy_mosquito_101' },
+  { value: '123', label: '123"', priceLabel: '$6.00/ft', pricingKey: 'raw_heavy_mosquito_123' },
+  { value: '138', label: '138"', priceLabel: '$6.50/ft', pricingKey: 'raw_heavy_mosquito_138' },
+]
+
+const MOSQUITO_COLORS = [
+  { value: 'black', label: 'Black', color: '#1a1a1a' },
+  { value: 'white', label: 'White', color: '#ffffff' },
+  { value: 'ivory', label: 'Ivory', color: '#fffff0' },
+]
 
 export default function MosquitoNettingPage() {
   return (
     <Container size="xl">
       <Stack gap="lg">
 
-        {/* Hero */}
+        {/* Hero — no CTA bar */}
         <PowerHeaderTemplate
           title='Our "Heavy" Mosquito Netting Fabric'
           subtitle="Our most popular raw netting. Best value, quality, and airflow. Incredibly strong unlike cheap meshes you see elsewhere. Its rectangular pattern stops even gnats and black flies."
           videoId={VIDEOS.RAW_NETTING}
           videoTitle="Why Us For Raw Netting"
           variant="compact"
-          actions={MC_HERO_ACTIONS}
+          actions={[]}
+          ctaSlot={
+            <>
+              <Button variant="primary" size="lg" asChild>
+                <a href="#order-now">
+                  Order Now
+                  <ArrowDown className="ml-2 w-5 h-5" />
+                </a>
+              </Button>
+              <Button variant="outline" size="lg" asChild>
+                <a href="/screened-porch-enclosures" target="_blank" rel="noopener noreferrer">
+                  See Fabricated Solutions
+                  <ExternalLink className="ml-2 w-4 h-4" />
+                </a>
+              </Button>
+            </>
+          }
+        />
+
+        {/* ORDER SECTION — moved up, right after hero */}
+        <RawNettingProductOrder
+          meshType="heavy_mosquito"
+          productName="Heavy Mosquito Mesh"
+          rollSizes={MOSQUITO_ROLL_SIZES}
+          colors={MOSQUITO_COLORS}
         />
 
         {/* Product Details */}
@@ -66,74 +105,6 @@ export default function MosquitoNettingPage() {
               </BulletedList>
             </Stack>
           </TwoColumn>
-        </HeaderBarSection>
-
-        {/* Color Swatches */}
-        <HeaderBarSection icon={Bug} label="Available Colors" variant="dark">
-          <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="lg">
-            {[
-              { name: 'Black', image: `${IMG}/2019/09/Black-Mosquito-Netting-1200.jpg`, note: 'Most popular choice' },
-              { name: 'White', image: `${IMG}/2019/09/White-Mosquito-Netting-1200.jpg`, note: 'Clean, bright look' },
-              { name: 'Ivory', image: `${IMG}/2019/09/Ivory-Mosquito-netting-1200.jpg`, note: 'Warm neutral tone' },
-            ].map((color) => (
-              <Card key={color.name} variant="elevated" className="!p-0 overflow-hidden">
-                <Frame ratio="4/3" className="overflow-hidden">
-                  <img src={color.image} alt={`${color.name} mosquito netting`} className="w-full h-full object-cover" />
-                </Frame>
-                <div className="p-4 text-center">
-                  <Text className="font-bold text-gray-900 !mb-0">{color.name}</Text>
-                  <Text size="sm" className="text-gray-500 !mb-0">{color.note}</Text>
-                </div>
-              </Card>
-            ))}
-          </Grid>
-        </HeaderBarSection>
-
-        {/* Pricing Table */}
-        <HeaderBarSection icon={Scissors} label="Sizing & Pricing" variant="dark">
-          <Stack gap="md">
-            <Text className="text-gray-600">
-              Our mesh fabric rolls are VERY WIDE from 100" to 140". Order by the linear foot from 
-              the respective roll. Your cost is determined by how much we cut (length) from the particular 
-              roll you select.
-            </Text>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-[#406517] text-white">
-                    <th className="px-4 py-3 text-left text-sm font-semibold">Roll Width</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold">Price per Linear Foot</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold">Example (20ft)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b border-gray-200">
-                    <td className="px-4 py-3 font-medium">101-inch roll</td>
-                    <td className="px-4 py-3 text-[#406517] font-bold">$5.50 / ft</td>
-                    <td className="px-4 py-3 text-gray-600">20ft x $5.50 = $110.00</td>
-                  </tr>
-                  <tr className="border-b border-gray-200 bg-gray-50">
-                    <td className="px-4 py-3 font-medium">123-inch roll</td>
-                    <td className="px-4 py-3 text-[#406517] font-bold">$6.00 / ft</td>
-                    <td className="px-4 py-3 text-gray-600">20ft x $6.00 = $120.00</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-3 font-medium">138-inch roll</td>
-                    <td className="px-4 py-3 text-[#406517] font-bold">$6.50 / ft</td>
-                    <td className="px-4 py-3 text-gray-600">20ft x $6.50 = $130.00</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div className="flex justify-center pt-2">
-              <Button variant="primary" asChild>
-                <Link href="/order/raw-netting">
-                  Order Now
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </Link>
-              </Button>
-            </div>
-          </Stack>
         </HeaderBarSection>
 
         {/* Feature Images */}
@@ -177,33 +148,6 @@ export default function MosquitoNettingPage() {
                 <Text size="sm" className="text-gray-600 !mb-0">{feat.desc}</Text>
               </Card>
             ))}
-          </Grid>
-        </HeaderBarSection>
-
-        {/* Feature Images Grid */}
-        <HeaderBarSection icon={Bug} label="Versatile Applications" variant="dark">
-          <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="lg">
-            <Frame ratio="16/9" className="rounded-xl overflow-hidden">
-              <img
-                src={`${IMG}/2021/11/Mosquito-Netting-Mesh-Sold-in-Large-Sheets.jpg`}
-                alt="Mosquito netting mesh sold in large sheets"
-                className="w-full h-full object-cover"
-              />
-            </Frame>
-            <Frame ratio="16/9" className="rounded-xl overflow-hidden">
-              <img
-                src={`${IMG}/2021/11/Strong-Mosquito-Netting-Mesh.jpg`}
-                alt="Strong mosquito netting mesh close-up"
-                className="w-full h-full object-cover"
-              />
-            </Frame>
-            <Frame ratio="16/9" className="rounded-xl overflow-hidden">
-              <img
-                src={`${IMG}/2025/08/White-Boat-Netting.jpg`}
-                alt="White mosquito netting on a boat"
-                className="w-full h-full object-cover"
-              />
-            </Frame>
           </Grid>
         </HeaderBarSection>
 

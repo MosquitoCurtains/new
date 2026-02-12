@@ -404,6 +404,7 @@ export default function DesignSystemPage() {
                 videoId="FqNe9pDsZ8M"
                 title="Example Video"
                 variant="card"
+                thumbnailUrl="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Mosquito-Netting-Curtains-Video-Thumbnail-1.jpg"
               />
             }
           />
@@ -444,6 +445,7 @@ export default function DesignSystemPage() {
               subtitle="Modular Mosquito Netting Panels custom-made to fit any space. One system, limitless applications."
               videoId="FqNe9pDsZ8M"
               videoTitle="Mosquito Curtains Overview"
+              thumbnailUrl="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Mosquito-Netting-Curtains-Video-Thumbnail-1.jpg"
               variant="compact"
             />
           </div>
@@ -462,6 +464,7 @@ export default function DesignSystemPage() {
               subtitle="Four-season room protection. Wind, rain, and cold stay outside."
               videoId="ca6GufadXoE"
               videoTitle="Clear Vinyl Overview"
+              thumbnailUrl="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Clear-Vinyl-Video-Thumbnail.jpg"
               variant="stacked"
             />
           </div>

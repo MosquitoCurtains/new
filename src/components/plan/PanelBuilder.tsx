@@ -8,6 +8,7 @@ import {
   Text,
   Stack,
   Button,
+  HeaderBarSection,
 } from '@/lib/design-system'
 import {
   calculatePanelDimensions,
@@ -19,6 +20,7 @@ import {
 import {
   Save, CheckCircle, Loader2, Info, ChevronDown, ChevronUp,
   ArrowRight, Users, Zap, Check, Play, X, Plus, Minus,
+  SlidersHorizontal, LayoutGrid, Wrench, Mail, User,
 } from 'lucide-react'
 import type { MeshType, MeshColor } from '@/lib/pricing/types'
 import { useProducts, type DBProduct } from '@/hooks/useProducts'
@@ -153,19 +155,19 @@ function useIsDesktop() {
 function LightboxModal({ open, onClose, title, image, isGif, children }: { open: boolean; onClose: () => void; title: string; image: string; isGif?: boolean; children: React.ReactNode }) {
   if (!open) return null
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
-      <div className="relative inline-flex flex-col max-h-[90vh] mx-4" onClick={e => e.stopPropagation()}>
+      <div className="relative w-full max-w-lg max-h-[90vh] flex flex-col rounded-2xl overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
         {/* Close button */}
-        <button type="button" onClick={onClose} className="absolute -top-2 -right-2 z-20 w-9 h-9 rounded-full bg-white shadow-lg hover:bg-gray-100 flex items-center justify-center transition-colors"><X className="w-5 h-5 text-gray-700" /></button>
-        {/* Image drives the width — block display, no wrapper bg */}
-        <div className="relative">
+        <button type="button" onClick={onClose} className="absolute top-3 right-3 z-20 w-9 h-9 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center transition-colors"><X className="w-5 h-5 text-white" /></button>
+        {/* Image — fills container width */}
+        <div className="relative bg-gray-900 shrink-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={image} alt={title} className="block max-h-[60vh] rounded-t-2xl" />
+          <img src={image} alt={title} className={`w-full max-h-[55vh] ${isGif ? 'object-contain' : 'object-cover'}`} />
           {isGif && <div className="absolute bottom-3 left-3 bg-black/60 text-white text-[10px] px-2 py-1 rounded flex items-center gap-1"><Play className="w-3 h-3" /> Animated</div>}
         </div>
-        {/* Compact info bar at bottom */}
-        <div className="bg-white rounded-b-2xl px-5 py-4">{children}</div>
+        {/* Info bar — same width as image */}
+        <div className="bg-white px-5 py-4 shrink-0">{children}</div>
       </div>
     </div>
   )
@@ -625,6 +627,10 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [shareUrl, setShareUrl] = useState<string | null>(null)
 
+  // Contact capture
+  const [firstName, setFirstName] = useState(contactInfo?.firstName || '')
+  const [email, setEmail] = useState(contactInfo?.email || '')
+
   // Detail modals
   const [meshDetail, setMeshDetail] = useState<typeof MESH_TYPE_CARDS[0] | null>(null)
   const [attachDetail, setAttachDetail] = useState<typeof TOP_ATTACHMENT_CARDS[0] | null>(null)
@@ -655,11 +661,15 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
   // Reset overrides when panels change
   useEffect(() => { setRecOverrides({}) }, [allPanels.length])
 
+  const isValidEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)
+  const canSave = firstName.trim().length > 0 && isValidEmail(email)
+
   const handleSaveProject = async () => {
+    if (!canSave) return
     setSaveStatus('saving')
     try {
       const cd = buildCartData(sides, meshType, meshColor)
-      const res = await fetch('/api/projects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: contactInfo?.email || 'anonymous@panel-builder.local', firstName: contactInfo?.firstName, lastName: contactInfo?.lastName, phone: contactInfo?.phone, product: 'mosquito_curtains', projectType: 'porch', topAttachment: sides[0]?.topAttachment || 'tracking', numberOfSides: numSides, notes: `Panel Builder: ${numSides} sides, ${allPanels.length} panels`, cart_data: cd }) })
+      const res = await fetch('/api/projects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email.trim(), firstName: firstName.trim(), lastName: contactInfo?.lastName, phone: contactInfo?.phone, product: 'mosquito_curtains', projectType: 'porch', topAttachment: sides[0]?.topAttachment || 'tracking', numberOfSides: numSides, notes: `Panel Builder: ${numSides} sides, ${allPanels.length} panels`, cart_data: cd }) })
       const d = await res.json(); if (!res.ok) throw new Error(d.error || 'Failed'); setSaveStatus('saved'); if (d.shareUrl) setShareUrl(d.shareUrl)
     } catch (e) { console.error('Save:', e); setSaveStatus('error'); setTimeout(() => setSaveStatus('idle'), 3000) }
   }
@@ -669,68 +679,85 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
 
   return (
     <Stack gap="lg">
-      {/* ── 50/50: Mesh Type + Top Attachment ── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* LEFT: Mesh Type — 3-across image cards */}
-        <Card className="!p-4 !bg-white !border-2 !border-gray-200">
-          <div className="text-sm text-gray-700 font-semibold uppercase tracking-wide mb-3">Mesh Type</div>
-          <div className="grid grid-cols-3 gap-2 mb-3">
-            {MESH_TYPE_CARDS.map(m => (
-              <div key={m.id} role="button" tabIndex={0} onClick={() => setMeshType(m.id)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setMeshType(m.id) }}
-                className={`rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${meshType === m.id ? 'border-[#406517] ring-2 ring-[#406517]/20 shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}>
-                <div className="aspect-video relative">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={m.image} alt={m.label} className="w-full h-full object-cover" />
-                  {m.popular && <span className="absolute top-1.5 right-1.5 text-[10px] font-bold bg-[#406517] text-white px-2 py-0.5 rounded-full leading-none">90%</span>}
-                  {meshType === m.id && <div className="absolute top-1.5 left-1.5 w-6 h-6 bg-[#406517] rounded-full flex items-center justify-center"><Check className="w-3.5 h-3.5 text-white" /></div>}
-                </div>
-                <div className="p-2.5 text-center">
-                  <div className="font-bold text-gray-800 text-sm leading-tight">{m.label}</div>
-                  <button type="button" onClick={(e) => { e.stopPropagation(); setMeshDetail(m) }} className="text-xs text-[#406517] font-semibold hover:underline mt-0.5">See details</button>
-                </div>
+      {/* ══════════════════════════════════════════════
+         SECTION 1: OPTIONS
+         ══════════════════════════════════════════════ */}
+      <HeaderBarSection icon={SlidersHorizontal} label="Options" variant="green" headerSubtitle="Mesh type, color & top attachment">
+        <Stack gap="md">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* LEFT: Mesh Type — 3-across image cards */}
+            <div>
+              <div className="text-sm text-gray-700 font-semibold uppercase tracking-wide mb-3">Mesh Type</div>
+              <div className="grid grid-cols-3 gap-2 mb-3">
+                {MESH_TYPE_CARDS.map(m => (
+                  <div key={m.id} role="button" tabIndex={0} onClick={() => setMeshType(m.id)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setMeshType(m.id) }}
+                    className={`rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${meshType === m.id ? 'border-[#406517] ring-2 ring-[#406517]/20 shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}>
+                    <div className="aspect-video relative">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={m.image} alt={m.label} className="w-full h-full object-cover" />
+                      {m.popular && <span className="absolute top-1.5 right-1.5 text-[10px] font-bold bg-[#406517] text-white px-2 py-0.5 rounded-full leading-none">90%</span>}
+                      {meshType === m.id && <div className="absolute top-1.5 left-1.5 w-6 h-6 bg-[#406517] rounded-full flex items-center justify-center"><Check className="w-3.5 h-3.5 text-white" /></div>}
+                    </div>
+                    <div className="p-2.5 text-center">
+                      <div className="font-bold text-gray-800 text-sm leading-tight">{m.label}</div>
+                      <button type="button" onClick={(e) => { e.stopPropagation(); setMeshDetail(m) }} className="text-xs text-[#406517] font-semibold hover:underline mt-0.5">See details</button>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          {/* Color swatches */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs text-gray-700 font-semibold uppercase tracking-wide">Color:</span>
-            {MESH_COLOR_SWATCHES.filter(c => availableColors.includes(c.id)).map(c => (
-              <button key={c.id} type="button" onClick={() => setMeshColor(c.id)} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${meshColor === c.id ? 'ring-2 ring-[#406517] bg-[#406517]/5' : 'bg-gray-50 hover:bg-gray-100'}`}>
-                <div className="w-5 h-5 rounded-full border-2 border-gray-300" style={{ backgroundColor: c.hex }} />
-                <span className="text-gray-700">{c.label}</span>
-                {meshColor === c.id && <Check className="w-3.5 h-3.5 text-[#406517]" />}
-              </button>
-            ))}
-          </div>
-        </Card>
+              {/* Color swatches */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs text-gray-700 font-semibold uppercase tracking-wide">Color:</span>
+                {MESH_COLOR_SWATCHES.filter(c => availableColors.includes(c.id)).map(c => (
+                  <button key={c.id} type="button" onClick={() => setMeshColor(c.id)} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${meshColor === c.id ? 'ring-2 ring-[#406517] bg-[#406517]/5' : 'bg-gray-50 hover:bg-gray-100'}`}>
+                    <div className="w-5 h-5 rounded-full border-2 border-gray-300" style={{ backgroundColor: c.hex }} />
+                    <span className="text-gray-700">{c.label}</span>
+                    {meshColor === c.id && <Check className="w-3.5 h-3.5 text-[#406517]" />}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-        {/* RIGHT: Top Attachment — 2 GIF cards side by side */}
-        <Card className="!p-4 !bg-white !border-2 !border-gray-200">
-          <div className="text-sm text-gray-700 font-semibold uppercase tracking-wide mb-3">Top Attachment</div>
-          <div className="grid grid-cols-2 gap-2">
-            {TOP_ATTACHMENT_CARDS.map(att => {
-              const currentTop = sides[0]?.topAttachment
-              const isActive = att.id === currentTop
-              return (
-                <div key={att.id} role="button" tabIndex={0} onClick={() => setSides(prev => prev.map(s => ({ ...s, topAttachment: att.id })))} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setSides(prev => prev.map(s => ({ ...s, topAttachment: att.id }))) }}
-                  className={`rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${isActive ? 'border-[#406517] ring-2 ring-[#406517]/20 shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}>
-                  <div className="aspect-video relative bg-gray-100">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={att.image} alt={att.label} className="w-full h-full object-contain" />
-                    {att.isGif && <div className="absolute bottom-1.5 left-1.5 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded flex items-center gap-0.5"><Play className="w-3 h-3" /> GIF</div>}
-                    {isActive && <div className="absolute top-1.5 left-1.5 w-6 h-6 bg-[#406517] rounded-full flex items-center justify-center"><Check className="w-3.5 h-3.5 text-white" /></div>}
-                  </div>
-                  <div className="p-2.5 text-center">
-                    <div className="font-bold text-gray-800 text-sm leading-tight">{att.label}</div>
-                    <div className="text-xs text-gray-600 leading-tight">{att.subtitle}</div>
-                    <button type="button" onClick={(e) => { e.stopPropagation(); setAttachDetail(att) }} className="text-xs text-[#406517] font-semibold hover:underline mt-0.5">See details</button>
-                  </div>
-                </div>
-              )
-            })}
+            {/* RIGHT: Top Attachment — 2 GIF cards side by side */}
+            <div>
+              <div className="text-sm text-gray-700 font-semibold uppercase tracking-wide mb-3">Top Attachment</div>
+              <div className="grid grid-cols-2 gap-2">
+                {TOP_ATTACHMENT_CARDS.map(att => {
+                  const currentTop = sides[0]?.topAttachment
+                  const isActive = att.id === currentTop
+                  return (
+                    <div key={att.id} role="button" tabIndex={0} onClick={() => setSides(prev => prev.map(s => ({ ...s, topAttachment: att.id })))} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setSides(prev => prev.map(s => ({ ...s, topAttachment: att.id }))) }}
+                      className={`rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${isActive ? 'border-[#406517] ring-2 ring-[#406517]/20 shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}>
+                      <div className="aspect-video relative bg-gray-100">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={att.image} alt={att.label} className="w-full h-full object-contain" />
+                        {att.isGif && <div className="absolute bottom-1.5 left-1.5 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded flex items-center gap-0.5"><Play className="w-3 h-3" /> GIF</div>}
+                        {isActive && <div className="absolute top-1.5 left-1.5 w-6 h-6 bg-[#406517] rounded-full flex items-center justify-center"><Check className="w-3.5 h-3.5 text-white" /></div>}
+                      </div>
+                      <div className="p-2.5 text-center">
+                        <div className="font-bold text-gray-800 text-sm leading-tight">{att.label}</div>
+                        <div className="text-xs text-gray-600 leading-tight">{att.subtitle}</div>
+                        <button type="button" onClick={(e) => { e.stopPropagation(); setAttachDetail(att) }} className="text-xs text-[#406517] font-semibold hover:underline mt-0.5">See details</button>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
           </div>
-        </Card>
-      </div>
+
+          {/* Number of Sides */}
+          <div className="text-center pt-2">
+            <div className="text-lg font-bold text-gray-800 mb-1">How many sides need screening?</div>
+            <div className="text-sm text-gray-600 mb-3">Select the number of open sides on your porch or structure</div>
+            <div className="flex justify-center gap-2">
+              {[1, 2, 3, 4, 5, 6].map(n => (
+                <button key={n} type="button" onClick={() => setNumSides(n)} className={`w-12 h-12 rounded-xl text-lg font-bold transition-all ${numSides === n ? 'bg-[#406517] text-white shadow-md ring-2 ring-[#406517]/30 scale-105' : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:scale-105'}`}>{n}</button>
+              ))}
+            </div>
+          </div>
+        </Stack>
+      </HeaderBarSection>
 
       {/* Mesh Detail Lightbox */}
       <LightboxModal open={!!meshDetail} onClose={() => setMeshDetail(null)} title={meshDetail?.label || ''} image={meshDetail?.image || ''}>
@@ -767,25 +794,20 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
         )}
       </LightboxModal>
 
-      {/* ── Number of Sides ── */}
-      <Card className="!p-5 !bg-white !border-2 !border-gray-200">
-        <div className="text-center mb-3">
-          <div className="text-lg font-bold text-gray-800">How many sides need screening?</div>
-          <div className="text-sm text-gray-600">Select the number of open sides on your porch or structure</div>
-        </div>
-        <div className="flex justify-center gap-2">
-          {[1, 2, 3, 4, 5, 6].map(n => (
-            <button key={n} type="button" onClick={() => setNumSides(n)} className={`w-12 h-12 rounded-xl text-lg font-bold transition-all ${numSides === n ? 'bg-[#406517] text-white shadow-md ring-2 ring-[#406517]/30 scale-105' : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:scale-105'}`}>{n}</button>
+      {/* ══════════════════════════════════════════════
+         SECTION 2: PANELS
+         ══════════════════════════════════════════════ */}
+      <HeaderBarSection icon={LayoutGrid} label="Panels" variant="green" headerSubtitle={`${numSides} side${numSides !== 1 ? 's' : ''} — ${allPanels.length} panel${allPanels.length !== 1 ? 's' : ''}`}>
+        <Stack gap="md">
+          {sides.map((side, i) => (
+            <SideSection key={i} sideNum={i + 1} state={side} onChange={(u) => updateSide(i, u)} onSave={handleSaveProject} saveStatus={saveStatus} />
           ))}
-        </div>
-      </Card>
+        </Stack>
+      </HeaderBarSection>
 
-      {/* ── Side Sections ── */}
-      {sides.map((side, i) => (
-        <SideSection key={i} sideNum={i + 1} state={side} onChange={(u) => updateSide(i, u)} onSave={handleSaveProject} saveStatus={saveStatus} />
-      ))}
-
-      {/* ── Hardware Recommendations ── */}
+      {/* ══════════════════════════════════════════════
+         SECTION 3: TRACK & ATTACHMENTS
+         ══════════════════════════════════════════════ */}
       {allSidesReady && baseRecs.length > 0 && (() => {
         const recsWithQty = baseRecs.map(item => {
           const qty = recOverrides[item.key] ?? item.qty
@@ -793,9 +815,8 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
         })
         const grandTotal = recsWithQty.reduce((sum, r) => sum + r.totalPrice, 0)
         return (
-          <Card className="!p-5 !bg-white !border-2 !border-gray-200">
+          <HeaderBarSection icon={Wrench} label="Track & Attachments" variant="green" headerSubtitle={`${baseRecs.length} items recommended`}>
             <div className="text-center mb-4">
-              <div className="text-lg font-bold text-gray-800">Recommended Hardware & Accessories</div>
               <div className="text-sm text-gray-600">Based on your {allPanels.length} panel{allPanels.length !== 1 ? 's' : ''} configuration. Adjust quantities as needed.</div>
             </div>
             <div className="space-y-2">
@@ -846,51 +867,75 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
               <div className="text-sm text-gray-600">Hardware & Accessories Total</div>
               <div className="text-lg font-bold text-[#406517]">${fmt$(grandTotal)}</div>
             </div>
-          </Card>
+          </HeaderBarSection>
         )
       })()}
 
-      {/* ── Project Summary ── */}
-      {allSidesReady && allPanels.length > 0 && (
-        <Card className="!p-5 !bg-[#406517]/5 !border-2 !border-[#406517]/30">
-          <div className="flex items-center justify-between flex-wrap gap-3">
-            <div>
-              <div className="text-sm text-gray-700 font-medium">{allPanels.length} panel{allPanels.length !== 1 ? 's' : ''} across {numSides} side{numSides !== 1 ? 's' : ''}</div>
-              <div className="text-xs text-gray-600">{meshType.replace(/_/g, ' ')} mesh in {meshColor}</div>
+      {/* ══════════════════════════════════════════════
+         SAVE & NEXT STEPS
+         ══════════════════════════════════════════════ */}
+      {allSidesReady && allPanels.length > 0 && saveStatus !== 'saved' && (
+        <Card className="!p-0 !bg-white !border-2 !border-[#406517]/30 overflow-hidden">
+          {/* Summary strip */}
+          <div className="bg-[#406517]/5 px-6 py-3 border-b border-[#406517]/10 flex items-center justify-between flex-wrap gap-2">
+            <div className="text-sm text-gray-700">
+              <span className="font-semibold">{allPanels.length} panel{allPanels.length !== 1 ? 's' : ''}</span>
+              <span className="text-gray-400 mx-1.5">/</span>
+              <span>{numSides} side{numSides !== 1 ? 's' : ''}</span>
+              <span className="text-gray-400 mx-1.5">/</span>
+              <span className="capitalize">{meshType.replace(/_/g, ' ')} in {meshColor}</span>
             </div>
-            <Button variant="primary" size="md" onClick={handleSaveProject} disabled={saveStatus === 'saving'}>
-              {saveStatus === 'saving' ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving...</> : saveStatus === 'saved' ? <><CheckCircle className="w-4 h-4 mr-2" /> Saved!</> : <><Save className="w-4 h-4 mr-2" /> Save Project</>}
-            </Button>
+          </div>
+
+          {/* Contact + CTA */}
+          <div className="px-6 py-6 md:py-8">
+            <div className="max-w-xl mx-auto text-center">
+              <div className="text-xl font-bold text-gray-900 mb-1">Save Your Project</div>
+              <p className="text-sm text-gray-500 mb-5">We&apos;ll save your configuration so you can pick up where you left off, or our team can prepare a detailed quote.</p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="First name"
+                    value={firstName}
+                    onChange={e => setFirstName(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors"
+                  />
+                </div>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="email"
+                    placeholder="Email address"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors"
+                  />
+                </div>
+              </div>
+
+              <Button
+                variant="primary"
+                size="lg"
+                onClick={handleSaveProject}
+                disabled={!canSave || saveStatus === 'saving'}
+                className="w-full sm:w-auto"
+              >
+                {saveStatus === 'saving' ? (
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving...</>
+                ) : saveStatus === 'error' ? (
+                  <>Try Again</>
+                ) : (
+                  <><Save className="w-4 h-4 mr-2" /> Save & Get Quote</>
+                )}
+              </Button>
+
+              <p className="text-xs text-gray-400 mt-3">We&apos;ll never share your info. No spam, just your project.</p>
+            </div>
           </div>
         </Card>
-      )}
-
-      {/* ── Next Step Options ── */}
-      {allSidesReady && saveStatus !== 'saved' && (
-        <div>
-          <div className="text-center mb-4">
-            <div className="text-lg font-bold text-gray-800">What would you like to do next?</div>
-            <div className="text-sm text-gray-600">Choose how you&apos;d like to proceed with your project</div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <button type="button" onClick={handleSaveProject} disabled={saveStatus === 'saving'}
-              className="group relative flex flex-col items-center text-center p-6 md:p-8 bg-white border-2 border-[#406517]/30 rounded-2xl hover:border-[#406517] hover:shadow-lg transition-all">
-              <div className="w-14 h-14 rounded-full bg-[#406517]/10 flex items-center justify-center mb-4 group-hover:bg-[#406517]/20 transition-colors"><Zap className="w-7 h-7 text-[#406517]" /></div>
-              <div className="text-lg font-bold text-gray-800 mb-1">Get an Instant Quote</div>
-              <div className="text-sm text-gray-600 mb-4">See estimated pricing for your panels and accessories right away.</div>
-              <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#406517]">
-                {saveStatus === 'saving' ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</> : <>Continue to Quote <ArrowRight className="w-4 h-4" /></>}
-              </span>
-            </button>
-            <Link href={`${basePath}/expert-assistance`} onClick={() => { try { localStorage.setItem(LS_KEY, JSON.stringify({ numSides, sides, meshType, meshColor })) } catch {} }}
-              className="group relative flex flex-col items-center text-center p-6 md:p-8 bg-white border-2 border-gray-200 rounded-2xl hover:border-[#406517]/50 hover:shadow-lg transition-all">
-              <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mb-4 group-hover:bg-[#406517]/10 transition-colors"><Users className="w-7 h-7 text-gray-600 group-hover:text-[#406517] transition-colors" /></div>
-              <div className="text-lg font-bold text-gray-800 mb-1">Send to Our Planning Team</div>
-              <div className="text-sm text-gray-600 mb-4">Our experts will review your configuration, verify measurements, and provide a detailed quote.</div>
-              <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-600 group-hover:text-[#406517] transition-colors">Talk to an Expert <ArrowRight className="w-4 h-4" /></span>
-            </Link>
-          </div>
-        </div>
       )}
 
       {/* ── Saved Success ── */}
@@ -898,7 +943,7 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
         <Card className="!p-0 !bg-white !border-2 !border-[#406517]/30 overflow-hidden">
           <div className="px-6 py-8 text-center">
             <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
-            <div className="text-lg font-bold text-gray-800 mb-1">Project Saved!</div>
+            <div className="text-lg font-bold text-gray-800 mb-1">Project Saved{firstName ? `, ${firstName}` : ''}!</div>
             <div className="text-sm text-gray-600 mb-6">Your panel configuration has been saved. Choose your next step:</div>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Button variant="primary" size="lg" asChild><Link href={`${basePath}/instant-quote`}><Zap className="w-4 h-4 mr-2" />Get Instant Quote</Link></Button>

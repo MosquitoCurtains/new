@@ -388,9 +388,9 @@ export default function OrderDetailPage() {
                   <Printer className="w-4 h-4 mr-1" /> Packing List
                 </Link>
               </Button>
-              {order.cart_id && (
+              {order.project_id && (
                 <Button variant="outline" size="sm" asChild>
-                  <Link href={`/admin/mc-sales?cart=${order.cart_id}`}>
+                  <Link href={`/admin/mc-sales/project/${order.project_id}`}>
                     <Package className="w-4 h-4 mr-1" /> Edit Cart
                   </Link>
                 </Button>

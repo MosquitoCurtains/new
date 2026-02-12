@@ -22,10 +22,10 @@ import {
   BulletedList,
   ListItem,
   WhyChooseUsTemplate,
-  FinalCTATemplate,
   HeaderBarSection,
   YouTubeEmbed,
 } from '@/lib/design-system'
+import { ClearVinylFooter } from '@/components/marketing/ClearVinylFooter'
 
 export default function ClearVinylQuotePage() {
   return (
@@ -250,67 +250,7 @@ export default function ClearVinylQuotePage() {
             ================================================================ */}
         <WhyChooseUsTemplate />
 
-        {/* ================================================================
-            LEARN MORE LINKS
-            ================================================================ */}
-        <HeaderBarSection icon={ArrowRight} label="Learn More" variant="dark">
-          <Grid responsiveCols={{ mobile: 2, tablet: 4 }} gap="md">
-            <Link href="/clear-vinyl-options" className="group">
-              <Card variant="outlined" className="!p-4 text-center transition-all group-hover:border-[#003365] group-hover:shadow-md">
-                <Text className="font-semibold text-gray-900 group-hover:text-[#003365] !mb-1">Options</Text>
-                <Text className="text-sm text-gray-500 !mb-0">Apron colors & usability</Text>
-              </Card>
-            </Link>
-            <Link href="/what-makes-our-clear-vinyl-product-better" className="group">
-              <Card variant="outlined" className="!p-4 text-center transition-all group-hover:border-[#003365] group-hover:shadow-md">
-                <Text className="font-semibold text-gray-900 group-hover:text-[#003365] !mb-1">Why Our System?</Text>
-                <Text className="text-sm text-gray-500 !mb-0">What makes us better</Text>
-              </Card>
-            </Link>
-            <Link href="/clear-vinyl-self-installation-advantages" className="group">
-              <Card variant="outlined" className="!p-4 text-center transition-all group-hover:border-[#003365] group-hover:shadow-md">
-                <Text className="font-semibold text-gray-900 group-hover:text-[#003365] !mb-1">Self-Installation</Text>
-                <Text className="text-sm text-gray-500 !mb-0">Is it really that easy?</Text>
-              </Card>
-            </Link>
-            <Link href="/satisfaction-guarantee" className="group">
-              <Card variant="outlined" className="!p-4 text-center transition-all group-hover:border-[#003365] group-hover:shadow-md">
-                <Text className="font-semibold text-gray-900 group-hover:text-[#003365] !mb-1">Guarantee</Text>
-                <Text className="text-sm text-gray-500 !mb-0">Satisfaction guaranteed</Text>
-              </Card>
-            </Link>
-          </Grid>
-        </HeaderBarSection>
-
-        {/* ================================================================
-            CTA SECTION
-            ================================================================ */}
-        <section className="bg-gradient-to-br from-[#003365]/10 via-white to-[#406517]/10 rounded-3xl p-8 md:p-12 text-center">
-          <Heading level={2} className="!mb-4">Ready to Winterize Your Porch?</Heading>
-          <Text className="text-gray-600 max-w-2xl mx-auto mb-8">
-            Get an instant quote for your clear vinyl project. Our calculator gives you 
-            an estimate within 5% of actual cost.
-          </Text>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="secondary" size="lg" asChild>
-              <Link href="/start-project?mode=quote&product=clear_vinyl">
-                <Calculator className="w-5 h-5 mr-2" />
-                Get Instant Quote
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Link>
-            </Button>
-            <Button variant="outline" size="lg" asChild>
-              <Link href="/clear-vinyl-plastic-patio-enclosures">
-                See Clear Vinyl Options
-              </Link>
-            </Button>
-          </div>
-        </section>
-
-        {/* ================================================================
-            FINAL CTA
-            ================================================================ */}
-        <FinalCTATemplate />
+        <ClearVinylFooter />
 
       </Stack>
     </Container>

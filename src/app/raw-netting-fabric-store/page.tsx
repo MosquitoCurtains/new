@@ -27,6 +27,7 @@ import {
   Badge,
   Frame,
   YouTubeEmbed,
+  PowerHeaderTemplate,
   FinalCTATemplate,
 } from '@/lib/design-system'
 import { VIDEOS } from '@/lib/constants/videos'
@@ -99,33 +100,16 @@ export default function RawNettingStorePage() {
     <Container size="xl">
       <Stack gap="xl">
         {/* Hero */}
-        <section>
-          <div className="bg-gradient-to-br from-[#406517]/10 via-white to-[#003365]/10 border-2 border-[#406517]/20 rounded-3xl p-8 md:p-12">
-            <div className="text-center">
-              <Badge className="!bg-[#406517]/10 !text-[#406517] !border-[#406517]/30 mb-4">
-                For DIY Projects & Professionals
-              </Badge>
-              <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
-                Raw Netting Fabric Store
-              </h1>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
-                Giant rolls of marine-grade raw netting custom-cut to your specifications.
-                Incredibly strong with limitless applications.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Overview Video */}
-        <section>
-          <div className="max-w-3xl mx-auto">
-            <YouTubeEmbed
-              videoId={VIDEOS.RAW_NETTING}
-              title="Why Us For Raw Netting"
-              variant="hero"
-            />
-          </div>
-        </section>
+        <PowerHeaderTemplate
+          title="Raw Netting Fabric Store"
+          subtitle="Giant rolls of marine-grade raw netting custom-cut to your specifications. Incredibly strong with limitless applications. For DIY projects and professionals."
+          videoId={VIDEOS.RAW_NETTING}
+          videoTitle="Why Us For Raw Netting"
+          variant="compact"
+          ctaText="Shop All Meshes"
+          ctaHref="/order/raw-netting"
+          actions={[]}
+        />
 
         {/* Trust Badges */}
         <section>

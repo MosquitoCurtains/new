@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowRight, Sun, ShieldCheck, Eye, Scissors, Bug } from 'lucide-react'
+import { Sun, ShieldCheck, Eye, Bug, ArrowDown, ExternalLink } from 'lucide-react'
 import {
   Container,
   Stack,
@@ -9,8 +9,8 @@ import {
   TwoColumn,
   Frame,
   Text,
-  Button,
   Card,
+  Button,
   Heading,
   BulletedList,
   ListItem,
@@ -18,25 +18,61 @@ import {
   PowerHeaderTemplate,
   FinalCTATemplate,
   HeaderBarSection,
-  MC_HERO_ACTIONS,
 } from '@/lib/design-system'
 import { VIDEOS } from '@/lib/constants/videos'
+import RawNettingProductOrder from '../components/RawNettingProductOrder'
 
 const IMG = 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads'
+
+// ---------------------------------------------------------------------------
+// Product config for the order section
+// ---------------------------------------------------------------------------
+const SHADE_ROLL_SIZES = [
+  { value: '120', label: '120"', priceLabel: '$7.00/ft', pricingKey: 'raw_shade_120' },
+]
+
+const SHADE_COLORS = [
+  { value: 'black', label: 'Black', color: '#1a1a1a' },
+  { value: 'white', label: 'White', color: '#ffffff' },
+]
 
 export default function ShadeMeshPage() {
   return (
     <Container size="xl">
       <Stack gap="lg">
 
-        {/* Hero */}
+        {/* Hero — no CTA bar */}
         <PowerHeaderTemplate
           title="Shade Screen Mesh Fabric"
           subtitle="Blocks 80% of sunlight plus insects. Black shade screen has interesting optical qualities: clear looking out, opaque looking in for privacy. White shade mesh is ideal for outdoor projection screens."
           videoId={VIDEOS.RAW_NETTING}
           videoTitle="Why Us For Raw Netting"
           variant="compact"
-          actions={MC_HERO_ACTIONS}
+          actions={[]}
+          ctaSlot={
+            <>
+              <Button variant="primary" size="lg" asChild>
+                <a href="#order-now">
+                  Order Now
+                  <ArrowDown className="ml-2 w-5 h-5" />
+                </a>
+              </Button>
+              <Button variant="outline" size="lg" asChild>
+                <a href="/screened-porch-enclosures" target="_blank" rel="noopener noreferrer">
+                  See Fabricated Solutions
+                  <ExternalLink className="ml-2 w-4 h-4" />
+                </a>
+              </Button>
+            </>
+          }
+        />
+
+        {/* ORDER SECTION — moved up, right after hero */}
+        <RawNettingProductOrder
+          meshType="shade"
+          productName="Shade Mesh"
+          rollSizes={SHADE_ROLL_SIZES}
+          colors={SHADE_COLORS}
         />
 
         {/* Product Details */}
@@ -66,66 +102,6 @@ export default function ShadeMeshPage() {
               </BulletedList>
             </Stack>
           </TwoColumn>
-        </HeaderBarSection>
-
-        {/* Shade Levels */}
-        <HeaderBarSection icon={Eye} label="Color Options & Uses" variant="dark">
-          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
-            <Card variant="elevated" className="!p-5">
-              <div className="w-full h-32 rounded-lg bg-gray-900 mb-4 flex items-center justify-center">
-                <Text className="text-white font-bold !mb-0">BLACK</Text>
-              </div>
-              <Heading level={4} className="!mb-2">Black Shade Mesh</Heading>
-              <Text size="sm" className="text-gray-600 !mb-0">
-                Black will not fade and blocks both insects and 80% of sunlight. Best shade screen 
-                material for visibility. Excellent for privacy -- opaque looking in.
-              </Text>
-            </Card>
-            <Card variant="elevated" className="!p-5">
-              <div className="w-full h-32 rounded-lg bg-white border-2 border-gray-200 mb-4 flex items-center justify-center">
-                <Text className="text-gray-900 font-bold !mb-0">WHITE</Text>
-              </div>
-              <Heading level={4} className="!mb-2">White Shade Mesh</Heading>
-              <Text size="sm" className="text-gray-600 !mb-0">
-                White shade mesh is used primarily for outdoor projection screens. Also suitable 
-                for shade applications where a lighter appearance is preferred.
-              </Text>
-            </Card>
-          </Grid>
-        </HeaderBarSection>
-
-        {/* Pricing */}
-        <HeaderBarSection icon={Scissors} label="Sizing & Pricing" variant="dark">
-          <Stack gap="md">
-            <Text className="text-gray-600">
-              Shade mesh is available in a 120-inch wide roll. Order by the linear foot.
-            </Text>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-[#406517] text-white">
-                    <th className="px-4 py-3 text-left text-sm font-semibold">Roll Width</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold">Price per Linear Foot</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold">Example (20ft)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td className="px-4 py-3 font-medium">120-inch roll</td>
-                    <td className="px-4 py-3 text-[#406517] font-bold">$7.00 / ft</td>
-                    <td className="px-4 py-3 text-gray-600">20ft x $7.00 = $140.00</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div className="flex justify-center pt-2">
-              <Button variant="primary" asChild>
-                <Link href="/order/raw-netting">
-                  Order Now <ArrowRight className="ml-2 w-4 h-4" />
-                </Link>
-              </Button>
-            </div>
-          </Stack>
         </HeaderBarSection>
 
         {/* Common Applications */}

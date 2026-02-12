@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { buildPageMetadata } from '@/lib/seo/metadata'
 import { BreadcrumbSchema, breadcrumbsFromSlug, WebPageSchema } from '@/lib/seo/structured-data'
+import OrderShell from '@/app/order/components/OrderShell'
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Raw Netting & Mesh Fabrics | Buy By the Foot',
@@ -14,7 +15,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(BreadcrumbSchema(breadcrumbsFromSlug('/raw-netting', 'Raw Netting & Mesh Fabrics'))) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(WebPageSchema({ title: 'Raw Netting & Mesh Fabrics | Buy By the Foot', description: 'Giant rolls of raw netting and mesh fabric sold by the linear foot. Heavy mosquito mesh, no-see-um, shade mesh, theatre scrim, and industrial netting. Marine-grade quality.', url: '/raw-netting' })) }} />
-      {children}
+      <OrderShell>{children}</OrderShell>
     </>
   )
 }

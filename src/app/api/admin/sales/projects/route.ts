@@ -17,6 +17,7 @@ export async function POST(request: NextRequest) {
       phone,
       product_type,
       assigned_to,
+      project_name,
     } = body
 
     const supabase = createAdminClient()
@@ -111,6 +112,7 @@ export async function POST(request: NextRequest) {
         last_name: leadLastName,
         phone: leadPhone,
         product_type: product_type || 'curtains',
+        project_name: project_name || null,
         status: 'draft',
         assigned_to: assigned_to || null,
         cart_data: [],

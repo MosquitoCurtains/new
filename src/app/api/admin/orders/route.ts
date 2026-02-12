@@ -199,10 +199,12 @@ export async function POST(request: NextRequest) {
 /**
  * GET /api/admin/orders
  * List orders with filters and pagination.
+ * Supports ?source=legacy to query legacy_orders table.
  */
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
+    const source = searchParams.get('source') || 'orders'
     const status = searchParams.get('status')
     const salesperson = searchParams.get('salesperson')
     const search = searchParams.get('search')
@@ -212,6 +214,58 @@ export async function GET(request: NextRequest) {
 
     const supabase = createAdminClient()
 
+    // ---- Legacy orders ----
+    if (source === 'legacy') {
+      let query = supabase
+        .from('legacy_orders')
+        .select('*', { count: 'exact' })
+        .order('order_date', { ascending: false })
+        .range(offset, offset + limit - 1)
+
+      if (status) query = query.eq('status', status)
+      if (salesperson) query = query.eq('salesperson_username', salesperson)
+      if (search) {
+        query = query.or(
+          `order_number.ilike.%${search}%,email.ilike.%${search}%,billing_first_name.ilike.%${search}%,billing_last_name.ilike.%${search}%`
+        )
+      }
+
+      const { data, error, count } = await query
+
+      if (error) {
+        console.error('Error fetching legacy orders:', error)
+        return NextResponse.json(
+          { error: 'Failed to fetch legacy orders' },
+          { status: 500 }
+        )
+      }
+
+      // Normalize legacy_orders columns to match the standard Order shape
+      const normalized = (data || []).map((o: Record<string, unknown>) => ({
+        id: o.id,
+        order_number: o.order_number,
+        email: o.email,
+        billing_first_name: o.billing_first_name,
+        billing_last_name: o.billing_last_name,
+        status: o.status,
+        total: o.total,
+        salesperson_name: o.salesperson_username || null,
+        created_at: o.order_date,
+        payment_status: o.transaction_id ? 'paid' : 'unknown',
+        source: 'legacy',
+      }))
+
+      return NextResponse.json({
+        orders: normalized,
+        total: count || 0,
+        page,
+        limit,
+        totalPages: Math.ceil((count || 0) / limit),
+        source: 'legacy',
+      })
+    }
+
+    // ---- Standard orders ----
     let query = supabase
       .from('orders')
       .select('*', { count: 'exact' })
@@ -242,6 +296,7 @@ export async function GET(request: NextRequest) {
       page,
       limit,
       totalPages: Math.ceil((count || 0) / limit),
+      source: 'orders',
     })
   } catch (error) {
     console.error('Orders GET error:', error)

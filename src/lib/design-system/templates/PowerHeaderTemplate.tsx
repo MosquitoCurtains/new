@@ -94,6 +94,16 @@ export interface PowerHeaderTemplateProps {
    */
   showDivider?: boolean
   /**
+   * Whether to show the primary CTA button
+   * @default true
+   */
+  showCta?: boolean
+  /**
+   * Custom CTA slot — when provided, replaces the default CTA button.
+   * Useful for rendering multiple buttons or custom anchor links.
+   */
+  ctaSlot?: ReactNode
+  /**
    * Additional content below the header (inside the container for stacked, outside for compact)
    */
   children?: ReactNode
@@ -179,6 +189,8 @@ export function PowerHeaderTemplate({
   dividerHeading = 'Get Started',
   dividerSubtext = 'Watch the overview, then plan your project',
   showDivider = true,
+  showCta = true,
+  ctaSlot,
   children,
 }: PowerHeaderTemplateProps) {
   
@@ -219,14 +231,20 @@ export function PowerHeaderTemplate({
                     </p>
                   )}
                   
-                  <div className="pt-2 flex justify-center md:justify-start">
-                    <Button variant="primary" size="lg" asChild>
-                      <Link href={ctaHref}>
-                        {ctaText}
-                        <ArrowRight className="ml-2 w-5 h-5" />
-                      </Link>
-                    </Button>
-                  </div>
+                  {ctaSlot ? (
+                    <div className="pt-2 flex flex-wrap gap-3 justify-center md:justify-start">
+                      {ctaSlot}
+                    </div>
+                  ) : showCta ? (
+                    <div className="pt-2 flex justify-center md:justify-start">
+                      <Button variant="primary" size="lg" asChild>
+                        <Link href={ctaHref}>
+                          {ctaText}
+                          <ArrowRight className="ml-2 w-5 h-5" />
+                        </Link>
+                      </Button>
+                    </div>
+                  ) : null}
                 </Stack>
                 
                 {/* Right: Video */}
@@ -258,14 +276,20 @@ export function PowerHeaderTemplate({
                     </p>
                   )}
                   
-                  <div className="pt-2">
-                    <Button variant="primary" size="lg" asChild>
-                      <Link href={ctaHref}>
-                        {ctaText}
-                        <ArrowRight className="ml-2 w-5 h-5" />
-                      </Link>
-                    </Button>
-                  </div>
+                  {ctaSlot ? (
+                    <div className="pt-2 flex flex-wrap gap-3 justify-center">
+                      {ctaSlot}
+                    </div>
+                  ) : showCta ? (
+                    <div className="pt-2">
+                      <Button variant="primary" size="lg" asChild>
+                        <Link href={ctaHref}>
+                          {ctaText}
+                          <ArrowRight className="ml-2 w-5 h-5" />
+                        </Link>
+                      </Button>
+                    </div>
+                  ) : null}
                 </Stack>
               </div>
             )}
@@ -336,14 +360,16 @@ export function PowerHeaderTemplate({
             </p>
           )}
           
-          <div className="pt-1">
-            <Button variant="primary" size="lg" asChild>
-              <Link href={ctaHref}>
-                {ctaText}
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Link>
-            </Button>
-          </div>
+          {showCta && (
+            <div className="pt-1">
+              <Button variant="primary" size="lg" asChild>
+                <Link href={ctaHref}>
+                  {ctaText}
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Link>
+              </Button>
+            </div>
+          )}
         </div>
         
         {/* Divider */}

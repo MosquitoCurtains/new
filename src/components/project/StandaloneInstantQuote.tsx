@@ -39,7 +39,6 @@ import {
   Input,
   Spinner,
   Badge,
-  FinalCTATemplate,
 } from '@/lib/design-system'
 import { PhotoUploader, UploadedPhoto } from '@/components/project'
 import { QuoteGuidance } from './QuoteGuidance'
@@ -582,17 +581,6 @@ export function StandaloneInstantQuote({ productType }: StandaloneInstantQuotePr
             EDUCATIONAL CONTENT & GUIDANCE (Below the gradient card)
             ============================================================ */}
         <QuoteGuidance productType={productType} />
-
-        {/* ============================================================
-            FINAL CTA - Big gradient call-to-action
-            ============================================================ */}
-        <FinalCTATemplate
-          title="Ready to Enjoy Your Outdoor Space?"
-          subtitle="Get a custom quote in minutes. Our planning team is here to help you create the perfect solution for your home."
-          primaryCTAText="Start Your Project"
-          primaryCTALink="/start-project"
-          variant={isMosquito ? 'green' : 'blue'}
-        />
 
       </Stack>
     </Container>

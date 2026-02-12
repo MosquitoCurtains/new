@@ -51,7 +51,8 @@ export async function PATCH(
     const allowedFields = [
       'status', 'assigned_to', 'notes', 'estimated_total',
       'product_type', 'project_type', 'mesh_type', 'top_attachment',
-      'total_width', 'number_of_sides',
+      'total_width', 'number_of_sides', 'project_name',
+      'first_name', 'last_name', 'email', 'phone',
     ]
     const update: Record<string, unknown> = {}
     for (const field of allowedFields) {

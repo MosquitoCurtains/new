@@ -1,47 +1,63 @@
 'use client'
 
 import { InstallationPageTemplate } from '@/lib/design-system/templates'
+import { SHARED_HELPFUL_VIDEOS } from '@/lib/constants/install-videos'
 
-const INSTALLATION_STEPS = [
-  {
-    title: 'Unpack and Organize Materials',
-    description: 'Lay out your clear vinyl panels and all hardware. Your kit includes: clear vinyl panels, velcro strips (or tracking hardware if ordered), marine snaps, and zipper connectors for multi-panel setups.',
-    videoId: 'ca6GufadXoE',
-  },
-  {
-    title: 'Handle Vinyl Panels Carefully',
-    description: 'Clear vinyl panels should be handled with care to avoid scratches and creases. Unroll panels flat and allow them to relax at room temperature before installation. Do not fold vinyl.',
-    videoId: 'ca6GufadXoE',
-  },
-  {
-    title: 'Install Top Attachment',
-    description: 'Most clear vinyl installations use velcro top attachment (fixed in place). If you ordered tracking, follow the tracking installation guide. Mount the velcro or tracking to your overhead surface.',
-  },
-  {
-    title: 'Hang the Vinyl Panels',
-    description: 'Attach the vinyl panels to your mounted velcro or tracking hardware. For multi-panel installations, panels will zip together at the seams for a tight weather seal.',
-    videoId: 'ca6GufadXoE',
-  },
-  {
-    title: 'Install Marine Snaps',
-    description: 'Secure the sides and bottom of your vinyl panels with marine snaps. This creates a tight seal against wind and weather.',
-    videoId: '5dWUpGj6lYc',
-  },
-  {
-    title: 'Final Adjustments',
-    description: 'Test your installation by checking for gaps where wind could enter. Adjust snap placement if needed. Your clear vinyl panels should provide complete weather protection.',
-  },
+// ============================================================================
+// Clear Vinyl Installation
+// WordPress source: mosquitocurtains.com/clear-vinyl-installation/
+// Video IDs extracted via deep HTML parsing (scripts/extract-install-content.ts)
+// Total: 20 unique videos (verified against YouTube thumbnail endpoint)
+// ============================================================================
+
+const INTRO_TEXT =
+  'There is a full installation video accompanied by a PDF guide that will take you through the entire installation process. We have also broken the installation video into each logical step below so you can easily watch as you go. The representative porch in this video demonstrates our important techniques. Some of these techniques may not apply to your particular project.\n\n(See additional videos below if you are mounting on track.)'
+
+const MAIN_VIDEO = {
+  title: 'Complete CV Velcro Install',
+  videoId: 'spFLG0Bxo8A',
+  duration: '16:19',
+}
+
+const INTRO_VIDEO = {
+  title: 'Intro & Tools',
+  videoId: 'gokKVV2dq8k',
+  duration: '1:43',
+}
+
+const STEPS = [
+  { title: 'Mounting The Velcro', videoId: 'c5udYJ858mw', duration: '1:38' },
+  { title: 'Position Panels', videoId: '-Vj9cdicuxg', duration: '1:09' },
+  { title: 'Mounting Panels', videoId: '6vXW9n3sObw', duration: '3:26' },
+  { title: 'Zipper Doorways', videoId: 'ctXrsA7dN4E', duration: '1:02' },
+  { title: 'Sealing Sides', videoId: 'GiIejVc2LGk', duration: '4:03' },
+  { title: 'Belted Ribs', videoId: '0Ok4bmy7tMs', duration: '1:32' },
+  { title: 'Sealing The Base', videoId: 'b2gvYmXKCi8', duration: '1:05' },
+]
+
+const SUPPLEMENTARY_VIDEOS = [
+  { title: 'Installation Overview', videoId: 'ePV0S4_Aabc', duration: '1:06' },
+]
+
+const MOUNTING_ON_TRACK_VIDEOS = [
+  { title: 'Mounting Your Track', videoId: 'f-RxW5_cLQo', duration: '7:46' },
+  { title: 'Snap Carriers', videoId: 'lYwtKCtb8-I', duration: '0:53' },
 ]
 
 export default function ClearVinylInstallPage() {
   return (
     <InstallationPageTemplate
-      title="Clear Vinyl Installation Guide"
-      subtitle="Step-by-step instructions for installing clear vinyl weather panels. Create a warm, cozy outdoor space protected from wind, rain, and cold."
-      steps={INSTALLATION_STEPS}
-      mainVideoId="ca6GufadXoE"
+      title="Clear Vinyl Installation"
+      introText={INTRO_TEXT}
+      mainVideo={MAIN_VIDEO}
+      introVideo={INTRO_VIDEO}
+      steps={STEPS}
+      supplementaryVideos={[...SUPPLEMENTARY_VIDEOS, ...MOUNTING_ON_TRACK_VIDEOS]}
+      supplementaryHeading="Additional Videos If You Are Mounting On Track"
+      helpfulVideos={SHARED_HELPFUL_VIDEOS}
       showThankYou={true}
       showCareLinks={true}
+      careHref="/care/clear-vinyl"
     />
   )
 }

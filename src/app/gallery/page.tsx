@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { GalleryPageTemplate } from '@/lib/design-system/templates'
 import type { GalleryImage } from '@/lib/design-system/templates'
 import { ORDERS_SERVED_FORMATTED } from '@/lib/constants/orders-served'
@@ -70,8 +71,15 @@ function mapDbToGalleryImage(row: any): GalleryImage {
 // ============================================================================
 
 export default function GalleryPage() {
+  const searchParams = useSearchParams()
   const [images, setImages] = useState<GalleryImage[]>([])
   const [loading, setLoading] = useState(true)
+
+  // Read initial product type from URL: ?filter=clear_vinyl or ?category=clear-vinyl
+  const filterParam = searchParams.get('filter') || searchParams.get('category')
+  const initialProductType = filterParam
+    ? filterParam.replace(/-/g, '_') // normalize hyphens to underscores
+    : undefined
 
   useEffect(() => {
     async function fetchImages() {
@@ -105,6 +113,7 @@ export default function GalleryPage() {
       subtitle={`Browse real installations from our ${ORDERS_SERVED_FORMATTED} customers. Filter by product type and project to find inspiration for your space.`}
       images={images}
       filters={GALLERY_FILTERS}
+      initialProductType={initialProductType}
       showFilters={true}
     />
   )

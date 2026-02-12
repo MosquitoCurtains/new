@@ -17,8 +17,8 @@ import {
   Heading,
   YouTubeEmbed,
   HeaderBarSection,
-  FinalCTATemplate,
 } from '@/lib/design-system'
+import { ClearVinylFooter } from '@/components/marketing/ClearVinylFooter'
 import { VIDEOS } from '@/lib/constants/videos'
 
 const APRON_COLORS = [
@@ -215,7 +215,7 @@ export default function ClearVinylPlanningSessionPage() {
           </Stack>
         </HeaderBarSection>
 
-        <FinalCTATemplate />
+        <ClearVinylFooter />
 
       </Stack>
     </Container>

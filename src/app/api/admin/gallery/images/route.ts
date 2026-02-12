@@ -23,6 +23,12 @@ export async function GET(request: NextRequest) {
     const projectType = searchParams.get('project_type')
     if (projectType) query = query.eq('project_type', projectType)
 
+    const meshType = searchParams.get('mesh_type')
+    if (meshType) query = query.eq('mesh_type', meshType)
+
+    const color = searchParams.get('color')
+    if (color) query = query.eq('color', color)
+
     const featured = searchParams.get('featured')
     if (featured === 'true') query = query.eq('is_featured', true)
     if (featured === 'false') query = query.eq('is_featured', false)

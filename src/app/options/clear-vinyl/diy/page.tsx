@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { 
-  ArrowRight, 
   ArrowLeft,
   Wrench,
   Clock,
@@ -21,10 +20,10 @@ import {
   Frame,
   BulletedList,
   ListItem,
-  FinalCTATemplate,
   HeaderBarSection,
   YouTubeEmbed,
 } from '@/lib/design-system'
+import { ClearVinylFooter } from '@/components/marketing/ClearVinylFooter'
 import { VIDEOS } from '@/lib/constants/videos'
 
 export default function ClearVinylDIYPage() {
@@ -187,30 +186,7 @@ export default function ClearVinylDIYPage() {
           </Card>
         </HeaderBarSection>
 
-        {/* CTA */}
-        <section className="bg-gradient-to-br from-[#406517]/10 via-white to-[#003365]/10 rounded-3xl p-8 md:p-12 text-center">
-          <Heading level={2} className="!mb-4">Ready to Save with DIY?</Heading>
-          <Text className="text-gray-600 max-w-2xl mx-auto mb-8">
-            Get a quote for your clear vinyl enclosure and see how much you'll save 
-            with self-installation.
-          </Text>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="primary" asChild>
-              <Link href="/start-project?mode=quote&product=clear_vinyl">
-                Get Clear Vinyl Quote
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/clear-vinyl">
-                Learn More About Clear Vinyl
-              </Link>
-            </Button>
-          </div>
-        </section>
-
-        {/* Final CTA */}
-        <FinalCTATemplate />
+        <ClearVinylFooter />
 
       </Stack>
     </Container>

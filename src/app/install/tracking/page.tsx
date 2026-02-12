@@ -1,46 +1,63 @@
 'use client'
 
 import { InstallationPageTemplate } from '@/lib/design-system/templates'
+import { SHARED_HELPFUL_VIDEOS } from '@/lib/constants/install-videos'
 
-const INSTALLATION_STEPS = [
-  {
-    title: 'Unpack and Organize Materials',
-    description: 'Lay out all your materials and verify you have everything. Your kit includes: tracking hardware, curtain panels, mounting screws, marine snaps, and magnetic closures. Sort items by type to make installation easier.',
-    videoId: 'FqNe9pDsZ8M',
-  },
-  {
-    title: 'Install the Tracking Hardware',
-    description: 'Mount the tracking hardware to your overhead surface (beam, soffit, or ceiling). Mark pilot holes, drill, and secure with provided screws. Make sure the track is level for smooth curtain operation.',
-    videoId: 'FqNe9pDsZ8M',
-  },
-  {
-    title: 'Hang the Curtain Panels',
-    description: 'Insert the curtain glides into the track, then attach your curtain panels. The panels hang from the track and can slide side to side like decorative drapes.',
-    videoId: 'FqNe9pDsZ8M',
-  },
-  {
-    title: 'Install Marine Snaps',
-    description: 'Attach marine snaps to secure the sides of your curtains to posts or walls. Marine snaps provide a secure hold while allowing easy removal for cleaning or seasonal storage.',
-    videoId: '5dWUpGj6lYc',
-  },
-  {
-    title: 'Install Magnetic Doorways',
-    description: 'If your project includes doorways, install the magnetic closures. These strong rare-earth magnets seal the doorway tight but open easily when you push through.',
-    videoId: 'QaRUVjmJKEY',
-  },
-  {
-    title: 'Final Adjustments',
-    description: 'Test the operation of your curtains - they should slide smoothly along the track. Make any final adjustments to ensure a proper seal against insects.',
-  },
+// ============================================================================
+// Mosquito Curtains Tracking Installation
+// WordPress source: mosquitocurtains.com/mosquito-curtains-tracking-installation/
+// Video IDs extracted via deep HTML parsing (scripts/extract-install-content.ts)
+// Total: 23 unique videos (verified against YouTube thumbnail endpoint)
+// ============================================================================
+
+const INTRO_TEXT =
+  'There is a full installation video accompanied by a PDF guide that will take you through the entire installation process. We have also broken the installation video into each logical step below so you can easily watch as you go. The representative porch in this video demonstrates our important techniques. Some of these techniques may not apply to your particular project.'
+
+const PDF_URL =
+  'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Mosquito-Curtains-Tracking-Installation.pdf'
+
+const MAIN_VIDEO = {
+  title: 'Complete Tracking Installation',
+  videoId: 'SSg8GjlHJwY',
+  duration: '39:59',
+}
+
+const INTRO_VIDEO = {
+  title: 'Intro & Tools',
+  videoId: '3BJkAgANU3k',
+  duration: '3:46',
+}
+
+const STEPS = [
+  { title: 'Mounting Track', videoId: 'Afrp9s8LlHw', duration: '7:47' },
+  { title: 'Snap Carriers', videoId: 'lYwtKCtb8-I', duration: '0:53' },
+  { title: 'Magnetic Doorways', videoId: 'TbQqNsK24as', duration: '7:33' },
+  { title: 'Fiberglass Rods', videoId: 'DJlBOrM5Osc', duration: '2:38' },
+  { title: 'Installing Stucco Strips', videoId: 'bv6IiEeM_Lk', duration: '2:27' },
+  { title: 'Mounting Your Curtains', videoId: 'B3JppKvi5MU', duration: '1:54' },
+  { title: 'Attaching The Sides', videoId: 'njVgXY-9cmc', duration: '4:05' },
+  { title: 'Elastic Cords \u2013 Tracking', videoId: 'pmhdVAbXrf8', duration: '3:52' },
+  { title: 'Sealing the Base', videoId: 'GjMOAeHQC_Q', duration: '1:05' },
+]
+
+const SUPPLEMENTARY_VIDEOS = [
+  { title: 'Project Recap', videoId: 'dC-9UByQyOI', duration: '4:00' },
+  { title: 'Standard vs. Heavy Track', videoId: 'yZoLw0PDPaY', duration: '2:41' },
+  { title: 'Economy Snap Tool', videoId: 'Dytuz4r0ciM', duration: '4:42' },
+  { title: 'Mounting Track With Double-sided Tape', videoId: 'luCAqhSjNEk', duration: '3:44' },
 ]
 
 export default function TrackingInstallPage() {
   return (
     <InstallationPageTemplate
-      title="Tracking Installation Guide"
-      subtitle="Step-by-step instructions for installing mosquito curtains with our overhead tracking system. Tracking allows your curtains to slide open and closed like elegant drapes."
-      steps={INSTALLATION_STEPS}
-      mainVideoId="FqNe9pDsZ8M"
+      title="Mosquito Curtains Tracking Installation"
+      introText={INTRO_TEXT}
+      pdfDownloadUrl={PDF_URL}
+      mainVideo={MAIN_VIDEO}
+      introVideo={INTRO_VIDEO}
+      steps={STEPS}
+      supplementaryVideos={SUPPLEMENTARY_VIDEOS}
+      helpfulVideos={SHARED_HELPFUL_VIDEOS}
       showThankYou={true}
       showCareLinks={true}
     />

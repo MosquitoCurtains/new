@@ -75,10 +75,10 @@ export default function CartSidebar({
             className="mx-auto p-1.5 rounded-md hover:bg-gray-100 transition-colors relative"
             title="Expand cart"
           >
-            <ShoppingCart className="w-4 h-4 text-gray-500" />
+            <ShoppingCart className="w-6 h-6 text-gray-600" />
             {itemCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-[#003365] text-white text-[9px] font-bold flex items-center justify-center">
-                {itemCount > 9 ? '9+' : itemCount}
+              <span className="absolute -top-1 -right-1.5 min-w-5 h-5 px-1 rounded-full bg-[#003365] text-white text-[10px] font-bold flex items-center justify-center">
+                {itemCount > 99 ? '99+' : itemCount}
               </span>
             )}
           </button>

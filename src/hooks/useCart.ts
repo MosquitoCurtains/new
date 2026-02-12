@@ -154,12 +154,19 @@ export function useCart() {
   }, [cart, saveCart])
 
   const addItem = useCallback((item: Omit<CartLineItem, 'id'>) => {
-    if (!cart) return
-    const newItem: CartLineItem = { ...item, id: `${item.productSku}-${Date.now()}` }
-    const newItems = [...cart.items, newItem]
-    const totals = calculateTotals(newItems)
-    saveCart({ ...cart, items: newItems, ...totals })
-  }, [cart, saveCart])
+    setCart(prev => {
+      if (!prev) return prev
+      const newItem: CartLineItem = {
+        ...item,
+        id: `${item.productSku}-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+      }
+      const newItems = [...prev.items, newItem]
+      const totals = calculateTotals(newItems)
+      const updated = { ...prev, items: newItems, ...totals, updatedAt: Date.now() }
+      localStorage.setItem(CART_KEY, JSON.stringify(updated))
+      return updated
+    })
+  }, [])
 
   const updateContact = useCallback((contact: CartData['contact']) => {
     if (!cart) return
