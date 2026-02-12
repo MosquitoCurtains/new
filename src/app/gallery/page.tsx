@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { GalleryPageTemplate } from '@/lib/design-system/templates'
 import type { GalleryImage } from '@/lib/design-system/templates'
@@ -68,10 +68,10 @@ function mapDbToGalleryImage(row: any): GalleryImage {
 }
 
 // ============================================================================
-// Page
+// Inner component that uses useSearchParams
 // ============================================================================
 
-export default function GalleryPage() {
+function GalleryContent() {
   const searchParams = useSearchParams()
   const [images, setImages] = useState<GalleryImage[]>([])
   const [loading, setLoading] = useState(true)
@@ -117,5 +117,21 @@ export default function GalleryPage() {
       initialProductType={initialProductType}
       showFilters={true}
     />
+  )
+}
+
+// ============================================================================
+// Page with Suspense boundary
+// ============================================================================
+
+export default function GalleryPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex justify-center items-center min-h-[400px]">
+        <Spinner size="lg" />
+      </div>
+    }>
+      <GalleryContent />
+    </Suspense>
   )
 }

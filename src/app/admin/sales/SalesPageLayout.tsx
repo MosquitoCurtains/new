@@ -151,7 +151,7 @@ export default function SalesPageLayout({ mode, projectId }: { mode: SalesMode; 
         const { data: { user } } = await supabase.auth.getUser()
         if (user) {
           const me = allStaff.find((s) =>
-            (s as Record<string, unknown>).auth_user_id === user.id
+            (s as unknown as Record<string, unknown>).auth_user_id === user.id
           )
           if (me) {
             loggedInStaffRef.current = me
@@ -185,7 +185,7 @@ export default function SalesPageLayout({ mode, projectId }: { mode: SalesMode; 
           }
           // Always load the project's saved cart from DB when navigating via URL.
           // This overwrites any stale localStorage cart.
-          await loadFromProject(projectId)
+          await loadFromProject(projectId!)
         }
       } catch (err) {
         console.error('Error loading project from URL:', err)

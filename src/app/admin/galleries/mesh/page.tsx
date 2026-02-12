@@ -224,7 +224,7 @@ export default function MeshGalleryAdminPage() {
           <div className="flex flex-col sm:flex-row gap-4">
             {/* Mesh Type Selector */}
             <div className="flex-1">
-              <Text size="sm" weight="semibold" className="!mb-2 text-gray-700">
+              <Text size="sm" className="!mb-2 text-gray-700 font-semibold">
                 Mesh Type
               </Text>
               <div className="flex flex-wrap gap-2">
@@ -246,7 +246,7 @@ export default function MeshGalleryAdminPage() {
 
             {/* Color Selector */}
             <div className="flex-1">
-              <Text size="sm" weight="semibold" className="!mb-2 text-gray-700">
+              <Text size="sm" className="!mb-2 text-gray-700 font-semibold">
                 Color
               </Text>
               <div className="flex flex-wrap gap-2">
