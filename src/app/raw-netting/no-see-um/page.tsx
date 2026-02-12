@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowRight, Bug, ShieldCheck, MapPin, Scissors } from 'lucide-react'
+import { Bug, ShieldCheck, MapPin, Scissors, ArrowDown, ExternalLink } from 'lucide-react'
 import {
   Container,
   Stack,
@@ -9,8 +9,8 @@ import {
   TwoColumn,
   Frame,
   Text,
-  Button,
   Card,
+  Button,
   Heading,
   BulletedList,
   ListItem,
@@ -18,25 +18,62 @@ import {
   PowerHeaderTemplate,
   FinalCTATemplate,
   HeaderBarSection,
-  MC_HERO_ACTIONS,
 } from '@/lib/design-system'
 import { VIDEOS } from '@/lib/constants/videos'
+import RawNettingProductOrder from '../components/RawNettingProductOrder'
 
 const IMG = 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads'
+
+// ---------------------------------------------------------------------------
+// Product config for the order section
+// ---------------------------------------------------------------------------
+const NOSEEUM_ROLL_SIZES = [
+  { value: '101', label: '101"', priceLabel: '$6.00/ft', pricingKey: 'raw_no_see_um_101' },
+  { value: '123', label: '123"', priceLabel: '$7.00/ft', pricingKey: 'raw_no_see_um_123' },
+]
+
+const NOSEEUM_COLORS = [
+  { value: 'black', label: 'Black', color: '#1a1a1a' },
+  { value: 'white', label: 'White', color: '#ffffff' },
+]
 
 export default function NoSeeUmPage() {
   return (
     <Container size="xl">
       <Stack gap="lg">
 
-        {/* Hero */}
+        {/* Hero — no CTA bar */}
         <PowerHeaderTemplate
           title="No-See-Um Mesh Fabric"
           subtitle="Tiny holes with a much denser weave to keep out the pesky biting flies known as no-see-ums. Essential near water where these sand gnats, sand flies, and biting midges are common."
           videoId={VIDEOS.RAW_NETTING}
           videoTitle="Why Us For Raw Netting"
           variant="compact"
-          actions={MC_HERO_ACTIONS}
+          actions={[]}
+          ctaSlot={
+            <>
+              <Button variant="primary" size="lg" asChild>
+                <a href="#order-now">
+                  Order Now
+                  <ArrowDown className="ml-2 w-5 h-5" />
+                </a>
+              </Button>
+              <Button variant="outline" size="lg" asChild>
+                <a href="/screened-porch-enclosures" target="_blank" rel="noopener noreferrer">
+                  See Fabricated Solutions
+                  <ExternalLink className="ml-2 w-4 h-4" />
+                </a>
+              </Button>
+            </>
+          }
+        />
+
+        {/* ORDER SECTION — moved up, right after hero */}
+        <RawNettingProductOrder
+          meshType="no_see_um"
+          productName="No-See-Um Mesh"
+          rollSizes={NOSEEUM_ROLL_SIZES}
+          colors={NOSEEUM_COLORS}
         />
 
         {/* Product Details */}
@@ -69,62 +106,6 @@ export default function NoSeeUmPage() {
               </BulletedList>
             </Stack>
           </TwoColumn>
-        </HeaderBarSection>
-
-        {/* Available Colors */}
-        <HeaderBarSection icon={Bug} label="Available Colors" variant="dark">
-          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg">
-            <Card variant="elevated" className="!p-5 text-center">
-              <div className="w-24 h-24 rounded-full bg-gray-900 mx-auto mb-3 border-4 border-gray-200" />
-              <Text className="font-bold text-gray-900 !mb-0">Black</Text>
-              <Text size="sm" className="text-gray-500 !mb-0">Most popular for no-see-um areas</Text>
-            </Card>
-            <Card variant="elevated" className="!p-5 text-center">
-              <div className="w-24 h-24 rounded-full bg-white mx-auto mb-3 border-4 border-gray-200" />
-              <Text className="font-bold text-gray-900 !mb-0">White</Text>
-              <Text size="sm" className="text-gray-500 !mb-0">Bright, clean appearance</Text>
-            </Card>
-          </Grid>
-        </HeaderBarSection>
-
-        {/* Pricing */}
-        <HeaderBarSection icon={Scissors} label="Sizing & Pricing" variant="dark">
-          <Stack gap="md">
-            <Text className="text-gray-600">
-              Our no-see-um rolls are very wide. Order by the linear foot from the respective roll. 
-              Your cost is determined by how much we cut (length).
-            </Text>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-[#406517] text-white">
-                    <th className="px-4 py-3 text-left text-sm font-semibold">Roll Width</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold">Price per Linear Foot</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold">Example (20ft)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b border-gray-200">
-                    <td className="px-4 py-3 font-medium">101-inch roll</td>
-                    <td className="px-4 py-3 text-[#406517] font-bold">$6.00 / ft</td>
-                    <td className="px-4 py-3 text-gray-600">20ft x $6.00 = $120.00</td>
-                  </tr>
-                  <tr className="bg-gray-50">
-                    <td className="px-4 py-3 font-medium">123-inch roll</td>
-                    <td className="px-4 py-3 text-[#406517] font-bold">$7.00 / ft</td>
-                    <td className="px-4 py-3 text-gray-600">20ft x $7.00 = $140.00</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div className="flex justify-center pt-2">
-              <Button variant="primary" asChild>
-                <Link href="/order/raw-netting">
-                  Order Now <ArrowRight className="ml-2 w-4 h-4" />
-                </Link>
-              </Button>
-            </div>
-          </Stack>
         </HeaderBarSection>
 
         {/* Geographic Areas */}

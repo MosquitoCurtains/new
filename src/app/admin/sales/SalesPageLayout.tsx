@@ -7,13 +7,17 @@
  * Each route (mc-sales, cv-sales, rn-sales, ru-sales) renders
  * this component with the appropriate mode prop.
  *
+ * Uses hard links: /admin/mc-sales/project/[projectId]
+ * instead of query strings.
+ *
  * Collapsible cart sidebar on the right mirrors the left admin sidebar.
  * The sidebar is fixed-position, same pattern as the admin layout's left sidebar.
  */
 
-import { useMemo, useState, useEffect, useCallback } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { Container, Stack, Heading, Text } from '@/lib/design-system'
+import { useMemo, useState, useEffect, useCallback, useRef } from 'react'
+import { useRouter } from 'next/navigation'
+import { Container, Stack, Heading, Text, Spinner } from '@/lib/design-system'
+import { createClient } from '@/lib/supabase/client'
 import { useCart } from '@/hooks/useCart'
 import { usePricing } from '@/hooks/usePricing'
 import { useProducts } from '@/hooks/useProducts'
@@ -64,6 +68,7 @@ interface ProjectData {
   last_name: string | null
   phone: string | null
   product_type: string
+  project_name: string | null
   status: string
   share_token: string
   estimated_total: number | null
@@ -73,9 +78,14 @@ interface ProjectData {
   leads?: any
 }
 
-export default function SalesPageLayout({ mode }: { mode: SalesMode }) {
+/** Build the hard-link URL for a sales mode + optional project */
+function salesUrl(salesMode: SalesMode, projectId?: string | null): string {
+  const base = MODE_ROUTES[salesMode]
+  return projectId ? `${base}/project/${projectId}` : base
+}
+
+export default function SalesPageLayout({ mode, projectId }: { mode: SalesMode; projectId?: string }) {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const [cartCollapsed, setCartCollapsed] = useState(true)
 
   const {
@@ -86,11 +96,9 @@ export default function SalesPageLayout({ mode }: { mode: SalesMode }) {
     clearCart,
     isLoading: cartLoading,
     itemCount,
-    isSaving,
     dbCartId,
     saveToDb,
     loadFromProject,
-    loadFromDb,
   } = useCart()
   const { prices: dbPrices, isLoading: pricingLoading, getPrice } = usePricing()
   const {
@@ -110,94 +118,142 @@ export default function SalesPageLayout({ mode }: { mode: SalesMode }) {
 
   const [productModal, setProductModal] = useState<ProductModalInfo | null>(null)
 
+  // Wrap addItem to auto-expand cart sidebar on any add
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const addItemAndOpenCart = useCallback((item: any) => {
+    addItem(item)
+    setCartCollapsed(false)
+  }, [addItem])
+
+  // Snap tool: limit 1 in cart
+  const snapToolInCart = cart?.items.some(item => item.productSku === 'snap_tool') ?? false
+
   // Project Bar state
   const [selectedProject, setSelectedProject] = useState<ProjectData | null>(null)
   const [selectedSalesperson, setSelectedSalesperson] = useState<Staff | null>(null)
   const [staffList, setStaffList] = useState<Staff[]>([])
 
-  // Load staff list on mount
+  // Track the logged-in staff member's ID (from Supabase auth)
+  const loggedInStaffRef = useRef<Staff | null>(null)
+
+  // Load staff list on mount + resolve logged-in user
   useEffect(() => {
-    async function fetchStaff() {
+    async function fetchStaffAndResolveUser() {
       try {
+        // Fetch staff list
         const res = await fetch('/api/admin/staff?active=true')
         const data = await res.json()
-        if (data.staff) setStaffList(data.staff)
+        const allStaff: Staff[] = data.staff || []
+        setStaffList(allStaff)
+
+        // Get logged-in Supabase user and match to staff record
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          const me = allStaff.find((s) =>
+            (s as unknown as Record<string, unknown>).auth_user_id === user.id
+          )
+          if (me) {
+            loggedInStaffRef.current = me
+            // Auto-select if no salesperson is set yet
+            setSelectedSalesperson((prev) => prev || me)
+          }
+        }
       } catch {
         // Staff API might not exist yet; fail silently
       }
     }
-    fetchStaff()
+    fetchStaffAndResolveUser()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Load project from URL params (?project=UUID or ?cart=UUID)
+  // Load project from URL param (hard link: /admin/mc-sales/project/[projectId])
+  // Always load the project's DB cart — it's the source of truth for this project.
   useEffect(() => {
-    const projectParam = searchParams.get('project')
-    const cartParam = searchParams.get('cart')
+    if (!projectId) return
 
-    if (projectParam) {
-      // Load project and its cart
-      const pid = projectParam
-      async function loadProject() {
-        try {
-          const res = await fetch(`/api/admin/sales/projects/${pid}`)
-          const data = await res.json()
-          if (data.project) {
-            setSelectedProject(data.project)
-            // Load the project's cart into useCart
-            await loadFromProject(pid)
+    async function loadProject() {
+      try {
+        const res = await fetch(`/api/admin/sales/projects/${projectId}`)
+        const data = await res.json()
+        if (data.project) {
+          setSelectedProject(data.project)
+          // If project has a salesperson, set them
+          if (data.project.assigned_to) {
+            const staff = staffList.find((s) => s.id === data.project.assigned_to)
+            if (staff) setSelectedSalesperson(staff)
           }
-        } catch (err) {
-          console.error('Error loading project from URL:', err)
+          // Always load the project's saved cart from DB when navigating via URL.
+          // This overwrites any stale localStorage cart.
+          await loadFromProject(projectId!)
         }
+      } catch (err) {
+        console.error('Error loading project from URL:', err)
       }
-      loadProject()
-    } else if (cartParam) {
-      // Load cart and resolve its project
-      const cid = cartParam
-      async function loadCart() {
-        try {
-          await loadFromDb(cid)
-          const res = await fetch(`/api/admin/carts/${cartParam}`)
-          const data = await res.json()
-          if (data.cart?.projects) {
-            const proj = Array.isArray(data.cart.projects) ? data.cart.projects[0] : data.cart.projects
-            setSelectedProject(proj)
-          }
-        } catch (err) {
-          console.error('Error loading cart from URL:', err)
-        }
-      }
-      loadCart()
     }
-  }, [searchParams, loadFromProject, loadFromDb])
+    loadProject()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectId])
 
-  // --- Save cart to DB ---
-  const handleSave = useCallback(async () => {
+  // Re-resolve salesperson once staffList loads (handles race condition where
+  // project loads before staff list is fetched)
+  useEffect(() => {
+    if (!selectedProject?.assigned_to || staffList.length === 0) return
+    if (selectedSalesperson) return // Already set
+    const staff = staffList.find((s) => s.id === selectedProject.assigned_to)
+    if (staff) setSelectedSalesperson(staff)
+  }, [staffList, selectedProject, selectedSalesperson])
+
+  // Sync salesperson changes to the project in the DB
+  const handleSalespersonChanged = useCallback(async (staff: Staff | null) => {
+    setSelectedSalesperson(staff)
     if (!selectedProject) return
+    // Update project's assigned_to in the DB
+    try {
+      await fetch(`/api/admin/sales/projects/${selectedProject.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ assigned_to: staff?.id || null }),
+      })
+      setSelectedProject((prev) => prev ? { ...prev, assigned_to: staff?.id || null } : null)
+    } catch (err) {
+      console.error('Error updating project salesperson:', err)
+    }
+  }, [selectedProject])
+
+  // --- Helper: save cart and return cartId, throws on failure ---
+  const saveCartOrThrow = useCallback(async (): Promise<string> => {
+    if (!selectedProject) throw new Error('Select a project first')
     const cartId = await saveToDb(
       selectedProject.id,
       selectedSalesperson?.id,
-      selectedSalesperson?.name,
       mode,
     )
-    if (cartId) {
-      // Update URL with project param if not already there
-      const url = new URL(window.location.href)
-      if (!url.searchParams.has('project')) {
-        url.searchParams.set('project', selectedProject.id)
-        router.replace(url.pathname + url.search)
-      }
+    // Navigate to hard link if not already there
+    const expectedUrl = salesUrl(mode, selectedProject.id)
+    if (!window.location.pathname.includes(`/project/${selectedProject.id}`)) {
+      router.replace(expectedUrl)
     }
+    return cartId
   }, [selectedProject, selectedSalesperson, mode, saveToDb, router])
 
-  // --- Send cart to customer ---
-  const handleSend = useCallback(async () => {
-    if (!selectedProject) return
-    // Save first
-    await handleSave()
-    // Copy the share link
+  // --- Save cart to DB ---
+  const handleSave = useCallback(async () => {
+    await saveCartOrThrow()
+  }, [saveCartOrThrow])
+
+  // --- Copy link (try to save, then copy share URL regardless) ---
+  const handleCopyLink = useCallback(async (): Promise<string | null> => {
+    if (!selectedProject) throw new Error('Select a project first')
+    // Try to save cart, but don't block the copy if save fails
+    try {
+      await saveCartOrThrow()
+    } catch (err) {
+      console.warn('Cart save failed before copy:', err)
+    }
+    // Copy the share link regardless
     const url = `${window.location.origin}/project/${selectedProject.share_token}`
-    navigator.clipboard.writeText(url)
+    await navigator.clipboard.writeText(url)
     // Update project status to quote_sent
     try {
       await fetch(`/api/admin/sales/projects/${selectedProject.id}`, {
@@ -209,57 +265,38 @@ export default function SalesPageLayout({ mode }: { mode: SalesMode }) {
     } catch (err) {
       console.error('Error updating project status:', err)
     }
-    alert(`Quote link copied to clipboard!\n\n${url}`)
-  }, [selectedProject, handleSave])
+    return url
+  }, [selectedProject, saveCartOrThrow])
 
   // --- Place order directly ---
   const handlePlaceOrder = useCallback(async () => {
-    if (!selectedProject) return
-    // Save cart first
-    const cartId = await saveToDb(
-      selectedProject.id,
-      selectedSalesperson?.id,
-      selectedSalesperson?.name,
-      mode,
-    )
-    if (!cartId) return
+    const cartId = await saveCartOrThrow()
 
     if (!confirm('Place order from this cart? This will create an order and mark the cart as converted.')) return
 
-    try {
-      const res = await fetch('/api/admin/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cart_id: cartId }),
-      })
-      const data = await res.json()
-      if (data.success && data.order) {
-        alert(`Order created: ${data.order_number}`)
-        router.push(`/admin/orders/${data.order.id}`)
-      } else {
-        alert('Failed to create order: ' + (data.error || 'Unknown error'))
-      }
-    } catch (err) {
-      console.error('Error placing order:', err)
-      alert('Error placing order')
+    const res = await fetch('/api/admin/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        cart_id: cartId,
+        salesperson_id: selectedSalesperson?.id || null,
+      }),
+    })
+    const data = await res.json()
+    if (data.success && data.order) {
+      router.push(`/admin/orders/${data.order.id}`)
+    } else {
+      throw new Error(data.error || 'Failed to create order')
     }
-  }, [selectedProject, selectedSalesperson, mode, saveToDb, router])
+  }, [saveCartOrThrow, selectedSalesperson, router])
 
   // --- Phone Order Modal ---
   const [phoneOrderOpen, setPhoneOrderOpen] = useState(false)
 
   const handleOpenPhoneOrder = useCallback(async () => {
-    if (!selectedProject) return
-    // Save cart first
-    const cartId = await saveToDb(
-      selectedProject.id,
-      selectedSalesperson?.id,
-      selectedSalesperson?.name,
-      mode,
-    )
-    if (!cartId) return
+    await saveCartOrThrow()
     setPhoneOrderOpen(true)
-  }, [selectedProject, selectedSalesperson, mode, saveToDb])
+  }, [saveCartOrThrow])
 
   const handlePhoneOrderSubmit = useCallback(async (data: PhoneOrderData) => {
     if (!dbCartId) throw new Error('Cart must be saved first')
@@ -269,6 +306,7 @@ export default function SalesPageLayout({ mode }: { mode: SalesMode }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         cart_id: dbCartId,
+        salesperson_id: selectedSalesperson?.id || null,
         payment_method: data.payment_method,
         payment_transaction_id: data.payment_transaction_id,
         payment_status: data.payment_status,
@@ -309,23 +347,36 @@ export default function SalesPageLayout({ mode }: { mode: SalesMode }) {
       const staff = staffList.find((s) => s.id === project.assigned_to)
       if (staff) setSelectedSalesperson(staff)
     }
-    // Load the project's cart
-    await loadFromProject(project.id)
-    // Update URL
-    const url = new URL(window.location.href)
-    url.searchParams.set('project', project.id)
-    router.replace(url.pathname + url.search)
-  }, [staffList, loadFromProject, router])
+    // Only load the project's saved cart if our current cart is empty
+    // This preserves existing cart items when attaching a project
+    const hasItemsInCart = cart && cart.items.length > 0
+    if (!hasItemsInCart) {
+      await loadFromProject(project.id)
+    }
+    // Navigate to hard link
+    router.push(salesUrl(mode, project.id))
+  }, [staffList, loadFromProject, router, mode, cart])
 
   // --- Handle new project creation ---
   const handleNewProject = useCallback(async (project: ProjectData) => {
     setSelectedProject(project)
-    clearCart()
-    // Update URL
-    const url = new URL(window.location.href)
-    url.searchParams.set('project', project.id)
-    router.replace(url.pathname + url.search)
-  }, [clearCart, router])
+    // Keep existing cart items — don't clear on new project creation either
+    // Navigate to hard link
+    router.push(salesUrl(mode, project.id))
+  }, [router, mode])
+
+  // --- Detach project (go back to base sales URL) ---
+  const handleDetachProject = useCallback(() => {
+    setSelectedProject(null)
+    setSelectedSalesperson(null)
+    router.push(salesUrl(mode))
+  }, [router, mode])
+
+  // --- Edit project (navigate to project detail page) ---
+  const handleEditProject = useCallback(() => {
+    if (!selectedProject) return
+    router.push(`/admin/projects/${selectedProject.id}`)
+  }, [selectedProject, router])
 
   const adjustmentOptions = useMemo<DBProductOption[]>(() => {
     if (!adjustmentProduct?.options) return []
@@ -333,10 +384,7 @@ export default function SalesPageLayout({ mode }: { mode: SalesMode }) {
   }, [adjustmentProduct])
 
   const setMode = (newMode: SalesMode) => {
-    const params = new URLSearchParams()
-    if (selectedProject) params.set('project', selectedProject.id)
-    const paramStr = params.toString()
-    router.push(MODE_ROUTES[newMode] + (paramStr ? `?${paramStr}` : ''))
+    router.push(salesUrl(newMode, selectedProject?.id))
   }
 
   if (pricingLoading || productsLoading) {
@@ -344,7 +392,7 @@ export default function SalesPageLayout({ mode }: { mode: SalesMode }) {
       <Container size="xl">
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
-            <div className="w-8 h-8 border-2 border-[#003365] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <Spinner size="lg" className="mx-auto mb-4" />
             <Text className="text-gray-500 !mb-0">Loading pricing data...</Text>
           </div>
         </div>
@@ -376,8 +424,10 @@ export default function SalesPageLayout({ mode }: { mode: SalesMode }) {
               selectedSalesperson={selectedSalesperson}
               staffList={staffList}
               onProjectSelected={(p) => handleProjectSelected(p as unknown as ProjectData)}
-              onSalespersonChanged={setSelectedSalesperson}
+              onSalespersonChanged={handleSalespersonChanged}
               onNewProject={(p) => handleNewProject(p as unknown as ProjectData)}
+              onDetachProject={handleDetachProject}
+              onEditProject={handleEditProject}
             />
 
             {/* Mode Tabs */}
@@ -400,46 +450,46 @@ export default function SalesPageLayout({ mode }: { mode: SalesMode }) {
             {/* MC Mode */}
             {mode === 'mc' && (
               <>
-                <MeshPanelsSection dbPrices={dbPrices} meshPanel={meshPanel} addItem={addItem} isLoading={cartLoading} />
-                <StuccoStripsSection stuccoProducts={stuccoProducts} getPrice={getPrice} addItem={addItem} isLoading={cartLoading} />
-                <TrackHardwareSection standardTrackItems={standardTrackItems} heavyTrackItems={heavyTrackItems} addItem={addItem} isLoading={cartLoading} setProductModal={setProductModal} />
-                <AttachmentItemsSection attachmentItems={attachmentItems} attachmentGroups={attachmentGroups} addItem={addItem} isLoading={cartLoading} setProductModal={setProductModal} />
-                <SnapToolSection snapTool={snapTool} addItem={addItem} />
-                <AdjustmentsSection adjustmentOptions={adjustmentOptions} addItem={addItem} isLoading={cartLoading} />
-                <PriceAdjustmentsSection addItem={addItem} />
+                <MeshPanelsSection dbPrices={dbPrices} meshPanel={meshPanel} addItem={addItemAndOpenCart} isLoading={cartLoading} />
+                <StuccoStripsSection stuccoProducts={stuccoProducts} getPrice={getPrice} addItem={addItemAndOpenCart} isLoading={cartLoading} />
+                <TrackHardwareSection standardTrackItems={standardTrackItems} heavyTrackItems={heavyTrackItems} addItem={addItemAndOpenCart} isLoading={cartLoading} setProductModal={setProductModal} />
+                <AttachmentItemsSection attachmentItems={attachmentItems} attachmentGroups={attachmentGroups} addItem={addItemAndOpenCart} isLoading={cartLoading} setProductModal={setProductModal} />
+                <SnapToolSection snapTool={snapTool} addItem={addItemAndOpenCart} isInCart={snapToolInCart} />
+                <AdjustmentsSection adjustmentOptions={adjustmentOptions} addItem={addItemAndOpenCart} isLoading={cartLoading} />
+                <PriceAdjustmentsSection addItem={addItemAndOpenCart} />
               </>
             )}
 
             {/* CV Mode */}
             {mode === 'cv' && (
               <>
-                <VinylPanelsSection dbPrices={dbPrices} vinylPanel={vinylPanel} addItem={addItem} isLoading={cartLoading} />
-                <StuccoStripsSection zippered stuccoProducts={stuccoProducts} getPrice={getPrice} addItem={addItem} isLoading={cartLoading} />
-                <TrackHardwareSection standardTrackItems={standardTrackItems} heavyTrackItems={heavyTrackItems} addItem={addItem} isLoading={cartLoading} setProductModal={setProductModal} />
-                <AttachmentItemsSection attachmentItems={attachmentItems} attachmentGroups={attachmentGroups} addItem={addItem} isLoading={cartLoading} setProductModal={setProductModal} />
-                <SnapToolSection snapTool={snapTool} addItem={addItem} />
-                <AdjustmentsSection adjustmentOptions={adjustmentOptions} addItem={addItem} isLoading={cartLoading} />
-                <PriceAdjustmentsSection addItem={addItem} />
+                <VinylPanelsSection dbPrices={dbPrices} vinylPanel={vinylPanel} addItem={addItemAndOpenCart} isLoading={cartLoading} />
+                <StuccoStripsSection zippered stuccoProducts={stuccoProducts} getPrice={getPrice} addItem={addItemAndOpenCart} isLoading={cartLoading} />
+                <TrackHardwareSection standardTrackItems={standardTrackItems} heavyTrackItems={heavyTrackItems} addItem={addItemAndOpenCart} isLoading={cartLoading} setProductModal={setProductModal} />
+                <AttachmentItemsSection attachmentItems={attachmentItems} attachmentGroups={attachmentGroups} addItem={addItemAndOpenCart} isLoading={cartLoading} setProductModal={setProductModal} />
+                <SnapToolSection snapTool={snapTool} addItem={addItemAndOpenCart} isInCart={snapToolInCart} />
+                <AdjustmentsSection adjustmentOptions={adjustmentOptions} addItem={addItemAndOpenCart} isLoading={cartLoading} />
+                <PriceAdjustmentsSection addItem={addItemAndOpenCart} />
               </>
             )}
 
             {/* RN Mode */}
             {mode === 'rn' && (
               <>
-                <RawNettingSection dbPrices={dbPrices} getPrice={getPrice} rawMaterials={rawMaterials} addItem={addItem} isLoading={cartLoading} setProductModal={setProductModal} />
-                <TrackHardwareSection standardTrackItems={standardTrackItems} heavyTrackItems={heavyTrackItems} addItem={addItem} isLoading={cartLoading} setProductModal={setProductModal} />
-                <AttachmentItemsSection attachmentItems={attachmentItems} attachmentGroups={attachmentGroups} addItem={addItem} isLoading={cartLoading} setProductModal={setProductModal} />
-                <SnapToolSection snapTool={snapTool} addItem={addItem} />
-                <AdjustmentsSection adjustmentOptions={adjustmentOptions} addItem={addItem} isLoading={cartLoading} />
-                <PriceAdjustmentsSection addItem={addItem} />
+                <RawNettingSection dbPrices={dbPrices} getPrice={getPrice} rawMaterials={rawMaterials} addItem={addItemAndOpenCart} isLoading={cartLoading} setProductModal={setProductModal} />
+                <TrackHardwareSection standardTrackItems={standardTrackItems} heavyTrackItems={heavyTrackItems} addItem={addItemAndOpenCart} isLoading={cartLoading} setProductModal={setProductModal} />
+                <AttachmentItemsSection attachmentItems={attachmentItems} attachmentGroups={attachmentGroups} addItem={addItemAndOpenCart} isLoading={cartLoading} setProductModal={setProductModal} />
+                <SnapToolSection snapTool={snapTool} addItem={addItemAndOpenCart} isInCart={snapToolInCart} />
+                <AdjustmentsSection adjustmentOptions={adjustmentOptions} addItem={addItemAndOpenCart} isLoading={cartLoading} />
+                <PriceAdjustmentsSection addItem={addItemAndOpenCart} />
               </>
             )}
 
             {/* RU Mode */}
             {mode === 'ru' && (
               <>
-                <RollUpShadeSection rollupProduct={rollupProduct} getPrice={getPrice} addItem={addItem} isLoading={cartLoading} />
-                <PriceAdjustmentsSection addItem={addItem} />
+                <RollUpShadeSection rollupProduct={rollupProduct} getPrice={getPrice} addItem={addItemAndOpenCart} isLoading={cartLoading} />
+                <PriceAdjustmentsSection addItem={addItemAndOpenCart} />
               </>
             )}
           </Stack>
@@ -457,10 +507,9 @@ export default function SalesPageLayout({ mode }: { mode: SalesMode }) {
         collapsed={cartCollapsed}
         onToggleCollapse={() => setCartCollapsed(!cartCollapsed)}
         onSave={handleSave}
-        onSend={handleSend}
+        onCopyLink={handleCopyLink}
         onPlaceOrder={handlePlaceOrder}
         onPhoneOrder={handleOpenPhoneOrder}
-        isSaving={isSaving}
         hasProject={!!selectedProject}
       />
 

@@ -18,18 +18,11 @@ import {
   HelpCircle, 
   Play, 
   Phone as PhoneIcon, 
-  ExternalLink, 
-  ChevronRight,
 
   Ruler,
   SlidersHorizontal,
   LayoutGrid,
   Move,
-  Star,
-  Shield,
-  Wrench,
-  Calculator,
-  MessageSquare,
   ImageIcon,
 } from 'lucide-react'
 import {
@@ -40,9 +33,9 @@ import {
   Button,
   Stack,
   Frame,
+  HeaderBarSection,
 } from '@/lib/design-system'
 import { cn } from '@/lib/utils'
-import { ORDERS_SERVED_COUNT } from '@/lib/constants/orders-served'
 
 // =============================================================================
 // TYPES
@@ -238,8 +231,6 @@ const CONTENT = {
     ],
     showVideoButtons: false,
     showNeedHelp: false,
-    showLearnMore: false,
-    showReviews: false,
   },
   clear_vinyl: {
     heroTitle: 'Clear Vinyl Instant Quote Tool',
@@ -274,10 +265,8 @@ const CONTENT = {
       { image: `${STATIC_BASE}/2022/01/CV-MC-1-1024x1024.jpg`, label: null },
       { image: `${STATIC_BASE}/2022/01/Gazebo-CV-3-1024x1024.jpg`, label: null },
     ],
-    showVideoButtons: true,
+    showVideoButtons: false,
     showNeedHelp: true,
-    showLearnMore: true,
-    showReviews: true,
   },
 }
 
@@ -300,32 +289,6 @@ const HEIGHT_BUCKETS = [
   },
 ]
 
-const REVIEWS = [
-  {
-    quote: 'Thank you for the follow-up email about the snap tool. I should have taken a picture during the winter. We had one of the worst winters on record in Maryland. We were able to use our porch all winter long because of the protection and insulation the vinyl Mosquito Curtains provide. This last month as spring arrived, our porch temperature has been warmer than our actual house temperature. A fantastic product!',
-    name: 'Amy & David',
-    location: 'Maui',
-  },
-  {
-    quote: 'Here is a night shot of the curtains you sent to us last week. Covering the entire courtyard opening had the effect that I wanted and made it a cozy area for guests at dinner. We are once again very happy, satisfied customers of Mosquito Curtains.',
-    name: 'Bill',
-    location: 'Wisconsin',
-  },
-  {
-    quote: 'We just installed our curtains on a section of our porch and are very pleased. We are now considering installing curtains on the adjoining section. Installation went well, we were very pleased. We have used our porch more in the past week than we did all last summer. Love it!',
-    name: 'Eric',
-    location: 'Prince Edward Island',
-  },
-]
-
-const LEARN_MORE_CARDS = [
-  { title: 'Why Our System?', description: 'Important considerations to make.', link: '/clear-vinyl-options', linkText: 'See What Makes Us Better', icon: Star },
-  { title: 'Self-Installation', description: 'Is it really that easy?', link: '/install', linkText: 'See a Full Installation', icon: Wrench },
-  { title: 'Guarantee', description: "It's all about choices and care.", link: '/guarantee', linkText: 'Satisfaction Guarantee', icon: Shield },
-  { title: 'Options', description: 'Apron colors, top attachments and usability.', link: '/clear-vinyl-options', linkText: 'Discover Your Options', icon: SlidersHorizontal },
-  { title: 'Instant Quote', description: 'Get an estimate within 5% of actual cost.', link: '#', linkText: 'Instant Price Calculator', icon: Calculator },
-  { title: 'Ordering', description: 'Our team will help plan your project!', link: '/contact', linkText: 'Send Us Photos', icon: MessageSquare },
-]
 
 // =============================================================================
 // GUIDANCE TRIGGER BUTTON
@@ -486,10 +449,12 @@ export function QuoteGuidance({ productType }: QuoteGuidanceProps) {
         {/* ============================================================
             EXAMPLES SECTION
             ============================================================ */}
-        <div>
-          <Heading level={3} className="!text-lg text-center !mb-4">
-            Examples for reference
-          </Heading>
+        <HeaderBarSection
+          icon={ImageIcon}
+          label="Examples for Reference"
+          variant={isMosquito ? 'green' : 'blue'}
+          headerSubtitle="Click to enlarge"
+        >
           <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="md">
             {content.examples.map((example, idx) => (
               <button
@@ -518,8 +483,7 @@ export function QuoteGuidance({ productType }: QuoteGuidanceProps) {
               </button>
             ))}
           </Grid>
-          <Text size="xs" className="text-gray-400 text-center mt-2">Click to enlarge</Text>
-        </div>
+        </HeaderBarSection>
 
         {/* ============================================================
             NEED HELP SECTION (Clear Vinyl only)
@@ -537,82 +501,6 @@ export function QuoteGuidance({ productType }: QuoteGuidanceProps) {
               </a>
             </Button>
           </Card>
-        )}
-
-        {/* ============================================================
-            COST EXPLANATION (Clear Vinyl only)
-            ============================================================ */}
-        {!isMosquito && (
-          <Card variant="outlined" className="!p-6">
-            <Heading level={3} className="!text-lg !mb-3" style={{ color: brandColor }}>
-              Cost of Clear Vinyl Plastic Enclosures
-            </Heading>
-            <Text className="text-gray-600">
-              We all search for value when making large purchases and you found a needle in a haystack. 
-              We are craftsmen who focus on quality, methods and with a smarter production and ordering 
-              process that will save you $$$ while delivering a superior product at lightning speed. 
-              We encourage you to examine other providers. Why? Because we are sassy and we know you 
-              will be back. If we knew how to make these better, we would already be doing it!
-            </Text>
-          </Card>
-        )}
-
-        {/* ============================================================
-            LEARN MORE GRID (Clear Vinyl only)
-            ============================================================ */}
-        {content.showLearnMore && (
-          <div>
-            <Heading level={3} className="!text-lg text-center !mb-4">Learn More</Heading>
-            <Grid responsiveCols={{ mobile: 2, tablet: 3 }} gap="md">
-              {LEARN_MORE_CARDS.map((card) => {
-                const Icon = card.icon
-                return (
-                  <a
-                    key={card.title}
-                    href={card.link}
-                    className="group p-4 rounded-2xl border-2 border-gray-200 hover:border-[#003365]/30 transition-all hover:shadow-md bg-white"
-                  >
-                    <div className="w-9 h-9 rounded-lg flex items-center justify-center mb-3" style={{ backgroundColor: `${brandColor}10` }}>
-                      <Icon className="w-4 h-4" style={{ color: brandColor }} />
-                    </div>
-                    <Heading level={4} className="!mb-1 !text-sm">{card.title}</Heading>
-                    <Text size="xs" className="text-gray-500 !mb-2">{card.description}</Text>
-                    <span className="text-xs font-medium flex items-center gap-1 group-hover:gap-2 transition-all" style={{ color: brandColor }}>
-                      {card.linkText}
-                      <ChevronRight className="w-3 h-3" />
-                    </span>
-                  </a>
-                )
-              })}
-            </Grid>
-          </div>
-        )}
-
-        {/* ============================================================
-            REVIEWS (Clear Vinyl only)
-            ============================================================ */}
-        {content.showReviews && (
-          <div className="text-center">
-            <Heading level={3} className="!text-lg !mb-1">{ORDERS_SERVED_COUNT.toLocaleString()}+ Happy Clients Since 2004</Heading>
-            <Text size="sm" className="text-gray-500 !mb-4">Read what our customers are saying</Text>
-            <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="md">
-              {REVIEWS.map((review) => (
-                <Card key={review.name} variant="outlined" className="!p-5 text-left">
-                  <div className="flex gap-1 mb-3">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 text-[#FFA501] fill-[#FFA501]" />
-                    ))}
-                  </div>
-                  <Text size="sm" className="text-gray-600 italic !mb-3">
-                    &ldquo;{review.quote.length > 180 ? review.quote.slice(0, 180) + '...' : review.quote}&rdquo;
-                  </Text>
-                  <Text size="sm" className="font-semibold text-gray-900 !mb-0">
-                    {review.name} | {review.location}
-                  </Text>
-                </Card>
-              ))}
-            </Grid>
-          </div>
         )}
 
       </Stack>

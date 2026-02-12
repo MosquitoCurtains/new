@@ -10,8 +10,6 @@
 import Link from 'next/link'
 import {
   ArrowRight,
-  Ruler,
-  Truck,
   ShieldCheck,
   Layers,
   Scissors,
@@ -27,6 +25,7 @@ import {
   Badge,
   Frame,
   YouTubeEmbed,
+  PowerHeaderTemplate,
   FinalCTATemplate,
 } from '@/lib/design-system'
 import { VIDEOS } from '@/lib/constants/videos'
@@ -87,61 +86,21 @@ const MESH_PRODUCTS = [
   },
 ]
 
-const TRUST_BADGES = [
-  { icon: Ruler, label: 'Custom-Size', description: 'Cut to your exact length' },
-  { icon: Truck, label: 'Fast Delivery', description: '3-7 business days' },
-  { icon: ShieldCheck, label: 'Marine-Grade', description: 'Built to last outdoors' },
-  { icon: Layers, label: 'Multi-Purpose', description: 'Limitless applications' },
-]
-
 export default function RawNettingStorePage() {
   return (
     <Container size="xl">
       <Stack gap="xl">
         {/* Hero */}
-        <section>
-          <div className="bg-gradient-to-br from-[#406517]/10 via-white to-[#003365]/10 border-2 border-[#406517]/20 rounded-3xl p-8 md:p-12">
-            <div className="text-center">
-              <Badge className="!bg-[#406517]/10 !text-[#406517] !border-[#406517]/30 mb-4">
-                For DIY Projects & Professionals
-              </Badge>
-              <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
-                Raw Netting Fabric Store
-              </h1>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
-                Giant rolls of marine-grade raw netting custom-cut to your specifications.
-                Incredibly strong with limitless applications.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Overview Video */}
-        <section>
-          <div className="max-w-3xl mx-auto">
-            <YouTubeEmbed
-              videoId={VIDEOS.RAW_NETTING}
-              title="Why Us For Raw Netting"
-              variant="hero"
-            />
-          </div>
-        </section>
-
-        {/* Trust Badges */}
-        <section>
-          <Grid responsiveCols={{ mobile: 2, tablet: 4 }} gap="md">
-            {TRUST_BADGES.map((badge) => {
-              const Icon = badge.icon
-              return (
-                <Card key={badge.label} variant="outlined" className="!p-4 text-center">
-                  <Icon className="w-6 h-6 text-[#406517] mx-auto mb-2" />
-                  <Text className="font-semibold text-gray-900 !mb-0.5">{badge.label}</Text>
-                  <Text size="sm" className="text-gray-500 !mb-0">{badge.description}</Text>
-                </Card>
-              )
-            })}
-          </Grid>
-        </section>
+        <PowerHeaderTemplate
+          title="Raw Netting Fabric Store"
+          subtitle="Giant rolls of marine-grade raw netting custom-cut to your specifications. Incredibly strong with limitless applications. For DIY projects and professionals."
+          videoId={VIDEOS.RAW_NETTING}
+          videoTitle="Why Us For Raw Netting"
+          variant="compact"
+          ctaText="Shop All Meshes"
+          ctaHref="/order/raw-netting"
+          actions={[]}
+        />
 
         {/* Mesh Product Cards */}
         <section>

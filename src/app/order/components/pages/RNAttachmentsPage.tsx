@@ -8,8 +8,9 @@
  */
 
 import { useState, useCallback, useMemo } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
-import { ShoppingCart, Check, Wrench, ArrowRight } from 'lucide-react'
+import { ShoppingCart, Check, Wrench, Info } from 'lucide-react'
 import {
   Container,
   Stack,
@@ -20,12 +21,13 @@ import {
   Spinner,
   Grid,
 } from '@/lib/design-system'
-import { PowerHeaderTemplate, FinalCTATemplate } from '@/lib/design-system/templates'
-import { VIDEOS } from '@/lib/constants/videos'
+import { FinalCTATemplate } from '@/lib/design-system/templates'
+import { OrderPageHeader } from '../OrderPageHeader'
+import StepNav from '../StepNav'
 import { useCartContext } from '@/contexts/CartContext'
-import { useProducts } from '@/hooks/useProducts'
-import QuantityGrid, { type QuantityItem } from '../QuantityGrid'
-import LivePriceDisplay from '../LivePriceDisplay'
+import { useProducts, getPriceLabel } from '@/hooks/useProducts'
+
+function formatMoney(value: number) { return value.toFixed(2) }
 
 export function RNAttachmentsPage() {
   const { addItem } = useCartContext()
@@ -33,18 +35,6 @@ export function RNAttachmentsPage() {
 
   const [quantities, setQuantities] = useState<Record<string, number>>({})
   const [justAdded, setJustAdded] = useState(false)
-
-  const handleUpdateQuantity = useCallback((sku: string, qty: number) => {
-    setQuantities(prev => ({ ...prev, [sku]: qty }))
-  }, [])
-
-  // Build items list for the grid
-  const gridItems: QuantityItem[] = useMemo(() => {
-    return attachmentItems.map(product => ({
-      product,
-      quantity: quantities[product.sku] || 0,
-    }))
-  }, [attachmentItems, quantities])
 
   const totalPrice = useMemo(() => {
     return attachmentItems.reduce((sum, product) => {
@@ -85,13 +75,12 @@ export function RNAttachmentsPage() {
   return (
     <Container size="xl">
       <Stack gap="xl">
-        <PowerHeaderTemplate
+        <OrderPageHeader
           title="Raw Netting Attachment Hardware"
           subtitle="Marine snaps, elastic cord, webbing, and everything you need to rig your raw netting."
-          videoId={VIDEOS.MARINE_SNAPS_90_SEC}
-          videoTitle="Marine Snaps in 90 Seconds"
-          variant="compact"
         />
+
+        <StepNav flow="rn" currentStep={2} />
 
         {/* Snap Tool CTA */}
         {snapTool && (
@@ -130,19 +119,54 @@ export function RNAttachmentsPage() {
           </section>
         )}
 
-        {/* Grouped Sections */}
+        {/* Grouped Attachment Items */}
         {attachmentGroups.map((group) => {
-          const items = gridItems.filter(i => (i.product.category_section || 'Other Items') === group)
+          const items = attachmentItems.filter(i => (i.category_section || 'Other Items') === group)
           if (items.length === 0) return null
           return (
             <section key={group}>
               <Heading level={2} className="!mb-4">{group}</Heading>
-              <QuantityGrid
-                items={items}
-                onUpdateQuantity={handleUpdateQuantity}
-                columns={3}
-                showDescription
-              />
+              <Stack gap="sm">
+                {items.map((item) => {
+                  const qty = quantities[item.sku] || 0
+                  const unitPrice = Number(item.base_price)
+                  const priceLabel = getPriceLabel(item.unit, item.pack_quantity)
+                  return (
+                    <Card key={item.sku} variant="outlined" className="!p-4">
+                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          {item.image_url && (
+                            <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 border border-gray-200">
+                              <Image src={item.image_url} alt={item.name} width={48} height={48} className="w-full h-full object-cover" />
+                            </div>
+                          )}
+                          <div className="flex-1">
+                            <Text className="font-medium text-gray-900 !mb-0">{item.name}</Text>
+                            <Text size="sm" className="text-gray-500 !mb-0">
+                              ${formatMoney(unitPrice)} {priceLabel.toLowerCase()}
+                            </Text>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 justify-end">
+                          <input
+                            type="number"
+                            min={item.quantity_min}
+                            max={item.quantity_max}
+                            step={item.quantity_step}
+                            value={quantities[item.sku] ?? ''}
+                            onChange={(e) => setQuantities(prev => ({
+                              ...prev,
+                              [item.sku]: parseInt(e.target.value) || 0,
+                            }))}
+                            className="w-28 pl-3 pr-1 py-2.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 text-right focus:outline-none focus:ring-2 focus:ring-[#003365] focus:border-transparent [&::-webkit-inner-spin-button]:h-8 [&::-webkit-inner-spin-button]:w-6 [&::-webkit-inner-spin-button]:ml-2 [&::-webkit-inner-spin-button]:opacity-100 [&::-webkit-inner-spin-button]:cursor-pointer"
+                            placeholder="0"
+                          />
+                        </div>
+                      </div>
+                    </Card>
+                  )
+                })}
+              </Stack>
             </section>
           )
         })}
@@ -150,7 +174,12 @@ export function RNAttachmentsPage() {
         {/* Total + Add All */}
         <section>
           <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
-            <LivePriceDisplay price={totalPrice} dimmed={itemsToAdd.length === 0} size="lg" label="Total:" />
+            <div className="flex items-center gap-3">
+              <Text className="text-gray-600 !mb-0">Total:</Text>
+              <Text className={`text-xl font-semibold !mb-0 ${itemsToAdd.length === 0 ? 'text-gray-400' : 'text-gray-900'}`}>
+                ${formatMoney(totalPrice)}
+              </Text>
+            </div>
             <Button
               variant="primary"
               onClick={handleAddToCart}

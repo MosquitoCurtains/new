@@ -67,6 +67,7 @@ interface ProjectData {
   last_name: string | null
   phone: string | null
   product_type: string
+  project_name: string | null
   project_type: string | null
   mesh_type: string | null
   top_attachment: string | null
@@ -324,12 +325,17 @@ export default function ProjectDetailPage() {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  // --- Sales page route ---
-  const salesRoute = project ? {
+  // --- Sales page route (hard link) ---
+  const salesRouteBase = project ? {
+    curtains: '/admin/mc-sales',
     mosquito_curtains: '/admin/mc-sales',
     clear_vinyl: '/admin/cv-sales',
+    raw_netting: '/admin/rn-sales',
     raw_materials: '/admin/rn-sales',
+    rollup_shades: '/admin/ru-sales',
   }[project.product_type] || '/admin/mc-sales' : '/admin/mc-sales'
+
+  const salesRouteForProject = project ? `${salesRouteBase}/project/${project.id}` : salesRouteBase
 
   if (loading) {
     return (
@@ -358,8 +364,10 @@ export default function ProjectDetailPage() {
             </Button>
             <div className="flex-1">
               <div className="flex items-center gap-3">
-                <Heading level={1} className="!mb-0 capitalize">
-                  {project.product_type?.replace(/_/g, ' ')} Project
+                <Heading level={1} className="!mb-0">
+                  {project.project_name || (
+                    <span className="capitalize">{project.product_type?.replace(/_/g, ' ')} Project</span>
+                  )}
                 </Heading>
                 <Badge className={STATUS_COLORS[project.status] || '!bg-gray-100 !text-gray-600'}>
                   {statusLabel(project.status)}
@@ -530,7 +538,7 @@ export default function ProjectDetailPage() {
                       <span className="text-gray-900 font-bold">{formatMoney(cart.total)}</span>
                     </div>
                     <Button variant="outline" size="sm" className="w-full" asChild>
-                      <Link href={`${salesRoute}?cart=${cart.id}`}>
+                      <Link href={salesRouteForProject}>
                         <ShoppingCart className="w-3.5 h-3.5 mr-1" /> Edit Cart
                       </Link>
                     </Button>
@@ -544,7 +552,7 @@ export default function ProjectDetailPage() {
                       </div>
                     )}
                     <Button variant="primary" size="sm" className="w-full" asChild>
-                      <Link href={`${salesRoute}?project=${project.id}`}>
+                      <Link href={salesRouteForProject}>
                         <ShoppingCart className="w-3.5 h-3.5 mr-1" /> Start Quote
                       </Link>
                     </Button>

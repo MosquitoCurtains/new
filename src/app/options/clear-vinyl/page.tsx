@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { 
   ArrowRight, 
-  Play, 
   CheckCircle, 
   Settings, 
   Palette, 
@@ -12,8 +11,6 @@ import {
   Calculator,
   Hammer,
   Camera,
-  Images,
-  Star,
   DoorOpen,
   Wrench,
 } from 'lucide-react'
@@ -33,7 +30,7 @@ import {
   ListItem,
   Badge,
 } from '@/lib/design-system'
-import { FinalCTATemplate } from '@/lib/design-system/templates'
+import { ClearVinylFooter } from '@/components/marketing/ClearVinylFooter'
 import type { PowerHeaderAction } from '@/lib/design-system/templates/PowerHeaderTemplate'
 
 // =============================================================================
@@ -191,7 +188,7 @@ export default function ClearVinylOptionsPage() {
 
             <div className="flex justify-center pt-2">
               <Button variant="outline" asChild>
-                <Link href="/gallery?category=clear-vinyl">
+                <Link href="/gallery?filter=clear_vinyl">
                   See Full Client Gallery By Color
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </Link>
@@ -404,50 +401,7 @@ export default function ClearVinylOptionsPage() {
           </Stack>
         </HeaderBarSection>
 
-        {/* ================================================================
-            QUICK LINKS
-            ================================================================ */}
-        <section>
-          <Heading level={3} className="text-center !mb-6">Want to See More First?</Heading>
-          <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="md">
-            <Link href="/install/clear-vinyl">
-              <Card variant="outlined" hover className="!p-6 text-center">
-                <Play className="w-8 h-8 mx-auto mb-2 text-[#406517]" />
-                <Heading level={4}>See a Full Installation</Heading>
-                <Text size="sm" className="text-gray-500">Watch clear vinyl install videos</Text>
-              </Card>
-            </Link>
-            <Link href="/gallery?category=clear-vinyl">
-              <Card variant="outlined" hover className="!p-6 text-center">
-                <Images className="w-8 h-8 mx-auto mb-2 text-[#003365]" />
-                <Heading level={4}>Client Gallery</Heading>
-                <Text size="sm" className="text-gray-500">See completed clear vinyl projects</Text>
-              </Card>
-            </Link>
-            <Link href="/reviews">
-              <Card variant="outlined" hover className="!p-6 text-center">
-                <Star className="w-8 h-8 mx-auto mb-2 text-[#FFA501]" />
-                <Heading level={4}>Reviews</Heading>
-                <Text size="sm" className="text-gray-500">What customers are saying</Text>
-              </Card>
-            </Link>
-          </Grid>
-        </section>
-
-        {/* Back to Clear Vinyl Home */}
-        <div className="flex justify-center">
-          <Button variant="ghost" asChild>
-            <Link href="/clear-vinyl-plastic-patio-enclosures">
-              Return to Clear Vinyl Home
-              <ArrowRight className="ml-2 w-4 h-4" />
-            </Link>
-          </Button>
-        </div>
-
-        {/* ================================================================
-            FINAL CTA
-            ================================================================ */}
-        <FinalCTATemplate />
+        <ClearVinylFooter />
 
       </Stack>
     </Container>

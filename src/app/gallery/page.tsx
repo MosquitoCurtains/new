@@ -1,9 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { GalleryPageTemplate } from '@/lib/design-system/templates'
 import type { GalleryImage } from '@/lib/design-system/templates'
 import { ORDERS_SERVED_FORMATTED } from '@/lib/constants/orders-served'
+import { Spinner } from '@/lib/design-system'
 
 // ============================================================================
 // Filter options — context-aware, shown/hidden based on product type
@@ -66,12 +68,19 @@ function mapDbToGalleryImage(row: any): GalleryImage {
 }
 
 // ============================================================================
-// Page
+// Inner component that uses useSearchParams
 // ============================================================================
 
-export default function GalleryPage() {
+function GalleryContent() {
+  const searchParams = useSearchParams()
   const [images, setImages] = useState<GalleryImage[]>([])
   const [loading, setLoading] = useState(true)
+
+  // Read initial product type from URL: ?filter=clear_vinyl or ?category=clear-vinyl
+  const filterParam = searchParams.get('filter') || searchParams.get('category')
+  const initialProductType = filterParam
+    ? filterParam.replace(/-/g, '_') // normalize hyphens to underscores
+    : undefined
 
   useEffect(() => {
     async function fetchImages() {
@@ -94,7 +103,7 @@ export default function GalleryPage() {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
-        <div className="w-8 h-8 border-4 border-gray-200 border-t-[#406517] rounded-full animate-spin" />
+        <Spinner size="lg" />
       </div>
     )
   }
@@ -105,7 +114,24 @@ export default function GalleryPage() {
       subtitle={`Browse real installations from our ${ORDERS_SERVED_FORMATTED} customers. Filter by product type and project to find inspiration for your space.`}
       images={images}
       filters={GALLERY_FILTERS}
+      initialProductType={initialProductType}
       showFilters={true}
     />
+  )
+}
+
+// ============================================================================
+// Page with Suspense boundary
+// ============================================================================
+
+export default function GalleryPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex justify-center items-center min-h-[400px]">
+        <Spinner size="lg" />
+      </div>
+    }>
+      <GalleryContent />
+    </Suspense>
   )
 }

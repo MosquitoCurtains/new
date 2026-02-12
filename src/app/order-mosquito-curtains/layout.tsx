@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import { CartProvider } from '@/contexts/CartContext'
-import OrderSidebarCart from '@/app/order/components/OrderSidebarCart'
 
 export const metadata: Metadata = {
   alternates: {
@@ -9,12 +8,5 @@ export const metadata: Metadata = {
 }
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  return (
-    <CartProvider>
-      <div className="relative">
-        {children}
-        <OrderSidebarCart />
-      </div>
-    </CartProvider>
-  )
+  return <CartProvider>{children}</CartProvider>
 }

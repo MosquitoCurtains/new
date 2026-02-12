@@ -19,6 +19,7 @@ import {
   Printer,
   CreditCard,
   FolderOpen,
+  Briefcase,
 } from 'lucide-react'
 import {
   Container,
@@ -189,6 +190,34 @@ export default function OrderDetailPage() {
 
   // Diagram upload
   const [uploadingDiagram, setUploadingDiagram] = useState(false)
+
+  // Staff list for salesperson dropdown
+  const [staffList, setStaffList] = useState<{ id: string; name: string; email: string }[]>([])
+
+  useEffect(() => {
+    fetch('/api/admin/staff?active=true')
+      .then(res => res.json())
+      .then(data => setStaffList(data.staff || []))
+      .catch(() => {})
+  }, [])
+
+  const handleSalespersonChange = async (staffId: string) => {
+    if (!order) return
+    try {
+      const res = await fetch(`/api/admin/orders/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ salesperson_id: staffId || null }),
+      })
+      const data = await res.json()
+      if (data.success && data.order) {
+        // Re-fetch to get the joined salesperson_name
+        await fetchOrder()
+      }
+    } catch (err) {
+      console.error('Salesperson update error:', err)
+    }
+  }
 
   const fetchOrder = useCallback(async () => {
     setLoading(true)
@@ -388,9 +417,9 @@ export default function OrderDetailPage() {
                   <Printer className="w-4 h-4 mr-1" /> Packing List
                 </Link>
               </Button>
-              {order.cart_id && (
+              {order.project_id && (
                 <Button variant="outline" size="sm" asChild>
-                  <Link href={`/admin/mc-sales?cart=${order.cart_id}`}>
+                  <Link href={`/admin/mc-sales/project/${order.project_id}`}>
                     <Package className="w-4 h-4 mr-1" /> Edit Cart
                   </Link>
                 </Button>
@@ -657,8 +686,20 @@ export default function OrderDetailPage() {
 
               {/* Salesperson */}
               <Card variant="elevated" className="!p-4">
-                <Text size="sm" className="font-semibold text-gray-500 uppercase tracking-wider !mb-2">Salesperson</Text>
-                <Text className="text-gray-900 !mb-0">{order.salesperson_name || 'None'}</Text>
+                <div className="flex items-center gap-2 mb-2">
+                  <Briefcase className="w-4 h-4 text-[#003365]" />
+                  <Text size="sm" className="font-semibold text-gray-500 uppercase tracking-wider !mb-0">Salesperson</Text>
+                </div>
+                <select
+                  value={order.salesperson_id || ''}
+                  onChange={(e) => handleSalespersonChange(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:border-[#003365]"
+                >
+                  <option value="">Unassigned</option>
+                  {staffList.map((s) => (
+                    <option key={s.id} value={s.id}>{s.name}</option>
+                  ))}
+                </select>
               </Card>
 
               {/* Project Link */}

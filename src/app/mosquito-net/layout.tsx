@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import OrderShell from '@/app/order/components/OrderShell'
 
 export const metadata: Metadata = {
   alternates: {
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 }
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  return children
+  return <OrderShell>{children}</OrderShell>
 }

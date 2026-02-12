@@ -7,6 +7,10 @@ import { cn } from '@/lib/utils'
 export interface HeaderBarSectionProps {
   children: ReactNode
   /**
+   * HTML id attribute (useful for anchor links)
+   */
+  id?: string
+  /**
    * Icon to display in header
    */
   icon?: LucideIcon
@@ -66,6 +70,7 @@ const variantStyles = {
  */
 export function HeaderBarSection({
   children,
+  id,
   icon: Icon,
   label,
   variant = 'green',
@@ -75,7 +80,7 @@ export function HeaderBarSection({
   const styles = variantStyles[variant]
 
   return (
-    <section>
+    <section id={id}>
       <div className={cn('bg-white border-2 rounded-3xl overflow-hidden', styles.border)}>
         {/* Colored Header Bar */}
         <div className={cn('px-6 py-4 flex items-center justify-between', styles.header)}>

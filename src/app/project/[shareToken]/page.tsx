@@ -11,6 +11,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { ShoppingCart, ArrowRight, Loader2, Phone, Mail, Package, User, Clock } from 'lucide-react'
+import { Spinner } from '@/lib/design-system'
 
 // =============================================================================
 // TYPES
@@ -165,7 +166,7 @@ export default function SharePage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-[#406517] mx-auto mb-3" />
+          <Spinner size="lg" className="mx-auto mb-3" />
           <p className="text-sm text-gray-500">Loading your quote...</p>
         </div>
       </div>

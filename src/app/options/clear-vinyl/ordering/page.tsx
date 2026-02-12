@@ -21,9 +21,9 @@ import {
   Heading,
   BulletedList,
   ListItem,
-  FinalCTATemplate,
   HeaderBarSection,
 } from '@/lib/design-system'
+import { ClearVinylFooter } from '@/components/marketing/ClearVinylFooter'
 
 const STEPS = [
   {
@@ -196,29 +196,7 @@ export default function OrderingClearVinylPage() {
           </Grid>
         </Card>
 
-        {/* CTA */}
-        <section className="bg-gradient-to-br from-[#406517]/10 via-white to-[#003365]/10 rounded-3xl p-8 md:p-12 text-center">
-          <Heading level={2} className="!mb-4">Ready to Get Started?</Heading>
-          <Text className="text-gray-600 max-w-2xl mx-auto mb-8">
-            Start with photos of your space and we'll guide you through the rest.
-          </Text>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="primary" asChild>
-              <Link href="/start-project?mode=quote&product=clear_vinyl">
-                Start Your Quote
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/clear-vinyl">
-                Learn More About Clear Vinyl
-              </Link>
-            </Button>
-          </div>
-        </section>
-
-        {/* Final CTA */}
-        <FinalCTATemplate />
+        <ClearVinylFooter />
 
       </Stack>
     </Container>

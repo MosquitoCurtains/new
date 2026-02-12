@@ -1,8 +1,7 @@
 # Page Migration Workflow
 
-**Last Updated:** February 5, 2026  
-**Status:** Active  
-**Reference:** Use with `PAGE_MIGRATION_TRACKER.md`
+**Last Updated:** February 9, 2026  
+**Status:** Active
 
 ---
 
@@ -26,33 +25,45 @@ This document provides a step-by-step workflow for migrating each WordPress page
 
 ### Design System Imports (ALWAYS USE THIS)
 
+Import from `@/lib/design-system` only. Use the full design system:
+
 ```tsx
 import { 
   // Layout
-  Container, Stack, Grid, TwoColumn, Frame,
+  Container, Stack, Grid, TwoColumn, Frame, FourColumn,
   
   // Typography
-  Text, Heading,
+  Text, Heading, Title, PageTitles, PageHeader, PageHero,
   
-  // Forms
-  Button,
+  // Forms & UI
+  Button, Badge, Input, Textarea, Select, Checkbox, Radio, RadioGroup,
   
   // Lists
-  BulletedList, ListItem,
+  BulletedList, ListItem, OrderedList, IconList, OfferStack,
+  
+  // Cards
+  Card, FeatureCard, CategoryCard, CategoryGrid, ItemListCard, PricingCard,
   
   // Media
-  YouTubeEmbed,
+  YouTubeEmbed, Video, ImageLightbox,
   
   // Section Containers
-  HeaderBarSection, GradientSection, CTASection,
+  HeaderBarSection, GradientSection, CTASection, TwoColumnSection,
   
   // Pre-built Templates (EDIT ONCE, UPDATE EVERYWHERE)
   PowerHeaderTemplate,
   WhyChooseUsTemplate,
+  ClientReviewsTemplate,
   HowItWorksTemplate,
+  WhoWeAreWhatWeDoTemplate,
   FinalCTATemplate,
   ProfessionalsCalloutTemplate,
-  WhoWeAreWhatWeDoTemplate,
+  
+  // Hero actions (when using PowerHeaderTemplate)
+  MC_HERO_ACTIONS,
+  MC_ACTIONS,
+  CV_HERO_ACTIONS,
+  getMCHeroActions,
 } from '@/lib/design-system'
 ```
 
@@ -62,9 +73,9 @@ import {
 <Container size="xl">
   <Stack gap="lg">
     {/* 1. HERO - PowerHeaderTemplate or custom */}
-    {/* 2. TEMPLATES - WhyChooseUsTemplate, etc. */}
+    {/* 2. TEMPLATES - WhyChooseUsTemplate, ClientReviewsTemplate, etc. */}
     {/* 3. CONTENT - HeaderBarSection blocks */}
-    {/* 4. GALLERY - If applicable */}
+    {/* 4. GALLERY - Grid + Frame + Card if applicable */}
     {/* 5. FINAL CTA - FinalCTATemplate */}
   </Stack>
 </Container>
@@ -99,6 +110,7 @@ Create a temporary file to store extracted content:
 | Meta Description | SEO description | View page source or Yoast |
 | Hero Image | Main image URL | Right-click > Copy image address |
 | Hero Video | YouTube video ID | Extract from embed URL |
+| Video Thumbnail | Custom URL or "YouTube auto" | Use custom image URL, or omit and YouTubeEmbed pulls from YouTube |
 | Section Headings | All H2/H3 headings | Throughout page |
 | Body Text | All paragraphs | Each section |
 | Bullet Lists | All bullet points | Throughout page |
@@ -124,7 +136,7 @@ Use this template for extraction:
 - **Title:** 
 - **Subtitle:** 
 - **Video ID:** (YouTube)
-- **Thumbnail URL:** (if custom)
+- **Thumbnail:** Custom image URL, or leave blank to use YouTube auto thumbnail
 
 ## Section 1: [Heading]
 - **Icon:** (suggest Lucide icon)
@@ -147,11 +159,11 @@ Use this template for extraction:
 | Hero image | https://... | TBD |
 | Section 1 image | https://... | TBD |
 
-## Videos
-| Description | YouTube ID | Used In |
-|-------------|------------|---------|
-| Overview | FqNe9pDsZ8M | Hero |
-| Installation | abc123 | Section 2 |
+## Videos (every video must have a thumbnail: custom URL or YouTube auto)
+| Description | YouTube ID | Thumbnail | Used In |
+|-------------|------------|-----------|---------|
+| Overview | FqNe9pDsZ8M | (YouTube auto) or URL | Hero |
+| Installation | abc123 | (YouTube auto) or URL | Section 2 |
 ```
 
 ---
@@ -184,6 +196,7 @@ Map extracted content to design system components.
 | Image gallery | `Grid` + `Frame` |
 | Call-to-action | `Button` with `Link` |
 | Trust badges | `WhyChooseUsTemplate` |
+| Client reviews (6 + CTA) | `ClientReviewsTemplate` |
 | Final CTA | `FinalCTATemplate` |
 
 ### 2.3 Icon Selection (Lucide React)
@@ -238,7 +251,7 @@ Copy this template and customize:
 'use client'
 
 import Link from 'next/link'
-import { ArrowRight, Bug, Shield, Wrench } from 'lucide-react'
+import { ArrowRight, Bug, Camera, Shield, Wrench } from 'lucide-react'
 import { 
   Container, 
   Stack, 
@@ -247,11 +260,13 @@ import {
   Frame,
   Text, 
   Button,
+  Card,
   BulletedList,
   ListItem,
   YouTubeEmbed,
   PowerHeaderTemplate,
   WhyChooseUsTemplate,
+  ClientReviewsTemplate,
   FinalCTATemplate,
   HeaderBarSection,
 } from '@/lib/design-system'
@@ -264,6 +279,7 @@ const PAGE_CONFIG = {
   subtitle: 'Clear, concise description of the page content.',
   videoId: 'YOUTUBE_VIDEO_ID',  // or null if no video
   videoTitle: 'Video Title',
+  thumbnailUrl: undefined,     // optional: custom thumbnail URL; omit to use YouTube auto
 }
 
 // ============================================================================
@@ -284,6 +300,7 @@ const SECTIONS = [
     ],
     videoId: 'VIDEO_ID_OR_NULL',
     videoTitle: 'Video Title',
+    thumbnailUrl: undefined,  // optional; omit to use YouTube thumbnail
     ctaText: 'Call to Action',
     ctaLink: '/destination',
   },
@@ -315,6 +332,7 @@ export default function PageName() {
           subtitle={PAGE_CONFIG.subtitle}
           videoId={PAGE_CONFIG.videoId}
           videoTitle={PAGE_CONFIG.videoTitle}
+          thumbnailUrl={PAGE_CONFIG.thumbnailUrl}
           variant="compact"
         />
 
@@ -322,6 +340,11 @@ export default function PageName() {
         {/* WHY CHOOSE US (shared template) */}
         {/* ============================================================ */}
         <WhyChooseUsTemplate />
+
+        {/* ============================================================ */}
+        {/* CLIENT REVIEWS (optional: 6 reviews + See more reviews) */}
+        {/* ============================================================ */}
+        {/* <ClientReviewsTemplate /> */}
 
         {/* ============================================================ */}
         {/* CONTENT SECTIONS */}
@@ -363,6 +386,7 @@ export default function PageName() {
                   videoId={section.videoId}
                   title={section.videoTitle}
                   variant="card"
+                  thumbnailUrl={section.thumbnailUrl}
                 />
               )}
             </TwoColumn>
@@ -473,46 +497,40 @@ Vimeo:   https://vimeo.com/VIDEO_ID
 
 ### 4.4 Video Thumbnail Requirement
 
-**RULE: Every video MUST have a thumbnail.**
+**RULE: Every video MUST display a thumbnail.** No video should appear without a thumbnail.
 
-If no custom thumbnail exists, use the YouTube auto-generated thumbnail:
+You have two options:
+
+1. **Custom thumbnail:** Pass `thumbnailUrl` with your image URL (e.g. from static.mosquitocurtains.com or CloudFront). Use when you have a branded or higher-quality thumbnail.
+2. **YouTube auto thumbnail:** Omit `thumbnailUrl`. The `YouTubeEmbed` component will pull the thumbnail from YouTube automatically (tries `maxresdefault.jpg`, then falls back to `hqdefault.jpg`).
+
+**In code:**
 
 ```tsx
-// YouTube thumbnail URL pattern
-const thumbnail = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
-
-// Fallback if maxresdefault doesn't exist
-const thumbnailFallback = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
-
-// Usage in YouTubeEmbed
+// Option A: Custom thumbnail (e.g. hero video with branded image)
 <YouTubeEmbed 
   videoId="FqNe9pDsZ8M"
+  title="Video Title"
   variant="card"
-  thumbnail="https://img.youtube.com/vi/FqNe9pDsZ8M/maxresdefault.jpg"
+  thumbnailUrl="https://static.mosquitocurtains.com/.../custom-thumb.jpg"
+/>
+
+// Option B: Use YouTube's thumbnail (no thumbnailUrl – component fetches it)
+<YouTubeEmbed 
+  videoId="FqNe9pDsZ8M"
+  title="Video Title"
+  variant="card"
 />
 ```
 
-**YouTube Thumbnail Quality Options:**
+**PowerHeaderTemplate (hero):** Use `thumbnailUrl` when you have a custom hero thumbnail; otherwise omit it and the template will use YouTube's thumbnail for the video.
+
+**YouTube thumbnail URLs (for reference):**
 | Size | URL Pattern | Resolution |
 |------|-------------|------------|
-| Max | `/vi/{id}/maxresdefault.jpg` | 1280x720 |
-| High | `/vi/{id}/hqdefault.jpg` | 480x360 |
-| Medium | `/vi/{id}/mqdefault.jpg` | 320x180 |
-| Default | `/vi/{id}/default.jpg` | 120x90 |
-
-**GOOD NEWS:** The `YouTubeEmbed` component **automatically handles this fallback**. If `maxresdefault.jpg` fails, it falls back to `hqdefault.jpg`. You don't need to specify a thumbnail URL unless you want a custom one.
-
-```tsx
-// Component automatically gets YouTube thumbnail - no thumbnail prop needed!
-<YouTubeEmbed videoId="FqNe9pDsZ8M" variant="card" />
-
-// Only use thumbnailUrl if you have a custom thumbnail
-<YouTubeEmbed 
-  videoId="FqNe9pDsZ8M" 
-  variant="card"
-  thumbnailUrl="https://cloudfront.example.com/custom-thumb.jpg"
-/>
-```
+| Max | `https://img.youtube.com/vi/{id}/maxresdefault.jpg` | 1280x720 |
+| High | `https://img.youtube.com/vi/{id}/hqdefault.jpg` | 480x360 |
+| Medium | `https://img.youtube.com/vi/{id}/mqdefault.jpg` | 320x180 |
 
 ### 4.5 Asset Verification Sign-Off
 
@@ -539,7 +557,8 @@ Before proceeding to Phase 5, confirm:
 - [ ] Uses `HeaderBarSection variant="dark"` for content sections
 - [ ] Uses `TwoColumn` for text + media layouts
 - [ ] Uses `BulletedList` + `ListItem` for features
-- [ ] Uses `YouTubeEmbed variant="card"` for videos
+- [ ] Uses `YouTubeEmbed variant="card"` for videos (with thumbnail: custom `thumbnailUrl` or YouTube auto)
+- [ ] Uses `ClientReviewsTemplate` where client reviews are needed
 - [ ] Ends with `FinalCTATemplate`
 - [ ] NO `mb-X`, `mt-X`, `my-X` on direct Stack children
 - [ ] NO `PageLayout` wrapper (GlobalLayout handles this)
@@ -565,12 +584,6 @@ Before proceeding to Phase 5, confirm:
 - [ ] All buttons tappable on mobile
 - [ ] Images don't overflow on mobile
 - [ ] TwoColumn stacks properly on mobile
-
-### 5.4 Tracking Integration
-
-- [ ] Page wrapped in TrackingProvider (via GlobalLayout)
-- [ ] Test that page view is recorded in `page_views` table
-- [ ] Verify `page_path` is correct in tracking data
 
 ---
 
@@ -647,39 +660,7 @@ const nextConfig = {
 5. Verify visual hierarchy matches
 6. **FINAL ASSET CHECK:** Count images and videos one more time
 
-### 8.2 Update Migration Tracker Doc
-
-Update `PAGE_MIGRATION_TRACKER.md`:
-
-1. Change status from `[TODO]` to `[DONE]`
-2. Update Quick Stats at top
-3. Add to "Currently Live" list
-4. Commit with message: `docs: mark /page-slug/ as complete`
-
-### 8.3 Update Database (REQUIRED)
-
-**After the page is live and verified, update the `site_pages` table:**
-
-```sql
--- Update page status to live
-UPDATE site_pages 
-SET 
-  migration_status = 'live',
-  review_status = 'complete',
-  went_live_at = NOW(),
-  updated_at = NOW()
-WHERE slug = '/page-slug/';
-```
-
-**Or use the Admin Audit UI:**
-1. Go to `/admin/audit`
-2. Find the page in the list
-3. Click edit and update:
-   - Built status will reflect database `migration_status`
-   - Set Review to "Complete"
-   - Add any notes
-
-### 8.4 Deployment
+### 8.2 Deployment
 
 ```bash
 # Commit the page
@@ -690,14 +671,13 @@ git commit -m "feat: migrate /page-slug/ page from WordPress"
 git push
 ```
 
-### 8.5 Post-Deployment Verification
+### 8.3 Post-Deployment Verification
 
 After deployment completes:
 - [ ] Production page loads correctly
 - [ ] All images load on production
-- [ ] All videos play on production
+- [ ] All videos play on production (and each has a thumbnail)
 - [ ] Mobile view works on production
-- [ ] Database status updated to `live`
 
 ---
 
@@ -705,14 +685,15 @@ After deployment completes:
 
 ### Available Templates (Edit Once, Update Everywhere)
 
-| Template | Purpose | Location |
-|----------|---------|----------|
-| `PowerHeaderTemplate` | Hero with video + action cards | All category/product pages |
-| `WhyChooseUsTemplate` | "Why 92,000+ Customers Choose Us" | Most pages |
-| `HowItWorksTemplate` | 3-step process flow | Landing pages |
+| Template | Purpose | When to Use |
+|----------|---------|-------------|
+| `PowerHeaderTemplate` | Hero with video + action cards; optional subtitle, thumbnailUrl | All category/product pages |
+| `WhyChooseUsTemplate` | "Why X+ Customers Choose Us" + Google Reviews + 4 feature cards | Most pages |
+| `ClientReviewsTemplate` | "X+ Happy Clients Since 2004" + 6 review cards + See more reviews | Pages that need social proof |
+| `HowItWorksTemplate` | 3-step process (Plan → Receive → Install) | Landing pages |
+| `WhoWeAreWhatWeDoTemplate` | Two-column "Who We Are" / "What We Do" | About-style pages |
 | `FinalCTATemplate` | Big gradient CTA | All page bottoms |
-| `WhoWeAreWhatWeDoTemplate` | Company info section | About-style pages |
-| `ProfessionalsCalloutTemplate` | "For Professionals" section | Relevant pages |
+| `ProfessionalsCalloutTemplate` | "For Professionals" callout with header bar | Trade/pro pages |
 
 ### To Edit a Template Globally
 
@@ -855,9 +836,124 @@ For every page migration:
 7. **Add** metadata for SEO
 8. **Configure** redirects if URL changed
 9. **Compare** visually with WordPress
-10. **Update** tracker and commit
+10. **Commit** and deploy (no database steps required)
 
 **Reference Files:**
 - `src/app/screened-porch/page.tsx` - Category page pattern
 - `src/app/page.tsx` - Custom hero pattern
 - `http://localhost:3002/design-system` - All components
+
+---
+
+## Automated pipeline: Crawl → Extract → Fix URLs → Verify → Rewrite
+
+This section explains the **script-based** process for crawling WordPress HTML, extracting assets and text, stripping low-res image URL addons, verifying fixed URLs, and rewriting pages with the design system.
+
+### Overview
+
+| Step | What happens | Script / util |
+|------|----------------|---------------|
+| 1. Crawl | Fetch live WordPress page HTML | `audit-content.ts`, `resolve-content-gaps.ts` |
+| 2. Extract | Pull images, videos, headings, body text from HTML | Cheerio in both scripts |
+| 3. Strip WP URL addons | Convert low-res image URLs to full-res | `fix-image-urls.ts`, `src/lib/utils/image-url.ts` |
+| 4. Verify | Ensure the fixed URL returns HTTP 200 | `fix-image-urls.ts` (HEAD request) |
+| 5. Rewrite | Generate design-system JSX and write `page.tsx` | `resolve-content-gaps.ts` |
+
+### 1. Crawling the HTML
+
+- **Scripts:** `scripts/audit-content.ts`, `scripts/resolve-content-gaps.ts`
+- **Source:** `https://www.mosquitocurtains.com/{path}/` (trailing slash for WordPress).
+- **How:** `fetch()` with a friendly `User-Agent`, then parse the response with **Cheerio** (jQuery-like API) to query the DOM.
+
+### 2. Getting images, videos, and text
+
+**Images**
+
+- Cheerio selects `img` and reads `src` (or `data-src` for lazy-loaded images).
+- Only URLs under `wp-content/uploads` or `wp-media-folder` are kept.
+- Template/chrome images are filtered out (logos, planner images, thumbnails, etc.) via `TEMPLATE_IMAGE_PATTERNS` and `TEMPLATE_IMAGE_PATTERNS` in the scripts.
+- Each image is stored as `{ src, alt }`.
+
+**Videos**
+
+- Regex over the **raw HTML** for YouTube URLs: `youtube.com/embed/`, `youtube.com/watch?v=`, `youtu.be/`.
+- The 11-character video ID is extracted; template/known IDs (e.g. photo guidelines) are excluded.
+
+**Text**
+
+- **Headings:** `h1`–`h4` text, deduped and filtered against shared template headings (e.g. “Contact us”, “Why choose us”).
+- **Body:** Text is taken from Elementor widgets (e.g. `.elementor-widget-text-editor`, `.elementor-widget-toggle`, `.elementor-icon-box-content`), then joined and word-counted.
+- **Sections:** Content is grouped by heading so “Section = heading + following paragraphs/lists/images” for mapping to design-system sections.
+
+### 3. Stripping WordPress URL addons (low-res images)
+
+WordPress and plugins often append resolution and duplicate markers to filenames. Those produce low-res or duplicate variants.
+
+**Examples of what gets stripped or changed:**
+
+| WordPress URL pattern | Meaning | Action |
+|----------------------|--------|--------|
+| `Image-200x150-1.jpg` | 200×150 thumb + duplicate #1 | Strip `-200x150-1` → use base `Image.jpg` (or appropriate full-size) |
+| `Image-400x300-1.jpg` | User’s 400×300 size | Treated as “user size”; may be swapped to `-1200x900` (see below) |
+| `Image-300x225.jpg` | WP-generated size | Strip `-300x225` → base filename |
+| `Image-768x576.jpg` | WP-generated size | Strip → base |
+| `Image-1200-400x300.jpg` | Crop from 1200px width | Strip `-400x300`, keep base |
+
+**Where it’s implemented**
+
+- **Runtime / shared util:** `src/lib/utils/image-url.ts` — `normalizeImageUrl(url)`.
+- **Batch fix for existing code:** `scripts/fix-image-urls.ts` — scans all `.tsx`/`.ts` under `src/`, finds `static.mosquitocurtains.com` image URLs, normalizes them with the same rules, then (optionally) rewrites the file.
+
+**Rules (summary):**
+
+1. Only alter URLs that include `static.mosquitocurtains.com`.
+2. Strip trailing **dimension suffixes** like `-200x150`, `-300x225`, `-768x576`, etc., except “user” sizes `400x300` and `1200x900`.
+3. Strip trailing **duplicate markers** (e.g. `-1`, `-2`) when they follow a dimension (so `-200x150-1` → strip both).
+4. **User sizes:** If the only dimension left is `-400x300`, replace with `-1200x900` for higher resolution; if the path already has `-1200`, just strip the extra dimension.
+
+Result: one “best” URL per image (no low-res addons, preferring 1200×900 when that’s the user size).
+
+### 4. Testing that the fixed URL exists
+
+- **Script:** `scripts/fix-image-urls.ts`
+- **How:** After normalizing a URL, the script runs a **HEAD request** (`fetch(url, { method: 'HEAD', redirect: 'follow' })`) to the normalized URL.
+- **If the response is not OK (e.g. 404):** that replacement is **not** applied; the original URL is left in the file and the script reports “SKIP (404)”.
+- **Usage:**  
+  - `npx tsx scripts/fix-image-urls.ts` — fix and rewrite files.  
+  - `npx tsx scripts/fix-image-urls.ts --dry-run` — show what would change without writing.  
+  - `npx tsx scripts/fix-image-urls.ts --skip-validation` — normalize and rewrite without HEAD checks (use only when you’re sure targets exist).
+
+So: “fixed URL” = normalized URL that has been verified to exist (unless validation is skipped).
+
+### 5. Rewriting the page with the design system
+
+- **Script:** `scripts/resolve-content-gaps.ts`
+- **Input:** Pages in `site_pages` with `needs_revision` and `revision_items` (from the audit) describing missing images, word-count gap, missing headings, etc.
+- **Process:**
+  1. For each such page, **re-fetch the WordPress HTML** and re-extract content (sections with heading, text, images, lists).
+  2. **Images:** If the URL is already on `static.mosquitocurtains.com`, use it as-is. Otherwise the script can migrate the image to S3/CloudFront and use the new URL (optional).
+  3. **Sections** are turned into design-system JSX:
+     - **HeaderBarSection** (with icon and label) for each section.
+     - **Grid** + **Card** + **Frame** for galleries; **TwoColumn** + **Frame** for inline image + text.
+     - **Stack**, **Text**, **BulletedList** for paragraphs and lists.
+  4. Required design-system imports are inferred and added.
+  5. The script **writes** the updated `page.tsx` (or shows a diff in `--dry-run`).
+
+So the “rewriting” step is: **crawled + extracted content → design-system components → overwrite or patch the Next.js page file**.
+
+### End-to-end flow (automated)
+
+1. **Audit (optional but typical):**  
+   `npx tsx scripts/audit-content.ts`  
+   Fetches each WordPress page, extracts videos, images, headings, word count, and (optionally) writes findings to `site_pages` (e.g. `revision_items`).
+
+2. **Fix image URLs in the repo:**  
+   `npx tsx scripts/fix-image-urls.ts`  
+   Scans `src/**/*.tsx`, normalizes `static.mosquitocurtains.com` image URLs (strip WP addons, prefer high-res), verifies each with a HEAD request, and rewrites the file only when the new URL exists.
+
+3. **Resolve gaps and rewrite pages:**  
+   `npx tsx scripts/resolve-content-gaps.ts`  
+   For pages marked `needs_revision`, re-crawls WP, extracts sections and assets, generates design-system JSX, and writes `page.tsx`.  
+   Use `--dry-run` to preview, or `--images-only` / `--text-only` to limit scope.
+
+Manual follow-up (e.g. Phase 4 Asset Verification in this doc) is still recommended after any automated rewrite to confirm image/video counts and quality.

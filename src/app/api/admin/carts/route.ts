@@ -12,7 +12,6 @@ export async function POST(request: NextRequest) {
     const {
       project_id,
       salesperson_id,
-      salesperson_name,
       sales_mode,
       items,
       subtotal,
@@ -45,13 +44,14 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (projectError || !project) {
+      console.error('Project lookup error:', projectError)
       return NextResponse.json(
-        { error: 'Project not found' },
+        { error: `Project not found: ${projectError?.message || project_id}` },
         { status: 404 }
       )
     }
 
-    // Create the cart
+    // Create the cart (initially with zero totals — computed after line items insert)
     const { data: cart, error: cartError } = await supabase
       .from('carts')
       .insert({
@@ -59,12 +59,11 @@ export async function POST(request: NextRequest) {
         customer_id: project.customer_id || null,
         email: project.email,
         salesperson_id: salesperson_id || null,
-        salesperson_name: salesperson_name || null,
         sales_mode: sales_mode || null,
-        subtotal: subtotal || 0,
-        tax_amount: tax_amount || 0,
-        shipping_amount: shipping_amount || 0,
-        total: total || 0,
+        subtotal: 0,
+        tax_amount: 0,
+        shipping_amount: 0,
+        total: 0,
         status: 'active',
         shipping_first_name: shipping_first_name || null,
         shipping_last_name: shipping_last_name || null,
@@ -80,16 +79,27 @@ export async function POST(request: NextRequest) {
     if (cartError || !cart) {
       console.error('Error creating cart:', cartError)
       return NextResponse.json(
-        { error: 'Failed to create cart' },
+        { error: `Failed to create cart: ${cartError?.message || 'Unknown DB error'}` },
         { status: 500 }
       )
     }
 
     // Insert line items if provided
+    let actualSubtotal = 0
     if (items && items.length > 0) {
+      // Resolve product UUIDs from SKUs
+      const skus = [...new Set(items.map((i: LineItemInput) => i.product_sku).filter(Boolean))]
+      const { data: products } = skus.length > 0
+        ? await supabase.from('products').select('id, sku').in('sku', skus)
+        : { data: [] }
+      const skuToId: Record<string, string> = {}
+      for (const p of (products || [])) {
+        skuToId[p.sku] = p.id
+      }
+
       const lineItems = items.map((item: LineItemInput) => ({
         cart_id: cart.id,
-        product_id: item.product_id,
+        product_id: skuToId[item.product_sku] || null,
         product_sku: item.product_sku,
         product_name: item.product_name,
         quantity: item.quantity || 1,
@@ -107,17 +117,22 @@ export async function POST(request: NextRequest) {
       const { data: insertedItems, error: itemsError } = await supabase
         .from('line_items')
         .insert(lineItems)
-        .select('id')
+        .select('id, line_total')
 
       if (itemsError) {
         console.error('Error inserting line items:', itemsError)
-        // Cart was created, items failed — return partial success
+        // Cart was created with zero totals, items failed — return partial success
         return NextResponse.json({
           success: true,
           cart,
-          warning: 'Cart created but some line items failed to insert',
+          warning: `Cart created but line items failed to insert: ${itemsError.message}`,
         })
       }
+
+      // Compute actual subtotal from what was inserted
+      actualSubtotal = (insertedItems || []).reduce(
+        (sum, row) => sum + (Number(row.line_total) || 0), 0
+      )
 
       // Insert line item options if provided
       if (insertedItems) {
@@ -149,16 +164,34 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Compute final totals from successfully inserted line items
+    const finalShipping = actualSubtotal > 0 ? (shipping_amount || 0) : 0
+    const finalTax = actualSubtotal > 0 ? (tax_amount || 0) : 0
+    const finalTotal = actualSubtotal + finalShipping + finalTax
+
+    // Update cart with actual totals
+    const { data: updatedCart } = await supabase
+      .from('carts')
+      .update({
+        subtotal: actualSubtotal,
+        tax_amount: finalTax,
+        shipping_amount: finalShipping,
+        total: finalTotal,
+      })
+      .eq('id', cart.id)
+      .select('*')
+      .single()
+
     // Update project estimated_total and status
     await supabase
       .from('projects')
       .update({
-        estimated_total: total || 0,
+        estimated_total: finalTotal,
         status: 'working_on_quote',
       })
       .eq('id', project_id)
 
-    return NextResponse.json({ success: true, cart })
+    return NextResponse.json({ success: true, cart: updatedCart || cart })
   } catch (error) {
     console.error('Cart POST error:', error)
     return NextResponse.json(

@@ -24,8 +24,8 @@ todos:
     content: Build 6 support pages (about, professionals, contact, shipping, returns, reviews)
     status: completed
   - id: install-pages
-    content: Build 4 installation pages (hub + 3 guides)
-    status: completed
+    content: Build 4 installation pages (hub + 3 guides) - hub complete, 3 guides have placeholder content needing real WordPress content
+    status: in_progress
   - id: care-pages
     content: Build 2 product care pages
     status: completed
@@ -184,16 +184,111 @@ Build all with comprehensive content, strong CTAs, and full SEO optimization.
 
 ## Phase 4: Installation Pages (4 pages)
 
+**Status:** Hub page complete. 3 guide pages have placeholder content -- need real WordPress content migrated via deep HTML extraction.
 
-| Route                  | WordPress Source                                              |
-| ---------------------- | ------------------------------------------------------------- |
-| `/install`             | mosquitocurtains.com/install/ (hub)                           |
-| `/install/tracking`    | mosquitocurtains.com/mosquito-curtains-tracking-installation/ |
-| `/install/velcro`      | mosquitocurtains.com/mosquito-curtains-velcro-installation/   |
-| `/install/clear-vinyl` | mosquitocurtains.com/clear-vinyl-installation/                |
+**Related docs:**
+- [PAGE_MIGRATION_WORKFLOW.md](PAGE_MIGRATION_WORKFLOW.md) -- Generic migration workflow (Phases 1-8)
+- `scripts/extract-install-content.ts` -- Deep HTML extraction script for installation pages
+- `docs/migrations/install-pages-manifest.json` -- Extracted content manifests with all video IDs
+- `src/lib/design-system/templates/InstallationPageTemplate.tsx` -- Template component
 
+### Routes
 
-**Pattern:** Video-heavy pages with step-by-step instructions.
+| Route | WordPress Source | Status |
+| --- | --- | --- |
+| `/install` | mosquitocurtains.com/install/ (hub) | Complete |
+| `/install/tracking` | mosquitocurtains.com/mosquito-curtains-tracking-installation/ | Placeholder -- needs real content |
+| `/install/velcro` | mosquitocurtains.com/mosquito-curtains-velcro-installation/ | Placeholder -- needs real content |
+| `/install/clear-vinyl` | mosquitocurtains.com/clear-vinyl-installation/ | Placeholder -- needs real content |
+
+### Page Structure (all 3 guides follow this pattern)
+
+```
+1. Title + intro paragraph + PDF download link
+2. "Upload Photos" CTA (link to /client-uploads)
+3. Complete installation video (full-length, 16-40 min)
+4. Intro & Tools video
+5. Step-by-step videos (7-9 steps, each a separate short video)
+6. Supplementary videos (varies per page)
+7. "Caring For Your Curtains" link
+8. "Other Helpful Videos" section (SHARED across all 3 pages: 8 videos)
+9. Final CTA
+```
+
+### Content Inventory (from deep HTML extraction)
+
+**Tracking Installation** -- 23 unique videos
+- Main: Complete Tracking Installation (39:59)
+- Intro: Intro & Tools (3:46)
+- 9 steps: Mounting Track, Snap Carriers, Magnetic Doorways, Fiberglass Rods, Installing Stucco Strips, Mounting Your Curtains, Attaching The Sides, Elastic Cords, Sealing the Base
+- 4 supplementary: Project Recap, Standard vs. Heavy Track, Economy Snap Tool, Mounting Track With Double-sided Tape
+- PDF: `https://static.mosquitocurtains.com/.../Mosquito-Curtains-Tracking-Installation.pdf`
+
+**Velcro Installation** -- 20 unique videos
+- Main: Complete Velcro Installation (28:38)
+- Intro: Intro & Tools (2:41)
+- 9 steps: Mount Adhesive Velcro, Handling Surface Gaps, Preparing Your Curtains, Magnetic Doorways, Fiberglass Rods, Mounting Your Curtains, Attaching The Sides, Installing Elastic Cord, Sealing the Base
+- 1 supplementary: Velcro Installation Overview
+- PDF: `https://static.mosquitocurtains.com/.../Mosquito-Curtains-Velcro-Installation.pdf`
+
+**Clear Vinyl Installation** -- 20 unique videos
+- Main: Complete CV Velcro Install (16:19)
+- Intro: Intro & Tools (1:43)
+- 7 steps: Mounting The Velcro, Position Panels, Mounting Panels, Zipper Doorways, Sealing Sides, Belted Ribs, Sealing The Base
+- 3 supplementary: Installation Overview, Mounting Your Track, Snap Carriers (the last 2 are "if mounting on track" extras)
+- No PDF found on WordPress page
+
+### Shared "Other Helpful Videos" (8 videos on ALL 3 pages)
+
+| Video | Special Content |
+| --- | --- |
+| Troubleshooting for Wind (9:49) | Video only |
+| Panel to Panel Marine Snaps (3:09) | Video only |
+| Adhesive Back Marine Snaps (1:11) | Video + 6 bullet points of curing tips |
+| Notching Stucco Strip (4:58) | Video + inline image |
+| Elastic Cord/Belted Rib Alternative (3:49) | Video only |
+| Fiberglass Rod Clip (0:54) | Video only |
+| Roll Up Technique (4:47) | Video only |
+| Roll Up Shade Screen (5:25) | Video only |
+
+### Deep HTML Extraction Methodology
+
+WordPress Elementor stores YouTube URLs in `data-settings` JSON attributes on `.elementor-widget-video` elements (not in iframes or standard embeds). The extraction script:
+
+1. Fetches raw HTML with browser-like User-Agent
+2. Parses with Cheerio
+3. Extracts video IDs from `.elementor-widget-video[data-settings]` JSON (`youtube_url` field)
+4. Collects all `h2`/`h3` headings with duration parsing (e.g., "Step 1: Mounting Track 7:47")
+5. Maps headings to video IDs in document order (1:1 correspondence)
+6. Classifies into: main, intro, step, supplementary, helpful
+7. Verifies each video ID via YouTube thumbnail HEAD request
+8. Outputs structured JSON manifest
+
+### Template Extension Requirements
+
+The `InstallationPageTemplate` needs these additions to support the real WordPress content:
+- `introText` -- paragraph under the title
+- `pdfDownloadUrl` -- PDF download button
+- `mainVideo` -- "Complete Installation" full-length video
+- `introVideo` -- "Intro & Tools" video
+- `supplementaryVideos` -- page-specific extra videos
+- `helpfulVideos` -- shared "Other Helpful Videos" with notes/images support
+- `duration` field on steps -- display video duration
+- `description` made optional on steps (each step is primarily a video)
+
+### Installation-Specific Migration Checklist
+
+Beyond the generic [PAGE_MIGRATION_WORKFLOW.md](PAGE_MIGRATION_WORKFLOW.md):
+
+- [ ] Video IDs extracted via DOM parsing (not text scrape)
+- [ ] Every heading mapped to correct video ID (1:1 in document order)
+- [ ] Duration strings parsed and displayed
+- [ ] PDF download links verified (HEAD request returns 200)
+- [ ] Shared "Other Helpful Videos" deduplicated (same 8 videos on all pages)
+- [ ] Adhesive Back Marine Snaps expandable notes present (6 bullet points)
+- [ ] Notching Stucco Strip image present and verified
+- [ ] Video count: WordPress = Next.js (tracking: 23, velcro: 20, clear-vinyl: 20)
+- [ ] All 43 unique video IDs verified against YouTube thumbnail endpoint
 
 ---
 

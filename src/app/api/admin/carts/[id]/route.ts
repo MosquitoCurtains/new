@@ -71,7 +71,6 @@ export async function PUT(
     const body = await request.json()
     const {
       salesperson_id,
-      salesperson_name,
       sales_mode,
       items,
       subtotal,
@@ -90,15 +89,10 @@ export async function PUT(
 
     const supabase = createAdminClient()
 
-    // Build cart update payload
+    // Build cart update payload (totals set to 0 initially — recomputed after line items)
     const cartUpdate: Record<string, unknown> = {}
     if (salesperson_id !== undefined) cartUpdate.salesperson_id = salesperson_id
-    if (salesperson_name !== undefined) cartUpdate.salesperson_name = salesperson_name
     if (sales_mode !== undefined) cartUpdate.sales_mode = sales_mode
-    if (subtotal !== undefined) cartUpdate.subtotal = subtotal
-    if (tax_amount !== undefined) cartUpdate.tax_amount = tax_amount
-    if (shipping_amount !== undefined) cartUpdate.shipping_amount = shipping_amount
-    if (total !== undefined) cartUpdate.total = total
     if (status !== undefined) cartUpdate.status = status
     if (shipping_first_name !== undefined) cartUpdate.shipping_first_name = shipping_first_name
     if (shipping_last_name !== undefined) cartUpdate.shipping_last_name = shipping_last_name
@@ -108,7 +102,7 @@ export async function PUT(
     if (shipping_zip !== undefined) cartUpdate.shipping_zip = shipping_zip
     if (shipping_country !== undefined) cartUpdate.shipping_country = shipping_country
 
-    // Update cart row
+    // Update cart row (metadata fields only, totals updated after line items)
     const { data: cart, error: cartError } = await supabase
       .from('carts')
       .update(cartUpdate)
@@ -119,20 +113,32 @@ export async function PUT(
     if (cartError || !cart) {
       console.error('Error updating cart:', cartError)
       return NextResponse.json(
-        { error: 'Failed to update cart' },
+        { error: `Failed to update cart: ${cartError?.message || 'Unknown DB error'}` },
         { status: 500 }
       )
     }
 
     // Replace line items if provided
+    let actualSubtotal = 0
+    let lineItemsInserted = false
     if (items !== undefined) {
       // Delete existing line items (cascade deletes options)
       await supabase.from('line_items').delete().eq('cart_id', id)
 
       if (items.length > 0) {
+        // Resolve product UUIDs from SKUs
+        const skus = [...new Set(items.map((i: LineItemInput) => i.product_sku).filter(Boolean))]
+        const { data: products } = skus.length > 0
+          ? await supabase.from('products').select('id, sku').in('sku', skus)
+          : { data: [] }
+        const skuToId: Record<string, string> = {}
+        for (const p of (products || [])) {
+          skuToId[p.sku] = p.id
+        }
+
         const lineItems = items.map((item: LineItemInput) => ({
           cart_id: id,
-          product_id: item.product_id,
+          product_id: skuToId[item.product_sku] || null,
           product_sku: item.product_sku,
           product_name: item.product_name,
           quantity: item.quantity || 1,
@@ -147,10 +153,27 @@ export async function PUT(
           original_bundle_name: item.original_bundle_name || null,
         }))
 
-        const { data: insertedItems } = await supabase
+        const { data: insertedItems, error: itemsError } = await supabase
           .from('line_items')
           .insert(lineItems)
-          .select('id')
+          .select('id, line_total')
+
+        if (itemsError) {
+          console.error('Error inserting line items (PUT):', itemsError)
+          // Zero out cart totals since items failed
+          await supabase.from('carts').update({ subtotal: 0, tax_amount: 0, shipping_amount: 0, total: 0 }).eq('id', id)
+          return NextResponse.json({
+            success: true,
+            cart,
+            warning: `Cart updated but line items failed: ${itemsError.message}`,
+          })
+        }
+
+        // Compute actual subtotal from what was inserted
+        actualSubtotal = (insertedItems || []).reduce(
+          (sum, row) => sum + (Number(row.line_total) || 0), 0
+        )
+        lineItemsInserted = true
 
         // Insert options
         if (insertedItems) {
@@ -183,27 +206,47 @@ export async function PUT(
       }
     }
 
+    // Compute final totals from successfully inserted line items
+    const finalShipping = actualSubtotal > 0 ? (shipping_amount || 0) : 0
+    const finalTax = actualSubtotal > 0 ? (tax_amount || 0) : 0
+    const finalTotal = actualSubtotal + finalShipping + finalTax
+
+    // Update cart with actual totals derived from line items
+    const { data: finalCart } = await supabase
+      .from('carts')
+      .update({
+        subtotal: actualSubtotal,
+        tax_amount: finalTax,
+        shipping_amount: finalShipping,
+        total: finalTotal,
+      })
+      .eq('id', id)
+      .select('*')
+      .single()
+
     // Sync project estimated_total and cart_data
     const projectId = (cart as Record<string, unknown> & { projects?: { id: string } }).projects?.id || (cart as Record<string, unknown>).project_id
-    if (projectId && total !== undefined) {
-      // Build a simplified cart_data snapshot for the project
-      const cartDataSnapshot = (items || []).map((item: LineItemInput) => ({
-        sku: item.product_sku,
-        name: item.product_name,
-        qty: item.quantity || 1,
-        price: item.line_total,
-      }))
+    if (projectId) {
+      // Build a simplified cart_data snapshot from inserted items
+      const cartDataSnapshot = lineItemsInserted
+        ? (items || []).map((item: LineItemInput) => ({
+            sku: item.product_sku,
+            name: item.product_name,
+            qty: item.quantity || 1,
+            price: item.line_total,
+          }))
+        : []
 
       await supabase
         .from('projects')
         .update({
-          estimated_total: total,
+          estimated_total: finalTotal,
           cart_data: cartDataSnapshot,
         })
         .eq('id', projectId)
     }
 
-    return NextResponse.json({ success: true, cart })
+    return NextResponse.json({ success: true, cart: finalCart || cart })
   } catch (error) {
     console.error('Cart PUT error:', error)
     return NextResponse.json(

@@ -6,13 +6,12 @@ import {
   UserPlus,
   FolderOpen,
   X,
-  User,
   Mail,
   Phone,
   Copy,
   Check,
-  ExternalLink,
   ChevronDown,
+  Pencil,
 } from 'lucide-react'
 
 // =============================================================================
@@ -36,6 +35,7 @@ interface Project {
   last_name: string | null
   phone: string | null
   product_type: string
+  project_name: string | null
   status: string
   share_token: string
   estimated_total: number | null
@@ -59,6 +59,8 @@ interface ProjectBarProps {
   onProjectSelected: (project: Project) => void
   onSalespersonChanged: (staff: Staff | null) => void
   onNewProject: (project: Project) => void
+  onDetachProject?: () => void
+  onEditProject?: () => void
 }
 
 // =============================================================================
@@ -73,6 +75,8 @@ export default function ProjectBar({
   onProjectSelected,
   onSalespersonChanged,
   onNewProject,
+  onDetachProject,
+  onEditProject,
 }: ProjectBarProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<Project[]>([])
@@ -101,6 +105,7 @@ export default function ProjectBar({
         const filtered = projects.filter((p) => {
           const lead = Array.isArray(p.leads) ? p.leads[0] : p.leads
           return (
+            p.project_name?.toLowerCase().includes(q) ||
             p.email?.toLowerCase().includes(q) ||
             p.first_name?.toLowerCase().includes(q) ||
             p.last_name?.toLowerCase().includes(q) ||
@@ -154,20 +159,47 @@ export default function ProjectBar({
         <div className="flex-1 relative" ref={searchRef}>
           {selectedProject ? (
             <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg">
-              <FolderOpen className="w-4 h-4 text-[#003365]" />
-              <span className="text-sm font-medium text-gray-900">
-                {selectedProject.first_name} {selectedProject.last_name} - {selectedProject.product_type}
-              </span>
-              <span className="text-xs px-1.5 py-0.5 rounded bg-gray-200 text-gray-600">
+              <FolderOpen className="w-4 h-4 text-[#003365] flex-shrink-0" />
+              <div className="flex items-center gap-2 min-w-0">
+                {selectedProject.project_name ? (
+                  <>
+                    <span className="text-sm font-semibold text-gray-900 truncate">
+                      {selectedProject.project_name}
+                    </span>
+                    <span className="text-xs text-gray-400">|</span>
+                    <span className="text-xs text-gray-500 truncate">
+                      {selectedProject.first_name} {selectedProject.last_name}
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-sm font-medium text-gray-900 truncate">
+                    {selectedProject.first_name} {selectedProject.last_name} - {selectedProject.product_type}
+                  </span>
+                )}
+              </div>
+              <span className="text-xs px-1.5 py-0.5 rounded bg-gray-200 text-gray-600 whitespace-nowrap flex-shrink-0">
                 {selectedProject.status.replace(/_/g, ' ')}
               </span>
+              {onEditProject && (
+                <button
+                  onClick={onEditProject}
+                  className="p-1 text-gray-400 hover:text-[#003365] transition-colors"
+                  title="Edit project"
+                >
+                  <Pencil className="w-3.5 h-3.5" />
+                </button>
+              )}
               <button
                 onClick={() => {
-                  setShowSearch(true)
-                  setSearchQuery('')
+                  if (onDetachProject) {
+                    onDetachProject()
+                  } else {
+                    setShowSearch(true)
+                    setSearchQuery('')
+                  }
                 }}
                 className="ml-auto p-1 text-gray-400 hover:text-gray-600"
-                title="Change project"
+                title="Detach project"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -208,7 +240,18 @@ export default function ProjectBar({
                           className="w-full text-left px-3 py-2.5 hover:bg-gray-50 border-b border-gray-50 last:border-0 transition-colors"
                         >
                           <div className="text-sm font-medium text-gray-900">
-                            {project.first_name || pLead?.first_name} {project.last_name || pLead?.last_name}
+                            {project.project_name ? (
+                              <>
+                                {project.project_name}
+                                <span className="text-xs text-gray-400 ml-2">
+                                  ({project.first_name || pLead?.first_name} {project.last_name || pLead?.last_name})
+                                </span>
+                              </>
+                            ) : (
+                              <>
+                                {project.first_name || pLead?.first_name} {project.last_name || pLead?.last_name}
+                              </>
+                            )}
                           </div>
                           <div className="text-xs text-gray-500 flex items-center gap-2">
                             <span>{project.product_type}</span>
@@ -315,6 +358,7 @@ function NewProjectForm({
   onCreated: (project: Project) => void
   onCancel: () => void
 }) {
+  const [projectName, setProjectName] = useState('')
   const [email, setEmail] = useState('')
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
@@ -336,6 +380,7 @@ function NewProjectForm({
           last_name: lastName,
           phone,
           product_type: productType,
+          project_name: projectName || null,
         }),
       })
       const data = await res.json()
@@ -351,6 +396,17 @@ function NewProjectForm({
 
   return (
     <form onSubmit={handleSubmit} className="mt-3 pt-3 border-t border-gray-100">
+      {/* Row 1: Project name (full width) */}
+      <div className="mb-2">
+        <input
+          type="text"
+          placeholder="Project name (e.g. Smith Patio Enclosure)"
+          value={projectName}
+          onChange={(e) => setProjectName(e.target.value)}
+          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#003365]"
+        />
+      </div>
+      {/* Row 2: Contact details + create */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
         <input
           type="email"

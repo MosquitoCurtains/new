@@ -17,6 +17,7 @@ export async function POST(request: NextRequest) {
       phone,
       product_type,
       assigned_to,
+      project_name,
     } = body
 
     const supabase = createAdminClient()
@@ -111,6 +112,7 @@ export async function POST(request: NextRequest) {
         last_name: leadLastName,
         phone: leadPhone,
         product_type: product_type || 'curtains',
+        project_name: project_name || null,
         status: 'draft',
         assigned_to: assigned_to || null,
         cart_data: [],
@@ -132,10 +134,88 @@ export async function POST(request: NextRequest) {
       .update({ status: 'pending', assigned_to: assigned_to || null })
       .eq('id', leadId)
 
+    // =====================================================================
+    // Auto-assign returning customers to their last active salesperson
+    // Only runs when no explicit assigned_to was provided
+    // =====================================================================
+    let autoAssignedStaff: { id: string; name: string; email: string } | null = null
+
+    if (!assigned_to && leadEmail) {
+      try {
+        // Check if a customer record exists for this email
+        const { data: existingCustomer } = await supabase
+          .from('customers')
+          .select('id, assigned_salesperson_id')
+          .eq('email', leadEmail)
+          .single()
+
+        if (existingCustomer) {
+          // Find the most recent project for this customer (excluding the new one)
+          const { data: prevProject } = await supabase
+            .from('projects')
+            .select('assigned_to')
+            .eq('customer_id', existingCustomer.id)
+            .not('id', 'eq', project.id)
+            .not('assigned_to', 'is', null)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single()
+
+          const prevSalespersonId = prevProject?.assigned_to || existingCustomer.assigned_salesperson_id
+
+          if (prevSalespersonId) {
+            // Check if that salesperson is still active
+            const { data: staffMember } = await supabase
+              .from('staff')
+              .select('id, name, email, is_active')
+              .eq('id', prevSalespersonId)
+              .single()
+
+            if (staffMember?.is_active) {
+              // Auto-assign the new project
+              await supabase
+                .from('projects')
+                .update({ assigned_to: staffMember.id })
+                .eq('id', project.id)
+
+              // Update customer's current salesperson
+              await supabase
+                .from('customers')
+                .update({ assigned_salesperson_id: staffMember.id })
+                .eq('id', existingCustomer.id)
+
+              // Update lead's assigned_to as well
+              await supabase
+                .from('leads')
+                .update({ assigned_to: staffMember.id })
+                .eq('id', leadId)
+
+              autoAssignedStaff = { id: staffMember.id, name: staffMember.name, email: staffMember.email }
+
+              // Send notification to the auto-assigned salesperson
+              const { sendSalespersonAssignedNotification } = await import('@/lib/email/notifications')
+              sendSalespersonAssignedNotification({
+                salespersonName: staffMember.name,
+                salespersonEmail: staffMember.email,
+                customerName: [leadFirstName, leadLastName].filter(Boolean).join(' ') || 'Unknown',
+                customerEmail: leadEmail,
+                productType: product_type || 'curtains',
+                projectId: project.id,
+              }).catch((err: unknown) => console.error('Auto-assign notification error:', err))
+            }
+          }
+        }
+      } catch (autoAssignErr) {
+        // Auto-assign is non-blocking
+        console.error('Auto-assign error (non-blocking):', autoAssignErr)
+      }
+    }
+
     return NextResponse.json({
       success: true,
       project,
       shareUrl: `/project/${project.share_token}`,
+      autoAssigned: autoAssignedStaff,
     })
   } catch (error) {
     console.error('Sales project POST error:', error)

@@ -17,9 +17,9 @@ import {
   Heading,
   Text,
   Button,
+  Badge,
   Frame,
 } from '@/lib/design-system'
-import { cn } from '@/lib/utils'
 
 const PRODUCT_FLOWS = [
   {
@@ -28,6 +28,7 @@ const PRODUCT_FLOWS = [
     subtitle: 'Insect Protection',
     description: 'Custom screen panels sewn to your measurements',
     image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/00-Mosquito-Netting-Various-Projects-1200.jpg',
+    badge: 'Most Popular',
     icon: Bug,
     color: '#406517',
   },
@@ -37,6 +38,7 @@ const PRODUCT_FLOWS = [
     subtitle: 'Weather Protection',
     description: 'Custom vinyl panels - block wind, rain and cold',
     image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/00-Clear-Plastic-Winter-Panels-Porch-Gray-1200.jpg',
+    badge: 'All Season',
     icon: Snowflake,
     color: '#003365',
   },
@@ -46,6 +48,7 @@ const PRODUCT_FLOWS = [
     subtitle: 'DIY Materials',
     description: 'Bulk netting by the yard - up to 12ft wide',
     image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/wide-net-1200.jpg',
+    badge: 'Raw Netting',
     icon: Scissors,
     color: '#B30158',
   },
@@ -80,38 +83,41 @@ export default function StartProjectLandingPage() {
             </div>
 
             <Grid responsiveCols={{ mobile: 1, tablet: 3 }} gap="md">
-              {PRODUCT_FLOWS.map((product) => {
-                const Icon = product.icon
-                return (
-                  <Link key={product.slug} href={`/start-project/${product.slug}`}>
-                    <Card
-                      variant="elevated"
-                      className={cn(
-                        'h-full text-left rounded-2xl overflow-hidden border-2 transition-all',
-                        'hover:transform hover:-translate-y-1 hover:shadow-lg hover:border-gray-300'
-                      )}
+              {PRODUCT_FLOWS.map((product) => (
+                <Link key={product.slug} href={`/start-project/${product.slug}`} className="group">
+                  <Card variant="elevated" hover className="h-full overflow-hidden !p-0 !rounded-2xl relative border-2 border-transparent hover:border-[#406517]/30 transition-all">
+                    <Badge 
+                      className="absolute top-3 left-3 z-10 !text-white"
+                      style={{ backgroundColor: product.color, borderColor: product.color }}
                     >
-                      <Frame ratio="16/10">
-                        <img src={product.image} alt={product.title} className="w-full h-full object-cover" />
-                      </Frame>
-                      <div className="p-4">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Icon className="w-4 h-4" style={{ color: product.color }} />
-                          <Text size="xs" className="font-semibold uppercase tracking-wider !mb-0" style={{ color: product.color }}>
-                            {product.subtitle}
-                          </Text>
-                        </div>
-                        <Heading level={4} className="!mb-1 text-gray-900">{product.title}</Heading>
-                        <Text size="sm" className="text-gray-600 !mb-3">{product.description}</Text>
-                        <span className="inline-flex items-center gap-1 text-sm font-medium" style={{ color: product.color }}>
-                          Get started
-                          <ArrowRight className="w-4 h-4" />
-                        </span>
+                      {product.badge}
+                    </Badge>
+                    <Frame ratio="4/3">
+                      <img
+                        src={product.image}
+                        alt={product.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </Frame>
+                    <Stack gap="xs" className="p-4">
+                      <div className="flex items-center gap-2">
+                        <product.icon className="w-4 h-4" style={{ color: product.color }} />
+                        <Text size="xs" className="font-semibold uppercase tracking-wider !mb-0" style={{ color: product.color }}>
+                          {product.subtitle}
+                        </Text>
                       </div>
-                    </Card>
-                  </Link>
-                )
-              })}
+                      <Heading level={4} className="!text-lg group-hover:text-[#406517] transition-colors !mb-0">
+                        {product.title}
+                      </Heading>
+                      <Text size="sm" className="text-gray-600 !mb-1">{product.description}</Text>
+                      <div className="flex items-center font-semibold text-sm" style={{ color: product.color }}>
+                        Get started
+                        <ArrowRight className="ml-1 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      </div>
+                    </Stack>
+                  </Card>
+                </Link>
+              ))}
             </Grid>
           </div>
         </section>

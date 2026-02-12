@@ -23,10 +23,9 @@ import {
   Text,
   Heading,
   Card,
-  Button,
   HeaderBarSection,
-  FinalCTATemplate,
 } from '@/lib/design-system'
+import { ClearVinylFooter } from '@/components/marketing/ClearVinylFooter'
 
 // FAQ Data organized by category
 const FAQ_DATA = {
@@ -225,30 +224,7 @@ export default function ClearVinylFAQPage() {
           )
         })}
 
-        {/* Still have questions */}
-        <Card className="p-8 bg-gray-50 text-center">
-          <Heading level={3} className="!text-xl !mb-3">
-            Still have questions?
-          </Heading>
-          <Text className="text-gray-600 mb-6">
-            Our planning team is here to help with any questions about your clear vinyl project.
-          </Text>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button variant="secondary" asChild>
-              <Link href="/contact">
-                Contact Us
-              </Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <a href="tel:7708847705">
-                Call (770) 884-7705
-              </a>
-            </Button>
-          </div>
-        </Card>
-
-        {/* Final CTA */}
-        <FinalCTATemplate />
+        <ClearVinylFooter />
 
       </Stack>
     </Container>

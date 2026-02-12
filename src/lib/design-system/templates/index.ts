@@ -3,6 +3,7 @@
 
 // Content Block Templates
 export { WhyChooseUsTemplate } from './WhyChooseUsTemplate'
+export { ClientReviewsTemplate } from './ClientReviewsTemplate'
 export { HowItWorksTemplate } from './HowItWorksTemplate'
 export { WhoWeAreWhatWeDoTemplate } from './WhoWeAreWhatWeDoTemplate'
 export { FinalCTATemplate } from './FinalCTATemplate'
@@ -30,7 +31,7 @@ export { ProductPageTemplate } from './ProductPageTemplate'
 export type { ProductPageTemplateProps, ProjectType, ProductFeature } from './ProductPageTemplate'
 
 export { InstallationPageTemplate } from './InstallationPageTemplate'
-export type { InstallationPageTemplateProps, InstallationType, InstallationStep } from './InstallationPageTemplate'
+export type { InstallationPageTemplateProps, InstallationType, InstallationStep, VideoEntry, HelpfulVideo } from './InstallationPageTemplate'
 
 export { SupportPageTemplate } from './SupportPageTemplate'
 export type { SupportPageTemplateProps, ContentSection as SupportContentSection, QuickLink } from './SupportPageTemplate'

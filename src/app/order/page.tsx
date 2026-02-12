@@ -18,8 +18,8 @@ import {
   Button,
   Badge,
 } from '@/lib/design-system'
-import { PowerHeaderTemplate, FinalCTATemplate } from '@/lib/design-system/templates'
-import { VIDEOS } from '@/lib/constants/videos'
+import { FinalCTATemplate } from '@/lib/design-system/templates'
+import { OrderPageHeader } from '@/app/order/components/OrderPageHeader'
 
 const CATEGORIES = [
   {
@@ -70,12 +70,9 @@ export default function OrderLandingPage() {
   return (
     <Container size="xl">
       <Stack gap="xl">
-        <PowerHeaderTemplate
+        <OrderPageHeader
           title="Order Products"
           subtitle="Everything you need — custom panels, track hardware, raw netting, and attachments. Self-service ordering with live pricing."
-          videoId={VIDEOS.MOSQUITO_CURTAINS_OVERVIEW}
-          videoTitle="Mosquito Curtains Overview"
-          variant="compact"
         />
 
         <section>

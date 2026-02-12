@@ -11,6 +11,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { Upload, X, Image as ImageIcon, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { Spinner } from '@/lib/design-system'
 
 // =============================================================================
 // TYPES
@@ -273,7 +274,7 @@ export function PhotoUploader({
               )}>
                 {photo.status === 'uploading' && (
                   <div className="text-center">
-                    <div className="w-12 h-12 rounded-full border-4 border-[#406517]/30 border-t-[#406517] animate-spin" />
+                    <Spinner size="lg" />
                     <p className="text-gray-700 text-sm mt-2">{photo.progress}%</p>
                   </div>
                 )}

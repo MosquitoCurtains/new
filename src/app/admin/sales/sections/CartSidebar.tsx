@@ -1,10 +1,12 @@
 'use client'
 
-import { useMemo } from 'react'
-import { ChevronLeft, ChevronRight, ShoppingCart, X, Trash2, Save, Send, CreditCard, Phone } from 'lucide-react'
+import { useMemo, useState, useCallback } from 'react'
+import { ChevronLeft, ChevronRight, ShoppingCart, X, Trash2, Save, Link2, CreditCard, Phone, Check, AlertCircle, Loader2 } from 'lucide-react'
 import { Text } from '@/lib/design-system'
 import type { CartLineItem } from '@/hooks/useCart'
 import { formatMoney } from '../types'
+
+type ActiveAction = 'save' | 'copy' | 'phone' | 'order' | null
 
 interface CartSidebarProps {
   items: CartLineItem[]
@@ -15,11 +17,10 @@ interface CartSidebarProps {
   clearCart: () => void
   collapsed: boolean
   onToggleCollapse: () => void
-  onSave?: () => void
-  onSend?: () => void
-  onPlaceOrder?: () => void
-  onPhoneOrder?: () => void
-  isSaving?: boolean
+  onSave?: () => Promise<void>
+  onCopyLink?: () => Promise<string | null>
+  onPlaceOrder?: () => Promise<void>
+  onPhoneOrder?: () => Promise<void>
   hasProject?: boolean
 }
 
@@ -40,12 +41,67 @@ export default function CartSidebar({
   collapsed,
   onToggleCollapse,
   onSave,
-  onSend,
+  onCopyLink,
   onPlaceOrder,
   onPhoneOrder,
-  isSaving,
   hasProject,
 }: CartSidebarProps) {
+  const [activeAction, setActiveAction] = useState<ActiveAction>(null)
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+  const [copyConfirmUrl, setCopyConfirmUrl] = useState<string | null>(null)
+
+  const showToast = useCallback((type: 'success' | 'error', message: string) => {
+    setToast({ type, message })
+    setTimeout(() => setToast(null), 3000)
+  }, [])
+
+  const runAction = useCallback(async (action: ActiveAction, fn?: () => Promise<void>) => {
+    if (!fn || activeAction) return
+    setActiveAction(action)
+    try {
+      await fn()
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Something went wrong'
+      showToast('error', msg)
+    } finally {
+      setActiveAction(null)
+    }
+  }, [activeAction, showToast])
+
+  const handleSave = useCallback(() => runAction('save', async () => {
+    if (!onSave) return
+    await onSave()
+    showToast('success', 'Cart saved')
+  }), [runAction, onSave, showToast])
+
+  const handleCopyLink = useCallback(async () => {
+    if (!onCopyLink || activeAction) return
+    setActiveAction('copy')
+    try {
+      const url = await onCopyLink()
+      if (url) {
+        setCopyConfirmUrl(url)
+      } else {
+        showToast('error', 'Could not generate link')
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Something went wrong'
+      showToast('error', msg)
+    } finally {
+      setActiveAction(null)
+    }
+  }, [onCopyLink, activeAction, showToast])
+
+  const handlePhoneOrder = useCallback(() => runAction('phone', async () => {
+    if (!onPhoneOrder) return
+    await onPhoneOrder()
+  }), [runAction, onPhoneOrder])
+
+  const handlePlaceOrder = useCallback(() => runAction('order', async () => {
+    if (!onPlaceOrder) return
+    await onPlaceOrder()
+  }), [runAction, onPlaceOrder])
+
   const groupedItems = useMemo(() => {
     const groups: Record<string, CartLineItem[]> = {
       panel: [],
@@ -61,6 +117,39 @@ export default function CartSidebar({
     return groups
   }, [items])
 
+  function ActionButton({
+    action,
+    onClick,
+    icon: Icon,
+    label,
+    loadingLabel,
+    className,
+  }: {
+    action: ActiveAction
+    onClick: () => void
+    icon: typeof Save
+    label: string
+    loadingLabel: string
+    className: string
+  }) {
+    const isActive = activeAction === action
+    const isDisabled = activeAction !== null && !isActive
+    return (
+      <button
+        onClick={onClick}
+        disabled={isDisabled}
+        className={`flex items-center justify-center gap-1.5 w-full py-1.5 text-[11px] font-medium rounded-md transition-colors disabled:opacity-40 ${className} ${isActive ? 'opacity-80' : ''}`}
+      >
+        {isActive ? (
+          <Loader2 className="w-3 h-3 animate-spin" />
+        ) : (
+          <Icon className="w-3 h-3" />
+        )}
+        {isActive ? loadingLabel : label}
+      </button>
+    )
+  }
+
   return (
     <aside
       className={`hidden md:flex flex-col fixed inset-y-0 right-0 z-20 bg-white border-l border-gray-200 transition-[width] duration-300 ease-in-out ${
@@ -75,10 +164,10 @@ export default function CartSidebar({
             className="mx-auto p-1.5 rounded-md hover:bg-gray-100 transition-colors relative"
             title="Expand cart"
           >
-            <ShoppingCart className="w-4 h-4 text-gray-500" />
+            <ShoppingCart className="w-6 h-6 text-gray-600" />
             {itemCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-[#003365] text-white text-[9px] font-bold flex items-center justify-center">
-                {itemCount > 9 ? '9+' : itemCount}
+              <span className="absolute -top-1 -right-1.5 min-w-5 h-5 px-1 rounded-full bg-[#003365] text-white text-[10px] font-bold flex items-center justify-center">
+                {itemCount > 99 ? '99+' : itemCount}
               </span>
             )}
           </button>
@@ -104,6 +193,18 @@ export default function CartSidebar({
       {/* Content (expanded only) */}
       {!collapsed && (
         <>
+          {/* Toast notification */}
+          {toast && (
+            <div className={`mx-2.5 mt-2 px-3 py-2 rounded-lg text-[11px] font-medium flex items-center gap-1.5 animate-in fade-in slide-in-from-top-1 duration-200 ${
+              toast.type === 'success'
+                ? 'bg-green-50 text-green-700 border border-green-200'
+                : 'bg-red-50 text-red-700 border border-red-200'
+            }`}>
+              {toast.type === 'success' ? <Check className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
+              {toast.message}
+            </div>
+          )}
+
           <div className="flex-1 overflow-y-auto">
             {items.length === 0 ? (
               <div className="py-12 text-center px-3">
@@ -169,37 +270,37 @@ export default function CartSidebar({
               {/* Action Buttons */}
               {hasProject && (
                 <div className="space-y-1">
-                  <button
-                    onClick={onSave}
-                    disabled={isSaving}
-                    className="flex items-center justify-center gap-1.5 w-full py-1.5 text-[11px] font-medium bg-[#003365] text-white rounded-md hover:bg-[#002244] disabled:opacity-50 transition-colors"
-                  >
-                    <Save className="w-3 h-3" />
-                    {isSaving ? 'Saving...' : 'Save Cart'}
-                  </button>
-                  <button
-                    onClick={onSend}
-                    disabled={isSaving}
-                    className="flex items-center justify-center gap-1.5 w-full py-1.5 text-[10px] font-medium bg-teal-600 text-white rounded-md hover:bg-teal-700 disabled:opacity-50 transition-colors"
-                  >
-                    <Send className="w-2.5 h-2.5" />
-                    Send to Customer
-                  </button>
+                  <ActionButton
+                    action="save"
+                    onClick={handleSave}
+                    icon={Save}
+                    label="Save Cart"
+                    loadingLabel="Saving..."
+                    className="bg-[#003365] text-white hover:bg-[#002244]"
+                  />
+                  <ActionButton
+                    action="copy"
+                    onClick={handleCopyLink}
+                    icon={Link2}
+                    label="Copy Link"
+                    loadingLabel="Copying..."
+                    className="bg-teal-600 text-white hover:bg-teal-700"
+                  />
                   <div className="flex gap-1">
                     <button
-                      onClick={onPhoneOrder}
-                      disabled={isSaving}
-                      className="flex items-center justify-center gap-1 flex-1 py-1.5 text-[10px] font-medium bg-[#406517] text-white rounded-md hover:bg-[#365512] disabled:opacity-50 transition-colors"
+                      onClick={handlePhoneOrder}
+                      disabled={activeAction !== null && activeAction !== 'phone'}
+                      className={`flex items-center justify-center gap-1 flex-1 py-1.5 text-[10px] font-medium bg-[#406517] text-white rounded-md hover:bg-[#365512] disabled:opacity-40 transition-colors ${activeAction === 'phone' ? 'opacity-80' : ''}`}
                     >
-                      <Phone className="w-2.5 h-2.5" />
+                      {activeAction === 'phone' ? <Loader2 className="w-2.5 h-2.5 animate-spin" /> : <Phone className="w-2.5 h-2.5" />}
                       Phone Order
                     </button>
                     <button
-                      onClick={onPlaceOrder}
-                      disabled={isSaving}
-                      className="flex items-center justify-center gap-1 flex-1 py-1.5 text-[10px] font-medium bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 transition-colors"
+                      onClick={handlePlaceOrder}
+                      disabled={activeAction !== null && activeAction !== 'order'}
+                      className={`flex items-center justify-center gap-1 flex-1 py-1.5 text-[10px] font-medium bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-40 transition-colors ${activeAction === 'order' ? 'opacity-80' : ''}`}
                     >
-                      <CreditCard className="w-2.5 h-2.5" />
+                      {activeAction === 'order' ? <Loader2 className="w-2.5 h-2.5 animate-spin" /> : <CreditCard className="w-2.5 h-2.5" />}
                       Quick Order
                     </button>
                   </div>
@@ -216,6 +317,30 @@ export default function CartSidebar({
             </div>
           )}
         </>
+      )}
+
+      {/* Copy Link Confirmation Modal */}
+      {copyConfirmUrl && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setCopyConfirmUrl(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden animate-in zoom-in-95 fade-in duration-200" onClick={(e) => e.stopPropagation()}>
+            <div className="p-6 text-center">
+              <div className="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center mx-auto mb-4">
+                <Check className="w-6 h-6 text-teal-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-1">Link Copied</h3>
+              <p className="text-sm text-gray-500 mb-4">Quote link has been copied to your clipboard and the project status has been updated to &ldquo;Quote Sent&rdquo;.</p>
+              <div className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 mb-4">
+                <p className="text-xs text-gray-500 font-mono break-all">{copyConfirmUrl}</p>
+              </div>
+              <button
+                onClick={() => setCopyConfirmUrl(null)}
+                className="w-full py-2.5 bg-[#003365] text-white text-sm font-medium rounded-xl hover:bg-[#002244] transition-colors"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </aside>
   )

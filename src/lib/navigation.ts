@@ -29,6 +29,7 @@ import {
   Download,
   Megaphone,
   Briefcase,
+  FolderOpen,
 } from 'lucide-react'
 
 export interface NavItem {
@@ -169,16 +170,16 @@ export const userNavigation: NavItem[] = [
 
   {
     name: 'Order',
-    href: '/start-project',
+    href: '/order',
     icon: Package,
     hasDropdown: true,
     children: [
-      { name: 'Order Mosquito Curtains', href: '/start-project/mosquito-curtains' },
-      { name: 'Order Tracking Hardware', href: '/raw-netting/hardware' },
-      { name: 'Order Attachment Hardware', href: '/raw-netting/hardware' },
-      { name: 'Order Clear Vinyl', href: '/start-project/clear-vinyl' },
+      { name: 'Order Mosquito Curtains', href: '/order/mosquito-curtains' },
+      { name: 'Order Tracking Hardware', href: '/order/track-hardware' },
+      { name: 'Order Attachment Hardware', href: '/order/attachments' },
+      { name: 'Order Clear Vinyl', href: '/order/clear-vinyl' },
       { name: 'Order Mosquito Netting & Other Mesh Types', href: '/raw-netting-fabric-store' },
-      { name: 'Order Roll Up Shade Screens', href: '/roll-up-shade-screens' },
+      { name: 'Order Roll Up Shade Screens', href: '/order/roll-up-shades' },
     ],
   },
 
@@ -230,7 +231,17 @@ export const adminNavSections: AdminNavSection[] = [
   {
     label: 'Content & Media',
     items: [
-      { name: 'Galleries', href: '/admin/galleries', icon: Image },
+      {
+        name: 'Galleries',
+        href: '/admin/galleries',
+        icon: Image,
+        hasDropdown: true,
+        children: [
+          { name: 'All Galleries', href: '/admin/galleries' },
+          { name: 'Mesh Gallery', href: '/admin/galleries/mesh' },
+        ],
+      },
+      { name: 'Site Assets', href: '/admin/assets', icon: FolderOpen },
       { name: 'Site Audit', href: '/admin/audit', icon: Shield },
       { name: 'Sitemap', href: '/admin/sitemap', icon: Map },
     ],

@@ -1,99 +1,113 @@
 'use client'
 
 /**
- * RollUpShadesPage — Roll-up shade screen configurator.
+ * RollUpShadesPage — Customer-facing roll-up shade screen ordering.
  *
- * Shared component used by /order/roll-up-shades and /roll-up-shade-screens/.
+ * Mirrors admin RollUpShadeSection.
+ * Used by /order/roll-up-shades.
  */
 
-import { useState, useCallback, useMemo } from 'react'
-import Link from 'next/link'
-import { ShoppingCart, Check } from 'lucide-react'
-import {
-  Container,
-  Stack,
-  Grid,
-  Card,
-  Heading,
-  Text,
-  Button,
-  Spinner,
-  YouTubeEmbed,
-} from '@/lib/design-system'
-import { PowerHeaderTemplate, FinalCTATemplate } from '@/lib/design-system/templates'
-import { VIDEOS } from '@/lib/constants/videos'
+import { useMemo, useState } from 'react'
+import Image from 'next/image'
+import { Plus, Minus, ShoppingCart } from 'lucide-react'
+import { Container, Stack, Card, Heading, Text, Button, Spinner } from '@/lib/design-system'
+import { FinalCTATemplate } from '@/lib/design-system/templates'
+import { OrderPageHeader } from '../OrderPageHeader'
 import { useCartContext } from '@/contexts/CartContext'
 import { useProducts, getProductOptions } from '@/hooks/useProducts'
 import { usePricing } from '@/hooks/usePricing'
-import PillSelector from '../PillSelector'
-import DimensionTable, { type DimensionRow } from '../DimensionTable'
-import LivePriceDisplay from '../LivePriceDisplay'
+import StepNav from '../StepNav'
 
-function createRow(): DimensionRow {
+const IMG = 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads'
+
+function formatMoney(value: number) { return value.toFixed(2) }
+
+type RollUpLine = {
+  id: string
+  widthInches: number | undefined
+  ply: string
+}
+
+function createLine(defaultPly: string): RollUpLine {
   return {
-    id: `row-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-    widthFeet: undefined,
+    id: `ru-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     widthInches: undefined,
-    heightInches: undefined,
+    ply: defaultPly,
   }
 }
+
+// =============================================================================
+// PAGE COMPONENT
+// =============================================================================
 
 export function RollUpShadesPage() {
   const { addItem } = useCartContext()
   const { rollupProduct, isLoading: productsLoading } = useProducts()
-  const { prices, getPrice, isLoading: pricingLoading } = usePricing()
+  const { getPrice, isLoading: pricingLoading } = usePricing()
 
-  const [ply, setPly] = useState('single')
-  const [panels, setPanels] = useState<DimensionRow[]>([createRow()])
-  const [justAdded, setJustAdded] = useState(false)
+  // Read ply options from database
+  const plyOptions = getProductOptions(rollupProduct, 'ply')
+  const defaultPly = plyOptions.find(o => o.is_default)?.option_value || plyOptions[0]?.option_value || 'single'
 
-  const plyOptions = useMemo(() =>
-    getProductOptions(rollupProduct, 'ply').map(o => ({
-      value: o.option_value,
-      label: o.display_label,
-      sublabel: '',
-    })),
-    [rollupProduct]
-  )
+  const [lines, setLines] = useState<RollUpLine[]>([createLine(defaultPly)])
 
-  // Row management
-  const updateRow = useCallback((id: string, field: keyof DimensionRow, value: number | undefined) => {
-    setPanels(prev => prev.map(r => r.id === id ? { ...r, [field]: value } : r))
-  }, [])
-  const addRow = useCallback(() => setPanels(prev => [...prev, createRow()]), [])
-  const removeRow = useCallback((id: string) => setPanels(prev => prev.filter(r => r.id !== id)), [])
+  // Screen fee from product base_price
+  const screenFee = rollupProduct ? Number(rollupProduct.base_price) : getPrice('rollup_shade_screen')
 
-  // Per-row price
-  const calcRowPrice = useCallback((row: DimensionRow) => {
-    if (!prices || !row.widthFeet) return 0
-    const widthInches = (row.widthFeet * 12) + (row.widthInches || 0)
-    const baseFee = rollupProduct?.base_price || 0
-    const plyRate = getPrice(`rollup_ply_${ply}`, 0)
-    return Math.round((baseFee + widthInches * plyRate) * 100) / 100
-  }, [prices, ply, rollupProduct, getPrice])
+  // Build ply rate lookup from DB options
+  const plyRates = useMemo(() => {
+    const rates: Record<string, number> = {}
+    for (const opt of plyOptions) {
+      rates[opt.option_value] = Number(opt.price)
+    }
+    return rates
+  }, [plyOptions])
 
-  const totalPrice = panels.reduce((sum, row) => sum + calcRowPrice(row), 0)
-  const validPanels = panels.filter(r => r.widthFeet && calcRowPrice(r) > 0)
+  const defaultRate = plyRates[defaultPly] ?? 1.00
 
-  const handleAddToCart = useCallback(() => {
-    if (validPanels.length === 0) return
-    validPanels.forEach((row) => {
-      const price = calcRowPrice(row)
-      const widthInches = (row.widthFeet! * 12) + (row.widthInches || 0)
+  const lineTotals = useMemo(() => {
+    const totals = lines.map((line) => {
+      const width = line.widthInches ?? 0
+      const rate = plyRates[line.ply] ?? defaultRate
+      return screenFee + (width * rate)
+    })
+    const subtotal = totals.reduce((sum, v) => sum + v, 0)
+    return { totals, subtotal }
+  }, [lines, screenFee, plyRates, defaultRate])
+
+  const addLine = () => setLines([...lines, createLine(defaultPly)])
+  const updateLine = (index: number, updates: Partial<RollUpLine>) => {
+    const next = [...lines]
+    next[index] = { ...next[index], ...updates }
+    setLines(next)
+  }
+  const removeLine = (index: number) => {
+    if (lines.length > 1) setLines(lines.filter((_, i) => i !== index))
+  }
+
+  const addToCart = () => {
+    lines.forEach((line, index) => {
+      const total = lineTotals.totals[index]
+      if (total <= 0) return
       addItem({
         type: 'panel',
         productSku: 'rollup_shade_screen',
-        name: `Roll-Up Shade Screen (${ply})`,
-        description: `${widthInches}" wide - ${ply} ply`,
+        name: `Roll-Up Shade ${index + 1}`,
+        description: `${line.widthInches ?? 0}" wide - ${line.ply} ply`,
         quantity: 1,
-        unitPrice: price,
-        totalPrice: price,
-        options: { ply, widthInches },
+        unitPrice: total,
+        totalPrice: total,
+        options: {
+          widthInches: line.widthInches ?? 0,
+          ply: line.ply,
+        },
       })
     })
-    setJustAdded(true)
-    setTimeout(() => setJustAdded(false), 2000)
-  }, [validPanels, calcRowPrice, addItem, ply])
+  }
+
+  // =========================================================================
+  // LOADING
+  // =========================================================================
 
   if (productsLoading || pricingLoading) {
     return (
@@ -103,63 +117,93 @@ export function RollUpShadesPage() {
     )
   }
 
+  // =========================================================================
+  // RENDER
+  // =========================================================================
+
   return (
     <Container size="xl">
       <Stack gap="xl">
-        <PowerHeaderTemplate
+        <OrderPageHeader
           title="Order Roll-Up Shade Screens"
-          subtitle="Custom roll-up shade screens. Single or double ply. Just add width and we build it for you."
-          videoId={VIDEOS.ROLL_UP_SHADE}
-          videoTitle="Roll-Up Shade Screens"
-          variant="compact"
+          subtitle="Custom roll-up shade screens in single or double ply. Enter width and choose ply for an instant quote."
         />
 
+        <StepNav flow="ru" currentStep={1} />
+
         <section>
-          <Card variant="elevated" className="!p-6 md:!p-8">
-            <Heading level={2} className="!mb-6">Configure Your Shade Screens</Heading>
-
-            <div className="space-y-6">
-              {plyOptions.length > 0 && (
-                <PillSelector
-                  label="Ply"
-                  options={plyOptions}
-                  value={ply}
-                  onChange={setPly}
-                  size="lg"
-                />
-              )}
-
+          <Card variant="elevated" className="!p-6">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-gray-200">
+                <Image src={rollupProduct?.image_url || `${IMG}/2024/06/Single-Ply.jpg`} alt={rollupProduct?.name || 'Roll-Up Shade Screen'} width={64} height={64} className="w-full h-full object-cover" />
+              </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">Screen Dimensions</label>
-                <DimensionTable
-                  rows={panels}
-                  onUpdateRow={updateRow}
-                  onAddRow={addRow}
-                  onRemoveRow={removeRow}
-                  calculateRowPrice={calcRowPrice}
-                  showWidthInches={true}
-                  heightLabel="(not needed)"
-                />
+                <Heading level={2} className="!mb-0">{rollupProduct?.name || 'Roll-Up Shade Screens'}</Heading>
+                <Text size="sm" className="text-gray-500 !mb-0">${formatMoney(screenFee)}/screen + width x ply rate</Text>
               </div>
+            </div>
 
-              <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                <LivePriceDisplay price={totalPrice} dimmed={validPanels.length === 0} size="lg" label="Total:" />
-                <Button
-                  variant="primary"
-                  onClick={handleAddToCart}
-                  disabled={validPanels.length === 0 || justAdded}
-                  className="!rounded-full !px-6"
-                >
-                  {justAdded ? (
-                    <><Check className="w-4 h-4 mr-2" />Added</>
-                  ) : (
-                    <><ShoppingCart className="w-4 h-4 mr-2" />Add to Cart</>
-                  )}
-                </Button>
+            <div className="border border-gray-200 rounded-lg overflow-hidden mb-4">
+              <div className="bg-gray-50 border-b border-gray-200 px-3 py-2 grid grid-cols-[40px_1fr_1fr_80px_48px] gap-2 text-xs font-medium text-gray-600">
+                <div>#</div><div>Ply</div><div>Width (in)</div><div className="text-right">Price</div><div></div>
               </div>
+              {lines.map((line, index) => (
+                <div key={line.id} className="px-3 py-2 grid grid-cols-[40px_1fr_1fr_80px_48px] gap-2 items-center border-b border-gray-100 last:border-b-0">
+                  <div className="text-sm font-medium text-gray-500">{index + 1}</div>
+                  <div>
+                    <select
+                      value={line.ply}
+                      onChange={(e) => updateLine(index, { ply: e.target.value })}
+                      className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#003365] focus:border-transparent"
+                    >
+                      {plyOptions.map((o) => (
+                        <option key={o.option_value} value={o.option_value}>
+                          {o.display_label} (${formatMoney(Number(o.price))}/in)
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <input
+                      type="number"
+                      min={1}
+                      value={line.widthInches ?? ''}
+                      onChange={(e) => updateLine(index, { widthInches: e.target.value === '' ? undefined : parseInt(e.target.value) })}
+                      className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#003365] focus:border-transparent"
+                      placeholder="in"
+                    />
+                  </div>
+                  <div className="text-sm text-gray-700 text-right font-medium">${formatMoney(lineTotals.totals[index] || 0)}</div>
+                  <div className="flex justify-end gap-1">
+                    {lines.length > 1 && (
+                      <button onClick={() => removeLine(index)} className="w-7 h-7 rounded-full bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-100 transition-colors">
+                        <Minus className="w-4 h-4" />
+                      </button>
+                    )}
+                    {index === lines.length - 1 && (
+                      <button onClick={addLine} className="w-7 h-7 rounded-full bg-[#406517] text-white flex items-center justify-center hover:bg-[#335112] transition-colors">
+                        <Plus className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+              <div className="flex items-center gap-4">
+                <Text className="text-gray-600 !mb-0">Subtotal:</Text>
+                <Text className="text-xl font-semibold !mb-0">${formatMoney(lineTotals.subtotal)}</Text>
+              </div>
+              <Button variant="primary" onClick={addToCart} disabled={lineTotals.subtotal <= 0}>
+                <ShoppingCart className="w-5 h-5 mr-2" />
+                Add Roll-Up Shades
+              </Button>
             </div>
           </Card>
         </section>
+
+        <StepNav flow="ru" currentStep={1} />
 
         <FinalCTATemplate />
       </Stack>

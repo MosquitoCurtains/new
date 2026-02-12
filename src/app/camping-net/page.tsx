@@ -9,6 +9,7 @@ import {
   Package,
   Flame,
   Play,
+  Table2,
 } from 'lucide-react'
 import { 
   Container, 
@@ -21,6 +22,7 @@ import {
   BulletedList,
   ListItem,
   WhyChooseUsTemplate,
+  ClientReviewsTemplate,
   FinalCTATemplate,
   HeaderBarSection,
   PowerHeaderTemplate,
@@ -42,6 +44,7 @@ export default function CampingNetPage() {
           subtitle="Tired of thin fragile netting that doesn't last? Large sheets of super durable No-See-Um net that stows tight and weighs only 2.0 oz/sq yd. Perfect for endless camping applications."
           videoId={VIDEOS.CAMPING_NET_OVERVIEW}
           videoTitle="Camping Net Overview"
+          thumbnailUrl="https://img.youtube.com/vi/HaKS6_QUEko/hqdefault.jpg"
           variant="compact"
           actions={MC_HERO_ACTIONS}
         />
@@ -112,7 +115,7 @@ export default function CampingNetPage() {
               <div className="text-center">
                 <Frame ratio="1/1" className="rounded-xl overflow-hidden mb-3">
                   <img
-                    src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2025/05/Camp-With-Car.jpg"
+                    src="https://img.youtube.com/vi/ojYpYC60_Ts/hqdefault.jpg"
                     alt="Camp with your car using netting"
                     className="w-full h-full object-cover"
                   />
@@ -122,7 +125,7 @@ export default function CampingNetPage() {
               <div className="text-center">
                 <Frame ratio="1/1" className="rounded-xl overflow-hidden mb-3">
                   <img
-                    src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2025/05/Shade-Cover-Camping.jpg"
+                    src="https://img.youtube.com/vi/Tst-LLmkgyY/hqdefault.jpg"
                     alt="Shade cover with camping mesh"
                     className="w-full h-full object-cover"
                   />
@@ -132,7 +135,7 @@ export default function CampingNetPage() {
               <div className="text-center">
                 <Frame ratio="1/1" className="rounded-xl overflow-hidden mb-3">
                   <img
-                    src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2025/05/Make-A-Tent.jpg"
+                    src="https://img.youtube.com/vi/qJr6McdLpqE/hqdefault.jpg"
                     alt="Make a tent with camping net"
                     className="w-full h-full object-cover"
                   />
@@ -142,7 +145,7 @@ export default function CampingNetPage() {
               <div className="text-center">
                 <Frame ratio="1/1" className="rounded-xl overflow-hidden mb-3">
                   <img
-                    src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2025/05/Rain-Barrier.jpg"
+                    src="https://img.youtube.com/vi/GPsN2H01M_I/hqdefault.jpg"
                     alt="Rain barrier with no-see-um mesh"
                     className="w-full h-full object-cover"
                   />
@@ -153,7 +156,7 @@ export default function CampingNetPage() {
           </Stack>
         </HeaderBarSection>
 
-        {/* Section 3: Video Demonstrations */}
+        {/* Section 3: Video Demonstrations (YouTubeEmbed uses YouTube auto thumbnails) */}
         <HeaderBarSection icon={Play} label="Camping Net Video Demonstrations" variant="dark">
           <Stack gap="lg">
             <Text className="text-gray-600 text-center max-w-3xl mx-auto">
@@ -167,6 +170,7 @@ export default function CampingNetPage() {
                     videoId={video.id}
                     title={video.title}
                     variant="card"
+                    thumbnailUrl={`https://img.youtube.com/vi/${video.id}/hqdefault.jpg`}
                   />
                   <Text className="text-center mt-2 font-medium text-sm">
                     {video.title}
@@ -213,7 +217,26 @@ export default function CampingNetPage() {
           </Grid>
         </HeaderBarSection>
 
-        {/* Section 4: Material Specs */}
+        {/* No-See-Um Netting Specs Table (from WP) */}
+        <HeaderBarSection icon={Table2} label="No-See-Um Netting Specs Table" variant="dark">
+          <div className="flex justify-center">
+            <a
+              href="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2024/05/All-Mesh-Netting-Specifications-Table-New.jpg"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block rounded-xl overflow-hidden border-2 border-gray-200 hover:border-[#406517]/50 transition-colors"
+            >
+              <img
+                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2024/05/All-Mesh-Netting-Specifications-Table-New.jpg"
+                alt="No-See-Um and mesh netting specifications table"
+                className="w-full h-auto max-w-4xl"
+              />
+            </a>
+          </div>
+          <Text className="text-center text-sm text-gray-500 mt-2">Click table to enlarge</Text>
+        </HeaderBarSection>
+
+        {/* Section: Material Specs */}
         <HeaderBarSection icon={Shield} label="Quality You Can Count On" variant="dark">
           <TwoColumn gap="lg" className="items-center">
             <Stack gap="md">
@@ -273,6 +296,11 @@ export default function CampingNetPage() {
             </div>
           </TwoColumn>
         </HeaderBarSection>
+
+        {/* ================================================================
+            CLIENT REVIEWS (design-system template)
+            ================================================================ */}
+        <ClientReviewsTemplate />
 
         {/* ================================================================
             FINAL CTA

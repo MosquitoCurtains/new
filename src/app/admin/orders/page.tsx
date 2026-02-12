@@ -14,6 +14,7 @@ import {
   DollarSign,
   Clock,
   ShoppingBag,
+  Archive,
 } from 'lucide-react'
 import {
   Container,
@@ -50,8 +51,22 @@ const ORDER_STATUSES = [
   { value: 'refunded', label: 'Refunded', color: '!bg-purple-100 !text-purple-600 !border-purple-200' },
 ] as const
 
+// Legacy orders have a subset of statuses
+const LEGACY_STATUSES = [
+  { value: 'shipped', label: 'Shipped', color: '!bg-teal-100 !text-teal-700 !border-teal-200' },
+  { value: 'snap-tool-refund', label: 'Refunded Snap Tool', color: '!bg-purple-100 !text-purple-700 !border-purple-200' },
+  { value: 'completed', label: 'Completed', color: '!bg-[#406517]/10 !text-[#406517] !border-[#406517]/30' },
+  { value: 'in-production', label: 'In Production', color: '!bg-gray-100 !text-gray-700 !border-gray-200' },
+  { value: 'processing', label: 'Payment Received', color: '!bg-green-100 !text-green-700 !border-green-200' },
+  { value: 'on-hold-waiting', label: 'On Hold - Waiting', color: '!bg-orange-100 !text-orange-600 !border-orange-200' },
+  { value: 'failed', label: 'Failed', color: '!bg-red-100 !text-red-700 !border-red-200' },
+  { value: 'refunded', label: 'Refunded', color: '!bg-purple-100 !text-purple-600 !border-purple-200' },
+  { value: 'cancelled', label: 'Cancelled', color: '!bg-red-100 !text-red-600 !border-red-200' },
+] as const
+
 function getStatusConfig(status: string) {
-  return ORDER_STATUSES.find((s) => s.value === status) || {
+  return ORDER_STATUSES.find((s) => s.value === status) ||
+    LEGACY_STATUSES.find((s) => s.value === status) || {
     value: status,
     label: status,
     color: '!bg-gray-100 !text-gray-600 !border-gray-200',
@@ -61,6 +76,8 @@ function getStatusConfig(status: string) {
 // =============================================================================
 // TYPES
 // =============================================================================
+
+type OrderSource = 'orders' | 'legacy'
 
 interface Order {
   id: string
@@ -73,6 +90,7 @@ interface Order {
   salesperson_name: string | null
   created_at: string
   payment_status: string | null
+  source?: string
 }
 
 // =============================================================================
@@ -87,6 +105,7 @@ export default function OrdersPage() {
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [total, setTotal] = useState(0)
+  const [source, setSource] = useState<OrderSource>('orders')
 
   const fetchOrders = useCallback(async () => {
     setLoading(true)
@@ -94,6 +113,7 @@ export default function OrdersPage() {
       const params = new URLSearchParams()
       params.set('page', page.toString())
       params.set('limit', '25')
+      params.set('source', source)
       if (search) params.set('search', search)
       if (statusFilter) params.set('status', statusFilter)
 
@@ -110,7 +130,7 @@ export default function OrdersPage() {
     } finally {
       setLoading(false)
     }
-  }, [page, search, statusFilter])
+  }, [page, search, statusFilter, source])
 
   useEffect(() => {
     fetchOrders()
@@ -126,6 +146,15 @@ export default function OrdersPage() {
     return () => clearTimeout(timer)
   }, [searchInput])
 
+  // Reset page & filters when switching source
+  const handleSourceChange = (newSource: OrderSource) => {
+    setSource(newSource)
+    setPage(1)
+    setStatusFilter('')
+    setSearchInput('')
+    setSearch('')
+  }
+
   const formatMoney = (val: number | null) => {
     if (val == null) return '$0.00'
     return `$${Number(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
@@ -139,6 +168,9 @@ export default function OrdersPage() {
     })
   }
 
+  const isLegacy = source === 'legacy'
+  const statusOptions = isLegacy ? LEGACY_STATUSES : ORDER_STATUSES
+
   return (
     <Container size="xl">
       <Stack gap="lg">
@@ -148,14 +180,48 @@ export default function OrdersPage() {
             <div>
               <Heading level={1} className="!mb-1">Orders</Heading>
               <Text className="text-gray-600">
-                Manage orders, track production status, and handle fulfillment.
-                {total > 0 && ` (${total} total)`}
+                {isLegacy
+                  ? 'Browse legacy WooCommerce orders (read-only).'
+                  : 'Manage orders, track production status, and handle fulfillment.'}
+                {total > 0 && ` (${total.toLocaleString()} total)`}
               </Text>
             </div>
             <Button variant="outline" onClick={fetchOrders}>
               <RefreshCw className="w-4 h-4 mr-2" />
               Refresh
             </Button>
+          </div>
+        </section>
+
+        {/* Source Tabs */}
+        <section>
+          <div className="flex gap-1 p-1 bg-gray-100 rounded-lg w-fit">
+            <button
+              onClick={() => handleSourceChange('orders')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                source === 'orders'
+                  ? 'bg-white text-[#003365] shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Package className="w-4 h-4" />
+                Orders
+              </div>
+            </button>
+            <button
+              onClick={() => handleSourceChange('legacy')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                source === 'legacy'
+                  ? 'bg-white text-[#003365] shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Archive className="w-4 h-4" />
+                Legacy (WooCommerce)
+              </div>
+            </button>
           </div>
         </section>
 
@@ -185,7 +251,7 @@ export default function OrdersPage() {
                   className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 text-sm"
                 >
                   <option value="">All Statuses</option>
-                  {ORDER_STATUSES.map((s) => (
+                  {statusOptions.map((s) => (
                     <option key={s.value} value={s.value}>
                       {s.label}
                     </option>
@@ -242,18 +308,28 @@ export default function OrdersPage() {
                   ) : (
                     orders.map((order) => {
                       const statusConfig = getStatusConfig(order.status)
+                      const detailHref = isLegacy
+                        ? `/admin/orders/legacy/${order.id}`
+                        : `/admin/orders/${order.id}`
                       return (
                         <tr
                           key={order.id}
                           className="hover:bg-gray-50 transition-colors"
                         >
                           <td className="px-4 py-3">
-                            <Link
-                              href={`/admin/orders/${order.id}`}
-                              className="text-sm font-mono font-medium text-[#003365] hover:text-[#406517]"
-                            >
-                              {order.order_number}
-                            </Link>
+                            <div className="flex items-center gap-2">
+                              <Link
+                                href={detailHref}
+                                className="text-sm font-mono font-medium text-[#003365] hover:text-[#406517]"
+                              >
+                                {order.order_number}
+                              </Link>
+                              {isLegacy && (
+                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-50 text-amber-700 border border-amber-200">
+                                  WOO
+                                </span>
+                              )}
+                            </div>
                           </td>
                           <td className="px-4 py-3">
                             <Text className="font-medium text-gray-900 !mb-0 !text-sm">
@@ -280,21 +356,25 @@ export default function OrdersPage() {
                           </td>
                           <td className="px-4 py-3">
                             <Text size="sm" className="text-gray-600 !mb-0">
-                              {order.salesperson_name || 'None'}
+                              {order.salesperson_name
+                                ? order.salesperson_name.replace(/_/g, ' ')
+                                : 'None'}
                             </Text>
                           </td>
                           <td className="px-4 py-3 text-right">
                             <div className="flex items-center justify-end gap-1">
                               <Button variant="ghost" size="sm" asChild>
-                                <Link href={`/admin/orders/${order.id}`} title="View order">
+                                <Link href={detailHref} title="View order">
                                   <Eye className="w-4 h-4" />
                                 </Link>
                               </Button>
-                              <Button variant="ghost" size="sm" asChild>
-                                <Link href={`/admin/orders/${order.id}/invoice`} target="_blank" title="Invoice">
-                                  <FileText className="w-4 h-4" />
-                                </Link>
-                              </Button>
+                              {!isLegacy && (
+                                <Button variant="ghost" size="sm" asChild>
+                                  <Link href={`/admin/orders/${order.id}/invoice`} target="_blank" title="Invoice">
+                                    <FileText className="w-4 h-4" />
+                                  </Link>
+                                </Button>
+                              )}
                             </div>
                           </td>
                         </tr>
@@ -309,7 +389,7 @@ export default function OrdersPage() {
             {totalPages > 1 && (
               <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100">
                 <Text size="sm" className="text-gray-500 !mb-0">
-                  Page {page} of {totalPages} ({total} orders)
+                  Page {page} of {totalPages} ({total.toLocaleString()} orders)
                 </Text>
                 <div className="flex items-center gap-2">
                   <Button

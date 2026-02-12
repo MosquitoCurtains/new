@@ -18,6 +18,7 @@ import {
   orderRefundTemplate,
   snapToolRefundTemplate,
   newLeadTemplate,
+  salespersonAssignedTemplate,
   renderCustomTemplate,
   replaceMergeTags,
   formatCurrency,
@@ -26,6 +27,7 @@ import {
   type RefundEmailData,
   type SnapToolRefundEmailData,
   type LeadEmailData,
+  type SalespersonAssignedEmailData,
 } from './templates'
 import { createAdminClient } from '@/lib/supabase/admin'
 
@@ -294,6 +296,51 @@ export async function sendSnapToolRefund(data: SnapToolRefundEmailData): Promise
     referenceId: data.orderId,
     from: 'orders@mosquitocurtains.com',
   })
+}
+
+/**
+ * Send salesperson auto-assignment notification.
+ * Sent directly to the assigned salesperson (not from notification_settings recipients).
+ */
+export async function sendSalespersonAssignedNotification(data: SalespersonAssignedEmailData): Promise<void> {
+  const setting = await getSetting('salesperson_assigned')
+  if (setting && !setting.is_enabled) return
+
+  const mergeValues: Record<string, string> = {
+    '{{salesperson_name}}': data.salespersonName,
+    '{{customer_name}}': data.customerName,
+    '{{customer_email}}': data.customerEmail,
+    '{{product_type}}': data.productType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+    '{{project_url}}': `https://mosquitocurtains.com/admin/projects/${data.projectId}`,
+  }
+
+  const custom = await tryCustomTemplate('salesperson_assigned', mergeValues)
+  const { subject, html } = custom || salespersonAssignedTemplate(data)
+
+  // Send directly to the salesperson
+  await sendAndLog({
+    notificationType: 'salesperson_assigned',
+    to: data.salespersonEmail,
+    subject,
+    html,
+    referenceId: data.projectId,
+    from: 'plan@mosquitocurtains.com',
+  })
+
+  // Also send to any additional configured recipients
+  if (setting && setting.recipient_emails.length > 0) {
+    const extraRecipients = setting.recipient_emails.filter(e => e !== data.salespersonEmail)
+    if (extraRecipients.length > 0) {
+      await sendAndLog({
+        notificationType: 'salesperson_assigned',
+        to: extraRecipients,
+        subject,
+        html,
+        referenceId: data.projectId,
+        from: 'plan@mosquitocurtains.com',
+      })
+    }
+  }
 }
 
 /**

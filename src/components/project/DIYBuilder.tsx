@@ -3,15 +3,17 @@
 /**
  * DIYBuilder Component
  *
- * Options + Quick Contact flow. Captures product options and contact info,
- * saves the project, and provides a share link.
- * No cart, no panels.
+ * Step 1: Options + Contact form → saves project
+ * Step 2: PanelBuilder (configure sides & panels)
+ * Step 3: Choose next step (Instant Quote or Expert Assistance)
  */
 
 import { useState } from 'react'
-import { CheckCircle, ArrowRight } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import { Card, Stack, Heading, Text, Button, Input } from '@/lib/design-system'
 import { QuickSetup, type QuickSetupOptions, type MeshOptions, type VinylOptions } from './QuickSetup'
+import PanelBuilder from '@/components/plan/PanelBuilder'
+import type { MeshType, MeshColor } from '@/lib/pricing/types'
 
 // =============================================================================
 // TYPES
@@ -62,8 +64,7 @@ export function DIYBuilder({ productType }: DIYBuilderProps) {
     phone: '',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
-  const [shareUrl, setShareUrl] = useState<string | null>(null)
+  const [step, setStep] = useState<'options' | 'builder'>('options')
 
   const brandColor = productType === 'mosquito_curtains' ? '#406517' : '#003365'
   const apiProduct = productType === 'mosquito_curtains' ? 'mosquito_curtains' : 'clear_vinyl'
@@ -93,9 +94,8 @@ export function DIYBuilder({ productType }: DIYBuilderProps) {
         body: JSON.stringify(payload),
       })
       if (!response.ok) throw new Error('Failed to submit')
-      const data = await response.json()
-      setShareUrl(data.shareUrl ? `${typeof window !== 'undefined' ? window.location.origin : ''}${data.shareUrl}` : null)
-      setSubmitted(true)
+      // Move to panel builder step
+      setStep('builder')
     } catch (error) {
       console.error('Submit error:', error)
       alert('Failed to save your project. Please try again.')
@@ -104,46 +104,24 @@ export function DIYBuilder({ productType }: DIYBuilderProps) {
     }
   }
 
-  if (submitted) {
+  // ── Step 2: Panel Builder ──
+  if (step === 'builder' && isMesh) {
     return (
-      <Card
-        variant="elevated"
-        className="!p-8 md:!p-12 text-center max-w-2xl mx-auto"
-        style={{ borderColor: `${brandColor}20` }}
-      >
-        <div
-          className="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center"
-          style={{ backgroundColor: `${brandColor}15` }}
-        >
-          <CheckCircle className="w-10 h-10" style={{ color: brandColor }} />
-        </div>
-        <Heading level={2} className="!mb-2">Project Saved!</Heading>
-        <Text className="text-gray-600 mb-6">
-          We&apos;ve saved your project. Here&apos;s your link to continue when you&apos;re ready:
-        </Text>
-        {shareUrl && (
-          <div className="mb-6">
-            <a
-              href={shareUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block px-4 py-3 bg-gray-50 rounded-xl text-sm font-medium break-all hover:bg-gray-100"
-              style={{ color: brandColor }}
-            >
-              {shareUrl}
-            </a>
-            <Text size="sm" className="text-gray-500 mt-2 !mb-0">
-              Bookmark this link to return to your project anytime
-            </Text>
-          </div>
-        )}
-        <Button variant="primary" asChild>
-          <a href={shareUrl || '/start-project'}>Open Your Project</a>
-        </Button>
-      </Card>
+      <PanelBuilder
+        initialMeshType={meshOpts.meshType as MeshType}
+        initialMeshColor={meshOpts.meshColor as MeshColor}
+        contactInfo={{
+          email: contact.email,
+          firstName: contact.firstName,
+          lastName: contact.lastName,
+          phone: contact.phone,
+        }}
+        basePath="/start-project/mosquito-curtains/diy-builder"
+      />
     )
   }
 
+  // ── Step 1: Options + Contact ──
   return (
     <Stack gap="lg">
       {/* Options section with step badge */}

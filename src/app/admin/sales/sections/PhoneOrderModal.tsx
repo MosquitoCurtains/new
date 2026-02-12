@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
-import { X, Phone, CreditCard, MapPin, User, CheckCircle } from 'lucide-react'
-import { Button, Text, Badge } from '@/lib/design-system'
+import { useState, useMemo } from 'react'
+import { X, Phone, CreditCard, MapPin, User, CheckCircle, Loader2, Lock, AlertCircle } from 'lucide-react'
+import { Button, Text } from '@/lib/design-system'
 
 // =============================================================================
 // TYPES
@@ -12,7 +12,6 @@ interface PhoneOrderModalProps {
   open: boolean
   onClose: () => void
   onSubmit: (data: PhoneOrderData) => Promise<void>
-  /** Pre-fill from the project's lead data */
   prefill: {
     firstName?: string
     lastName?: string
@@ -48,7 +47,7 @@ export interface PhoneOrderData {
 }
 
 const PAYMENT_METHODS = [
-  { value: 'phone_cc', label: 'Credit Card (Phone)' },
+  { value: 'phone_cc', label: 'Credit Card (Charge Now)' },
   { value: 'check', label: 'Check' },
   { value: 'paypal_manual', label: 'PayPal (Manual)' },
   { value: 'zelle', label: 'Zelle' },
@@ -72,6 +71,44 @@ const selectCls = 'w-full px-3 py-2 bg-white border border-gray-200 rounded-lg t
 const labelCls = 'block text-xs font-medium text-gray-600 mb-1'
 
 // =============================================================================
+// HELPERS
+// =============================================================================
+
+/** Format card number with spaces (4-4-4-4) */
+function formatCardNumber(raw: string): string {
+  const digits = raw.replace(/\D/g, '').slice(0, 16)
+  return digits.replace(/(.{4})/g, '$1 ').trim()
+}
+
+/** Format expiry as MM/YY */
+function formatExpiry(raw: string): string {
+  const digits = raw.replace(/\D/g, '').slice(0, 4)
+  if (digits.length >= 3) return `${digits.slice(0, 2)}/${digits.slice(2)}`
+  return digits
+}
+
+/** Convert raw digits (e.g. "1226") or formatted "MM/YY" to YYYY-MM for PayPal */
+function expiryToPayPal(input: string): string {
+  // Strip non-digits to handle both "1226" and "12/26"
+  const digits = input.replace(/\D/g, '')
+  if (digits.length < 4) return ''
+  const mm = digits.slice(0, 2)
+  const yy = digits.slice(2, 4)
+  const yyyy = parseInt(yy) < 70 ? `20${yy}` : `19${yy}`
+  return `${yyyy}-${mm.padStart(2, '0')}`
+}
+
+/** Detect card brand from number */
+function detectCardBrand(number: string): string {
+  const n = number.replace(/\D/g, '')
+  if (/^4/.test(n)) return 'Visa'
+  if (/^5[1-5]/.test(n) || /^2[2-7]/.test(n)) return 'Mastercard'
+  if (/^3[47]/.test(n)) return 'Amex'
+  if (/^6(?:011|5)/.test(n)) return 'Discover'
+  return ''
+}
+
+// =============================================================================
 // COMPONENT
 // =============================================================================
 
@@ -85,6 +122,7 @@ export default function PhoneOrderModal({
 }: PhoneOrderModalProps) {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [step, setStep] = useState<'form' | 'processing' | 'charged'>('form')
 
   // Billing
   const [billingFirst, setBillingFirst] = useState(prefill.firstName || '')
@@ -113,8 +151,52 @@ export default function PhoneOrderModal({
   const [paymentStatus, setPaymentStatus] = useState<'paid' | 'pending'>('paid')
   const [internalNote, setInternalNote] = useState('')
 
+  // Card fields (only used when paymentMethod === 'phone_cc')
+  const [cardNumber, setCardNumber] = useState('')
+  const [cardExpiry, setCardExpiry] = useState('')
+  const [cardCvc, setCardCvc] = useState('')
+  const [chargeResult, setChargeResult] = useState<{
+    transactionId: string
+    cardBrand?: string
+    cardLastFour?: string
+  } | null>(null)
+
+  const isCardPayment = paymentMethod === 'phone_cc'
+  const cardBrand = useMemo(() => detectCardBrand(cardNumber), [cardNumber])
+  const cardDigits = cardNumber.replace(/\D/g, '')
+
   const formatMoney = (val: number) => {
     return `$${val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+  }
+
+  // --- Process card payment ---
+  const processCardPayment = async (): Promise<{ transactionId: string; cardBrand?: string; cardLastFour?: string }> => {
+    const res = await fetch('/api/admin/payments/charge', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        amount: subtotal.toFixed(2),
+        card_number: cardNumber.replace(/\D/g, ''),
+        card_expiry: expiryToPayPal(cardExpiry),
+        card_cvc: cardCvc,
+        cardholder_name: `${billingFirst} ${billingLast}`.trim(),
+        billing_address_1: billingAddr1,
+        billing_address_2: billingAddr2 || undefined,
+        billing_city: billingCity,
+        billing_state: billingState,
+        billing_zip: billingZip,
+        description: `Phone Order - ${itemCount} items`,
+      }),
+    })
+    const data = await res.json()
+    if (!res.ok || !data.success) {
+      throw new Error(data.error || 'Payment failed')
+    }
+    return {
+      transactionId: data.transaction_id,
+      cardBrand: data.card_brand,
+      cardLastFour: data.card_last_four,
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -135,8 +217,41 @@ export default function PhoneOrderModal({
       return
     }
 
+    // Card validation
+    if (isCardPayment && !chargeResult) {
+      if (cardDigits.length < 13) {
+        setError('Enter a valid card number')
+        return
+      }
+      if (!cardExpiry || cardExpiry.length < 4) {
+        setError('Enter card expiration (MM/YY)')
+        return
+      }
+      if (!cardCvc || cardCvc.length < 3) {
+        setError('Enter card security code')
+        return
+      }
+    }
+
     setSubmitting(true)
+
     try {
+      let finalTransactionId = transactionId
+      let finalPaymentStatus = paymentStatus
+
+      // If card payment, charge the card first
+      if (isCardPayment && !chargeResult) {
+        setStep('processing')
+        const result = await processCardPayment()
+        setChargeResult(result)
+        setStep('charged')
+        finalTransactionId = result.transactionId
+        finalPaymentStatus = 'paid'
+        // Brief pause to show success state
+        await new Promise(r => setTimeout(r, 800))
+      }
+
+      // Now create the order
       await onSubmit({
         billing_first_name: billingFirst,
         billing_last_name: billingLast,
@@ -156,11 +271,12 @@ export default function PhoneOrderModal({
         shipping_state: sameAsBilling ? billingState : shippingState,
         shipping_zip: sameAsBilling ? billingZip : shippingZip,
         payment_method: paymentMethod,
-        payment_transaction_id: transactionId,
-        payment_status: paymentStatus,
+        payment_transaction_id: finalTransactionId,
+        payment_status: finalPaymentStatus,
         internal_note: internalNote,
       })
     } catch (err) {
+      setStep('form')
       setError(err instanceof Error ? err.message : 'Failed to place order')
     } finally {
       setSubmitting(false)
@@ -171,10 +287,8 @@ export default function PhoneOrderModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-8 pb-8">
-      {/* Overlay */}
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
-      {/* Modal */}
       <div className="relative bg-white rounded-2xl shadow-2xl border border-gray-200 w-full max-w-2xl max-h-[calc(100vh-4rem)] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 shrink-0">
@@ -189,7 +303,7 @@ export default function PhoneOrderModal({
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
+          <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors" disabled={step === 'processing'}>
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -321,70 +435,136 @@ export default function PhoneOrderModal({
                 <CreditCard className="w-4 h-4 text-[#003365]" />
                 <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">Payment</h3>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-3">
                 <div>
                   <label className={labelCls}>Payment Method *</label>
-                  <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className={selectCls}>
+                  <select value={paymentMethod} onChange={(e) => { setPaymentMethod(e.target.value); setChargeResult(null) }} className={selectCls}>
                     {PAYMENT_METHODS.map((m) => (
                       <option key={m.value} value={m.value}>{m.label}</option>
                     ))}
                   </select>
                 </div>
-                <div>
-                  <label className={labelCls}>Transaction / Reference ID</label>
-                  <input
-                    type="text"
-                    value={transactionId}
-                    onChange={(e) => setTransactionId(e.target.value)}
-                    className={inputCls}
-                    placeholder="Optional"
-                  />
-                </div>
-                <div className="col-span-2">
-                  <label className={labelCls}>Payment Status *</label>
-                  <div className="flex gap-3">
-                    <label
-                      className={`flex-1 flex items-center gap-2 px-4 py-3 rounded-lg border-2 cursor-pointer transition-all ${
-                        paymentStatus === 'paid'
-                          ? 'border-[#406517] bg-[#406517]/5'
-                          : 'border-gray-200 bg-white hover:border-gray-300'
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="payment_status"
-                        value="paid"
-                        checked={paymentStatus === 'paid'}
-                        onChange={() => setPaymentStatus('paid')}
-                        className="text-[#406517] focus:ring-[#406517]"
-                      />
-                      <div>
-                        <span className="text-sm font-medium text-gray-900">Paid</span>
-                        <p className="text-xs text-gray-500">Payment received over the phone</p>
+
+                {/* --- CARD FIELDS (only for phone_cc) --- */}
+                {isCardPayment && !chargeResult && (
+                  <div className="border border-gray-200 rounded-xl p-4 bg-gray-50/50 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Card Details</span>
+                      <div className="flex items-center gap-1 text-xs text-gray-400">
+                        <Lock className="w-3 h-3" />
+                        Processed via PayPal
                       </div>
-                    </label>
-                    <label
-                      className={`flex-1 flex items-center gap-2 px-4 py-3 rounded-lg border-2 cursor-pointer transition-all ${
-                        paymentStatus === 'pending'
-                          ? 'border-orange-400 bg-orange-50'
-                          : 'border-gray-200 bg-white hover:border-gray-300'
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="payment_status"
-                        value="pending"
-                        checked={paymentStatus === 'pending'}
-                        onChange={() => setPaymentStatus('pending')}
-                        className="text-orange-500 focus:ring-orange-500"
-                      />
-                      <div>
-                        <span className="text-sm font-medium text-gray-900">Pending</span>
-                        <p className="text-xs text-gray-500">Awaiting payment (check in mail, etc.)</p>
+                    </div>
+                    <div>
+                      <label className={labelCls}>Card Number *</label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          value={formatCardNumber(cardNumber)}
+                          onChange={(e) => setCardNumber(e.target.value.replace(/\D/g, '').slice(0, 16))}
+                          className={inputCls + ' pr-20 font-mono tracking-wider'}
+                          placeholder="4111 1111 1111 1111"
+                          autoComplete="off"
+                        />
+                        {cardBrand && (
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-gray-400">{cardBrand}</span>
+                        )}
                       </div>
-                    </label>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className={labelCls}>Expiry (MM/YY) *</label>
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          value={formatExpiry(cardExpiry)}
+                          onChange={(e) => setCardExpiry(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                          className={inputCls + ' font-mono'}
+                          placeholder="MM/YY"
+                          autoComplete="off"
+                        />
+                      </div>
+                      <div>
+                        <label className={labelCls}>CVC *</label>
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          value={cardCvc}
+                          onChange={(e) => setCardCvc(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                          className={inputCls + ' font-mono'}
+                          placeholder="123"
+                          autoComplete="off"
+                        />
+                      </div>
+                    </div>
                   </div>
-                </div>
+                )}
+
+                {/* Card charged confirmation */}
+                {isCardPayment && chargeResult && (
+                  <div className="border-2 border-green-200 bg-green-50 rounded-xl p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+                        <CheckCircle className="w-5 h-5 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-green-800">Card Charged Successfully</p>
+                        <p className="text-xs text-green-600">
+                          {chargeResult.cardBrand} ending in {chargeResult.cardLastFour} &middot; {formatMoney(subtotal)}
+                        </p>
+                        <p className="text-xs text-green-500 font-mono mt-0.5">ID: {chargeResult.transactionId}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Non-card payment fields */}
+                {!isCardPayment && (
+                  <>
+                    <div>
+                      <label className={labelCls}>Transaction / Reference ID</label>
+                      <input
+                        type="text"
+                        value={transactionId}
+                        onChange={(e) => setTransactionId(e.target.value)}
+                        className={inputCls}
+                        placeholder="Optional"
+                      />
+                    </div>
+                    <div>
+                      <label className={labelCls}>Payment Status *</label>
+                      <div className="flex gap-3">
+                        <label
+                          className={`flex-1 flex items-center gap-2 px-4 py-3 rounded-lg border-2 cursor-pointer transition-all ${
+                            paymentStatus === 'paid'
+                              ? 'border-[#406517] bg-[#406517]/5'
+                              : 'border-gray-200 bg-white hover:border-gray-300'
+                          }`}
+                        >
+                          <input type="radio" name="payment_status" value="paid" checked={paymentStatus === 'paid'} onChange={() => setPaymentStatus('paid')} className="text-[#406517] focus:ring-[#406517]" />
+                          <div>
+                            <span className="text-sm font-medium text-gray-900">Paid</span>
+                            <p className="text-xs text-gray-500">Payment received</p>
+                          </div>
+                        </label>
+                        <label
+                          className={`flex-1 flex items-center gap-2 px-4 py-3 rounded-lg border-2 cursor-pointer transition-all ${
+                            paymentStatus === 'pending'
+                              ? 'border-orange-400 bg-orange-50'
+                              : 'border-gray-200 bg-white hover:border-gray-300'
+                          }`}
+                        >
+                          <input type="radio" name="payment_status" value="pending" checked={paymentStatus === 'pending'} onChange={() => setPaymentStatus('pending')} className="text-orange-500 focus:ring-orange-500" />
+                          <div>
+                            <span className="text-sm font-medium text-gray-900">Pending</span>
+                            <p className="text-xs text-gray-500">Awaiting payment</p>
+                          </div>
+                        </label>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             </section>
 
@@ -396,13 +576,14 @@ export default function PhoneOrderModal({
                 onChange={(e) => setInternalNote(e.target.value)}
                 rows={2}
                 className={inputCls + ' resize-none'}
-                placeholder="e.g. Customer called from 555-1234, CC ending in 4242..."
+                placeholder="e.g. Customer called from 555-1234, special instructions..."
               />
             </section>
 
             {/* Error */}
             {error && (
-              <div className="px-4 py-3 bg-red-50 border border-red-200 rounded-lg">
+              <div className="px-4 py-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
                 <Text size="sm" className="text-red-600 !mb-0">{error}</Text>
               </div>
             )}
@@ -414,7 +595,7 @@ export default function PhoneOrderModal({
               Total: <span className="text-lg font-bold text-gray-900">{formatMoney(subtotal)}</span>
             </div>
             <div className="flex items-center gap-3">
-              <Button type="button" variant="ghost" size="sm" onClick={onClose}>
+              <Button type="button" variant="ghost" size="sm" onClick={onClose} disabled={step === 'processing'}>
                 Cancel
               </Button>
               <button
@@ -422,8 +603,15 @@ export default function PhoneOrderModal({
                 disabled={submitting}
                 className="flex items-center gap-2 px-6 py-2.5 text-sm font-semibold bg-[#406517] text-white rounded-full hover:bg-[#365512] disabled:opacity-50 transition-all shadow-sm hover:shadow-md"
               >
-                <CheckCircle className="w-4 h-4" />
-                {submitting ? 'Placing Order...' : 'Place Phone Order'}
+                {step === 'processing' ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" />Charging Card...</>
+                ) : step === 'charged' ? (
+                  <><CheckCircle className="w-4 h-4" />Creating Order...</>
+                ) : isCardPayment ? (
+                  <><Lock className="w-4 h-4" />Charge {formatMoney(subtotal)} &amp; Place Order</>
+                ) : (
+                  <><CheckCircle className="w-4 h-4" />Place Phone Order</>
+                )}
               </button>
             </div>
           </div>

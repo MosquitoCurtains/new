@@ -6,6 +6,7 @@ import { useParams, useRouter } from 'next/navigation'
 import {
   ArrowLeft,
   User,
+  UserCheck,
   Mail,
   Phone as PhoneIcon,
   FolderOpen,
@@ -37,7 +38,7 @@ import {
 const LEAD_STATUSES = [
   'open', 'pending', 'need_photos', 'invitation_to_plan', 'need_measurements',
   'working_on_quote', 'quote_sent', 'need_decision', 'order_placed',
-  'order_on_hold', 'difficult', 'closed',
+  'order_on_hold', 'difficult', 'closed', 'converted',
 ]
 
 const STATUS_COLORS: Record<string, string> = {
@@ -53,6 +54,7 @@ const STATUS_COLORS: Record<string, string> = {
   order_on_hold: '!bg-red-100 !text-red-600 !border-red-200',
   difficult: '!bg-red-100 !text-red-700 !border-red-200',
   closed: '!bg-gray-100 !text-gray-500 !border-gray-200',
+  converted: '!bg-emerald-100 !text-emerald-700 !border-emerald-200',
 }
 
 function statusLabel(status: string) {
@@ -310,6 +312,23 @@ export default function LeadDetailPage() {
           </div>
         </section>
 
+        {/* Converted Banner */}
+        {lead.status === 'converted' && (
+          <section>
+            <div className="flex items-center gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
+              <UserCheck className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+              <div className="flex-1">
+                <Text size="sm" className="font-semibold text-emerald-800 !mb-0">
+                  Lead Converted to Customer
+                </Text>
+                <Text size="sm" className="text-emerald-600 !mb-0">
+                  This lead was converted when an order was placed. The customer record is the source of truth going forward.
+                </Text>
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* Two-column layout */}
         <section>
           <Grid responsiveCols={{ mobile: 1, tablet: 1, desktop: 3 }} gap="md">
@@ -473,20 +492,27 @@ export default function LeadDetailPage() {
               {/* Status */}
               <Card variant="elevated" className="!p-4">
                 <Text size="sm" className="font-semibold text-gray-500 uppercase tracking-wider !mb-2">Status</Text>
-                <div className="flex items-center gap-2">
-                  <select
-                    value={selectedStatus}
-                    onChange={(e) => setSelectedStatus(e.target.value)}
-                    className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:border-[#003365]"
-                  >
-                    {LEAD_STATUSES.map((s) => (
-                      <option key={s} value={s}>{statusLabel(s)}</option>
-                    ))}
-                  </select>
-                  <Button variant="primary" size="sm" onClick={handleStatusUpdate} disabled={savingStatus || selectedStatus === lead.status}>
-                    <Save className="w-3.5 h-3.5" />
-                  </Button>
-                </div>
+                {lead.status === 'converted' ? (
+                  <div className="flex items-center gap-2">
+                    <Badge className="!bg-emerald-100 !text-emerald-700 !border-emerald-200">Converted</Badge>
+                    <Text size="sm" className="text-gray-400 !mb-0">Read-only</Text>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <select
+                      value={selectedStatus}
+                      onChange={(e) => setSelectedStatus(e.target.value)}
+                      className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:border-[#003365]"
+                    >
+                      {LEAD_STATUSES.filter(s => s !== 'converted').map((s) => (
+                        <option key={s} value={s}>{statusLabel(s)}</option>
+                      ))}
+                    </select>
+                    <Button variant="primary" size="sm" onClick={handleStatusUpdate} disabled={savingStatus || selectedStatus === lead.status}>
+                      <Save className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                )}
               </Card>
 
               {/* Assigned To */}

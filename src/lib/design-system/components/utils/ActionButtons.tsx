@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Edit, Eye, CheckCircle2, Trash2 } from 'lucide-react'
 import { cn } from '../shared-utils'
 import { Button } from '../forms/Button'
+import { Spinner } from '../feedback/Spinner'
 
 interface ActionButtonsProps {
   versionType: 'draft' | 'completed'
@@ -73,7 +74,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
           className="text-xs md:text-sm flex-1 min-w-0 shrink"
         >
           {isCommitting ? (
-            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin flex-shrink-0" />
+            <Spinner size="sm" />
           ) : (
             <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
           )}

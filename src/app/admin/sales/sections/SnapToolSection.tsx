@@ -8,9 +8,10 @@ import { formatMoney } from '../types'
 interface SnapToolSectionProps {
   snapTool: DBProduct | null
   addItem: (item: any) => void
+  isInCart?: boolean
 }
 
-export default function SnapToolSection({ snapTool, addItem }: SnapToolSectionProps) {
+export default function SnapToolSection({ snapTool, addItem, isInCart }: SnapToolSectionProps) {
   if (!snapTool) return null
 
   const snapToolPrice = Number(snapTool.base_price)
@@ -38,9 +39,9 @@ export default function SnapToolSection({ snapTool, addItem }: SnapToolSectionPr
             ${formatMoney(snapToolPrice)} - {snapToolDescription}
           </Text>
         </div>
-        <Button variant="primary" onClick={addSnapTool}>
+        <Button variant={isInCart ? 'outline' : 'primary'} onClick={addSnapTool} disabled={isInCart}>
           <ShoppingCart className="w-5 h-5 mr-2" />
-          Add {snapToolName}
+          {isInCart ? 'Already in Cart' : `Add ${snapToolName}`}
         </Button>
       </div>
     </Card>

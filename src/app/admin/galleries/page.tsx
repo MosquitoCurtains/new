@@ -29,6 +29,7 @@ import {
   Input,
   Badge,
   Frame,
+  Spinner,
 } from '@/lib/design-system'
 
 // ============================================================================
@@ -388,7 +389,7 @@ export default function AdminGalleriesPage() {
 
             {loadingImages ? (
               <div className="flex justify-center py-8">
-                <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+                <Spinner />
               </div>
             ) : (
               <>
@@ -474,7 +475,7 @@ export default function AdminGalleriesPage() {
         {/* Collections List */}
         {loading ? (
           <div className="flex justify-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+            <Spinner size="lg" />
           </div>
         ) : (
           <Stack gap="md">

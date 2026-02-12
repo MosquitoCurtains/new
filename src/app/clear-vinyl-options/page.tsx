@@ -3,21 +3,12 @@
 import Link from 'next/link'
 import { 
   ArrowRight, 
-  Play, 
-  CheckCircle, 
   Settings, 
   Palette, 
   SlidersHorizontal,
   MessageSquare,
   Calculator,
   Hammer,
-  Camera,
-  Images,
-  Star,
-  DoorOpen,
-  Wrench,
-  Phone,
-  Bug,
 } from 'lucide-react'
 import {
   Container,
@@ -34,9 +25,8 @@ import {
   BulletedList,
   ListItem,
   Badge,
-  TwoColumn,
 } from '@/lib/design-system'
-import { FinalCTATemplate } from '@/lib/design-system/templates'
+import { ClearVinylFooter } from '@/components/marketing/ClearVinylFooter'
 import type { PowerHeaderAction } from '@/lib/design-system/templates/PowerHeaderTemplate'
 
 // =============================================================================
@@ -199,7 +189,7 @@ export default function ClearVinylOptionsPage() {
 
             <div className="flex justify-center pt-4">
               <Button variant="primary" size="lg" asChild>
-                <Link href="/gallery?category=clear-vinyl">
+                <Link href="/gallery?filter=clear_vinyl">
                   See Full Client Gallery By Color
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Link>
@@ -334,205 +324,7 @@ export default function ClearVinylOptionsPage() {
           </Stack>
         </HeaderBarSection>
 
-        {/* ================================================================
-            HOW TO GET STARTED
-            ================================================================ */}
-        <section className="bg-[#003365] rounded-3xl p-8 md:p-12 text-white">
-          <div className="text-center mb-8">
-            <Heading level={2} className="!text-white !mb-2">How to Get Started</Heading>
-            <Heading level={3} className="!text-white/90 !mb-4 !font-normal">
-              Get Started Fast With a Real Person!
-            </Heading>
-            <Text className="!text-white/80 max-w-2xl mx-auto">
-              We are happy to help you plan your project with a quick planning session. For maximum 
-              speed and efficiency, photos of your space are extremely helpful. 
-              <strong className="text-white"> If you have a general question, call us at{' '}
-                <a href="tel:7706454745" className="underline hover:no-underline">770-645-4745</a>.
-              </strong>
-            </Text>
-          </div>
-
-          {/* Photo Guidelines */}
-          <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="lg" className="mb-8">
-            <Card variant="elevated" className="!p-6 !bg-white">
-              <div className="flex items-start gap-3 mb-4">
-                <CheckCircle className="w-6 h-6 text-[#406517] flex-shrink-0 mt-0.5" />
-                <div>
-                  <Heading level={4} className="!mb-1">Good Photos</Heading>
-                  <Text size="sm" className="text-gray-500">
-                    Step BACK, zoom OUT. We need to see full sides with fastening surfaces.
-                  </Text>
-                </div>
-              </div>
-              <Grid responsiveCols={{ mobile: 2, tablet: 2 }} gap="sm">
-                <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                  <img
-                    src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Good-1-Big.jpg"
-                    alt="Good photo example 1"
-                    className="w-full h-full object-cover"
-                  />
-                </Frame>
-                <Frame ratio="4/3" className="rounded-lg overflow-hidden">
-                  <img
-                    src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Good-2-Big.jpg"
-                    alt="Good photo example 2"
-                    className="w-full h-full object-cover"
-                  />
-                </Frame>
-              </Grid>
-            </Card>
-            <Card variant="outlined" className="!p-6 !bg-white !border-red-200">
-              <div className="flex items-start gap-3 mb-4">
-                <div className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-red-600 text-sm font-bold">X</span>
-                </div>
-                <div>
-                  <Heading level={4} className="!mb-1">Bad Photos</Heading>
-                  <Text size="sm" className="text-gray-500">
-                    Too close up - we can't see all fastening surfaces and corner transitions.
-                  </Text>
-                </div>
-              </div>
-              <Grid responsiveCols={{ mobile: 2, tablet: 2 }} gap="sm">
-                <Frame ratio="4/3" className="rounded-lg overflow-hidden opacity-60">
-                  <img
-                    src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Bad-1-Big.jpg"
-                    alt="Bad photo example 1"
-                    className="w-full h-full object-cover"
-                  />
-                </Frame>
-                <Frame ratio="4/3" className="rounded-lg overflow-hidden opacity-60">
-                  <img
-                    src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/04/Bad-2-Big.jpg"
-                    alt="Bad photo example 2"
-                    className="w-full h-full object-cover"
-                  />
-                </Frame>
-              </Grid>
-            </Card>
-          </Grid>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button variant="primary" size="lg" asChild className="!bg-white !text-[#003365] hover:!bg-gray-100">
-              <Link href="/start-project?mode=planner">
-                <Camera className="mr-2 w-5 h-5" />
-                Send Us Your Photos
-              </Link>
-            </Button>
-            <Button variant="outline" size="lg" asChild className="!border-white !text-white hover:!bg-white/10">
-              <a href="tel:7706454745">
-                <Phone className="mr-2 w-5 h-5" />
-                Call (770) 645-4745
-              </a>
-            </Button>
-          </div>
-        </section>
-
-        {/* ================================================================
-            LEARN MORE SECTION
-            ================================================================ */}
-        <section>
-          <Heading level={3} className="text-center !mb-6">Learn More</Heading>
-          <Grid responsiveCols={{ mobile: 1, tablet: 2, desktop: 3 }} gap="md">
-            <Link href="/our-story">
-              <Card variant="outlined" hover className="!p-6">
-                <Heading level={4} className="!mb-1">Why Our System?</Heading>
-                <Text size="sm" className="text-gray-500 !mb-3">Important considerations to make.</Text>
-                <Text size="sm" className="text-[#406517] font-medium">See What Makes Us Better →</Text>
-              </Card>
-            </Link>
-            <Link href="/install/clear-vinyl">
-              <Card variant="outlined" hover className="!p-6">
-                <Heading level={4} className="!mb-1">Self-Installation</Heading>
-                <Text size="sm" className="text-gray-500 !mb-3">Is it really that easy?</Text>
-                <Text size="sm" className="text-[#406517] font-medium">See a Full Installation →</Text>
-              </Card>
-            </Link>
-            <Link href="/satisfaction-guarantee">
-              <Card variant="outlined" hover className="!p-6">
-                <Heading level={4} className="!mb-1">Guarantee</Heading>
-                <Text size="sm" className="text-gray-500 !mb-3">It's all about choices and care.</Text>
-                <Text size="sm" className="text-[#406517] font-medium">Satisfaction Guarantee →</Text>
-              </Card>
-            </Link>
-            <Link href="/clear-vinyl-options">
-              <Card variant="outlined" hover className="!p-6">
-                <Heading level={4} className="!mb-1">Options</Heading>
-                <Text size="sm" className="text-gray-500 !mb-3">Apron colors, top attachments and usability.</Text>
-                <Text size="sm" className="text-[#406517] font-medium">Discover Your Options →</Text>
-              </Card>
-            </Link>
-            <Link href="/start-project?mode=quote">
-              <Card variant="outlined" hover className="!p-6">
-                <Heading level={4} className="!mb-1">Instant Quote</Heading>
-                <Text size="sm" className="text-gray-500 !mb-3">Get an estimate within 5% of actual cost.</Text>
-                <Text size="sm" className="text-[#406517] font-medium">Instant Price Calculator →</Text>
-              </Card>
-            </Link>
-            <Link href="/start-project?mode=planner">
-              <Card variant="outlined" hover className="!p-6">
-                <Heading level={4} className="!mb-1">Ordering</Heading>
-                <Text size="sm" className="text-gray-500 !mb-3">Our team will help plan your project!</Text>
-                <Text size="sm" className="text-[#406517] font-medium">Send Us Photos →</Text>
-              </Card>
-            </Link>
-          </Grid>
-        </section>
-
-        {/* Back to Clear Vinyl Home */}
-        <div className="flex justify-center">
-          <Button variant="ghost" asChild>
-            <Link href="/clear-vinyl-plastic-patio-enclosures">
-              Return to Clear Vinyl HomePage
-              <ArrowRight className="ml-2 w-4 h-4" />
-            </Link>
-          </Button>
-        </div>
-
-        {/* ================================================================
-            FINAL CTA
-            ================================================================ */}
-
-        <HeaderBarSection icon={Wrench} label="Step 3. Simple Components & Usability" variant="dark">
-          <TwoColumn gap="lg" className="items-center">
-            <Frame ratio="4/3" className="rounded-2xl overflow-hidden">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/10_Plastic-Drop-Panels-Patio-Inside-View-Forest-Green-Canvas-1200.jpg"
-                alt="Plastic Drop Panels Patio Inside View Forest Green Canvas"
-                className="w-full h-full object-cover"
-              />
-            </Frame>
-            <Stack gap="md">
-              <Text className="text-gray-600">
-                One of our biggest focal points is the ease of installation and usability of your curtain. Our zipper doorways allow you easy entry and exit between panels and at the edge of panels. For simple installation, we use a series of versatile components like L screws and marine snaps to allow you to attach to different surfaces. The marine Snap Video is under 90 seconds. Watch it and you will understand most of what you need to know about how your curtains will operate.
-              </Text>
-            </Stack>
-          </TwoColumn>
-        </HeaderBarSection>
-
-        <HeaderBarSection icon={Bug} label="Marine Snaps in Under 90 Seconds" variant="dark">
-          <TwoColumn gap="lg" className="items-center">
-            <Stack gap="md">
-              <Text className="text-gray-600">
-                We are happy to help you plan your project with a quick planning session. For maximum speed and efficiency, photos of your space are extremely helpful. Click the buttons below to see photo guidelines. If you have a general question, call us at 770-645-4745.
-              </Text>
-              <BulletedList spacing="sm">
-                <ListItem variant="checked" iconColor="#406517">Please provide 2-4 high resolution photos that show all complete sides of your project.</ListItem>
-                <ListItem variant="checked" iconColor="#406517">Step BACK and zoom OUT so we can see as much as possible. No close-ups.</ListItem>
-                <ListItem variant="checked" iconColor="#406517">Large file sizes – Small images do not provide enough resolution for planning sessions.</ListItem>
-              </BulletedList>
-            </Stack>
-            <Frame ratio="4/3" className="rounded-2xl overflow-hidden">
-              <img
-                src="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/26-Clear-Plastic-Porch-Enclosure-With-No-Canvas-1200.jpg"
-                alt="Clear Plastic Porch Enclosure With No Canvas"
-                className="w-full h-full object-cover"
-              />
-            </Frame>
-          </TwoColumn>
-        </HeaderBarSection>
-
-        <FinalCTATemplate />
+        <ClearVinylFooter />
 
       </Stack>
     </Container>
