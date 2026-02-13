@@ -10,7 +10,7 @@ import {
 
 /**
  * GET /api/admin/diy-hardware
- * Fetch all DIY hardware items (including inactive) for the admin page.
+ * Fetch all DIY hardware recommendation rules (including inactive) for admin.
  */
 export async function GET() {
   try {
@@ -27,7 +27,7 @@ export async function GET() {
   } catch (err) {
     console.error('[Admin DiyHardware] API error:', err)
     return NextResponse.json(
-      { error: 'Failed to load DIY hardware items.' },
+      { error: 'Failed to load DIY hardware rules.' },
       { status: 500 }
     )
   }
@@ -75,8 +75,8 @@ export async function POST(request: Request) {
     }
 
     const ALLOWED_FIELDS = [
-      'name', 'description_template', 'image_url', 'product_url',
-      'unit_label', 'unit_price', 'pack_quantity', 'calc_params',
+      'name', 'description_template', 'product_sku',
+      'unit_label', 'calc_rule', 'calc_params',
       'color_match', 'sort_order', 'active', 'admin_notes',
     ]
 
@@ -88,25 +88,18 @@ export async function POST(request: Request) {
 
         const updatePayload: Record<string, unknown> = {}
 
-        if (field === 'unit_price') {
-          const numValue = parseFloat(String(value))
-          if (isNaN(numValue)) {
-            return { id, error: 'Invalid price value' }
-          }
-          updatePayload.unit_price = numValue
-        } else if (field === 'pack_quantity' || field === 'sort_order') {
+        if (field === 'sort_order') {
           const intValue = parseInt(String(value), 10)
           if (isNaN(intValue)) {
-            return { id, error: `Invalid integer value for ${field}` }
+            return { id, error: 'Invalid integer value for sort_order' }
           }
-          updatePayload[field] = intValue
+          updatePayload.sort_order = intValue
         } else if (field === 'active') {
           updatePayload.active = Boolean(value)
         } else if (field === 'calc_params') {
-          // Accept JSON object
           updatePayload.calc_params = typeof value === 'string' ? JSON.parse(value) : value
         } else {
-          // String fields
+          // String fields (name, description_template, product_sku, unit_label, calc_rule, color_match, admin_notes)
           updatePayload[field] = value === null ? null : String(value)
         }
 

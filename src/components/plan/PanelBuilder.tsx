@@ -19,10 +19,12 @@ import {
 } from '@/lib/panel-calculator'
 import {
   Save, CheckCircle, Loader2, Info, ChevronDown, ChevronUp,
-  ArrowRight, Users, Zap, Check, Play, X, Plus, Minus,
-  SlidersHorizontal, LayoutGrid, Wrench, Mail, User,
+  ArrowRight, ArrowLeft, Users, Zap, Check, Play, X, Plus, Minus,
+  SlidersHorizontal, LayoutGrid, Wrench, Mail, User, ShieldCheck, Bookmark,
+  Phone, Upload, Image as ImageIcon,
 } from 'lucide-react'
 import type { MeshType, MeshColor } from '@/lib/pricing/types'
+import { useProducts } from '@/hooks/useProducts'
 import { useDiyHardware, type PanelForHardware } from '@/hooks/useDiyHardware'
 
 /* ─── Product images ─── */
@@ -453,6 +455,7 @@ function buildCartData(sides: SideState[], meshType: MeshType, meshColor: MeshCo
    Main Export
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 export default function PanelBuilder({ initialMeshType, initialMeshColor, contactInfo, basePath = '/start-project/mosquito-curtains/diy-builder' }: PanelBuilderProps = {}) {
+  const { products } = useProducts()
   const { getRecommendations } = useDiyHardware()
   const [numSides, setNumSides] = useState(2)
   const [sides, setSides] = useState<SideState[]>([defaultSideState(), defaultSideState()])
@@ -465,6 +468,19 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
   // Contact capture
   const [firstName, setFirstName] = useState(contactInfo?.firstName || '')
   const [email, setEmail] = useState(contactInfo?.email || '')
+
+  // Expert review extras
+  const [phone, setPhone] = useState('')
+  const [photos, setPhotos] = useState<File[]>([])
+
+  // Save project
+  const [projectName, setProjectName] = useState('')
+
+  // Checkout modal + save-for-later
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false)
+  const [showSaveField, setShowSaveField] = useState(false)
+  const [saveForLaterEmail, setSaveForLaterEmail] = useState('')
+  const [isSavingForLater, setIsSavingForLater] = useState(false)
 
   // Detail modals
   const [meshDetail, setMeshDetail] = useState<typeof MESH_TYPE_CARDS[0] | null>(null)
@@ -490,8 +506,8 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
   const allPanels = useMemo(() => sides.flatMap((s, i) => { const c = SIDE_CONFIGS.find(x => x.id === s.configId)!; const tw = parseFloat(s.totalWidth) || 0; const lh = parseFloat(s.leftHeight) || 0; const rh = parseFloat(s.rightHeight) || 0; if (tw <= 0 || lh <= 0 || rh <= 0) return []; return generateSidePanels({ sideNum: i + 1, totalWidth: tw, leftHeight: lh, rightHeight: rh, config: c, topAttachment: s.topAttachment, leftEdge: s.leftEdge, rightEdge: s.rightEdge }) }), [sides])
   const allSidesReady = sides.every(s => { const tw = parseFloat(s.totalWidth) || 0; const lh = parseFloat(s.leftHeight) || 0; const rh = parseFloat(s.rightHeight) || 0; return tw > 0 && lh > 0 && rh > 0 })
 
-  // Recommendations — DB-driven hardware items
-  const baseRecs = useMemo(() => getRecommendations(allPanels as PanelForHardware[], meshColor), [allPanels, getRecommendations, meshColor])
+  // Recommendations — DB-driven rules + product pricing
+  const baseRecs = useMemo(() => getRecommendations(allPanels as PanelForHardware[], products, meshColor), [allPanels, getRecommendations, products, meshColor])
 
   // Reset overrides when panels change
   useEffect(() => { setRecOverrides({}) }, [allPanels.length])
@@ -499,14 +515,67 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
   const isValidEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)
   const canSave = firstName.trim().length > 0 && isValidEmail(email)
 
+  /* Submit for Expert Review — only needs email */
   const handleSaveProject = async () => {
-    if (!canSave) return
+    if (!isValidEmail(email)) return
     setSaveStatus('saving')
     try {
       const cd = buildCartData(sides, meshType, meshColor)
-      const res = await fetch('/api/projects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email.trim(), firstName: firstName.trim(), lastName: contactInfo?.lastName, phone: contactInfo?.phone, product: 'mosquito_curtains', projectType: 'porch', topAttachment: sides[0]?.topAttachment || 'tracking', numberOfSides: numSides, notes: `Panel Builder: ${numSides} sides, ${allPanels.length} panels`, cart_data: cd }) })
-      const d = await res.json(); if (!res.ok) throw new Error(d.error || 'Failed'); setSaveStatus('saved'); if (d.shareUrl) setShareUrl(d.shareUrl)
+      const body: Record<string, unknown> = {
+        email: email.trim(),
+        firstName: firstName.trim() || undefined,
+        lastName: contactInfo?.lastName,
+        phone: phone.trim() || contactInfo?.phone || undefined,
+        product: 'mosquito_curtains',
+        projectType: 'expert_review',
+        projectName: projectName.trim() || undefined,
+        topAttachment: sides[0]?.topAttachment || 'tracking',
+        numberOfSides: numSides,
+        notes: `Expert Review Request: ${numSides} sides, ${allPanels.length} panels`,
+        cart_data: cd,
+        hasPhotos: photos.length > 0,
+      }
+      const res = await fetch('/api/projects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      const d = await res.json()
+      if (!res.ok) throw new Error(d.error || 'Failed')
+
+      // Upload photos if any
+      if (photos.length > 0 && d.id) {
+        const formData = new FormData()
+        photos.forEach(f => formData.append('photos', f))
+        formData.append('projectId', d.id)
+        await fetch('/api/projects/photos', { method: 'POST', body: formData }).catch(err => console.error('Photo upload:', err))
+      }
+
+      setSaveStatus('saved')
+      if (d.shareUrl) setShareUrl(d.shareUrl)
     } catch (e) { console.error('Save:', e); setSaveStatus('error'); setTimeout(() => setSaveStatus('idle'), 3000) }
+  }
+
+  /* Save for later — project name + first name + email */
+  const handleSaveForLater = async () => {
+    if (!isValidEmail(saveForLaterEmail)) return
+    setIsSavingForLater(true)
+    try {
+      const cd = buildCartData(sides, meshType, meshColor)
+      await fetch('/api/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: saveForLaterEmail.trim(),
+          firstName: firstName.trim() || undefined,
+          projectName: projectName.trim() || undefined,
+          product: 'mosquito_curtains',
+          projectType: 'saved_for_later',
+          topAttachment: sides[0]?.topAttachment || 'tracking',
+          numberOfSides: numSides,
+          notes: `Saved for later: ${numSides} sides, ${allPanels.length} panels`,
+          cart_data: cd,
+        }),
+      })
+      setSaveStatus('saved')
+    } catch { alert('Could not save. Please try again.') }
+    finally { setIsSavingForLater(false) }
   }
 
   const currentMeshCard = MESH_TYPE_CARDS.find(c => c.id === meshType)
@@ -707,85 +776,233 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
       })()}
 
       {/* ══════════════════════════════════════════════
-         SAVE & NEXT STEPS
+         NEXT STEPS — CTAs (Expert Review / Checkout / Save)
          ══════════════════════════════════════════════ */}
-      {allSidesReady && allPanels.length > 0 && saveStatus !== 'saved' && (
-        <Card className="!p-0 !bg-white !border-2 !border-[#406517]/30 overflow-hidden">
-          {/* Summary strip */}
-          <div className="bg-[#406517]/5 px-6 py-3 border-b border-[#406517]/10 flex items-center justify-between flex-wrap gap-2">
-            <div className="text-sm text-gray-700">
-              <span className="font-semibold">{allPanels.length} panel{allPanels.length !== 1 ? 's' : ''}</span>
-              <span className="text-gray-400 mx-1.5">/</span>
-              <span>{numSides} side{numSides !== 1 ? 's' : ''}</span>
-              <span className="text-gray-400 mx-1.5">/</span>
-              <span className="capitalize">{meshType.replace(/_/g, ' ')} in {meshColor}</span>
+      {allSidesReady && allPanels.length > 0 && (
+        <>
+          {/* Section headline */}
+          <div className="flex flex-col items-center text-center space-y-1 mt-2">
+            <div className="text-xl md:text-2xl font-bold text-gray-900">
+              Happy with your design? Here&apos;s how to move forward.
             </div>
+            <Text size="sm" className="text-gray-500 !mb-0">
+              Every project gets a human review. Choose the option that feels right for you.
+            </Text>
           </div>
 
-          {/* Contact + CTA */}
-          <div className="px-6 py-6 md:py-8">
-            <div className="max-w-xl mx-auto text-center">
-              <div className="text-xl font-bold text-gray-900 mb-1">Save Your Project</div>
-              <p className="text-sm text-gray-500 mb-5">We&apos;ll save your configuration so you can pick up where you left off, or our team can prepare a detailed quote.</p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="First name"
-                    value={firstName}
-                    onChange={e => setFirstName(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors"
-                  />
+          <Card className="!p-6 md:!p-8 !bg-white !border-2 !border-[#406517]/30 overflow-hidden">
+            <div className="max-w-lg mx-auto w-full space-y-4">
+              {/* ── Option 1: Expert Review (primary) ── */}
+              <div className="space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-md mx-auto">
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="email"
+                      placeholder="Email address *"
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors"
+                    />
+                  </div>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="tel"
+                      placeholder="Phone number (optional)"
+                      value={phone}
+                      onChange={e => setPhone(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors"
+                    />
+                  </div>
                 </div>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="email"
-                    placeholder="Email address"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors"
-                  />
+
+                {/* Photo uploader */}
+                <div className="max-w-md mx-auto">
+                  <label className="text-xs font-medium text-gray-600 mb-1.5 block text-center">
+                    Upload photos of your space (optional, helps us give better recommendations)
+                  </label>
+                  <label className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-[#406517]/40 hover:bg-[#406517]/5 transition-colors">
+                    <Upload className="w-4 h-4 text-gray-400" />
+                    <span className="text-sm text-gray-500">
+                      {photos.length > 0 ? `${photos.length} photo${photos.length !== 1 ? 's' : ''} selected` : 'Click to add photos'}
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      onChange={e => {
+                        if (e.target.files) setPhotos(prev => [...prev, ...Array.from(e.target.files!)])
+                      }}
+                    />
+                  </label>
+                  {photos.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {photos.map((file, i) => (
+                        <div key={i} className="relative group">
+                          <div className="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200">
+                            <ImageIcon className="w-5 h-5 text-gray-400" />
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setPhotos(prev => prev.filter((_, idx) => idx !== i))}
+                            className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                          <div className="text-[10px] text-gray-400 truncate w-14 text-center mt-0.5">{file.name.slice(0, 10)}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="text-center space-y-2">
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    className="w-full max-w-sm mx-auto"
+                    onClick={handleSaveProject}
+                    disabled={!isValidEmail(email) || saveStatus === 'saving'}
+                  >
+                    {saveStatus === 'saving' ? (
+                      <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Submitting...</>
+                    ) : (
+                      <><ShieldCheck className="w-4 h-4 mr-2" /> Submit for Free Expert Review</>
+                    )}
+                  </Button>
+
+                  <Text size="xs" className="text-gray-500 !mb-0">
+                    Recommended. We&apos;ll double-check measurements, layout, and attachments before you pay.
+                  </Text>
+                  <Text size="xs" className="text-gray-400 !mb-0 max-w-md mx-auto">
+                    Our team will review your design, flag any issues, and email you with either a thumbs-up and checkout link or suggested tweaks. Nothing gets built until you approve.
+                  </Text>
                 </div>
               </div>
 
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={handleSaveProject}
-                disabled={!canSave || saveStatus === 'saving'}
-                className="w-full sm:w-auto"
-              >
-                {saveStatus === 'saving' ? (
-                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving...</>
-                ) : saveStatus === 'error' ? (
-                  <>Try Again</>
+              {/* Divider */}
+              <div className="flex items-center gap-3">
+                <div className="h-px flex-1 bg-gray-200" />
+                <span className="text-xs text-gray-400 uppercase tracking-wider">or</span>
+                <div className="h-px flex-1 bg-gray-200" />
+              </div>
+
+              {/* ── Option 2: Checkout (secondary) ── */}
+              <div className="text-center space-y-2">
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  className="w-full max-w-sm mx-auto"
+                  onClick={() => setShowCheckoutModal(true)}
+                >
+                  I&apos;m sure, take me to checkout
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+                <Text size="xs" className="text-gray-400 !mb-0">
+                  For experienced DIYers who are confident in their measurements.
+                </Text>
+              </div>
+
+              {/* Thin divider */}
+              <div className="h-px bg-gray-100" />
+
+              {/* ── Save Project ── */}
+              <div className="space-y-3">
+                <div className="text-center">
+                  <Text size="sm" className="font-medium text-gray-700 !mb-1">
+                    Save your project
+                  </Text>
+                  <Text size="xs" className="text-gray-400 !mb-0">
+                    We&apos;ll email you a link to pick up where you left off anytime.
+                  </Text>
+                </div>
+
+                {saveStatus === 'saved' && !showSaveField ? (
+                  <div className="flex items-center justify-center gap-2 text-sm text-[#406517] py-2">
+                    <CheckCircle className="w-4 h-4" />
+                    Saved! Check your email for a link to your project.
+                  </div>
                 ) : (
-                  <><Save className="w-4 h-4 mr-2" /> Save & Get Quote</>
+                  <div className="space-y-2.5 max-w-md mx-auto">
+                    <input
+                      type="text"
+                      placeholder="Project name (e.g., Back Porch)"
+                      value={projectName}
+                      onChange={e => setProjectName(e.target.value)}
+                      className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors"
+                    />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      <div className="relative">
+                        <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <input
+                          type="text"
+                          placeholder="First name"
+                          value={firstName}
+                          onChange={e => setFirstName(e.target.value)}
+                          className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors"
+                        />
+                      </div>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <input
+                          type="email"
+                          placeholder="Email address"
+                          value={saveForLaterEmail}
+                          onChange={e => setSaveForLaterEmail(e.target.value)}
+                          className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors"
+                        />
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="md"
+                      className="w-full"
+                      onClick={handleSaveForLater}
+                      disabled={!isValidEmail(saveForLaterEmail) || isSavingForLater}
+                    >
+                      {isSavingForLater ? (
+                        <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving...</>
+                      ) : (
+                        <><Bookmark className="w-4 h-4 mr-2" /> Save Project</>
+                      )}
+                    </Button>
+                  </div>
                 )}
-              </Button>
-
-              <p className="text-xs text-gray-400 mt-3">We&apos;ll never share your info. No spam, just your project.</p>
+              </div>
             </div>
-          </div>
-        </Card>
-      )}
+          </Card>
 
-      {/* ── Saved Success ── */}
-      {saveStatus === 'saved' && (
-        <Card className="!p-0 !bg-white !border-2 !border-[#406517]/30 overflow-hidden">
-          <div className="px-6 py-8 text-center">
-            <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
-            <div className="text-lg font-bold text-gray-800 mb-1">Project Saved{firstName ? `, ${firstName}` : ''}!</div>
-            <div className="text-sm text-gray-600 mb-6">Your panel configuration has been saved. Let&apos;s review it before we build.</div>
-            <Button variant="primary" size="lg" asChild>
-              <Link href={`${basePath}/review`}><ArrowRight className="w-4 h-4 mr-2" />Review Your Design</Link>
-            </Button>
-            {shareUrl && <div className="mt-4 text-xs text-gray-500">Project link: <span className="font-mono text-[#406517]">{typeof window !== 'undefined' ? window.location.origin : ''}{shareUrl}</span></div>}
-          </div>
-        </Card>
+          {/* ── Checkout confirmation modal ── */}
+          {showCheckoutModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowCheckoutModal(false)} />
+              <div className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 md:p-8">
+                <button type="button" onClick={() => setShowCheckoutModal(false)} className="absolute top-4 right-4 p-1 rounded-full hover:bg-gray-100 transition-colors">
+                  <X className="w-5 h-5 text-gray-400" />
+                </button>
+                <div className="text-center">
+                  <div className="text-xl font-bold text-gray-900 mb-3">Skip expert review?</div>
+                  <Text className="text-gray-600 !mb-2">
+                    Most customers have us double-check their project first.
+                  </Text>
+                  <Text size="sm" className="text-gray-500 !mb-6">
+                    We&apos;ll still look at your order before it ships and reach out if something looks off. Do you still want to go straight to checkout?
+                  </Text>
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                    <Button variant="primary" size="lg" onClick={() => setShowCheckoutModal(false)}>
+                      <ArrowLeft className="w-4 h-4 mr-2" />Back to Expert Review
+                    </Button>
+                    <Button variant="secondary" size="lg" asChild>
+                      <Link href="/cart">Continue to Checkout<ArrowRight className="w-4 h-4 ml-2" /></Link>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </Stack>
   )

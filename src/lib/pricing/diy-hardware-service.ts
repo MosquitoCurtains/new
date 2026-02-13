@@ -1,12 +1,13 @@
 /**
- * DIY Hardware Items Service
- * 
- * Server-side service to load DIY hardware recommendation items from the database.
+ * DIY Hardware Recommendation Rules Service
+ *
+ * Server-side service to load recommendation rules from the database.
+ * These rules define WHAT hardware to recommend and HOW MANY based on
+ * the customer's panel configuration. Pricing data comes from the
+ * products table (managed at /admin/pricing), not from here.
+ *
  * Used by the admin page (/admin/diy-hardware) and public API.
  * Includes a 5-minute cache to reduce DB calls.
- * 
- * The PanelBuilder component uses the public API to get active hardware items,
- * then applies calculation rules client-side based on panel configurations.
  */
 
 import { createAdminClient } from '@/lib/supabase/admin'
@@ -19,13 +20,10 @@ export interface DiyHardwareItem {
   id: string
   item_key: string
   category: string
+  product_sku: string | null
   name: string
   description_template: string | null
-  image_url: string | null
-  product_url: string | null
   unit_label: string
-  unit_price: number
-  pack_quantity: number
   calc_rule: string
   calc_params: Record<string, number | string>
   color_match: string | null
@@ -36,28 +34,13 @@ export interface DiyHardwareItem {
   updated_at: string
 }
 
-/** The fields that the admin can update */
-export type DiyHardwareUpdateField =
-  | 'name'
-  | 'description_template'
-  | 'image_url'
-  | 'product_url'
-  | 'unit_label'
-  | 'unit_price'
-  | 'pack_quantity'
-  | 'calc_params'
-  | 'color_match'
-  | 'sort_order'
-  | 'active'
-  | 'admin_notes'
-
 // =============================================================================
 // CACHE (5-minute TTL)
 // =============================================================================
 
 let cachedItems: DiyHardwareItem[] | null = null
 let cacheTimestamp = 0
-const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+const CACHE_TTL = 5 * 60 * 1000
 
 export function invalidateDiyHardwareCache() {
   cachedItems = null
@@ -87,7 +70,6 @@ export async function fetchDiyHardwareItems(): Promise<DiyHardwareItem[]> {
 
   cachedItems = (data || []).map(row => ({
     ...row,
-    unit_price: Number(row.unit_price),
     calc_params: row.calc_params || {},
   })) as DiyHardwareItem[]
   cacheTimestamp = Date.now()
@@ -111,19 +93,16 @@ export async function addDiyHardwareItem(
   item: Omit<DiyHardwareItem, 'id' | 'created_at' | 'updated_at'>
 ): Promise<{ data: DiyHardwareItem | null; error: string | null }> {
   const supabase = createAdminClient()
-  
+
   const { data, error } = await supabase
     .from('diy_hardware_items')
     .insert({
       item_key: item.item_key,
       category: item.category,
+      product_sku: item.product_sku,
       name: item.name,
       description_template: item.description_template,
-      image_url: item.image_url,
-      product_url: item.product_url,
       unit_label: item.unit_label,
-      unit_price: item.unit_price,
-      pack_quantity: item.pack_quantity,
       calc_rule: item.calc_rule,
       calc_params: item.calc_params,
       color_match: item.color_match,
@@ -150,7 +129,7 @@ export async function deleteDiyHardwareItem(
   id: string
 ): Promise<{ error: string | null }> {
   const supabase = createAdminClient()
-  
+
   const { error } = await supabase
     .from('diy_hardware_items')
     .delete()

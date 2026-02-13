@@ -1,17 +1,21 @@
 'use client'
 
 /**
- * useDiyHardware Hook — Fetches DIY hardware items from the database
+ * useDiyHardware Hook — Fetches DIY hardware recommendation rules
  *
  * Client-side hook for the PanelBuilder component.
- * Fetches active hardware items from /api/diy-hardware and provides
+ * Fetches active recommendation rules from /api/diy-hardware and provides
  * a function to compute product recommendations based on panel configuration.
+ *
+ * The rules define WHAT to recommend and HOW MANY. Pricing/images come from
+ * the products table (passed in via the `products` parameter).
  *
  * Uses module-level cache (same pattern as useProducts).
  */
 
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import type { MeshColor } from '@/lib/pricing/types'
+import type { DBProduct } from '@/hooks/useProducts'
 
 // =============================================================================
 // TYPES
@@ -21,13 +25,10 @@ export interface DiyHardwareItem {
   id: string
   item_key: string
   category: string
+  product_sku: string | null
   name: string
   description_template: string | null
-  image_url: string | null
-  product_url: string | null
   unit_label: string
-  unit_price: number
-  pack_quantity: number
   calc_rule: string
   calc_params: Record<string, number | string>
   color_match: string | null
@@ -100,18 +101,21 @@ function fetchHardwareItems(): Promise<DiyHardwareItem[] | null> {
 // =============================================================================
 
 /**
- * Compute hardware recommendations from panel configuration + DB items.
+ * Compute hardware recommendations from panel configuration + DB rules.
  *
  * The calculation LOGIC lives here in code; the PARAMETERS come from the DB
- * (calc_params). This keeps the rules flexible while the admin controls
- * prices, display, parameters, and active/inactive status.
+ * (calc_params). Pricing/images come from the products table via product_sku.
  */
 export function computeHardwareRecommendations(
   panels: PanelForHardware[],
   hardwareItems: DiyHardwareItem[] | null,
+  products: DBProduct[] | null,
   meshColor: MeshColor,
 ): HardwareRecommendation[] {
   if (panels.length === 0 || !hardwareItems || hardwareItems.length === 0) return []
+
+  const findProduct = (sku: string | null) =>
+    sku && products ? products.find(p => p.sku === sku) : null
 
   const results: HardwareRecommendation[] = []
 
@@ -121,13 +125,16 @@ export function computeHardwareRecommendations(
   const totalTrackFeet = totalTrackInches / 12
   const sidesWithTracking = new Set(trackingPanels.map(p => p.side)).size
 
-  const snapEdges = panels.reduce((n, p) => n + (p.side1 === 'marine_snaps' ? 1 : 0) + (p.side2 === 'marine_snaps' ? 1 : 0), 0)
-  const magnetEdges = panels.reduce((n, p) => n + (p.side1 === 'magnetic_door' ? 1 : 0) + (p.side2 === 'magnetic_door' ? 1 : 0), 0)
+  const snapEdges = panels.reduce((n, p) =>
+    n + (p.side1 === 'marine_snaps' ? 1 : 0) + (p.side2 === 'marine_snaps' ? 1 : 0), 0)
+  const magnetEdges = panels.reduce((n, p) =>
+    n + (p.side1 === 'magnetic_door' ? 1 : 0) + (p.side2 === 'magnetic_door' ? 1 : 0), 0)
   const magnetDoorways = Math.ceil(magnetEdges / 2)
-  const stuccoEdges = panels.reduce((n, p) => n + (p.side1 === 'stucco_strip' ? 1 : 0) + (p.side2 === 'stucco_strip' ? 1 : 0), 0)
+  const stuccoEdges = panels.reduce((n, p) =>
+    n + (p.side1 === 'stucco_strip' ? 1 : 0) + (p.side2 === 'stucco_strip' ? 1 : 0), 0)
 
   for (const item of hardwareItems) {
-    // ── Color matching: skip items that don't match the current mesh color ──
+    // ── Color matching ──
     if (item.color_match) {
       const matchColors = item.color_match.split(',').map(c => c.trim())
       if (!matchColors.includes(meshColor)) continue
@@ -137,7 +144,6 @@ export function computeHardwareRecommendations(
     let description = item.description_template || ''
 
     switch (item.calc_rule) {
-      // ── Track: linear pieces ──
       case 'track_linear_pieces': {
         if (trackingPanels.length === 0) continue
         const pieceLengthInches = Number(item.calc_params.piece_length_inches) || 84
@@ -149,12 +155,13 @@ export function computeHardwareRecommendations(
         break
       }
 
-      // ── Track: splices ──
       case 'track_splices': {
         if (trackingPanels.length === 0) continue
-        const pieceLengthInches = 84 // Use track_straight's param if available
+        // Look up the track piece length from the track_linear_pieces item
         const trackStraight = hardwareItems.find(h => h.calc_rule === 'track_linear_pieces')
-        const actualPieceLength = trackStraight ? (Number(trackStraight.calc_params.piece_length_inches) || 84) : pieceLengthInches
+        const actualPieceLength = trackStraight
+          ? (Number(trackStraight.calc_params.piece_length_inches) || 84)
+          : 84
         const trackPieces = Math.ceil(totalTrackFeet / (actualPieceLength / 12))
         qty = Math.max(0, trackPieces - sidesWithTracking)
         if (qty === 0) continue
@@ -164,27 +171,25 @@ export function computeHardwareRecommendations(
         break
       }
 
-      // ── Track: end caps ──
       case 'track_endcaps': {
         if (trackingPanels.length === 0) continue
         const perRun = Number(item.calc_params.per_run) || 2
         qty = sidesWithTracking * perRun
-        description = description
-          .replace('{runs}', String(sidesWithTracking))
+        description = description.replace('{runs}', String(sidesWithTracking))
         break
       }
 
-      // ── Marine snaps: per edge ──
       case 'per_snap_edge': {
         if (snapEdges === 0) continue
         qty = snapEdges
+        const product = findProduct(item.product_sku)
+        const packQty = product?.pack_quantity || 10
         description = description
           .replace('{edges}', String(snapEdges))
-          .replace('{pack_qty}', String(item.pack_quantity))
+          .replace('{pack_qty}', String(packQty))
         break
       }
 
-      // ── Per doorway count (magnets, rods) ──
       case 'per_doorway_count': {
         if (magnetDoorways === 0) continue
         const perDoorway = Number(item.calc_params.per_doorway) || 1
@@ -195,16 +200,13 @@ export function computeHardwareRecommendations(
         break
       }
 
-      // ── Stucco: per edge ──
       case 'per_stucco_edge': {
         if (stuccoEdges === 0) continue
         qty = stuccoEdges
-        description = description
-          .replace('{edges}', String(stuccoEdges))
+        description = description.replace('{edges}', String(stuccoEdges))
         break
       }
 
-      // ── Fixed quantity (snap tool, etc.) ──
       case 'fixed_quantity': {
         qty = Number(item.calc_params.quantity) || 1
         break
@@ -216,17 +218,22 @@ export function computeHardwareRecommendations(
 
     if (qty <= 0) continue
 
+    // Resolve pricing + image from the products table
+    const product = findProduct(item.product_sku)
+    const unitPrice = product?.base_price ?? 0
+    const image = product?.image_url ?? null
+
     results.push({
       key: item.item_key,
       itemKey: item.item_key,
-      label: item.name,
+      label: product?.name || item.name,
       description,
       qty,
       unit: item.unit_label,
-      unitPrice: item.unit_price,
-      totalPrice: qty * item.unit_price,
-      image: item.image_url,
-      productUrl: item.product_url,
+      unitPrice,
+      totalPrice: qty * unitPrice,
+      image,
+      productUrl: null,
     })
   }
 
@@ -251,7 +258,7 @@ export function useDiyHardware() {
         setItems(data)
         setError(null)
       } else {
-        setError('Unable to load hardware items.')
+        setError('Unable to load hardware rules.')
       }
       setIsLoading(false)
     })
@@ -259,9 +266,13 @@ export function useDiyHardware() {
     return () => { mounted = false }
   }, [])
 
+  /**
+   * Compute recommendations. Requires both the panel config AND
+   * the products array (from useProducts) for pricing/images.
+   */
   const getRecommendations = useCallback(
-    (panels: PanelForHardware[], meshColor: MeshColor) =>
-      computeHardwareRecommendations(panels, items, meshColor),
+    (panels: PanelForHardware[], products: DBProduct[] | null, meshColor: MeshColor) =>
+      computeHardwareRecommendations(panels, items, products, meshColor),
     [items]
   )
 
