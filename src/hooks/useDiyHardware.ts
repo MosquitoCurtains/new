@@ -25,13 +25,14 @@ export interface DiyHardwareItem {
   id: string
   item_key: string
   category: string
-  product_sku: string | null
+  product_sku: string | null   // links to products.sku for pricing/images
   name: string
   description_template: string | null
   unit_label: string
   calc_rule: string
   calc_params: Record<string, number | string>
   color_match: string | null
+  product_types: string | null  // comma-separated: 'mosquito_curtains,clear_vinyl'. null = all
   sort_order: number
   active: boolean
 }
@@ -111,6 +112,7 @@ export function computeHardwareRecommendations(
   hardwareItems: DiyHardwareItem[] | null,
   products: DBProduct[] | null,
   meshColor: MeshColor,
+  productType?: string,
 ): HardwareRecommendation[] {
   if (panels.length === 0 || !hardwareItems || hardwareItems.length === 0) return []
 
@@ -134,6 +136,12 @@ export function computeHardwareRecommendations(
     n + (p.side1 === 'stucco_strip' ? 1 : 0) + (p.side2 === 'stucco_strip' ? 1 : 0), 0)
 
   for (const item of hardwareItems) {
+    // ── Product type matching ──
+    if (productType && item.product_types) {
+      const matchTypes = item.product_types.split(',').map(t => t.trim())
+      if (!matchTypes.includes(productType)) continue
+    }
+
     // ── Color matching ──
     if (item.color_match) {
       const matchColors = item.color_match.split(',').map(c => c.trim())
@@ -182,11 +190,11 @@ export function computeHardwareRecommendations(
       case 'per_snap_edge': {
         if (snapEdges === 0) continue
         qty = snapEdges
-        const product = findProduct(item.product_sku)
-        const packQty = product?.pack_quantity || 10
+        const snapProduct = findProduct(item.product_sku)
+        const snapPackQty = snapProduct?.pack_quantity ?? 10
         description = description
           .replace('{edges}', String(snapEdges))
-          .replace('{pack_qty}', String(packQty))
+          .replace('{pack_qty}', String(snapPackQty))
         break
       }
 
@@ -218,10 +226,11 @@ export function computeHardwareRecommendations(
 
     if (qty <= 0) continue
 
-    // Resolve pricing + image from the products table
+    // Resolve pricing + image from the products table via product_sku
     const product = findProduct(item.product_sku)
     const unitPrice = product?.base_price ?? 0
     const image = product?.image_url ?? null
+    const packQty = product?.pack_quantity ?? 1
 
     results.push({
       key: item.item_key,
@@ -271,8 +280,8 @@ export function useDiyHardware() {
    * the products array (from useProducts) for pricing/images.
    */
   const getRecommendations = useCallback(
-    (panels: PanelForHardware[], products: DBProduct[] | null, meshColor: MeshColor) =>
-      computeHardwareRecommendations(panels, items, products, meshColor),
+    (panels: PanelForHardware[], products: DBProduct[] | null, meshColor: MeshColor, productType?: string) =>
+      computeHardwareRecommendations(panels, items, products, meshColor, productType),
     [items]
   )
 

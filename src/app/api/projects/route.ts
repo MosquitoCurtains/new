@@ -20,11 +20,13 @@ export async function POST(request: NextRequest) {
       phone,
       product,
       projectType,
+      projectName,
       meshType,
       topAttachment,
       totalWidth,
       numberOfSides,
       notes,
+      description,
       estimatedTotal,
       photo_urls,
       cart_data,
@@ -62,6 +64,16 @@ export async function POST(request: NextRequest) {
 
     if (existingLead) {
       leadId = existingLead.id
+      // Update contact info on existing lead if we have new data
+      const updates: Record<string, unknown> = {}
+      if (firstName) updates.first_name = firstName
+      if (lastName) updates.last_name = lastName
+      if (phone) updates.phone = phone
+      if (description) updates.message = description
+      if (projectType) updates.project_type = projectType
+      if (Object.keys(updates).length > 0) {
+        await supabase.from('leads').update(updates).eq('id', leadId)
+      }
     } else {
       const photoUrlStrings = Array.isArray(photo_urls)
         ? photo_urls.map((p: { url: string }) => p.url)
@@ -75,7 +87,9 @@ export async function POST(request: NextRequest) {
           last_name: lastName,
           phone,
           interest: PRODUCT_TO_INTEREST[product] || product,
-          source: 'expert_assistance',
+          project_type: projectType,
+          message: description || null,
+          source: projectType === 'expert_review' ? 'diy_builder_expert_review' : 'diy_builder',
           status: 'open',
           photo_urls: photoUrlStrings.length > 0 ? photoUrlStrings : null,
           session_id,
@@ -120,6 +134,8 @@ export async function POST(request: NextRequest) {
     // -------------------------------------------------------------------------
     // 3. Create the project, linked to the lead
     // -------------------------------------------------------------------------
+    // Note: first_name, last_name, phone live on leads (not projects).
+    // Migration 20260213800000 dropped those columns from projects.
     const { data, error } = await supabase
       .from('projects')
       .insert({
@@ -128,6 +144,7 @@ export async function POST(request: NextRequest) {
         email,
         product_type: product,
         project_type: projectType,
+        project_name: projectName || null,
         mesh_type: meshType,
         top_attachment: topAttachment,
         total_width: totalWidth,
@@ -142,9 +159,9 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      console.error('Error creating project:', error)
+      console.error('Error creating project:', error.message, error.code, error.details, error.hint)
       return NextResponse.json(
-        { error: 'Failed to create project' },
+        { error: `Failed to create project: ${error.message}` },
         { status: 500 }
       )
     }

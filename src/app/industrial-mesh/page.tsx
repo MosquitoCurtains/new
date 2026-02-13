@@ -52,8 +52,8 @@ function IndustrialOrderForm() {
   const [rollQty, setRollQty] = useState(1)
   const [justAdded, setJustAdded] = useState(false)
 
-  const perFootRate = prices ? getPrice('raw_industrial_mesh_foot', 0) : 0
-  const rollPrice = prices ? getPrice('raw_industrial_mesh_roll', 0) : 0
+  const perFootRate = prices ? getPrice('raw_panel_ind_65', 0) : 0
+  const rollPrice = prices ? getPrice('raw_panel_ind_full_roll', 0) : 0
 
   const livePrice = useMemo(() => {
     if (!prices) return 0
@@ -75,24 +75,24 @@ function IndustrialOrderForm() {
     if (purchaseType === 'foot') {
       addItem({
         type: 'fabric',
-        productSku: 'raw_industrial_mesh',
+        productSku: 'raw_netting_panel',
         name: 'Industrial Mesh',
         description: `Olive Green - 65" wide x ${lengthFeet}ft`,
         quantity: 1,
         unitPrice: livePrice,
         totalPrice: livePrice,
-        options: { materialType: 'industrial_mesh', rollWidth: '65', color: 'olive_green', lengthFeet: lengthFeet as number },
+        options: { mesh_type: 'industrial', roll_width_industrial: '65', color: 'olive_green', purchase_type: 'by_foot', lengthFeet: lengthFeet as number },
       })
     } else {
       addItem({
         type: 'fabric',
-        productSku: 'raw_industrial_mesh',
+        productSku: 'raw_netting_panel',
         name: 'Industrial Mesh - Full Roll',
         description: `65" x 330ft roll x ${rollQty}`,
         quantity: rollQty,
         unitPrice: rollPrice,
         totalPrice: livePrice,
-        options: { materialType: 'industrial_mesh', purchaseType: 'roll', rollQty },
+        options: { mesh_type: 'industrial', roll_width_industrial: '65', color: 'olive_green', purchase_type: 'full_roll', rollQty },
       })
     }
 

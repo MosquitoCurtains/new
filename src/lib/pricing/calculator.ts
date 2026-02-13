@@ -489,7 +489,7 @@ export class PriceCalculator {
     const unitPrice = calculateRawMeshPrice(item.config, this.prices)
     const lineTotal = round(unitPrice * item.quantity)
     return {
-      productSku: 'raw_mesh',
+      productSku: 'raw_netting_panel',
       productName: `Raw ${item.config.materialType.replace('_', ' ')} (${item.config.rollWidth}" × ${item.config.lengthFeet}ft)`,
       unitPrice,
       quantity: item.quantity,

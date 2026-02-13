@@ -20,7 +20,7 @@ export interface DiyHardwareItem {
   id: string
   item_key: string
   category: string
-  product_sku: string | null
+  product_sku: string | null   // links to products.sku for pricing/images
   name: string
   description_template: string | null
   unit_label: string
@@ -58,7 +58,7 @@ export async function fetchDiyHardwareItems(): Promise<DiyHardwareItem[]> {
 
   const supabase = createAdminClient()
   const { data, error } = await supabase
-    .from('diy_hardware_items')
+    .from('diy_wizard_hardware_recommendations')
     .select('*')
     .order('sort_order')
     .order('category')
@@ -95,7 +95,7 @@ export async function addDiyHardwareItem(
   const supabase = createAdminClient()
 
   const { data, error } = await supabase
-    .from('diy_hardware_items')
+    .from('diy_wizard_hardware_recommendations')
     .insert({
       item_key: item.item_key,
       category: item.category,
@@ -131,7 +131,7 @@ export async function deleteDiyHardwareItem(
   const supabase = createAdminClient()
 
   const { error } = await supabase
-    .from('diy_hardware_items')
+    .from('diy_wizard_hardware_recommendations')
     .delete()
     .eq('id', id)
 

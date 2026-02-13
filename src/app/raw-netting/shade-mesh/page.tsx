@@ -28,7 +28,7 @@ const IMG = 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtai
 // Product config for the order section
 // ---------------------------------------------------------------------------
 const SHADE_ROLL_SIZES = [
-  { value: '120', label: '120"', priceLabel: '$7.00/ft', pricingKey: 'raw_shade_120' },
+  { value: '120', label: '120"', priceLabel: '$7.00/ft', pricingKey: 'raw_panel_shade_120' },
 ]
 
 const SHADE_COLORS = [

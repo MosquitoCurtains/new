@@ -94,8 +94,9 @@ export default function RawNettingStorePage() {
         <PowerHeaderTemplate
           title="Raw Netting Fabric Store"
           subtitle="Giant rolls of marine-grade raw netting custom-cut to your specifications. Incredibly strong with limitless applications. For DIY projects and professionals."
-          videoId={VIDEOS.RAW_NETTING}
-          videoTitle="Why Us For Raw Netting"
+          videoId={VIDEOS.SHORT_OVERVIEW}
+          videoTitle="Raw Netting Overview"
+          thumbnailUrl="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Planning-Overview-Video-Thumbnail-1.jpg"
           variant="compact"
           ctaText="Shop All Meshes"
           ctaHref="/order/raw-netting"

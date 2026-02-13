@@ -29,7 +29,7 @@ export interface RollSizeOption {
   label: string
   /** e.g. "$5.50/ft" */
   priceLabel: string
-  /** The pricing key, e.g. "raw_heavy_mosquito_101" */
+  /** The pricing key, e.g. "raw_panel_hm_101" */
   pricingKey: string
 }
 
@@ -117,16 +117,17 @@ export default function RawNettingOrderForm({
 
     addItem({
       type: 'fabric',
-      productSku: `raw_${materialType}`,
+      productSku: 'raw_netting_panel',
       name: productName,
       description: `${selectedColorObj?.label || selectedColor} - ${selectedRoll?.label || selectedRollSize} wide x ${lengthFeet}ft`,
       quantity: 1,
       unitPrice: livePrice,
       totalPrice: livePrice,
       options: {
-        materialType,
-        rollWidth: selectedRollSize,
+        mesh_type: materialType,
+        [`roll_width_${materialType}`]: selectedRollSize,
         color: selectedColor,
+        purchase_type: 'by_foot',
         lengthFeet,
       },
     })

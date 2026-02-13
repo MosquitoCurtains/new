@@ -24,10 +24,22 @@ export default async function InvoicePage({
     .eq('order_id', id)
     .order('created_at', { ascending: true })
 
+  // Fetch salesperson contact info
+  let salesperson = null
+  if (order.salesperson_id) {
+    const { data } = await supabase
+      .from('staff')
+      .select('name, email')
+      .eq('id', order.salesperson_id)
+      .single()
+    salesperson = data
+  }
+
   return (
     <InvoiceClient
       order={order}
       lineItems={lineItems || []}
+      salesperson={salesperson}
     />
   )
 }

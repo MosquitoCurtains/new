@@ -28,8 +28,8 @@ const IMG = 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtai
 // Product config for the order section
 // ---------------------------------------------------------------------------
 const NOSEEUM_ROLL_SIZES = [
-  { value: '101', label: '101"', priceLabel: '$6.00/ft', pricingKey: 'raw_no_see_um_101' },
-  { value: '123', label: '123"', priceLabel: '$7.00/ft', pricingKey: 'raw_no_see_um_123' },
+  { value: '101', label: '101"', priceLabel: '$6.00/ft', pricingKey: 'raw_panel_nsu_101' },
+  { value: '123', label: '123"', priceLabel: '$7.00/ft', pricingKey: 'raw_panel_nsu_123' },
 ]
 
 const NOSEEUM_COLORS = [

@@ -39,11 +39,12 @@ export type ProductType =
 // =============================================================================
 
 export type MeshType = 
-  | 'heavy_mosquito'  // $18/linear ft
-  | 'no_see_um'       // $19/linear ft
-  | 'shade'           // $20/linear ft
-  | 'scrim'           // For raw materials
-  | 'theater_scrim'   // For raw materials
+  | 'heavy_mosquito'  // $18/linear ft (panels) / $5.50-6.50/ft (raw)
+  | 'no_see_um'       // $19/linear ft (panels) / $6-7/ft (raw)
+  | 'shade'           // $20/linear ft (panels) / $7/ft (raw)
+  | 'scrim'           // Legacy alias for theater_scrim
+  | 'theater_scrim'   // $7-7.50/ft (raw)
+  | 'industrial'      // $4/ft (raw) or $1350/roll
 
 // Mesh color availability depends on mesh type:
 // - heavy_mosquito: black, white, ivory
@@ -52,8 +53,9 @@ export type MeshType =
 export type MeshColor = 
   | 'black' 
   | 'white' 
-  | 'ivory'  // Only available for heavy_mosquito
-  | 'silver' // Theater scrim option
+  | 'ivory'       // Only available for heavy_mosquito
+  | 'silver'      // Theater scrim option
+  | 'olive_green' // Industrial mesh option
 
 export type MeshTopAttachment = 
   | 'standard_track'  // For panels under 10ft tall
@@ -209,7 +211,7 @@ export interface AttachmentConfig {
 
 export interface RawMeshConfig {
   materialType: MeshType | 'scrim'
-  rollWidth: 101 | 120 | 123 | 138 | 140
+  rollWidth: 65 | 101 | 120 | 123 | 138 | 140
   color: PanelColor
   lengthFeet: number
 }

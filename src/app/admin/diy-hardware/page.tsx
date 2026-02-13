@@ -55,6 +55,7 @@ interface HardwareItem {
   calc_rule: string
   calc_params: Record<string, number | string>
   color_match: string | null
+  product_types: string | null  // comma-separated: 'mosquito_curtains,clear_vinyl'. null = all
   sort_order: number
   active: boolean
   admin_notes: string | null
@@ -356,6 +357,11 @@ function ItemRow({ item, editMode, editedValues, onFieldChange }: {
         <div className="min-w-0">
           <div className="flex items-center gap-2 mb-0.5">
             <Text className="font-semibold text-gray-900 !mb-0 text-sm">{item.name}</Text>
+            {item.product_types && (
+              <span className="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">
+                {item.product_types}
+              </span>
+            )}
             {item.color_match && (
               <span className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">
                 {item.color_match}
@@ -564,6 +570,21 @@ function ItemRow({ item, editMode, editedValues, onFieldChange }: {
                     />
                   ) : (
                     <Text className="text-gray-600 !mb-0 text-xs">{item.color_match || 'all colors'}</Text>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Product Types</label>
+                  {editMode ? (
+                    <input
+                      type="text"
+                      value={getVal('product_types', item.product_types || '')}
+                      onChange={e => onFieldChange(item.id, 'product_types', e.target.value || null)}
+                      onClick={e => e.stopPropagation()}
+                      placeholder="all types (e.g. mosquito_curtains,clear_vinyl)"
+                      className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#406517]"
+                    />
+                  ) : (
+                    <Text className="text-gray-600 !mb-0 text-xs">{item.product_types || 'all types'}</Text>
                   )}
                 </div>
               </div>

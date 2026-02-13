@@ -1,32 +1,29 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
 import { Container, Stack } from '@/lib/design-system'
-import { FabricConfigurator, type FabricOrder } from '@/components/project'
+import { PowerHeaderTemplate } from '@/lib/design-system/templates/PowerHeaderTemplate'
+import { VIDEOS } from '@/lib/constants/videos'
+import { CartProvider } from '@/contexts/CartContext'
+import RawNettingPanelBuilder from '@/components/plan/RawNettingPanelBuilder'
 
 export default function RawNettingDIYBuilderPage() {
-  const router = useRouter()
-
-  const handleAddToCart = async (order: FabricOrder, price: number) => {
-    localStorage.setItem('mc_cart', JSON.stringify({
-      type: 'raw_materials',
-      fabric: order,
-      totals: { total: price },
-      productType: 'raw_materials',
-      timestamp: Date.now(),
-    }))
-    router.push('/cart')
-  }
-
   return (
-    <Container size="xl">
-      <Stack gap="lg">
-        <FabricConfigurator
-          initialFabricType="heavy_mosquito"
-          initialColor="black"
-          onAddToCart={handleAddToCart}
-        />
-      </Stack>
-    </Container>
+    <CartProvider>
+      <Container size="xl">
+        <Stack gap="lg">
+          <PowerHeaderTemplate
+            title="Raw Netting Panel Builder"
+            subtitle="Configure custom mesh panels with edge finishing options. Choose your mesh type, dimensions, and edge treatments — then save and order."
+            variant="compact"
+            videoId={VIDEOS.SHORT_OVERVIEW}
+            videoTitle="Raw Netting Overview"
+            thumbnailUrl="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Planning-Overview-Video-Thumbnail-1.jpg"
+            showCta={false}
+            actions={[]}
+          />
+          <RawNettingPanelBuilder />
+        </Stack>
+      </Container>
+    </CartProvider>
   )
 }

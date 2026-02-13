@@ -1,4 +1,4 @@
-// @ts-nocheck — diy_hardware_items table not in generated Supabase types yet
+// @ts-nocheck — diy_wizard_hardware_recommendations table not in generated Supabase types yet
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import {
@@ -77,7 +77,7 @@ export async function POST(request: Request) {
     const ALLOWED_FIELDS = [
       'name', 'description_template', 'product_sku',
       'unit_label', 'calc_rule', 'calc_params',
-      'color_match', 'sort_order', 'active', 'admin_notes',
+      'color_match', 'product_types', 'sort_order', 'active', 'admin_notes',
     ]
 
     const results = await Promise.all(
@@ -104,7 +104,7 @@ export async function POST(request: Request) {
         }
 
         const { data, error } = await supabase
-          .from('diy_hardware_items')
+          .from('diy_wizard_hardware_recommendations')
           .update(updatePayload)
           .eq('id', id)
           .select()

@@ -113,8 +113,18 @@ export default function SalesPageLayout({ mode, projectId }: { mode: SalesMode; 
     stuccoProducts,
     snapTool,
     rawMaterials,
+    rawNettingPanel,
     isLoading: productsLoading,
   } = useProducts()
+
+  // Combine legacy rawMaterials with the new canonical product for the section
+  const allRawNetting = useMemo(() => {
+    const arr = [...rawMaterials]
+    if (rawNettingPanel && !arr.find(p => p.sku === 'raw_netting_panel')) {
+      arr.push(rawNettingPanel)
+    }
+    return arr
+  }, [rawMaterials, rawNettingPanel])
 
   const [productModal, setProductModal] = useState<ProductModalInfo | null>(null)
 
@@ -476,7 +486,7 @@ export default function SalesPageLayout({ mode, projectId }: { mode: SalesMode; 
             {/* RN Mode */}
             {mode === 'rn' && (
               <>
-                <RawNettingSection dbPrices={dbPrices} getPrice={getPrice} rawMaterials={rawMaterials} addItem={addItemAndOpenCart} isLoading={cartLoading} setProductModal={setProductModal} />
+                <RawNettingSection dbPrices={dbPrices} getPrice={getPrice} rawMaterials={allRawNetting} addItem={addItemAndOpenCart} isLoading={cartLoading} setProductModal={setProductModal} />
                 <TrackHardwareSection standardTrackItems={standardTrackItems} heavyTrackItems={heavyTrackItems} addItem={addItemAndOpenCart} isLoading={cartLoading} setProductModal={setProductModal} />
                 <AttachmentItemsSection attachmentItems={attachmentItems} attachmentGroups={attachmentGroups} addItem={addItemAndOpenCart} isLoading={cartLoading} setProductModal={setProductModal} />
                 <SnapToolSection snapTool={snapTool} addItem={addItemAndOpenCart} isInCart={snapToolInCart} />

@@ -269,12 +269,18 @@ export function useProducts() {
     return products.find(p => p.sku === 'rollup_shade_screen') || null
   }, [products])
 
-  /** Raw material products (mesh, industrial) with their options */
+  /** Raw material products (mesh, industrial) with their options — DEPRECATED: use rawNettingPanel */
   const rawMaterials = useMemo(() => {
     if (!products) return []
     return products
       .filter(p => p.product_type === 'raw_material')
       .sort((a, b) => a.category_order - b.category_order)
+  }, [products])
+
+  /** Canonical raw netting panel product (consolidates all raw material SKUs) */
+  const rawNettingPanel = useMemo(() => {
+    if (!products) return null
+    return products.find(p => p.sku === 'raw_netting_panel') || null
   }, [products])
 
   /** Stucco strip products */
@@ -320,8 +326,10 @@ export function useProducts() {
     vinylPanel,
     /** Roll-up shade screen product with options */
     rollupProduct,
-    /** Raw material products with options */
+    /** Raw material products with options — DEPRECATED: use rawNettingPanel */
     rawMaterials,
+    /** Canonical raw netting panel product (all mesh types + edge finishing) */
+    rawNettingPanel,
     /** Stucco strip products (standard and zippered) */
     stuccoProducts,
     /** The snap tool product */
