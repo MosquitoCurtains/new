@@ -490,7 +490,7 @@ function RawPanelPreview({ panel, meshHex }: { panel: RawPanelState; meshHex: st
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   Quantity Stepper (inline)
+   Quantity Stepper (inline) — allows empty input while typing
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 function QtyStepper({ value, onChange, min = 1, max = 99, suffix }: {
   value: number; onChange: (v: number) => void; min?: number; max?: number; suffix?: string
@@ -500,7 +500,17 @@ function QtyStepper({ value, onChange, min = 1, max = 99, suffix }: {
       <button type="button" onClick={() => onChange(Math.max(min, value - 1))} className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
         <Minus className="w-3.5 h-3.5 text-gray-600" />
       </button>
-      <input type="number" value={value} onChange={e => onChange(Math.min(max, Math.max(min, parseInt(e.target.value) || min)))} className={INPUT_CLS} />
+      <input
+        type="text"
+        inputMode="numeric"
+        value={value === 0 ? '' : value}
+        onChange={e => {
+          const raw = e.target.value.replace(/[^0-9]/g, '')
+          onChange(raw === '' ? 0 : Math.min(max, parseInt(raw)))
+        }}
+        onBlur={() => { if (value < min) onChange(min) }}
+        className={INPUT_CLS}
+      />
       <button type="button" onClick={() => onChange(Math.min(max, value + 1))} className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
         <Plus className="w-3.5 h-3.5 text-gray-600" />
       </button>
@@ -520,6 +530,15 @@ function calcEdgeCost(edgeId: EdgeFinishId, lengthInches: number): number | null
 
 function fmt$(n: number): string {
   return n % 1 === 0 ? `$${n.toFixed(0)}` : `$${n.toFixed(2)}`
+}
+
+/** Format inches as feet + inches — e.g. 120 → 10'0", 134 → 11'2" */
+function fmtFtIn(inches: number): string {
+  if (inches <= 0) return '0"'
+  const ft = Math.floor(inches / 12)
+  const rem = Math.round(inches % 12)
+  if (ft === 0) return `${rem}"`
+  return rem === 0 ? `${ft}'` : `${ft}'${rem}"`
 }
 
 /* ─── Mesh type -> pricing key abbreviation ─── */
@@ -556,6 +575,7 @@ export default function RawNettingPanelBuilder() {
   const [submitDescription, setSubmitDescription] = useState('')
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'submitting' | 'submitted' | 'error'>('idle')
   const [showCheckoutModal, setShowCheckoutModal] = useState(false)
+  const [meshDetailType, setMeshDetailType] = useState<MeshType | null>(null)
 
   // Restore from localStorage (sanitize stale edge IDs from previous versions)
   useEffect(() => {
@@ -797,92 +817,116 @@ export default function RawNettingPanelBuilder() {
 
         return (
           <div key={idx}>
-            {/* Panel header */}
-            {panels.length > 1 && (
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-full bg-[#406517] text-white flex items-center justify-center text-xs font-bold">{idx + 1}</div>
-                  <span className="font-bold text-gray-800">Panel {idx + 1}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button type="button" onClick={() => duplicatePanel(idx)} className="text-xs text-gray-500 hover:text-gray-700 font-medium px-2 py-1 rounded-lg hover:bg-gray-100 transition-colors">Duplicate</button>
-                  <button type="button" onClick={() => removePanel(idx)} className="text-xs text-red-500 hover:text-red-700 font-medium px-2 py-1 rounded-lg hover:bg-red-50 transition-colors">Remove</button>
-                </div>
+            {/* Panel header — always visible */}
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-full bg-[#406517] text-white flex items-center justify-center text-xs font-bold">{idx + 1}</div>
+                <span className="font-bold text-gray-800">Panel {idx + 1}</span>
               </div>
-            )}
+              <div className="flex items-center gap-2">
+                <button type="button" onClick={() => duplicatePanel(idx)} className="text-xs text-gray-500 hover:text-gray-700 font-medium px-2 py-1 rounded-lg hover:bg-gray-100 transition-colors flex items-center gap-1">
+                  <Copy className="w-3 h-3" /> Duplicate
+                </button>
+                {panels.length > 1 && (
+                  <button type="button" onClick={() => removePanel(idx)} className="text-xs text-red-500 hover:text-red-700 font-medium px-2 py-1 rounded-lg hover:bg-red-50 transition-colors">Remove</button>
+                )}
+              </div>
+            </div>
 
             {/* ── SECTION 1: Mesh Options ── */}
-            <HeaderBarSection icon={SlidersHorizontal} label={panels.length > 1 ? `Panel ${idx + 1} — Options` : 'Options'} variant="green" headerSubtitle="Mesh type, color & roll width">
+            <HeaderBarSection icon={SlidersHorizontal} label={panels.length > 1 ? `Panel ${idx + 1} — Options` : 'Options'} variant="green" headerSubtitle="Mesh type, color & dimensions">
               <Stack gap="md">
-                {/* Mesh type cards */}
-                <div>
-                  <div className="text-sm text-gray-700 font-semibold uppercase tracking-wide mb-3">Mesh Type</div>
-                  <div className="grid grid-cols-3 gap-2 mb-3">
-                    {MESH_TYPE_CARDS.map(m => (
-                      <div key={m.id} role="button" tabIndex={0}
-                        onClick={() => {
-                          const updates: Partial<RawPanelState> = { meshType: m.id }
-                          if (!m.colors.includes(panel.meshColor)) updates.meshColor = m.colors[0]
-                          if (!m.rollWidths.includes(panel.rollWidth)) updates.rollWidth = m.rollWidths[0]
-                          updatePanel(idx, updates)
-                        }}
-                        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') updatePanel(idx, { meshType: m.id }) }}
-                        className={`rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${panel.meshType === m.id ? 'border-[#406517] ring-2 ring-[#406517]/20 shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}
-                      >
-                        <div className="aspect-video relative">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={m.image} alt={m.label} className="w-full h-full object-cover" />
-                          {m.popular && <span className="absolute top-1.5 right-1.5 text-[10px] font-bold bg-[#406517] text-white px-2 py-0.5 rounded-full leading-none">90%</span>}
-                          {panel.meshType === m.id && <div className="absolute top-1.5 left-1.5 w-6 h-6 bg-[#406517] rounded-full flex items-center justify-center"><Check className="w-3.5 h-3.5 text-white" /></div>}
-                        </div>
-                        <div className="p-2.5 text-center">
-                          <div className="font-bold text-gray-800 text-sm leading-tight">{m.label}</div>
-                          <div className="text-xs text-gray-500 mt-0.5">{m.subtitle}</div>
-                        </div>
+                {/* 5-across mesh thumbnails — click for details modal */}
+                <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
+                  {MESH_TYPE_CARDS.map(m => (
+                    <div key={m.id} role="button" tabIndex={0}
+                      onClick={() => setMeshDetailType(m.id)}
+                      className={`rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${panel.meshType === m.id ? 'border-[#406517] ring-2 ring-[#406517]/20 shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}
+                    >
+                      <div className="aspect-[4/3] relative">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={m.image} alt={m.label} className="w-full h-full object-cover" />
+                        {m.popular && <span className="absolute top-1 right-1 text-[9px] font-bold bg-[#406517] text-white px-1.5 py-0.5 rounded-full leading-none">Popular</span>}
+                        {panel.meshType === m.id && <div className="absolute top-1 left-1 w-5 h-5 bg-[#406517] rounded-full flex items-center justify-center"><Check className="w-3 h-3 text-white" /></div>}
                       </div>
-                    ))}
+                      <div className="px-1.5 py-1.5 text-center">
+                        <div className="font-bold text-gray-800 text-xs leading-tight">{m.label}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* 3-col configurator: Mesh Type | Roll Width (height) | Panel Width */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {/* Mesh type dropdown */}
+                  <div>
+                    <label className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1 block">Mesh Type</label>
+                    <select
+                      value={panel.meshType}
+                      onChange={e => {
+                        const m = MESH_TYPE_CARDS.find(c => c.id === e.target.value)
+                        if (!m) return
+                        const updates: Partial<RawPanelState> = { meshType: m.id }
+                        if (!m.colors.includes(panel.meshColor)) updates.meshColor = m.colors[0]
+                        if (!m.rollWidths.includes(panel.rollWidth)) updates.rollWidth = m.rollWidths[0]
+                        updatePanel(idx, updates)
+                      }}
+                      className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] bg-white transition-all cursor-pointer"
+                    >
+                      {MESH_TYPE_CARDS.map(m => (
+                        <option key={m.id} value={m.id}>{m.label}</option>
+                      ))}
+                    </select>
                   </div>
 
-                  {/* Color swatches */}
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-xs text-gray-700 font-semibold uppercase tracking-wide">Color:</span>
-                    {MESH_COLOR_SWATCHES.filter(c => availableColors.includes(c.id)).map(c => (
-                      <button key={c.id} type="button" onClick={() => updatePanel(idx, { meshColor: c.id })}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${panel.meshColor === c.id ? 'ring-2 ring-[#406517] bg-[#406517]/5' : 'bg-gray-50 hover:bg-gray-100'}`}>
-                        <div className="w-5 h-5 rounded-full border-2 border-gray-300" style={{ backgroundColor: c.hex }} />
-                        <span className="text-gray-700">{c.label}</span>
-                        {panel.meshColor === c.id && <Check className="w-3.5 h-3.5 text-[#406517]" />}
-                      </button>
-                    ))}
+                  {/* Roll width (height) dropdown */}
+                  <div>
+                    <label className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1 block">Roll Width (height)</label>
+                    <select
+                      value={panel.rollWidth}
+                      onChange={e => updatePanel(idx, { rollWidth: parseInt(e.target.value) })}
+                      className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] bg-white transition-all cursor-pointer"
+                    >
+                      {availableRollWidths.map(rw => (
+                        <option key={rw} value={rw}>{rw}&quot; ({fmtFtIn(rw)})</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Panel width input */}
+                  <div>
+                    <label className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1 block">Panel Width</label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={panel.widthInches === 0 ? '' : panel.widthInches}
+                        onChange={e => {
+                          const raw = e.target.value.replace(/[^0-9]/g, '')
+                          updatePanel(idx, { widthInches: raw === '' ? 0 : Math.min(1200, parseInt(raw)) })
+                        }}
+                        onBlur={() => { if (panel.widthInches < 12) updatePanel(idx, { widthInches: 12 }) }}
+                        placeholder="inches"
+                        className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] bg-white transition-all"
+                      />
+                      <span className="text-sm text-gray-500 font-medium whitespace-nowrap shrink-0">
+                        {panel.widthInches > 0 ? fmtFtIn(panel.widthInches) : '—'}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                {/* Roll width + panel width */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <div className="text-sm text-gray-700 font-semibold uppercase tracking-wide mb-2">Roll Width (panel height)</div>
-                    <div className="flex gap-2 flex-wrap">
-                      {availableRollWidths.map(rw => (
-                        <button key={rw} type="button" onClick={() => updatePanel(idx, { rollWidth: rw })}
-                          className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${panel.rollWidth === rw ? 'bg-[#406517] text-white shadow-md ring-2 ring-[#406517]/30' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
-                          {rw}&quot;
-                        </button>
-                      ))}
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1.5">
-                      <Info className="w-3 h-3 inline mr-1" />
-                      The roll width becomes your panel height
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-700 font-semibold uppercase tracking-wide mb-2">Panel Width</div>
-                    <div className="flex items-center gap-2">
-                      <QtyStepper value={panel.widthInches} onChange={v => updatePanel(idx, { widthInches: v })} min={12} max={1200} suffix="inches" />
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1.5">
-                      = {(panel.widthInches / 12).toFixed(1)} feet
-                    </div>
-                  </div>
+                {/* Color swatches */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-xs text-gray-700 font-semibold uppercase tracking-wide">Color:</span>
+                  {MESH_COLOR_SWATCHES.filter(c => availableColors.includes(c.id)).map(c => (
+                    <button key={c.id} type="button" onClick={() => updatePanel(idx, { meshColor: c.id })}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${panel.meshColor === c.id ? 'ring-2 ring-[#406517] bg-[#406517]/5' : 'bg-gray-50 hover:bg-gray-100'}`}>
+                      <div className="w-5 h-5 rounded-full border-2 border-gray-300" style={{ backgroundColor: c.hex }} />
+                      <span className="text-gray-700">{c.label}</span>
+                      {panel.meshColor === c.id && <Check className="w-3.5 h-3.5 text-[#406517]" />}
+                    </button>
+                  ))}
                 </div>
               </Stack>
             </HeaderBarSection>
@@ -988,7 +1032,7 @@ export default function RawNettingPanelBuilder() {
                         <div className="flex justify-between">
                           <span className="text-gray-600">
                             Mesh — {meshCard.label} {panel.rollWidth}&quot;
-                            <span className="text-gray-400 ml-1">({(panel.widthInches / 12).toFixed(1)}ft @ {pricing.perFootRate > 0 ? `$${pricing.perFootRate.toFixed(2)}/ft` : '...'})</span>
+                            <span className="text-gray-400 ml-1">({fmtFtIn(panel.widthInches)} @ {pricing.perFootRate > 0 ? `$${pricing.perFootRate.toFixed(2)}/ft` : '...'})</span>
                           </span>
                           <span className="font-semibold tabular-nums">
                             {pricing.meshCost > 0 ? fmt$(pricing.meshCost) : <span className="text-gray-400">--</span>}
@@ -1005,7 +1049,7 @@ export default function RawNettingPanelBuilder() {
                           <div key={label} className="flex justify-between">
                             <span className="text-gray-600">
                               {label} — {EDGE_LABEL_SHORT[edge]}
-                              <span className="text-gray-400 ml-1">({(len / 12).toFixed(1)}ft)</span>
+                              <span className="text-gray-400 ml-1">({fmtFtIn(len)})</span>
                             </span>
                             <span className="font-semibold tabular-nums">
                               {cost != null ? (cost > 0 ? fmt$(cost) : 'Free') : <span className="text-gray-400 italic font-normal">Quote</span>}
@@ -1056,7 +1100,7 @@ export default function RawNettingPanelBuilder() {
                   <div>
                     <div className="text-sm font-semibold text-gray-800">{meshLabel} — {colorLabel}</div>
                     <div className="text-xs text-gray-500">
-                      {p.widthInches}&quot; W &times; {p.rollWidth}&quot; H
+                      {fmtFtIn(p.widthInches)} W &times; {fmtFtIn(p.rollWidth)} H
                       <span className="mx-1.5 text-gray-300">|</span>
                       Edges: {EDGE_LABEL_SHORT[p.topEdge]} / {EDGE_LABEL_SHORT[p.rightEdge]} / {EDGE_LABEL_SHORT[p.bottomEdge]} / {EDGE_LABEL_SHORT[p.leftEdge]}
                     </div>
@@ -1091,103 +1135,99 @@ export default function RawNettingPanelBuilder() {
          SECTION 2: SAVE YOUR PROJECT
          ══════════════════════════════════════════════ */}
       <Card className="!p-0 !bg-white !border-2 !border-[#406517]/20 overflow-hidden">
-        <div className="p-6 md:p-8">
-          <div className="flex flex-col md:flex-row md:items-start gap-6 md:gap-10">
-            {/* Left: Form */}
-            <div className="flex-1 space-y-3">
-              {saveStatus === 'saved' ? (
-                /* ── Saved success state ── */
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-[#406517]">
-                    <CheckCircle className="w-5 h-5" />
-                    <span className="text-sm font-semibold">Project Saved{firstName ? ` for ${firstName}` : ''}!</span>
-                  </div>
-                  {shareUrl && (
-                    <div className="flex items-center gap-2 bg-[#406517]/5 border border-[#406517]/20 rounded-xl px-4 py-3">
-                      <Link2 className="w-4 h-4 text-[#406517] shrink-0" />
-                      <span className="text-sm font-mono text-[#406517] truncate flex-1">
-                        {typeof window !== 'undefined' ? window.location.origin : ''}{shareUrl}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const fullUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}${shareUrl}`
-                          navigator.clipboard.writeText(fullUrl)
-                        }}
-                        className="shrink-0 p-1.5 rounded-lg hover:bg-[#406517]/10 transition-colors"
-                        title="Copy link"
-                      >
-                        <Copy className="w-4 h-4 text-[#406517]" />
-                      </button>
-                    </div>
-                  )}
-                  <Text size="xs" className="text-gray-500 !mb-0">
-                    We&apos;ve emailed your project link to <strong>{email}</strong>. You can return anytime to edit or submit for review.
-                  </Text>
-                  <button type="button" onClick={() => setSaveStatus('idle')} className="text-xs text-[#406517] font-medium underline underline-offset-2 hover:text-[#2e4a10] transition-colors">
-                    Edit project details
+        {/* Centered header */}
+        <div className="text-center px-6 pt-6 md:pt-8 pb-4 border-b border-gray-100">
+          <div className="flex items-center justify-center gap-2.5 mb-1.5">
+            <Bookmark className="w-6 h-6 text-[#406517]" />
+            <h3 className="text-xl font-bold text-gray-900">Save Your Project</h3>
+          </div>
+          <p className="text-sm text-gray-500 max-w-md mx-auto">
+            Get a shareable link emailed to you. Come back anytime to edit, review, or order. No commitment.
+          </p>
+        </div>
+
+        {/* Full-width form content */}
+        <div className="px-6 pb-6 md:px-8 md:pb-8 pt-5">
+          {saveStatus === 'saved' ? (
+            /* ── Saved success state ── */
+            <div className="space-y-3">
+              <div className="flex items-center justify-center gap-2 text-[#406517]">
+                <CheckCircle className="w-5 h-5" />
+                <span className="text-sm font-semibold">Project Saved{firstName ? ` for ${firstName}` : ''}!</span>
+              </div>
+              {shareUrl && (
+                <div className="flex items-center gap-2 bg-[#406517]/5 border border-[#406517]/20 rounded-xl px-4 py-3">
+                  <Link2 className="w-4 h-4 text-[#406517] shrink-0" />
+                  <span className="text-sm font-mono text-[#406517] truncate flex-1">
+                    {typeof window !== 'undefined' ? window.location.origin : ''}{shareUrl}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const fullUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}${shareUrl}`
+                      navigator.clipboard.writeText(fullUrl)
+                    }}
+                    className="shrink-0 p-1.5 rounded-lg hover:bg-[#406517]/10 transition-colors"
+                    title="Copy link"
+                  >
+                    <Copy className="w-4 h-4 text-[#406517]" />
                   </button>
                 </div>
-              ) : (
-                /* ── Save form ── */
-                <>
-                  <div className="relative">
-                    <FileText className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <input type="text" placeholder="Project name (e.g. &quot;Porch Enclosure&quot;)" value={projectName} onChange={e => setProjectName(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <input type="text" placeholder="First name *" value={firstName} onChange={e => setFirstName(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
-                    </div>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <input type="email" placeholder="Email address *" value={email} onChange={e => setEmail(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
-                    </div>
-                  </div>
-                  <textarea
-                    placeholder="Notes for yourself (optional) — what is this project for?"
-                    value={saveDescription}
-                    onChange={e => setSaveDescription(e.target.value)}
-                    rows={2}
-                    className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors resize-none"
-                  />
-                  <Button
-                    variant="primary"
-                    size="lg"
-                    className="w-full"
-                    onClick={handleSaveProject}
-                    disabled={!isValidEmail(email) || !firstName.trim() || saveStatus === 'saving'}
-                  >
-                    {saveStatus === 'saving' ? (
-                      <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving...</>
-                    ) : saveStatus === 'error' ? (
-                      <>Try Again</>
-                    ) : (
-                      <><Bookmark className="w-4 h-4 mr-2" /> Save Project</>
-                    )}
-                  </Button>
-                </>
               )}
-            </div>
-
-            {/* Right: Headline + Subline CTA text */}
-            <div className="md:w-[280px] shrink-0 md:text-right">
-              <div className="flex items-center gap-2 md:justify-end mb-2">
-                <Bookmark className="w-6 h-6 text-[#406517]" />
-                <h3 className="text-xl font-bold text-gray-900">Save Your Project</h3>
+              <Text size="xs" className="text-gray-500 !mb-0 text-center">
+                We&apos;ve emailed your project link to <strong>{email}</strong>. You can return anytime to edit or submit for review.
+              </Text>
+              <div className="text-center">
+                <button type="button" onClick={() => setSaveStatus('idle')} className="text-xs text-[#406517] font-medium underline underline-offset-2 hover:text-[#2e4a10] transition-colors">
+                  Edit project details
+                </button>
               </div>
-              <p className="text-sm text-gray-600 leading-relaxed">
-                Get a shareable link emailed to you. Come back anytime to edit, review, or order.
-              </p>
-              <p className="text-xs text-gray-400 mt-2">
-                No commitment. We&apos;ll never spam you.
-              </p>
             </div>
-          </div>
+          ) : (
+            /* ── Save form ── */
+            <div className="space-y-3">
+              <div className="relative">
+                <FileText className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input type="text" placeholder="Project name (e.g. &quot;Porch Enclosure&quot;)" value={projectName} onChange={e => setProjectName(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input type="text" placeholder="First name *" value={firstName} onChange={e => setFirstName(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
+                </div>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input type="email" placeholder="Email address *" value={email} onChange={e => setEmail(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
+                </div>
+              </div>
+              <textarea
+                placeholder="Notes for yourself (optional) — what is this project for?"
+                value={saveDescription}
+                onChange={e => setSaveDescription(e.target.value)}
+                rows={2}
+                className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors resize-none"
+              />
+              <div className="text-center">
+                <Button
+                  variant="primary"
+                  size="lg"
+                  onClick={handleSaveProject}
+                  disabled={!isValidEmail(email) || !firstName.trim() || saveStatus === 'saving'}
+                >
+                  {saveStatus === 'saving' ? (
+                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving...</>
+                  ) : saveStatus === 'error' ? (
+                    <>Try Again</>
+                  ) : (
+                    <><Bookmark className="w-4 h-4 mr-2" /> Save Project</>
+                  )}
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </Card>
 
@@ -1196,140 +1236,132 @@ export default function RawNettingPanelBuilder() {
          ══════════════════════════════════════════════ */}
       {submitStatus !== 'submitted' ? (
         <Card className="!p-0 !bg-white !border-2 !border-[#406517]/20 overflow-hidden">
-          <div className="p-6 md:p-8">
-            <div className="flex flex-col md:flex-row md:items-start gap-6 md:gap-10">
-              {/* Left: Form fields */}
-              <div className="flex-1 space-y-3">
-                {/* Project name (auto-populated) */}
-                <div className="relative">
-                  <FileText className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input type="text" placeholder="Project name *" value={projectName} onChange={e => setProjectName(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
-                </div>
-
-                {/* Name fields */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <input type="text" placeholder="First name *" value={firstName} onChange={e => setFirstName(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
-                  </div>
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <input type="text" placeholder="Last name" value={lastName} onChange={e => setLastName(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
-                  </div>
-                </div>
-
-                {/* Email + Phone */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <input type="email" placeholder="Email address *" value={email} onChange={e => setEmail(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
-                  </div>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <input type="tel" placeholder="Phone (optional)" value={phone} onChange={e => setPhone(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
-                  </div>
-                </div>
-
-                {/* Photos upload */}
-                <div>
-                  <label className="flex items-center gap-3 px-4 py-3 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-[#406517] hover:bg-[#406517]/5 transition-colors group">
-                    <Camera className="w-5 h-5 text-gray-400 group-hover:text-[#406517] transition-colors" />
-                    <div>
-                      <span className="text-sm font-medium text-gray-600 group-hover:text-[#406517] transition-colors">Upload photos of your space</span>
-                      <span className="block text-xs text-gray-400">Optional — helps us give the best recommendation</span>
-                    </div>
-                    <input type="file" multiple accept="image/*" className="hidden" />
-                  </label>
-                </div>
-
-                {/* Description */}
-                <textarea
-                  placeholder="Describe your project — what are you building? Any special requirements or questions for our team?"
-                  value={submitDescription}
-                  onChange={e => setSubmitDescription(e.target.value)}
-                  rows={3}
-                  className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors resize-none"
-                />
-
-                {/* Submit + Order buttons */}
-                <div className="space-y-3 pt-1">
-                  <Button
-                    variant="primary"
-                    size="lg"
-                    className="w-full"
-                    onClick={handleSubmitProject}
-                    disabled={!isValidEmail(email) || !firstName.trim() || submitStatus === 'submitting'}
-                  >
-                    {submitStatus === 'submitting' ? (
-                      <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Submitting...</>
-                    ) : submitStatus === 'error' ? (
-                      <>Try Again</>
-                    ) : (
-                      <><ShieldCheck className="w-4 h-4 mr-2" /> Submit for Free Expert Review</>
-                    )}
-                  </Button>
-
-                  {/* Divider */}
-                  <div className="flex items-center gap-3">
-                    <div className="h-px flex-1 bg-gray-200" />
-                    <span className="text-xs text-gray-400 uppercase tracking-wider">or</span>
-                    <div className="h-px flex-1 bg-gray-200" />
-                  </div>
-
-                  {/* Order Now */}
-                  {grandTotal != null && !anyNeedsQuote ? (
-                    <div className="text-center space-y-1">
-                      <Button
-                        variant="secondary"
-                        size="lg"
-                        className="w-full"
-                        onClick={() => setShowCheckoutModal(true)}
-                      >
-                        <ShoppingCart className="w-4 h-4 mr-2" />
-                        Order Now — {fmt$(grandTotal)}
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Button>
-                      <Text size="xs" className="text-gray-400 !mb-0">
-                        For customers who know exactly what they need.
-                      </Text>
-                    </div>
-                  ) : (
-                    <div className="text-center space-y-1">
-                      <Button variant="secondary" size="lg" className="w-full opacity-50" disabled>
-                        <ShoppingCart className="w-4 h-4 mr-2" />
-                        {anyNeedsQuote ? 'Webbing options require expert review' : 'Enter panel dimensions to order'}
-                      </Button>
-                      <Text size="xs" className="text-gray-400 !mb-0">
-                        {anyNeedsQuote
-                          ? 'Panels with heavy webbing need a custom quote. Submit for review above.'
-                          : 'Set your panel width to see pricing and enable direct ordering.'}
-                      </Text>
-                    </div>
-                  )}
-                </div>
+          {/* Centered header */}
+          <div className="text-center px-6 pt-6 md:pt-8 pb-4 border-b border-gray-100">
+            <div className="flex items-center justify-center gap-2.5 mb-1.5">
+              <Send className="w-6 h-6 text-[#406517]" />
+              <h3 className="text-xl font-bold text-gray-900">Submit Your Design</h3>
+            </div>
+            <p className="text-sm text-gray-500 max-w-lg mx-auto">
+              Every project gets a free human review before it&apos;s built. We&apos;ll confirm pricing, check your specs, and email you a checkout link or suggest adjustments.
+            </p>
+            {projectSaved && (
+              <div className="flex items-center justify-center gap-1.5 mt-2 text-xs text-[#406517]">
+                <CheckCircle className="w-3.5 h-3.5" />
+                <span className="font-medium">Auto-filled from your saved project</span>
               </div>
+            )}
+          </div>
 
-              {/* Right: Headline + Subline CTA text */}
-              <div className="md:w-[280px] shrink-0 md:text-right">
-                <div className="flex items-center gap-2 md:justify-end mb-2">
-                  <Send className="w-6 h-6 text-[#406517]" />
-                  <h3 className="text-xl font-bold text-gray-900">Submit Your Design</h3>
-                </div>
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  Every project gets a free human review before it&apos;s built. We&apos;ll confirm pricing, check your specs, and email you a checkout link or suggest adjustments.
-                </p>
-                {projectSaved && (
-                  <div className="mt-3 flex items-center gap-1.5 md:justify-end text-xs text-[#406517]">
-                    <CheckCircle className="w-3.5 h-3.5" />
-                    <span className="font-medium">Auto-filled from your saved project</span>
-                  </div>
+          {/* Full-width form content */}
+          <div className="px-6 pb-6 md:px-8 md:pb-8 pt-5 space-y-3">
+            {/* Project name (auto-populated) */}
+            <div className="relative">
+              <FileText className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input type="text" placeholder="Project name *" value={projectName} onChange={e => setProjectName(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
+            </div>
+
+            {/* Name fields */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input type="text" placeholder="First name *" value={firstName} onChange={e => setFirstName(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
+              </div>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input type="text" placeholder="Last name" value={lastName} onChange={e => setLastName(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
+              </div>
+            </div>
+
+            {/* Email + Phone */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input type="email" placeholder="Email address *" value={email} onChange={e => setEmail(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
+              </div>
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input type="tel" placeholder="Phone (optional)" value={phone} onChange={e => setPhone(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
+              </div>
+            </div>
+
+            {/* Photos upload */}
+            <label className="flex items-center gap-3 px-4 py-3 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-[#406517] hover:bg-[#406517]/5 transition-colors group">
+              <Camera className="w-5 h-5 text-gray-400 group-hover:text-[#406517] transition-colors" />
+              <div>
+                <span className="text-sm font-medium text-gray-600 group-hover:text-[#406517] transition-colors">Upload photos of your space</span>
+                <span className="block text-xs text-gray-400">Optional — helps us give the best recommendation</span>
+              </div>
+              <input type="file" multiple accept="image/*" className="hidden" />
+            </label>
+
+            {/* Description */}
+            <textarea
+              placeholder="Describe your project — what are you building? Any special requirements or questions for our team?"
+              value={submitDescription}
+              onChange={e => setSubmitDescription(e.target.value)}
+              rows={3}
+              className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors resize-none"
+            />
+
+            {/* Submit + Order buttons */}
+            <div className="space-y-3 pt-1 text-center">
+              <Button
+                variant="primary"
+                size="lg"
+                onClick={handleSubmitProject}
+                disabled={!isValidEmail(email) || !firstName.trim() || submitStatus === 'submitting'}
+              >
+                {submitStatus === 'submitting' ? (
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Submitting...</>
+                ) : submitStatus === 'error' ? (
+                  <>Try Again</>
+                ) : (
+                  <><ShieldCheck className="w-4 h-4 mr-2" /> Submit for Free Expert Review</>
                 )}
+              </Button>
+
+              {/* Divider */}
+              <div className="flex items-center gap-3">
+                <div className="h-px flex-1 bg-gray-200" />
+                <span className="text-xs text-gray-400 uppercase tracking-wider">or</span>
+                <div className="h-px flex-1 bg-gray-200" />
               </div>
+
+              {/* Order Now */}
+              {grandTotal != null && !anyNeedsQuote ? (
+                <div className="space-y-1">
+                  <Button
+                    variant="secondary"
+                    size="lg"
+                    onClick={() => setShowCheckoutModal(true)}
+                  >
+                    <ShoppingCart className="w-4 h-4 mr-2" />
+                    Order Now — {fmt$(grandTotal)}
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                  <Text size="xs" className="text-gray-400 !mb-0">
+                    For customers who know exactly what they need.
+                  </Text>
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  <Button variant="secondary" size="lg" className="opacity-50" disabled>
+                    <ShoppingCart className="w-4 h-4 mr-2" />
+                    {anyNeedsQuote ? 'Webbing options require expert review' : 'Enter panel dimensions to order'}
+                  </Button>
+                  <Text size="xs" className="text-gray-400 !mb-0">
+                    {anyNeedsQuote
+                      ? 'Panels with heavy webbing need a custom quote. Submit for review above.'
+                      : 'Set your panel width to see pricing and enable direct ordering.'}
+                  </Text>
+                </div>
+              )}
             </div>
           </div>
         </Card>
@@ -1363,6 +1395,36 @@ export default function RawNettingPanelBuilder() {
           </div>
         </Card>
       )}
+
+      {/* ── Mesh detail modal ── */}
+      {meshDetailType && (() => {
+        const m = MESH_TYPE_CARDS.find(c => c.id === meshDetailType)
+        if (!m) return null
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setMeshDetailType(null)} />
+            <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
+              <button type="button" onClick={() => setMeshDetailType(null)} className="absolute top-3 right-3 z-10 p-1.5 rounded-full bg-white/80 hover:bg-white shadow transition-colors">
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={m.image} alt={m.label} className="w-full aspect-video object-cover" />
+              <div className="p-5">
+                <h3 className="text-lg font-bold text-gray-900 mb-1">{m.label}</h3>
+                <p className="text-sm text-gray-500 mb-3">{m.subtitle}</p>
+                <p className="text-sm text-gray-600 leading-relaxed mb-4">{m.description}</p>
+                <div className="flex flex-wrap gap-4 text-xs text-gray-500 mb-4">
+                  <div><span className="font-semibold text-gray-700">Colors:</span> {m.colors.map(c => MESH_COLOR_SWATCHES.find(s => s.id === c)?.label || c).join(', ')}</div>
+                  <div><span className="font-semibold text-gray-700">Roll widths:</span> {m.rollWidths.map(rw => `${rw}" (${fmtFtIn(rw)})`).join(', ')}</div>
+                </div>
+                <Button variant="primary" size="md" onClick={() => setMeshDetailType(null)}>
+                  Close
+                </Button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
 
       {/* ── Checkout confirmation modal ── */}
       {showCheckoutModal && grandTotal != null && (

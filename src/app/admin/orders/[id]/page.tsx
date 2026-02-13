@@ -191,6 +191,10 @@ export default function OrderDetailPage() {
   // Diagram upload
   const [uploadingDiagram, setUploadingDiagram] = useState(false)
 
+  // Delete order
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deletingOrder, setDeletingOrder] = useState(false)
+
   // Staff list for salesperson dropdown
   const [staffList, setStaffList] = useState<{ id: string; name: string; email: string }[]>([])
 
@@ -334,6 +338,26 @@ export default function OrderDetailPage() {
     }
   }
 
+  // --- Delete Order ---
+  const handleDeleteOrder = async () => {
+    setDeletingOrder(true)
+    try {
+      const res = await fetch(`/api/admin/orders/${id}`, { method: 'DELETE' })
+      const data = await res.json()
+      if (data.success) {
+        router.push('/admin/orders')
+      } else {
+        console.error('Failed to delete order:', data.error)
+        setShowDeleteConfirm(false)
+      }
+    } catch (err) {
+      console.error('Failed to delete order:', err)
+      setShowDeleteConfirm(false)
+    } finally {
+      setDeletingOrder(false)
+    }
+  }
+
   // --- Diagram Upload ---
   const handleDiagramUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -424,6 +448,14 @@ export default function OrderDetailPage() {
                   </Link>
                 </Button>
               )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowDeleteConfirm(true)}
+                className="!border-red-200 !text-red-600 hover:!bg-red-50"
+              >
+                <Trash2 className="w-4 h-4 mr-1" /> Delete
+              </Button>
             </div>
           </div>
         </section>
@@ -775,6 +807,52 @@ export default function OrderDetailPage() {
           </Grid>
         </section>
       </Stack>
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-red-100 rounded-full">
+                <Trash2 className="w-5 h-5 text-red-600" />
+              </div>
+              <Heading level={3} className="!mb-0">Delete Order</Heading>
+            </div>
+            <Text size="sm" className="text-gray-600 mb-2">
+              Are you sure you want to delete <strong>{order.order_number}</strong>? This will permanently remove:
+            </Text>
+            <ul className="text-sm text-gray-600 mb-6 ml-4 list-disc space-y-1">
+              <li>The order and all its details</li>
+              <li>All line items ({lineItems.length})</li>
+              <li>All line item options</li>
+              <li>All order notes ({notes.length})</li>
+            </ul>
+            <Text size="xs" className="text-red-600 font-medium mb-4">
+              This action cannot be undone.
+            </Text>
+            <div className="flex items-center justify-end gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={deletingOrder}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleDeleteOrder}
+                disabled={deletingOrder}
+                className="!bg-red-600 hover:!bg-red-700 !border-red-600"
+              >
+                <Trash2 className="w-4 h-4 mr-1" />
+                {deletingOrder ? 'Deleting...' : 'Delete Order'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </Container>
   )
 }

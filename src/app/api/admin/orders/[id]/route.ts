@@ -164,3 +164,56 @@ export async function PUT(
     )
   }
 }
+
+/**
+ * DELETE /api/admin/orders/[id]
+ * Delete an order and all associated line items/options (cascade).
+ */
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+    const supabase = createAdminClient()
+
+    // Verify order exists first
+    const { data: existing, error: fetchError } = await supabase
+      .from('orders')
+      .select('id, order_number')
+      .eq('id', id)
+      .single()
+
+    if (fetchError || !existing) {
+      return NextResponse.json(
+        { error: 'Order not found' },
+        { status: 404 }
+      )
+    }
+
+    // Delete order — line_items and line_item_options cascade automatically
+    const { error: deleteError } = await supabase
+      .from('orders')
+      .delete()
+      .eq('id', id)
+
+    if (deleteError) {
+      console.error('Error deleting order:', deleteError)
+      return NextResponse.json(
+        { error: 'Failed to delete order' },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: `Order ${existing.order_number} deleted`,
+    })
+  } catch (error) {
+    console.error('Order DELETE error:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}

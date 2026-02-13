@@ -7,8 +7,8 @@
  * Fetches active recommendation rules from /api/diy-hardware and provides
  * a function to compute product recommendations based on panel configuration.
  *
- * The rules define WHAT to recommend and HOW MANY. Pricing/images come from
- * the products table (passed in via the `products` parameter).
+ * The rules are thin "calc config" rows: product_sku + calc_rule + calc_params.
+ * All display data (name, price, image, unit) comes from the products table.
  *
  * Uses module-level cache (same pattern as useProducts).
  */
@@ -23,16 +23,11 @@ import type { DBProduct } from '@/hooks/useProducts'
 
 export interface DiyHardwareItem {
   id: string
-  item_key: string
-  category: string
-  product_sku: string | null   // links to products.sku for pricing/images
-  name: string
-  description_template: string | null
-  unit_label: string
+  product_sku: string            // links to products.sku (NOT NULL)
   calc_rule: string
   calc_params: Record<string, number | string>
   color_match: string | null
-  product_types: string | null  // comma-separated: 'mosquito_curtains,clear_vinyl'. null = all
+  product_types: string | null   // comma-separated: 'mosquito_curtains,clear_vinyl'. null = all
   sort_order: number
   active: boolean
 }
@@ -98,6 +93,47 @@ function fetchHardwareItems(): Promise<DiyHardwareItem[] | null> {
 }
 
 // =============================================================================
+// DESCRIPTION GENERATOR
+// =============================================================================
+
+/**
+ * Generate a human-readable description based on the calc rule and context.
+ * Replaces the old description_template column in the DB.
+ */
+function generateDescription(
+  calcRule: string,
+  qty: number,
+  context: {
+    totalTrackFeet: number
+    sidesWithTracking: number
+    trackPieces: number
+    snapEdges: number
+    magnetDoorways: number
+    stuccoEdges: number
+    packQty: number
+  },
+): string {
+  switch (calcRule) {
+    case 'track_linear_pieces':
+      return `${qty} piece(s) for ~${Math.ceil(context.totalTrackFeet)}ft of track`
+    case 'track_splices':
+      return `Connects ${context.trackPieces} track pieces across ${context.sidesWithTracking} run(s)`
+    case 'track_endcaps':
+      return `2 per track run (${context.sidesWithTracking} run(s))`
+    case 'per_snap_edge':
+      return `${qty} pack(s) for ${context.snapEdges} snap edge(s) (${context.packQty} per pack)`
+    case 'per_doorway_count':
+      return `${qty} for ${context.magnetDoorways} doorway(s)`
+    case 'per_stucco_edge':
+      return `${qty} strip(s) for ${context.stuccoEdges} stucco edge(s)`
+    case 'fixed_quantity':
+      return ''
+    default:
+      return ''
+  }
+}
+
+// =============================================================================
 // CALCULATION ENGINE
 // =============================================================================
 
@@ -116,8 +152,8 @@ export function computeHardwareRecommendations(
 ): HardwareRecommendation[] {
   if (panels.length === 0 || !hardwareItems || hardwareItems.length === 0) return []
 
-  const findProduct = (sku: string | null) =>
-    sku && products ? products.find(p => p.sku === sku) : null
+  const findProduct = (sku: string) =>
+    products ? products.find(p => p.sku === sku) : null
 
   const results: HardwareRecommendation[] = []
 
@@ -135,6 +171,13 @@ export function computeHardwareRecommendations(
   const stuccoEdges = panels.reduce((n, p) =>
     n + (p.side1 === 'stucco_strip' ? 1 : 0) + (p.side2 === 'stucco_strip' ? 1 : 0), 0)
 
+  // Track pieces (needed by both track_linear_pieces and track_splices)
+  const trackStraight = hardwareItems.find(h => h.calc_rule === 'track_linear_pieces')
+  const trackPieceLength = trackStraight
+    ? (Number(trackStraight.calc_params.piece_length_inches) || 84)
+    : 84
+  const trackPieces = totalTrackFeet > 0 ? Math.ceil(totalTrackFeet / (trackPieceLength / 12)) : 0
+
   for (const item of hardwareItems) {
     // ── Product type matching ──
     if (productType && item.product_types) {
@@ -149,7 +192,6 @@ export function computeHardwareRecommendations(
     }
 
     let qty = 0
-    let description = item.description_template || ''
 
     switch (item.calc_rule) {
       case 'track_linear_pieces': {
@@ -157,25 +199,13 @@ export function computeHardwareRecommendations(
         const pieceLengthInches = Number(item.calc_params.piece_length_inches) || 84
         const pieceLengthFeet = pieceLengthInches / 12
         qty = Math.ceil(totalTrackFeet / pieceLengthFeet)
-        description = description
-          .replace('{pieces}', String(qty))
-          .replace('{total_feet}', String(Math.ceil(totalTrackFeet)))
         break
       }
 
       case 'track_splices': {
         if (trackingPanels.length === 0) continue
-        // Look up the track piece length from the track_linear_pieces item
-        const trackStraight = hardwareItems.find(h => h.calc_rule === 'track_linear_pieces')
-        const actualPieceLength = trackStraight
-          ? (Number(trackStraight.calc_params.piece_length_inches) || 84)
-          : 84
-        const trackPieces = Math.ceil(totalTrackFeet / (actualPieceLength / 12))
         qty = Math.max(0, trackPieces - sidesWithTracking)
         if (qty === 0) continue
-        description = description
-          .replace('{pieces}', String(trackPieces))
-          .replace('{runs}', String(sidesWithTracking))
         break
       }
 
@@ -183,18 +213,12 @@ export function computeHardwareRecommendations(
         if (trackingPanels.length === 0) continue
         const perRun = Number(item.calc_params.per_run) || 2
         qty = sidesWithTracking * perRun
-        description = description.replace('{runs}', String(sidesWithTracking))
         break
       }
 
       case 'per_snap_edge': {
         if (snapEdges === 0) continue
         qty = snapEdges
-        const snapProduct = findProduct(item.product_sku)
-        const snapPackQty = snapProduct?.pack_quantity ?? 10
-        description = description
-          .replace('{edges}', String(snapEdges))
-          .replace('{pack_qty}', String(snapPackQty))
         break
       }
 
@@ -202,16 +226,12 @@ export function computeHardwareRecommendations(
         if (magnetDoorways === 0) continue
         const perDoorway = Number(item.calc_params.per_doorway) || 1
         qty = magnetDoorways * perDoorway
-        description = description
-          .replace('{per_doorway}', String(perDoorway))
-          .replace('{doorways}', String(magnetDoorways))
         break
       }
 
       case 'per_stucco_edge': {
         if (stuccoEdges === 0) continue
         qty = stuccoEdges
-        description = description.replace('{edges}', String(stuccoEdges))
         break
       }
 
@@ -232,13 +252,23 @@ export function computeHardwareRecommendations(
     const image = product?.image_url ?? null
     const packQty = product?.pack_quantity ?? 1
 
+    const description = generateDescription(item.calc_rule, qty, {
+      totalTrackFeet,
+      sidesWithTracking,
+      trackPieces,
+      snapEdges,
+      magnetDoorways,
+      stuccoEdges,
+      packQty,
+    })
+
     results.push({
-      key: item.item_key,
-      itemKey: item.item_key,
-      label: product?.name || item.name,
+      key: item.product_sku,
+      itemKey: item.product_sku,
+      label: product?.name || item.product_sku,
       description,
       qty,
-      unit: item.unit_label,
+      unit: product?.unit || 'each',
       unitPrice,
       totalPrice: qty * unitPrice,
       image,

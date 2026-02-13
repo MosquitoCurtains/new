@@ -74,10 +74,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'No updates provided' }, { status: 400 })
     }
 
+    // Only allow fields that exist on the thin table
     const ALLOWED_FIELDS = [
-      'name', 'description_template', 'product_sku',
-      'unit_label', 'calc_rule', 'calc_params',
-      'color_match', 'product_types', 'sort_order', 'active', 'admin_notes',
+      'product_sku', 'calc_rule', 'calc_params',
+      'color_match', 'product_types', 'sort_order', 'active',
     ]
 
     const results = await Promise.all(
@@ -99,7 +99,7 @@ export async function POST(request: Request) {
         } else if (field === 'calc_params') {
           updatePayload.calc_params = typeof value === 'string' ? JSON.parse(value) : value
         } else {
-          // String fields (name, description_template, product_sku, unit_label, calc_rule, color_match, admin_notes)
+          // String fields (product_sku, calc_rule, color_match, product_types)
           updatePayload[field] = value === null ? null : String(value)
         }
 

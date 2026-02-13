@@ -3,16 +3,13 @@
 /**
  * Admin DIY Hardware Recommendations
  *
- * Manage the recommendation rules for the DIY Panel Builder's
+ * Manage the thin "calc config" rules for the DIY Panel Builder's
  * "Track & Attachments" step.
  *
- * This page controls WHAT hardware to recommend and HOW MANY
- * based on the customer's panel configuration. Pricing is managed
- * separately at /admin/pricing.
- *
- * Each item has a calculation rule and tunable parameters that
- * determine quantities. Example: 100ft of total width with
- * track_linear_pieces and piece_length_inches=84 → ceil(100/7) = 15 pieces.
+ * Each rule links a product (via product_sku) to a calculation formula.
+ * All display data (name, price, image) comes from the products table.
+ * This page only controls: product_sku, calc_rule, calc_params,
+ * color_match, product_types, sort_order, and active.
  */
 
 import { useState, useEffect, useCallback } from 'react'
@@ -25,10 +22,6 @@ import {
   CheckCircle,
   AlertCircle,
   Wrench,
-  SlidersHorizontal,
-  Magnet,
-  Columns3,
-  Hammer,
   Eye,
   EyeOff,
   Plus,
@@ -37,6 +30,10 @@ import {
   ChevronUp,
   Calculator,
   Info,
+  SlidersHorizontal,
+  Columns3,
+  Magnet,
+  Hammer,
 } from 'lucide-react'
 import { Container, Stack, Card, Heading, Text, Button, Spinner } from '@/lib/design-system'
 
@@ -46,72 +43,27 @@ import { Container, Stack, Card, Heading, Text, Button, Spinner } from '@/lib/de
 
 interface HardwareItem {
   id: string
-  item_key: string
-  category: string
-  product_sku: string | null
-  name: string
-  description_template: string | null
-  unit_label: string
+  product_sku: string
   calc_rule: string
   calc_params: Record<string, number | string>
   color_match: string | null
-  product_types: string | null  // comma-separated: 'mosquito_curtains,clear_vinyl'. null = all
+  product_types: string | null
   sort_order: number
   active: boolean
-  admin_notes: string | null
   created_at: string
   updated_at: string
 }
 
-interface CategoryConfig {
-  id: string
-  title: string
-  subtitle: string
-  icon: typeof Wrench
-  color: string
+interface ProductInfo {
+  sku: string
+  name: string
+  base_price: number
+  unit: string
+  image_url: string | null
+  product_type: string
+  product_category: string | null
+  category_section: string | null
 }
-
-// =============================================================================
-// CATEGORY CONFIGURATION
-// =============================================================================
-
-const CATEGORIES: CategoryConfig[] = [
-  {
-    id: 'track',
-    title: 'Track Hardware',
-    subtitle: 'Recommended when top attachment = Tracking',
-    icon: SlidersHorizontal,
-    color: '#406517',
-  },
-  {
-    id: 'snap',
-    title: 'Marine Snaps',
-    subtitle: 'Recommended when any side edge = Marine Snaps',
-    icon: Columns3,
-    color: '#003365',
-  },
-  {
-    id: 'magnetic_door',
-    title: 'Magnetic Door Hardware',
-    subtitle: 'Recommended when panel layout = 2 Panels (magnetic doorway)',
-    icon: Magnet,
-    color: '#B30158',
-  },
-  {
-    id: 'stucco',
-    title: 'Stucco Strips',
-    subtitle: 'Recommended when any side edge = Stucco Strip',
-    icon: Columns3,
-    color: '#8B5E3C',
-  },
-  {
-    id: 'tools',
-    title: 'Tools',
-    subtitle: 'Always recommended',
-    icon: Hammer,
-    color: '#555',
-  },
-]
 
 // =============================================================================
 // FORMULA DESCRIPTIONS
@@ -136,26 +88,26 @@ const CALC_RULES: Record<string, CalcRuleInfo> = {
     exampleFn: (params) => {
       const len = Number(params.piece_length_inches) || 84
       const ft = len / 12
-      return `Example: 100ft total width → ceil(100 / ${ft}) = ${Math.ceil(100 / ft)} pieces`
+      return `Example: 100ft total width = ceil(100 / ${ft.toFixed(1)}) = ${Math.ceil(100 / ft)} pieces`
     },
   },
   track_splices: {
     label: 'Track Splices',
     formula: 'total_track_pieces - number_of_track_runs',
-    description: 'One splice between each pair of adjacent track pieces in a continuous run. A "run" is one side with tracking.',
+    description: 'One splice between each pair of adjacent track pieces in a continuous run.',
     editableParams: [],
-    exampleFn: () => 'Example: 15 pieces across 3 sides → 15 - 3 = 12 splices',
+    exampleFn: () => 'Example: 15 pieces across 3 sides = 15 - 3 = 12 splices',
   },
   track_endcaps: {
     label: 'Track End Caps',
-    formula: 'number_of_track_runs × per_run',
+    formula: 'number_of_track_runs x per_run',
     description: 'Caps at each end of a continuous track run.',
     editableParams: [
       { key: 'per_run', label: 'Per Run', description: 'Number of end caps per track run (typically 2)' },
     ],
     exampleFn: (params) => {
       const perRun = Number(params.per_run) || 2
-      return `Example: 3 sides with tracking → 3 × ${perRun} = ${3 * perRun} end caps`
+      return `Example: 3 sides with tracking = 3 x ${perRun} = ${3 * perRun} end caps`
     },
   },
   per_snap_edge: {
@@ -163,18 +115,18 @@ const CALC_RULES: Record<string, CalcRuleInfo> = {
     formula: 'count of edges with marine_snaps attachment',
     description: 'One pack of snaps per panel edge that uses marine snap attachment.',
     editableParams: [],
-    exampleFn: () => 'Example: 4 panels, each with snaps on both sides → 8 packs',
+    exampleFn: () => 'Example: 4 panels, each with snaps on both sides = 8 packs',
   },
   per_doorway_count: {
     label: 'Per Doorway',
-    formula: 'number_of_doorways × per_doorway',
-    description: 'A fixed count of this item per magnetic doorway. A doorway is formed where two panels meet with magnetic_door split.',
+    formula: 'number_of_doorways x per_doorway',
+    description: 'A fixed count of this item per magnetic doorway.',
     editableParams: [
       { key: 'per_doorway', label: 'Per Doorway', description: 'How many of this item per magnetic doorway' },
     ],
     exampleFn: (params) => {
       const per = Number(params.per_doorway) || 1
-      return `Example: 2 doorways → 2 × ${per} = ${2 * per} items`
+      return `Example: 2 doorways = 2 x ${per} = ${2 * per} items`
     },
   },
   per_stucco_edge: {
@@ -182,7 +134,7 @@ const CALC_RULES: Record<string, CalcRuleInfo> = {
     formula: 'count of edges with stucco_strip attachment',
     description: 'One strip per panel edge that uses stucco strip attachment.',
     editableParams: [],
-    exampleFn: () => 'Example: 3 panels with stucco on left side → 3 strips',
+    exampleFn: () => 'Example: 3 panels with stucco on left side = 3 strips',
   },
   fixed_quantity: {
     label: 'Fixed Quantity',
@@ -202,26 +154,22 @@ const CALC_RULES: Record<string, CalcRuleInfo> = {
 // ADD ITEM MODAL
 // =============================================================================
 
-function AddItemModal({ open, onClose, onAdd }: {
+function AddItemModal({ open, onClose, onAdd, products }: {
   open: boolean
   onClose: () => void
   onAdd: (item: Partial<HardwareItem>) => void
+  products: ProductInfo[]
 }) {
-  const [itemKey, setItemKey] = useState('')
-  const [category, setCategory] = useState('track')
   const [productSku, setProductSku] = useState('')
-  const [name, setName] = useState('')
-  const [unitLabel, setUnitLabel] = useState('each')
   const [calcRule, setCalcRule] = useState('fixed_quantity')
-  const [descriptionTemplate, setDescriptionTemplate] = useState('')
 
   if (!open) return null
 
   const ruleInfo = CALC_RULES[calcRule]
+  const selectedProduct = products.find(p => p.sku === productSku)
 
   const handleSubmit = () => {
-    if (!itemKey.trim() || !name.trim()) return
-    // Build default calc_params from the rule's editable params
+    if (!productSku.trim()) return
     const defaultParams: Record<string, number> = {}
     if (ruleInfo) {
       for (const p of ruleInfo.editableParams) {
@@ -229,23 +177,15 @@ function AddItemModal({ open, onClose, onAdd }: {
       }
     }
     onAdd({
-      item_key: itemKey.trim(),
-      category,
-      product_sku: productSku.trim() || null,
-      name: name.trim(),
-      description_template: descriptionTemplate.trim() || null,
-      unit_label: unitLabel,
+      product_sku: productSku.trim(),
       calc_rule: calcRule,
       calc_params: defaultParams,
       color_match: null,
+      product_types: null,
       sort_order: 100,
       active: true,
-      admin_notes: null,
     })
-    setItemKey('')
-    setName('')
     setProductSku('')
-    setDescriptionTemplate('')
     onClose()
   }
 
@@ -255,36 +195,40 @@ function AddItemModal({ open, onClose, onAdd }: {
       <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6" onClick={e => e.stopPropagation()}>
         <Heading level={3} className="!mb-4">Add Recommendation Rule</Heading>
 
-        <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Item Key (unique ID)</label>
-              <input type="text" value={itemKey} onChange={e => setItemKey(e.target.value)} placeholder="e.g. track_heavy_straight" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#406517]" />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Product SKU (from /admin/pricing)</label>
-              <input type="text" value={productSku} onChange={e => setProductSku(e.target.value)} placeholder="e.g. track_standard_straight" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#406517]" />
-            </div>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Product</label>
+            <select
+              value={productSku}
+              onChange={e => setProductSku(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#406517]"
+            >
+              <option value="">Select a product...</option>
+              {products.map(p => (
+                <option key={p.sku} value={p.sku}>
+                  {p.name} ({p.sku}) - ${p.base_price}/{p.unit}
+                </option>
+              ))}
+            </select>
           </div>
+
+          {selectedProduct && (
+            <div className="flex items-center gap-3 bg-gray-50 rounded-lg p-3">
+              {selectedProduct.image_url && (
+                <img src={selectedProduct.image_url} alt="" className="w-10 h-10 rounded object-cover" />
+              )}
+              <div>
+                <div className="text-sm font-semibold text-gray-800">{selectedProduct.name}</div>
+                <div className="text-xs text-gray-500">${selectedProduct.base_price}/{selectedProduct.unit}</div>
+              </div>
+            </div>
+          )}
 
           <div>
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Display Name</label>
-            <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Heavy Track (8ft)" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#406517]" />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Category</label>
-              <select value={category} onChange={e => setCategory(e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#406517]">
-                {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Calculation Rule</label>
-              <select value={calcRule} onChange={e => setCalcRule(e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#406517]">
-                {Object.entries(CALC_RULES).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
-              </select>
-            </div>
+            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Calculation Rule</label>
+            <select value={calcRule} onChange={e => setCalcRule(e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#406517]">
+              {Object.entries(CALC_RULES).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+            </select>
           </div>
 
           {ruleInfo && (
@@ -293,22 +237,11 @@ function AddItemModal({ open, onClose, onAdd }: {
               <div className="text-gray-500">{ruleInfo.description}</div>
             </div>
           )}
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Unit Label</label>
-              <input type="text" value={unitLabel} onChange={e => setUnitLabel(e.target.value)} placeholder="each, pcs, packs..." className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#406517]" />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Description Template</label>
-              <input type="text" value={descriptionTemplate} onChange={e => setDescriptionTemplate(e.target.value)} placeholder="{pieces} piece(s) for ~{total_feet}ft" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#406517]" />
-            </div>
-          </div>
         </div>
 
         <div className="flex justify-end gap-3 mt-6">
           <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button variant="primary" onClick={handleSubmit} disabled={!itemKey.trim() || !name.trim()}>
+          <Button variant="primary" onClick={handleSubmit} disabled={!productSku.trim()}>
             <Plus className="w-4 h-4 mr-2" /> Add Rule
           </Button>
         </div>
@@ -321,8 +254,9 @@ function AddItemModal({ open, onClose, onAdd }: {
 // ITEM ROW
 // =============================================================================
 
-function ItemRow({ item, editMode, editedValues, onFieldChange }: {
+function ItemRow({ item, product, editMode, editedValues, onFieldChange }: {
   item: HardwareItem
+  product: ProductInfo | null
   editMode: boolean
   editedValues: Record<string, unknown>
   onFieldChange: (id: string, field: string, value: unknown) => void
@@ -340,7 +274,6 @@ function ItemRow({ item, editMode, editedValues, onFieldChange }: {
   const currentParams = getVal('calc_params', item.calc_params)
   const exampleText = ruleInfo ? ruleInfo.exampleFn(currentParams) : ''
 
-  // Update a single param inside calc_params
   const updateParam = (paramKey: string, value: number) => {
     const updated = { ...currentParams, [paramKey]: value }
     onFieldChange(item.id, 'calc_params', updated)
@@ -353,10 +286,20 @@ function ItemRow({ item, editMode, editedValues, onFieldChange }: {
         className="px-4 py-3 grid grid-cols-[1fr_auto_auto_40px] gap-4 items-center border-b border-gray-100 cursor-pointer hover:bg-gray-50/50 transition-colors"
         onClick={() => setExpanded(!expanded)}
       >
-        {/* Name + rule + example */}
+        {/* Product info + rule */}
         <div className="min-w-0">
           <div className="flex items-center gap-2 mb-0.5">
-            <Text className="font-semibold text-gray-900 !mb-0 text-sm">{item.name}</Text>
+            {product?.image_url && (
+              <img src={product.image_url} alt="" className="w-6 h-6 rounded object-cover shrink-0" />
+            )}
+            <Text className="font-semibold text-gray-900 !mb-0 text-sm">
+              {product?.name || item.product_sku}
+            </Text>
+            {product && (
+              <span className="text-[10px] bg-green-50 text-green-700 px-1.5 py-0.5 rounded font-medium">
+                ${product.base_price}/{product.unit}
+              </span>
+            )}
             {item.product_types && (
               <span className="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">
                 {item.product_types}
@@ -380,7 +323,6 @@ function ItemRow({ item, editMode, editedValues, onFieldChange }: {
               </span>
             )}
           </div>
-          {/* Example calculation */}
           {exampleText && (
             <div className="mt-1 text-xs text-gray-500 italic">{exampleText}</div>
           )}
@@ -388,11 +330,9 @@ function ItemRow({ item, editMode, editedValues, onFieldChange }: {
 
         {/* Product SKU */}
         <div className="text-right shrink-0">
-          {item.product_sku && (
-            <span className="text-[10px] font-mono text-gray-400 bg-gray-50 px-2 py-0.5 rounded">
-              {item.product_sku}
-            </span>
-          )}
+          <span className="text-[10px] font-mono text-gray-400 bg-gray-50 px-2 py-0.5 rounded">
+            {item.product_sku}
+          </span>
         </div>
 
         {/* Active toggle */}
@@ -431,7 +371,7 @@ function ItemRow({ item, editMode, editedValues, onFieldChange }: {
               </div>
               <div className="text-xs text-gray-500 mb-3">{ruleInfo.description}</div>
 
-              {/* Editable parameters — the main thing on this page */}
+              {/* Editable parameters */}
               {ruleInfo.editableParams.length > 0 && (
                 <div className="space-y-2 border-t border-gray-100 pt-3">
                   <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Tunable Parameters</div>
@@ -469,79 +409,41 @@ function ItemRow({ item, editMode, editedValues, onFieldChange }: {
             </div>
           )}
 
-          {/* Other fields */}
+          {/* Config fields */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div className="space-y-3">
-              <div>
-                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Item Key</label>
-                <Text className="text-gray-600 !mb-0 font-mono text-xs">{item.item_key}</Text>
-              </div>
+              {/* Product info (read-only, from products table) */}
+              {product && (
+                <div className="bg-white rounded-lg border border-gray-200 p-3">
+                  <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Product (from /admin/pricing)</div>
+                  <div className="flex items-center gap-3">
+                    {product.image_url && (
+                      <img src={product.image_url} alt="" className="w-12 h-12 rounded-lg object-cover" />
+                    )}
+                    <div>
+                      <div className="font-semibold text-gray-800">{product.name}</div>
+                      <div className="text-xs text-gray-500">
+                        ${product.base_price}/{product.unit}
+                        {product.category_section && ` | ${product.category_section}`}
+                      </div>
+                      <div className="text-xs font-mono text-gray-400 mt-0.5">{product.sku}</div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
-              <div>
-                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Display Name</label>
-                {editMode ? (
-                  <input
-                    type="text"
-                    value={getVal('name', item.name)}
-                    onChange={e => onFieldChange(item.id, 'name', e.target.value)}
-                    onClick={e => e.stopPropagation()}
-                    className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#406517]"
-                  />
-                ) : (
-                  <Text className="text-gray-600 !mb-0">{item.name}</Text>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Description Template</label>
-                {editMode ? (
-                  <input
-                    type="text"
-                    value={getVal('description_template', item.description_template || '')}
-                    onChange={e => onFieldChange(item.id, 'description_template', e.target.value || null)}
-                    onClick={e => e.stopPropagation()}
-                    placeholder="e.g. {pieces} piece(s) for ~{total_feet}ft"
-                    className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#406517]"
-                  />
-                ) : (
-                  <Text className="text-gray-600 !mb-0 font-mono text-xs">{item.description_template || '—'}</Text>
-                )}
-              </div>
+              {!product && (
+                <div className="bg-red-50 rounded-lg border border-red-200 p-3">
+                  <div className="flex items-center gap-2 text-red-600 text-sm font-medium">
+                    <AlertCircle className="w-4 h-4" />
+                    Product not found: {item.product_sku}
+                  </div>
+                  <div className="text-xs text-red-500 mt-1">Check that this SKU exists in the products table.</div>
+                </div>
+              )}
             </div>
 
             <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Product SKU</label>
-                  {editMode ? (
-                    <input
-                      type="text"
-                      value={getVal('product_sku', item.product_sku || '')}
-                      onChange={e => onFieldChange(item.id, 'product_sku', e.target.value || null)}
-                      onClick={e => e.stopPropagation()}
-                      placeholder="SKU from products table"
-                      className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#406517]"
-                    />
-                  ) : (
-                    <Text className="text-gray-600 !mb-0 font-mono text-xs">{item.product_sku || '—'}</Text>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Unit Label</label>
-                  {editMode ? (
-                    <input
-                      type="text"
-                      value={getVal('unit_label', item.unit_label)}
-                      onChange={e => onFieldChange(item.id, 'unit_label', e.target.value)}
-                      onClick={e => e.stopPropagation()}
-                      className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#406517]"
-                    />
-                  ) : (
-                    <Text className="text-gray-600 !mb-0">{item.unit_label}</Text>
-                  )}
-                </div>
-              </div>
-
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Sort Order</label>
@@ -572,36 +474,21 @@ function ItemRow({ item, editMode, editedValues, onFieldChange }: {
                     <Text className="text-gray-600 !mb-0 text-xs">{item.color_match || 'all colors'}</Text>
                   )}
                 </div>
-                <div>
-                  <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Product Types</label>
-                  {editMode ? (
-                    <input
-                      type="text"
-                      value={getVal('product_types', item.product_types || '')}
-                      onChange={e => onFieldChange(item.id, 'product_types', e.target.value || null)}
-                      onClick={e => e.stopPropagation()}
-                      placeholder="all types (e.g. mosquito_curtains,clear_vinyl)"
-                      className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#406517]"
-                    />
-                  ) : (
-                    <Text className="text-gray-600 !mb-0 text-xs">{item.product_types || 'all types'}</Text>
-                  )}
-                </div>
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Admin Notes</label>
+                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Product Types</label>
                 {editMode ? (
                   <input
                     type="text"
-                    value={getVal('admin_notes', item.admin_notes || '')}
-                    onChange={e => onFieldChange(item.id, 'admin_notes', e.target.value || null)}
+                    value={getVal('product_types', item.product_types || '')}
+                    onChange={e => onFieldChange(item.id, 'product_types', e.target.value || null)}
                     onClick={e => e.stopPropagation()}
-                    placeholder="Internal notes..."
+                    placeholder="all types (e.g. mosquito_curtains,clear_vinyl)"
                     className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#406517]"
                   />
                 ) : (
-                  <Text className="text-gray-400 !mb-0 text-xs italic">{item.admin_notes || '—'}</Text>
+                  <Text className="text-gray-600 !mb-0 text-xs">{item.product_types || 'all types'}</Text>
                 )}
               </div>
             </div>
@@ -618,6 +505,7 @@ function ItemRow({ item, editMode, editedValues, onFieldChange }: {
 
 export default function AdminDiyHardwarePage() {
   const [items, setItems] = useState<HardwareItem[]>([])
+  const [products, setProducts] = useState<ProductInfo[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -626,22 +514,42 @@ export default function AdminDiyHardwarePage() {
   const [editedValues, setEditedValues] = useState<Record<string, unknown>>({})
   const [showAddModal, setShowAddModal] = useState(false)
 
-  const fetchItems = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
-      const response = await fetch('/api/admin/diy-hardware')
-      const result = await response.json()
-      if (!response.ok) throw new Error(result.error || 'Failed to fetch')
-      setItems(result.items || [])
+
+      // Fetch rules and products in parallel
+      const [rulesRes, productsRes] = await Promise.all([
+        fetch('/api/admin/diy-hardware'),
+        fetch('/api/admin/products'),
+      ])
+
+      const rulesResult = await rulesRes.json()
+      if (!rulesRes.ok) throw new Error(rulesResult.error || 'Failed to fetch rules')
+      setItems(rulesResult.items || [])
+
+      const productsResult = await productsRes.json()
+      if (productsRes.ok && productsResult.data) {
+        setProducts(productsResult.data.map((p: Record<string, unknown>) => ({
+          sku: p.sku,
+          name: p.name,
+          base_price: p.base_price,
+          unit: p.unit,
+          image_url: p.image_url,
+          product_type: p.product_type,
+          product_category: p.product_category,
+          category_section: p.category_section,
+        })))
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load hardware rules')
+      setError(err instanceof Error ? err.message : 'Failed to load data')
     } finally {
       setLoading(false)
     }
   }, [])
 
-  useEffect(() => { fetchItems() }, [fetchItems])
+  useEffect(() => { fetchData() }, [fetchData])
 
   const handleFieldChange = (id: string, field: string, value: unknown) => {
     setEditedValues(prev => ({ ...prev, [`${field}:${id}`]: value }))
@@ -674,7 +582,7 @@ export default function AdminDiyHardwarePage() {
       })
       const result = await response.json()
       if (!response.ok) throw new Error(result.error || 'Failed to save')
-      await fetchItems()
+      await fetchData()
       setEditedValues({})
       setEditMode(false)
       setSuccess(`Updated ${updates.length} field${updates.length > 1 ? 's' : ''}`)
@@ -696,7 +604,7 @@ export default function AdminDiyHardwarePage() {
       })
       const result = await response.json()
       if (!response.ok) throw new Error(result.error || 'Failed to add')
-      await fetchItems()
+      await fetchData()
       setSuccess('Rule added')
       setTimeout(() => setSuccess(null), 3000)
     } catch (err) {
@@ -704,8 +612,10 @@ export default function AdminDiyHardwarePage() {
     }
   }
 
-  const handleDeleteItem = async (id: string, name: string) => {
-    if (!confirm(`Delete rule "${name}"? This cannot be undone.`)) return
+  const handleDeleteItem = async (id: string, sku: string) => {
+    const product = products.find(p => p.sku === sku)
+    const displayName = product?.name || sku
+    if (!confirm(`Delete rule for "${displayName}"? This cannot be undone.`)) return
     try {
       setError(null)
       const response = await fetch('/api/admin/diy-hardware', {
@@ -715,7 +625,7 @@ export default function AdminDiyHardwarePage() {
       })
       const result = await response.json()
       if (!response.ok) throw new Error(result.error || 'Failed to delete')
-      await fetchItems()
+      await fetchData()
       setSuccess('Rule deleted')
       setTimeout(() => setSuccess(null), 3000)
     } catch (err) {
@@ -723,10 +633,37 @@ export default function AdminDiyHardwarePage() {
     }
   }
 
-  const itemsByCategory = CATEGORIES.map(cat => ({
-    ...cat,
-    items: items.filter(i => i.category === cat.id).sort((a, b) => a.sort_order - b.sort_order),
+  // Build product lookup map
+  const productMap = new Map(products.map(p => [p.sku, p]))
+
+  // Sort items by sort_order
+  const sortedItems = [...items].sort((a, b) => a.sort_order - b.sort_order)
+
+  // ── Group items by product category_section (matching admin/sales layout) ──
+  const SECTION_CONFIG: { id: string; title: string; subtitle: string; icon: typeof Wrench; color: string }[] = [
+    { id: 'Standard Track', title: 'Standard Track', subtitle: 'Recommended when top attachment = Tracking', icon: SlidersHorizontal, color: '#406517' },
+    { id: 'Sealing Sides', title: 'Sealing Sides', subtitle: 'Recommended when side edge = Marine Snaps', icon: Columns3, color: '#003365' },
+    { id: 'Magnetic Doorways', title: 'Magnetic Doorways', subtitle: 'Recommended when side edge = Magnetic Door', icon: Magnet, color: '#B30158' },
+    { id: 'Stucco', title: 'Stucco Strips', subtitle: 'Recommended when side edge = Stucco Strip', icon: Columns3, color: '#8B5E3C' },
+    { id: 'Tools', title: 'Tools', subtitle: 'Always recommended for applicable product types', icon: Hammer, color: '#555' },
+  ]
+
+  // Map items to sections via their product's category_section (or product_type for tools)
+  const getSectionId = (item: HardwareItem): string => {
+    const product = productMap.get(item.product_sku)
+    if (!product) return 'Other'
+    if (product.product_type === 'tool') return 'Tools'
+    return product.category_section || product.product_category || 'Other'
+  }
+
+  const sections = SECTION_CONFIG.map(sec => ({
+    ...sec,
+    items: sortedItems.filter(item => getSectionId(item) === sec.id),
   }))
+
+  // Catch any items that don't match a known section
+  const knownSectionIds = new Set(SECTION_CONFIG.map(s => s.id))
+  const uncategorized = sortedItems.filter(item => !knownSectionIds.has(getSectionId(item)))
 
   if (loading) {
     return (
@@ -761,15 +698,14 @@ export default function AdminDiyHardwarePage() {
               <div>
                 <Heading level={1} className="!mb-0">Hardware Recommendations</Heading>
                 <Text className="text-gray-500 !mb-0">
-                  {items.filter(i => i.active).length} active rules across {CATEGORIES.length} categories
-                  {' '}&middot;{' '}
-                  Quantities auto-calculated from panel configuration
+                  {items.filter(i => i.active).length} active rules &middot; Product data from{' '}
+                  <Link href="/admin/pricing" className="text-[#406517] font-semibold hover:underline">/admin/pricing</Link>
                 </Text>
               </div>
             </div>
 
             <div className="flex items-center gap-3 flex-wrap">
-              <Button variant="outline" onClick={fetchItems} disabled={loading}>
+              <Button variant="outline" onClick={fetchData} disabled={loading}>
                 <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
@@ -835,12 +771,9 @@ export default function AdminDiyHardwarePage() {
         <Card variant="outlined" className="!p-4 !bg-gray-50 !border-gray-200">
           <Heading level={4} className="!mb-2 !text-sm text-gray-700">How Recommendations Work</Heading>
           <Text size="sm" className="text-gray-500 !mb-3">
-            Each rule defines a hardware item that gets recommended based on the customer&apos;s panel
-            configuration. The <strong>calculation rule</strong> determines the quantity formula, and
-            the <strong>parameters</strong> let you tune the numbers. Pricing comes from the products
-            table (managed at{' '}
-            <Link href="/admin/pricing" className="text-[#406517] font-semibold hover:underline">/admin/pricing</Link>
-            ) via the product SKU link.
+            Each rule links a <strong>product</strong> (name, price, image from /admin/pricing) to a
+            <strong> calculation formula</strong> that determines quantity based on the customer&apos;s panel
+            configuration. Tune the parameters below to adjust how many of each product get recommended.
           </Text>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
             {Object.entries(CALC_RULES).map(([key, rule]) => (
@@ -855,33 +788,34 @@ export default function AdminDiyHardwarePage() {
           </div>
         </Card>
 
-        {/* Category cards */}
-        {itemsByCategory.map(category => {
-          const Icon = category.icon
-          if (category.items.length === 0 && !editMode) return null
+        {/* Section cards (matching admin/sales layout) */}
+        {sections.map(section => {
+          const Icon = section.icon
+          if (section.items.length === 0 && !editMode) return null
 
           return (
-            <Card key={category.id} variant="elevated" className="!p-6">
+            <Card key={section.id} variant="elevated" className="!p-6">
               <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${category.color}15` }}>
-                    <Icon className="w-5 h-5" style={{ color: category.color }} />
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${section.color}15` }}>
+                    <Icon className="w-5 h-5" style={{ color: section.color }} />
                   </div>
                   <div>
-                    <Heading level={2} className="!mb-0">{category.title}</Heading>
-                    <Text size="sm" className="text-gray-400 !mb-0">{category.subtitle}</Text>
+                    <Heading level={2} className="!mb-0">{section.title}</Heading>
+                    <Text size="sm" className="text-gray-400 !mb-0">{section.subtitle}</Text>
                   </div>
                 </div>
                 <span className="text-sm text-gray-400 font-medium">
-                  {category.items.filter(i => i.active).length} / {category.items.length} active
+                  {section.items.filter(i => i.active).length} / {section.items.length} active
                 </span>
               </div>
 
               <div className="border border-gray-200 rounded-lg overflow-hidden mt-4">
-                {category.items.map(item => (
+                {section.items.map(item => (
                   <div key={item.id} className="relative group">
                     <ItemRow
                       item={item}
+                      product={productMap.get(item.product_sku) || null}
                       editMode={editMode}
                       editedValues={editedValues}
                       onFieldChange={handleFieldChange}
@@ -889,7 +823,7 @@ export default function AdminDiyHardwarePage() {
                     {editMode && (
                       <button
                         type="button"
-                        onClick={() => handleDeleteItem(item.id, item.name)}
+                        onClick={() => handleDeleteItem(item.id, item.product_sku)}
                         className="absolute top-3 right-28 opacity-0 group-hover:opacity-100 transition-opacity w-7 h-7 rounded-lg bg-red-50 hover:bg-red-100 flex items-center justify-center"
                         title="Delete rule"
                       >
@@ -899,9 +833,9 @@ export default function AdminDiyHardwarePage() {
                   </div>
                 ))}
 
-                {category.items.length === 0 && (
+                {section.items.length === 0 && (
                   <div className="px-4 py-8 text-center text-gray-400 text-sm">
-                    No rules in this category.
+                    No rules in this section.
                     {editMode && (
                       <button type="button" onClick={() => setShowAddModal(true)} className="text-[#406517] font-semibold ml-1 hover:underline">
                         Add one
@@ -914,10 +848,40 @@ export default function AdminDiyHardwarePage() {
           )
         })}
 
+        {/* Uncategorized rules (if any) */}
+        {uncategorized.length > 0 && (
+          <Card variant="elevated" className="!p-6">
+            <Heading level={2} className="!mb-2">Other Rules</Heading>
+            <div className="border border-gray-200 rounded-lg overflow-hidden">
+              {uncategorized.map(item => (
+                <div key={item.id} className="relative group">
+                  <ItemRow
+                    item={item}
+                    product={productMap.get(item.product_sku) || null}
+                    editMode={editMode}
+                    editedValues={editedValues}
+                    onFieldChange={handleFieldChange}
+                  />
+                  {editMode && (
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteItem(item.id, item.product_sku)}
+                      className="absolute top-3 right-28 opacity-0 group-hover:opacity-100 transition-opacity w-7 h-7 rounded-lg bg-red-50 hover:bg-red-100 flex items-center justify-center"
+                      title="Delete rule"
+                    >
+                      <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
+
         <div className="h-8" />
       </Stack>
 
-      <AddItemModal open={showAddModal} onClose={() => setShowAddModal(false)} onAdd={handleAddItem} />
+      <AddItemModal open={showAddModal} onClose={() => setShowAddModal(false)} onAdd={handleAddItem} products={products} />
     </Container>
   )
 }
