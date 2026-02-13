@@ -87,12 +87,13 @@ interface Lead {
   status: string
   assigned_to: string | null
   photo_urls: string[] | null
-  utm_source: string | null
-  utm_medium: string | null
-  utm_campaign: string | null
-  referrer: string | null
-  landing_page: string | null
   created_at: string
+  // Session-based attribution (joined via API)
+  session_utm_source?: string | null
+  session_utm_medium?: string | null
+  session_utm_campaign?: string | null
+  session_referrer?: string | null
+  session_landing_page?: string | null
 }
 
 interface Project {
@@ -558,19 +559,19 @@ export default function LeadDetailPage() {
                 </Card>
               )}
 
-              {/* Attribution */}
+              {/* Attribution (from session) */}
               <Card variant="elevated" className="!p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Globe className="w-4 h-4 text-gray-400" />
                   <Text size="sm" className="font-semibold text-gray-500 uppercase tracking-wider !mb-0">Attribution</Text>
                 </div>
                 <div className="space-y-1.5 text-xs text-gray-500">
-                  {lead.utm_source && <div><Tag className="w-3 h-3 inline mr-1" />Source: <span className="text-gray-700">{lead.utm_source}</span></div>}
-                  {lead.utm_medium && <div><Tag className="w-3 h-3 inline mr-1" />Medium: <span className="text-gray-700">{lead.utm_medium}</span></div>}
-                  {lead.utm_campaign && <div><Tag className="w-3 h-3 inline mr-1" />Campaign: <span className="text-gray-700">{lead.utm_campaign}</span></div>}
-                  {lead.referrer && <div className="truncate"><ExternalLink className="w-3 h-3 inline mr-1" />Referrer: <span className="text-gray-700">{lead.referrer}</span></div>}
-                  {lead.landing_page && <div className="truncate"><Globe className="w-3 h-3 inline mr-1" />Landing: <span className="text-gray-700">{lead.landing_page}</span></div>}
-                  {!lead.utm_source && !lead.utm_medium && !lead.referrer && (
+                  {lead.session_utm_source && <div><Tag className="w-3 h-3 inline mr-1" />Source: <span className="text-gray-700">{lead.session_utm_source}</span></div>}
+                  {lead.session_utm_medium && <div><Tag className="w-3 h-3 inline mr-1" />Medium: <span className="text-gray-700">{lead.session_utm_medium}</span></div>}
+                  {lead.session_utm_campaign && <div><Tag className="w-3 h-3 inline mr-1" />Campaign: <span className="text-gray-700">{lead.session_utm_campaign}</span></div>}
+                  {lead.session_referrer && <div className="truncate"><ExternalLink className="w-3 h-3 inline mr-1" />Referrer: <span className="text-gray-700">{lead.session_referrer}</span></div>}
+                  {lead.session_landing_page && <div className="truncate"><Globe className="w-3 h-3 inline mr-1" />Landing: <span className="text-gray-700">{lead.session_landing_page}</span></div>}
+                  {!lead.session_utm_source && !lead.session_utm_medium && !lead.session_referrer && (
                     <span className="text-gray-400">No attribution data</span>
                   )}
                 </div>

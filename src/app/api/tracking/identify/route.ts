@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
    // ---------------------------------------------------------------------------
    const { data: existingCustomer } = await supabase
      .from('customers')
-     .select('id, email, first_utm_source, first_utm_medium, first_utm_campaign, first_utm_term, first_utm_content, first_landing_page, first_referrer, first_seen_at')
+     .select('id, email, first_gclid, first_fbclid')
      .eq('email', email.toLowerCase())
      .single()
     
@@ -71,22 +71,16 @@ export async function POST(request: NextRequest) {
       // Customer exists - use existing ID
       customerId = existingCustomer.id
       
-      // Update customer with any new info (but don't overwrite first-touch if already set)
+      // Update customer with any new info
       const { error: updateError } = await supabase
         .from('customers')
         .update({
           first_name: firstName || undefined,
           last_name: lastName || undefined,
           phone: phone || undefined,
-          // Only set first-touch fields if not already set
-          first_utm_source: existingCustomer.first_utm_source || visitor.first_utm_source || undefined,
-          first_utm_medium: existingCustomer.first_utm_medium || visitor.first_utm_medium || undefined,
-          first_utm_campaign: existingCustomer.first_utm_campaign || visitor.first_utm_campaign || undefined,
-          first_utm_term: existingCustomer.first_utm_term || visitor.first_utm_term || undefined,
-          first_utm_content: existingCustomer.first_utm_content || visitor.first_utm_content || undefined,
-          first_landing_page: existingCustomer.first_landing_page || visitor.first_landing_page || undefined,
-          first_referrer: existingCustomer.first_referrer || visitor.first_referrer || undefined,
-          first_seen_at: existingCustomer.first_seen_at || visitor.first_seen_at || undefined,
+          // Waterfall click IDs (only if not already set)
+          first_gclid: existingCustomer.first_gclid || visitor.first_gclid || undefined,
+          first_fbclid: existingCustomer.first_fbclid || visitor.first_fbclid || undefined,
           updated_at: new Date().toISOString()
         })
         .eq('id', customerId)
@@ -96,7 +90,7 @@ export async function POST(request: NextRequest) {
       }
       
     } else {
-      // Create new customer with first-touch attribution from visitor
+      // Create new customer (attribution is derived via visitor JOIN)
       const { data: newCustomer, error: insertError } = await supabase
         .from('customers')
         .insert({
@@ -104,14 +98,9 @@ export async function POST(request: NextRequest) {
           first_name: firstName || null,
           last_name: lastName || null,
           phone: phone || null,
-          first_utm_source: visitor.first_utm_source,
-          first_utm_medium: visitor.first_utm_medium,
-          first_utm_campaign: visitor.first_utm_campaign,
-          first_utm_term: visitor.first_utm_term,
-          first_utm_content: visitor.first_utm_content,
-          first_landing_page: visitor.first_landing_page,
-          first_referrer: visitor.first_referrer,
-          first_seen_at: visitor.first_seen_at,
+          // Waterfall click IDs from visitor
+          first_gclid: visitor.first_gclid || null,
+          first_fbclid: visitor.first_fbclid || null,
           email_captured_at: new Date().toISOString(),
           customer_status: 'lead'
         })

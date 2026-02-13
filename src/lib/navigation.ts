@@ -30,6 +30,7 @@ import {
   Megaphone,
   Briefcase,
   FolderOpen,
+  Link2,
 } from 'lucide-react'
 
 export interface NavItem {
@@ -208,6 +209,7 @@ export const adminNavSections: AdminNavSection[] = [
       },
       { name: 'Orders', href: '/admin/orders', icon: Package },
       { name: 'Product Pricing', href: '/admin/pricing', icon: DollarSign },
+      { name: 'Instant Quote Pricing', href: '/admin/instant-quote', icon: Calculator },
       { name: 'Shipping & Tax', href: '/admin/shipping-tax', icon: Truck },
     ],
   },
@@ -219,6 +221,7 @@ export const adminNavSections: AdminNavSection[] = [
       { name: 'Customer Journeys', href: '/admin/mc-sales/analytics/waterfall', icon: UserCheck },
       { name: 'Leads', href: '/admin/mc-sales/analytics/leads', icon: FileUser },
       { name: 'Google Ads', href: '/admin/mc-sales/analytics/ads', icon: Megaphone },
+      { name: 'UTM Builder', href: '/admin/utm-builder', icon: Link2 },
     ],
   },
   {

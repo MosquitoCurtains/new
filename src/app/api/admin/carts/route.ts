@@ -36,10 +36,10 @@ export async function POST(request: NextRequest) {
 
     const supabase = createAdminClient()
 
-    // Fetch project to get customer/email info
+    // Fetch project to get customer/email info and journey tracking IDs
     const { data: project, error: projectError } = await supabase
       .from('projects')
-      .select('id, email, customer_id, lead_id')
+      .select('id, email, customer_id, lead_id, visitor_id, session_id')
       .eq('id', project_id)
       .single()
 
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create the cart (initially with zero totals — computed after line items insert)
+    // Create the cart — cascade visitor_id/session_id/lead_id from project
     const { data: cart, error: cartError } = await supabase
       .from('carts')
       .insert({
@@ -72,6 +72,9 @@ export async function POST(request: NextRequest) {
         shipping_state: shipping_state || null,
         shipping_zip: shipping_zip || null,
         shipping_country: shipping_country || 'US',
+        visitor_id: project.visitor_id || null,
+        session_id: project.session_id || null,
+        lead_id: project.lead_id || null,
       })
       .select('*')
       .single()
@@ -191,6 +194,26 @@ export async function POST(request: NextRequest) {
       })
       .eq('id', project_id)
 
+    // Fire journey event: cart_created
+    supabase
+      .from('journey_events')
+      .insert({
+        visitor_id: project.visitor_id || null,
+        session_id: project.session_id || null,
+        lead_id: project.lead_id || null,
+        project_id: project.id,
+        event_type: 'cart_created',
+        event_data: {
+          cart_id: cart.id,
+          subtotal: actualSubtotal,
+          total: finalTotal,
+          item_count: items?.length || 0,
+        },
+      })
+      .then(({ error: evtErr }) => {
+        if (evtErr) console.error('Error firing cart_created journey event:', evtErr)
+      })
+
     return NextResponse.json({ success: true, cart: updatedCart || cart })
   } catch (error) {
     console.error('Cart POST error:', error)
@@ -219,7 +242,7 @@ export async function GET(request: NextRequest) {
       .select(`
         *,
         projects!project_id (
-          id, email, first_name, last_name, phone, product_type,
+          id, email, product_type,
           status, share_token, assigned_to, notes,
           leads!lead_id (id, email, first_name, last_name, phone, status)
         )

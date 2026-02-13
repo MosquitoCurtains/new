@@ -19,7 +19,7 @@ export async function GET(
       .select(`
         *,
         projects!project_id (
-          id, email, first_name, last_name, phone, product_type,
+          id, email, product_type,
           status, share_token, assigned_to, notes, cart_data, estimated_total,
           leads!lead_id (id, email, first_name, last_name, phone, status, interest)
         )

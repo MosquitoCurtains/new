@@ -16,7 +16,7 @@
  * plus all educational content via QuoteGuidance.
  */
 
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import Link from 'next/link'
 import {
   DollarSign,
@@ -58,6 +58,7 @@ import {
   type TopAttachmentVinyl,
   type ShipLocation,
   type QuoteResult,
+  type InstantQuotePricingConfig,
 } from '@/lib/pricing/instant-quote'
 
 // =============================================================================
@@ -136,10 +137,40 @@ export function StandaloneInstantQuote({ productType }: StandaloneInstantQuotePr
   const [sessionId] = useState(() => `session-${Date.now()}`)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [pricingConfig, setPricingConfig] = useState<InstantQuotePricingConfig | undefined>(undefined)
+  const [dynamicOptions, setDynamicOptions] = useState<{
+    meshTypeOptions: Array<{ value: string; label: string }>
+    panelHeightOptions: Array<{ value: string; label: string }>
+    mosquitoAttachmentOptions: Array<{ value: string; label: string }>
+    vinylAttachmentOptions: Array<{ value: string; label: string }>
+    sidesOptions: Array<{ value: number; label: string }>
+    shipLocationOptions: Array<{ value: string; label: string }>
+  } | null>(null)
 
   const isMosquito = productType === 'mosquito_curtains'
   const meta = PRODUCT_META[productType]
   const brandColor = meta.brandColor
+
+  // Resolved dropdown options (DB-driven if available, else hard-coded fallbacks)
+  const meshOptions = dynamicOptions?.meshTypeOptions ?? MESH_TYPE_OPTIONS.map(o => ({ value: o.value, label: o.label }))
+  const heightOptions = dynamicOptions?.panelHeightOptions ?? PANEL_HEIGHT_OPTIONS.map(o => ({ value: o.value, label: o.label }))
+  const mcAttachmentOptions = dynamicOptions?.mosquitoAttachmentOptions ?? MOSQUITO_ATTACHMENT_OPTIONS.map(o => ({ value: o.value, label: o.label }))
+  const cvAttachmentOptions = dynamicOptions?.vinylAttachmentOptions ?? VINYL_ATTACHMENT_OPTIONS.map(o => ({ value: o.value, label: o.label }))
+  const sidesOpts = dynamicOptions?.sidesOptions ?? SIDES_OPTIONS.map(o => ({ value: o.value, label: o.label }))
+  const shipOpts = dynamicOptions?.shipLocationOptions ?? SHIP_LOCATION_OPTIONS.map(o => ({ value: o.value, label: o.label }))
+
+  // Load pricing config + available options from database
+  useEffect(() => {
+    fetch('/api/instant-quote/pricing')
+      .then(r => r.json())
+      .then(data => {
+        if (data.config) setPricingConfig(data.config)
+        if (data.availableOptions) setDynamicOptions(data.availableOptions)
+      })
+      .catch(() => {
+        // Falls back to hard-coded defaults (calculator default param + static arrays)
+      })
+  }, [])
 
   // Calculate price
   const price: QuoteResult = useMemo(() => {
@@ -150,7 +181,7 @@ export function StandaloneInstantQuote({ productType }: StandaloneInstantQuotePr
         numberOfSides: quoteState.numberOfSides,
         projectWidth: quoteState.projectWidth,
         shipLocation: quoteState.shipLocation,
-      })
+      }, pricingConfig)
     }
     return calculateClearVinylQuote({
       panelHeight: quoteState.panelHeight,
@@ -158,8 +189,8 @@ export function StandaloneInstantQuote({ productType }: StandaloneInstantQuotePr
       numberOfSides: quoteState.numberOfSides,
       projectWidth: quoteState.projectWidth,
       shipLocation: quoteState.shipLocation,
-    })
-  }, [isMosquito, quoteState])
+    }, pricingConfig)
+  }, [isMosquito, quoteState, pricingConfig])
 
   const allInputsFilled = price.isComplete
 
@@ -296,7 +327,7 @@ export function StandaloneInstantQuote({ productType }: StandaloneInstantQuotePr
                         className={selectClass}
                       >
                         <option value="">Select Mesh Type</option>
-                        {MESH_TYPE_OPTIONS.map((opt) => (
+                        {meshOptions.map((opt) => (
                           <option key={opt.value} value={opt.value}>{opt.label}</option>
                         ))}
                       </select>
@@ -313,7 +344,7 @@ export function StandaloneInstantQuote({ productType }: StandaloneInstantQuotePr
                         className={selectClass}
                       >
                         <option value="">Select Panel Height</option>
-                        {PANEL_HEIGHT_OPTIONS.map((opt) => (
+                        {heightOptions.map((opt) => (
                           <option key={opt.value} value={opt.value}>{opt.label}</option>
                         ))}
                       </select>
@@ -329,7 +360,7 @@ export function StandaloneInstantQuote({ productType }: StandaloneInstantQuotePr
                       className={selectClass}
                     >
                       <option value="">Select Top Attachment</option>
-                      {(isMosquito ? MOSQUITO_ATTACHMENT_OPTIONS : VINYL_ATTACHMENT_OPTIONS).map((opt) => (
+                      {(isMosquito ? mcAttachmentOptions : cvAttachmentOptions).map((opt) => (
                         <option key={opt.value} value={opt.value}>{opt.label}</option>
                       ))}
                     </select>
@@ -344,7 +375,7 @@ export function StandaloneInstantQuote({ productType }: StandaloneInstantQuotePr
                       className={selectClass}
                     >
                       <option value="">Number of Open Sides</option>
-                      {SIDES_OPTIONS.map((opt) => (
+                      {sidesOpts.map((opt) => (
                         <option key={opt.value} value={opt.value}>{opt.label}</option>
                       ))}
                     </select>
@@ -373,7 +404,7 @@ export function StandaloneInstantQuote({ productType }: StandaloneInstantQuotePr
                       onChange={(e) => setQuoteState(s => ({ ...s, shipLocation: e.target.value as ShipLocation }))}
                       className={selectClass}
                     >
-                      {SHIP_LOCATION_OPTIONS.map((opt) => (
+                      {shipOpts.map((opt) => (
                         <option key={opt.value} value={opt.value}>{opt.label}</option>
                       ))}
                     </select>

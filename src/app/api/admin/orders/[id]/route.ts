@@ -56,19 +56,30 @@ export async function GET(
       .eq('order_id', id)
       .order('created_at', { ascending: true })
 
-    // Fetch project info if linked
+    // Fetch project info if linked (contact info from lead join)
     let project = null
     if (order.project_id) {
       const { data } = await supabase
         .from('projects')
         .select(`
-          id, email, first_name, last_name, phone, product_type,
+          id, email, product_type,
           status, share_token, notes,
           leads!lead_id (id, email, first_name, last_name, phone)
         `)
         .eq('id', order.project_id)
         .single()
-      project = data
+      if (data) {
+        const lead = (data as Record<string, unknown>).leads as {
+          id: string; email: string; first_name: string | null;
+          last_name: string | null; phone: string | null;
+        } | null
+        project = {
+          ...data,
+          first_name: lead?.first_name || null,
+          last_name: lead?.last_name || null,
+          phone: lead?.phone || null,
+        }
+      }
     }
 
     return NextResponse.json({
@@ -105,7 +116,7 @@ export async function PUT(
     const allowedFields = [
       'status', 'payment_status', 'payment_method', 'payment_transaction_id',
       'paid_at', 'shipped_at', 'diagram_url', 'customer_note', 'internal_note',
-      'salesperson_id', 'salesperson_username',
+      'salesperson_id',
       'billing_first_name', 'billing_last_name', 'billing_phone',
       'billing_address_1', 'billing_address_2', 'billing_city',
       'billing_state', 'billing_zip', 'billing_country',

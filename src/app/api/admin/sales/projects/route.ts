@@ -27,6 +27,8 @@ export async function POST(request: NextRequest) {
     let leadFirstName = first_name
     let leadLastName = last_name
     let leadPhone = phone
+    let leadVisitorId: string | null = null
+    let leadSessionId: string | null = null
 
     // If no lead_id, create a new lead
     if (!leadId) {
@@ -40,7 +42,7 @@ export async function POST(request: NextRequest) {
       // Check if lead already exists with this email
       const { data: existingLead } = await supabase
         .from('leads')
-        .select('id, email, first_name, last_name, phone')
+        .select('id, email, first_name, last_name, phone, visitor_id, session_id')
         .eq('email', email)
         .order('created_at', { ascending: false })
         .limit(1)
@@ -52,6 +54,8 @@ export async function POST(request: NextRequest) {
         leadFirstName = existingLead.first_name || first_name
         leadLastName = existingLead.last_name || last_name
         leadPhone = existingLead.phone || phone
+        leadVisitorId = existingLead.visitor_id || null
+        leadSessionId = existingLead.session_id || null
       } else {
         const { data: newLead, error: leadError } = await supabase
           .from('leads')
@@ -64,7 +68,7 @@ export async function POST(request: NextRequest) {
             source: 'admin_sales',
             status: 'open',
           })
-          .select('id, email, first_name, last_name, phone')
+          .select('id, email, first_name, last_name, phone, visitor_id, session_id')
           .single()
 
         if (leadError || !newLead) {
@@ -80,12 +84,14 @@ export async function POST(request: NextRequest) {
         leadFirstName = newLead.first_name
         leadLastName = newLead.last_name
         leadPhone = newLead.phone
+        leadVisitorId = newLead.visitor_id || null
+        leadSessionId = newLead.session_id || null
       }
     } else {
       // Fetch existing lead data
       const { data: lead } = await supabase
         .from('leads')
-        .select('id, email, first_name, last_name, phone')
+        .select('id, email, first_name, last_name, phone, visitor_id, session_id')
         .eq('id', leadId)
         .single()
 
@@ -100,22 +106,23 @@ export async function POST(request: NextRequest) {
       leadFirstName = lead.first_name
       leadLastName = lead.last_name
       leadPhone = lead.phone
+      leadVisitorId = lead.visitor_id || null
+      leadSessionId = lead.session_id || null
     }
 
-    // Create the project linked to the lead
+    // Create the project linked to the lead — contact info lives on the lead
     const { data: project, error: projectError } = await supabase
       .from('projects')
       .insert({
         lead_id: leadId,
         email: leadEmail,
-        first_name: leadFirstName,
-        last_name: leadLastName,
-        phone: leadPhone,
         product_type: product_type || 'curtains',
         project_name: project_name || null,
         status: 'draft',
         assigned_to: assigned_to || null,
         cart_data: [],
+        visitor_id: leadVisitorId,
+        session_id: leadSessionId,
       })
       .select('*')
       .single()
@@ -133,6 +140,25 @@ export async function POST(request: NextRequest) {
       .from('leads')
       .update({ status: 'pending', assigned_to: assigned_to || null })
       .eq('id', leadId)
+
+    // Fire journey event: project_created
+    supabase
+      .from('journey_events')
+      .insert({
+        visitor_id: leadVisitorId,
+        session_id: leadSessionId,
+        lead_id: leadId,
+        project_id: project.id,
+        event_type: 'project_created',
+        event_data: {
+          product_type: product_type || 'curtains',
+          assigned_to: assigned_to || null,
+          source: 'admin_sales',
+        },
+      })
+      .then(({ error: evtErr }) => {
+        if (evtErr) console.error('Error firing project_created journey event:', evtErr)
+      })
 
     // =====================================================================
     // Auto-assign returning customers to their last active salesperson
@@ -272,7 +298,20 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    return NextResponse.json({ projects: data || [] })
+    // Flatten lead contact info onto projects for backward compat
+    const projects = (data || []).map((p: Record<string, unknown>) => {
+      const lead = p.leads as {
+        first_name: string | null; last_name: string | null; phone: string | null;
+      } | null
+      return {
+        ...p,
+        first_name: lead?.first_name || null,
+        last_name: lead?.last_name || null,
+        phone: lead?.phone || null,
+      }
+    })
+
+    return NextResponse.json({ projects })
   } catch (error) {
     console.error('Sales projects GET error:', error)
     return NextResponse.json(

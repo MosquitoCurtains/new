@@ -13,15 +13,30 @@ export async function GET(
     const { id } = await params
     const supabase = createAdminClient()
 
-    // Fetch lead
-    const { data: lead, error: leadError } = await supabase
+    // Fetch lead with session attribution
+    const { data: rawLead, error: leadError } = await supabase
       .from('leads')
-      .select('*')
+      .select('*, sessions!session_id(utm_source, utm_medium, utm_campaign, referrer, landing_page)')
       .eq('id', id)
       .single()
 
-    if (leadError || !lead) {
+    if (leadError || !rawLead) {
       return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
+    }
+
+    // Flatten session attribution onto the lead object
+    const sessionJoin = (rawLead as Record<string, unknown>).sessions as {
+      utm_source: string | null; utm_medium: string | null; utm_campaign: string | null;
+      referrer: string | null; landing_page: string | null;
+    } | null
+    const lead = {
+      ...rawLead,
+      session_utm_source: sessionJoin?.utm_source || null,
+      session_utm_medium: sessionJoin?.utm_medium || null,
+      session_utm_campaign: sessionJoin?.utm_campaign || null,
+      session_referrer: sessionJoin?.referrer || null,
+      session_landing_page: sessionJoin?.landing_page || null,
+      sessions: undefined,
     }
 
     // Fetch projects linked to this lead

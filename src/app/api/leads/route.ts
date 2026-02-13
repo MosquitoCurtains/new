@@ -96,15 +96,9 @@ export async function POST(request: NextRequest) {
       message,
       source = 'quick_connect',
       photo_urls,
-      // Attribution
-      utm_source,
-      utm_medium,
-      utm_campaign,
-      utm_content,
-      utm_term,
-      referrer,
-      landing_page,
+      // Journey tracking (UTM is on the session, not stored on leads)
       session_id,
+      visitor_id,
     } = body
 
     if (!email) {
@@ -133,14 +127,8 @@ export async function POST(request: NextRequest) {
         message,
         source,
         photo_urls: photoUrlStrings.length > 0 ? photoUrlStrings : null,
-        utm_source,
-        utm_medium,
-        utm_campaign,
-        utm_content,
-        utm_term,
-        referrer,
-        landing_page,
-        session_id,
+        session_id: session_id || null,
+        visitor_id: visitor_id || null,
         status: 'open',
       })
       .select()
@@ -166,20 +154,11 @@ export async function POST(request: NextRequest) {
         .insert({
           lead_id: data.id,
           email,
-          first_name: firstName,
-          last_name: lastName,
-          phone,
           product_type: productType,
           status: 'draft',
           notes: message || null,
-          utm_source,
-          utm_medium,
-          utm_campaign,
-          utm_content,
-          utm_term,
-          referrer,
-          landing_page,
-          session_id,
+          session_id: session_id || null,
+          visitor_id: visitor_id || null,
         })
         .select()
         .single()
@@ -206,6 +185,27 @@ export async function POST(request: NextRequest) {
           if (photoErr) console.error('Error saving lead project photos:', photoErr)
         }
       }
+    }
+
+    // Fire journey event: lead_created
+    if (data) {
+      supabase
+        .from('journey_events')
+        .insert({
+          visitor_id: visitor_id || null,
+          session_id: session_id || null,
+          lead_id: data.id,
+          event_type: 'lead_created',
+          event_data: {
+            email,
+            source,
+            interest,
+            has_photos: Array.isArray(photo_urls) && photo_urls.length > 0,
+          },
+        })
+        .then(({ error: evtErr }) => {
+          if (evtErr) console.error('Error firing lead_created journey event:', evtErr)
+        })
     }
 
     // Send new lead notification to sales team (fire-and-forget)

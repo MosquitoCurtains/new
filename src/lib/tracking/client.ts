@@ -17,12 +17,46 @@ export interface UTMParams {
   utm_content?: string
 }
 
+/** Click IDs auto-appended by ad platforms */
+export interface ClickIds {
+  gclid?: string   // Google Click ID
+  fbclid?: string  // Facebook Click ID
+}
+
+/**
+ * Extended ad platform data extracted from URL params.
+ * Google Ads ValueTrack: matchtype, network, creative, placement, adposition, targetid, loc_physical
+ * Facebook/Meta: campaign_id, adset_id, adset_name, ad_id, ad_name, site_source, fb_placement
+ * Microsoft/Bing: same as Google (different casing resolved at extraction)
+ */
+export interface AdClickData {
+  // Google Ads ValueTrack params
+  matchtype?: string    // e (exact), p (phrase), b (broad)
+  network?: string      // g (Google Search), s (Search Partner), d (Display), ytv (YouTube Video)
+  creative?: string     // Unique ad ID
+  placement?: string    // Content site placement (Display Network)
+  adposition?: string   // Ad position on page (e.g., 1t2)
+  targetid?: string     // kwd-123 (keyword), aud-456 (audience), dsa-789 (dynamic search)
+  loc_physical?: string // Geographic location ID
+  // Facebook/Meta dynamic macros (resolved at click time)
+  campaign_id?: string  // {{campaign.id}}
+  adset_id?: string     // {{adset.id}}
+  adset_name?: string   // {{adset.name}}
+  ad_id?: string        // {{ad.id}}
+  ad_name?: string      // {{ad.name}}
+  site_source?: string  // {{site_source_name}} — fb, ig, msg, an
+  fb_placement?: string // {{placement}} — Facebook_Desktop_Feed, Instagram_Stories, etc.
+  [key: string]: string | undefined // Extensible for future params
+}
+
 export interface SessionData {
   visitorId: string
   sessionId: string
   landingPage: string
   referrer: string
   utm: UTMParams
+  clickIds: ClickIds
+  adClickData: AdClickData
   device: DeviceInfo
   isNewVisitor: boolean
   isNewSession: boolean
@@ -200,11 +234,84 @@ export function parseUTMFromURL(): UTMParams {
 }
 
 /**
- * Check if there are UTM params in the URL
+ * Extract click IDs (GCLID, FBCLID) from URL
+ * These are auto-appended by Google Ads and Facebook Ads respectively.
+ */
+export function parseClickIdsFromURL(): ClickIds {
+  if (typeof window === 'undefined') return {}
+  
+  const params = new URLSearchParams(window.location.search)
+  const ids: ClickIds = {}
+  
+  const gclid = params.get('gclid')
+  const fbclid = params.get('fbclid')
+  
+  if (gclid) ids.gclid = gclid
+  if (fbclid) ids.fbclid = fbclid
+  
+  return ids
+}
+
+/**
+ * Extract extended ad platform data from URL params.
+ * Captures Google Ads ValueTrack, Facebook dynamic macros, and Bing params.
+ */
+export function parseAdClickDataFromURL(): AdClickData {
+  if (typeof window === 'undefined') return {}
+  
+  const params = new URLSearchParams(window.location.search)
+  const data: AdClickData = {}
+  
+  // Google Ads ValueTrack params
+  const matchtype = params.get('matchtype')
+  const network = params.get('network')
+  const creative = params.get('creative')
+  const placement = params.get('placement')
+  const adposition = params.get('adposition')
+  const targetid = params.get('targetid')
+  const locPhysical = params.get('loc_physical') || params.get('loc_physical_ms')
+  
+  if (matchtype) data.matchtype = matchtype
+  if (network) data.network = network
+  if (creative) data.creative = creative
+  if (placement) data.placement = placement
+  if (adposition) data.adposition = adposition
+  if (targetid) data.targetid = targetid
+  if (locPhysical) data.loc_physical = locPhysical
+  
+  // Facebook/Meta dynamic macro params
+  const campaignId = params.get('campaign_id')
+  const adsetId = params.get('adset_id')
+  const adsetName = params.get('adset_name')
+  const adId = params.get('ad_id')
+  const adName = params.get('ad_name')
+  const siteSource = params.get('site_source')
+  const fbPlacement = params.get('fb_placement')
+  
+  if (campaignId) data.campaign_id = campaignId
+  if (adsetId) data.adset_id = adsetId
+  if (adsetName) data.adset_name = adsetName
+  if (adId) data.ad_id = adId
+  if (adName) data.ad_name = adName
+  if (siteSource) data.site_source = siteSource
+  if (fbPlacement) data.fb_placement = fbPlacement
+  
+  // Microsoft/Bing Ads (uses same param names as Google mostly, plus adid)
+  const adid = params.get('adid')
+  if (adid && !data.creative) data.creative = adid // Bing uses adid, map to creative
+  
+  return data
+}
+
+/**
+ * Check if there are UTM params or click IDs in the URL
+ * (A new click ID should also trigger a new session)
  */
 export function hasUTMParams(): boolean {
-  const utm = parseUTMFromURL()
-  return Object.keys(utm).length > 0
+  if (typeof window === 'undefined') return false
+  
+  const params = new URLSearchParams(window.location.search)
+  return params.has('utm_source') || params.has('gclid') || params.has('fbclid')
 }
 
 /**
@@ -437,6 +544,8 @@ export async function trackSession(data: {
   landingPage: string
   referrer: string
   utm: UTMParams
+  clickIds: ClickIds
+  adClickData: AdClickData
   device: DeviceInfo
 }): Promise<{ success: boolean; error?: string }> {
   try {
@@ -547,6 +656,8 @@ export function initializeSession(): SessionData {
   const landingPage = typeof window !== 'undefined' ? window.location.pathname : '/'
   const referrer = getReferrer()
   const utm = parseUTMFromURL()
+  const clickIds = parseClickIdsFromURL()
+  const adClickData = parseAdClickDataFromURL()
   const device = getDeviceInfo()
   
   // Store UTM for this session
@@ -569,6 +680,8 @@ export function initializeSession(): SessionData {
     landingPage,
     referrer,
     utm,
+    clickIds,
+    adClickData,
     device,
     isNewVisitor,
     isNewSession

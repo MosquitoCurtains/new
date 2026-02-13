@@ -23,7 +23,7 @@ import {
   SlidersHorizontal, LayoutGrid, Wrench, Mail, User,
 } from 'lucide-react'
 import type { MeshType, MeshColor } from '@/lib/pricing/types'
-import { useProducts, type DBProduct } from '@/hooks/useProducts'
+import { useDiyHardware, type PanelForHardware } from '@/hooks/useDiyHardware'
 
 /* ─── Product images ─── */
 const TRACK_IMAGE = 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/Track-Color-White-Black-700x700.jpg'
@@ -325,173 +325,8 @@ function ConfigCard({ config, selected, onClick }: { config: SideConfig; selecte
   )
 }
 
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   Compute recommended hardware from panels + DB
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-interface ProductRecommendation {
-  key: string
-  sku: string
-  label: string
-  description: string
-  qty: number
-  unit: string
-  unitPrice: number
-  totalPrice: number
-  image: string | null
-}
-
 function fmt$(n: number): string {
   return n % 1 === 0 ? n.toFixed(0) : n.toFixed(2)
-}
-
-function computeProductRecommendations(
-  panels: SavedPanel[],
-  products: DBProduct[] | null,
-  meshColor: MeshColor,
-): ProductRecommendation[] {
-  if (panels.length === 0 || !products) return []
-
-  const find = (sku: string) => products.find(p => p.sku === sku)
-  const items: ProductRecommendation[] = []
-
-  /* ── Track hardware (for tracking top attachment) ── */
-  const trackingPanels = panels.filter(p => p.topAttachment === 'tracking')
-  if (trackingPanels.length > 0) {
-    const totalInches = trackingPanels.reduce((sum, p) => sum + p.finalWidth, 0)
-    const totalFeet = totalInches / 12
-    const trackPieces = Math.ceil(totalFeet / 7) // 7ft pieces
-
-    const straightTrack = find('track_standard_straight')
-    if (straightTrack) {
-      items.push({
-        key: 'track_straight', sku: straightTrack.sku,
-        label: `${straightTrack.name} (7ft)`,
-        description: `${trackPieces} piece${trackPieces !== 1 ? 's' : ''} for ~${Math.ceil(totalFeet)}ft of track`,
-        qty: trackPieces, unit: 'pcs',
-        unitPrice: straightTrack.base_price,
-        totalPrice: trackPieces * straightTrack.base_price,
-        image: straightTrack.image_url,
-      })
-    }
-
-    // Splices: 1 per joint between track pieces in a continuous run
-    // Rough: total pieces minus number of separate runs (1 run per side)
-    const sidesWithTracking = new Set(trackingPanels.map(p => p.side)).size
-    const splices = Math.max(0, trackPieces - sidesWithTracking)
-    const spliceProduct = find('track_standard_splice')
-    if (splices > 0 && spliceProduct) {
-      items.push({
-        key: 'track_splice', sku: spliceProduct.sku,
-        label: spliceProduct.name,
-        description: `Connects track pieces end-to-end`,
-        qty: splices, unit: 'pcs',
-        unitPrice: spliceProduct.base_price,
-        totalPrice: splices * spliceProduct.base_price,
-        image: spliceProduct.image_url,
-      })
-    }
-
-    // End caps: 2 per continuous track run
-    const endCapQty = sidesWithTracking * 2
-    const endCapProduct = find('track_standard_endcap')
-    if (endCapProduct) {
-      items.push({
-        key: 'track_endcap', sku: endCapProduct.sku,
-        label: `${endCapProduct.name}s`,
-        description: `2 per track run (${sidesWithTracking} run${sidesWithTracking !== 1 ? 's' : ''})`,
-        qty: endCapQty, unit: 'pcs',
-        unitPrice: endCapProduct.base_price,
-        totalPrice: endCapQty * endCapProduct.base_price,
-        image: endCapProduct.image_url,
-      })
-    }
-
-    // Note: snap carriers & velcro are included free of charge with panels/track
-  }
-
-  /* ── Marine snaps (for snap side edges) ── */
-  const snapEdges = panels.reduce((n, p) => n + (p.side1 === 'marine_snaps' ? 1 : 0) + (p.side2 === 'marine_snaps' ? 1 : 0), 0)
-  if (snapEdges > 0) {
-    const snapSku = (meshColor === 'white' || meshColor === 'ivory') ? 'marine_snap_white' : 'marine_snap_black'
-    const snapProduct = find(snapSku)
-    if (snapProduct) {
-      items.push({
-        key: 'marine_snaps', sku: snapProduct.sku,
-        label: snapProduct.name,
-        description: `Pack of ${snapProduct.pack_quantity} — 1 pack per snap edge`,
-        qty: snapEdges, unit: 'packs',
-        unitPrice: snapProduct.base_price,
-        totalPrice: snapEdges * snapProduct.base_price,
-        image: snapProduct.image_url,
-      })
-    }
-  }
-
-  /* ── Magnetic doorways ── */
-  const magnetEdges = panels.reduce((n, p) => n + (p.side1 === 'magnetic_door' ? 1 : 0) + (p.side2 === 'magnetic_door' ? 1 : 0), 0)
-  const magnetDoorways = Math.ceil(magnetEdges / 2)
-  if (magnetDoorways > 0) {
-    const magnetProduct = find('block_magnet')
-    if (magnetProduct) {
-      const magnetQty = magnetDoorways * 8
-      items.push({
-        key: 'block_magnets', sku: magnetProduct.sku,
-        label: magnetProduct.name,
-        description: `8 per doorway × ${magnetDoorways} doorway${magnetDoorways !== 1 ? 's' : ''}`,
-        qty: magnetQty, unit: 'pcs',
-        unitPrice: magnetProduct.base_price,
-        totalPrice: magnetQty * magnetProduct.base_price,
-        image: magnetProduct.image_url,
-      })
-    }
-
-    const rodProduct = find('fiberglass_rod')
-    if (rodProduct) {
-      const rodQty = magnetDoorways * 2
-      items.push({
-        key: 'fiberglass_rods', sku: rodProduct.sku,
-        label: rodProduct.name,
-        description: `2 per doorway × ${magnetDoorways} doorway${magnetDoorways !== 1 ? 's' : ''}`,
-        qty: rodQty, unit: 'sets',
-        unitPrice: rodProduct.base_price,
-        totalPrice: rodQty * rodProduct.base_price,
-        image: rodProduct.image_url,
-      })
-    }
-  }
-
-  /* ── Stucco strips ── */
-  const stuccoEdges = panels.reduce((n, p) => n + (p.side1 === 'stucco_strip' ? 1 : 0) + (p.side2 === 'stucco_strip' ? 1 : 0), 0)
-  if (stuccoEdges > 0) {
-    const stuccoProduct = find('stucco_standard')
-    if (stuccoProduct) {
-      items.push({
-        key: 'stucco', sku: stuccoProduct.sku,
-        label: stuccoProduct.name,
-        description: `1 per stucco edge`,
-        qty: stuccoEdges, unit: 'strips',
-        unitPrice: stuccoProduct.base_price,
-        totalPrice: stuccoEdges * stuccoProduct.base_price,
-        image: stuccoProduct.image_url,
-      })
-    }
-  }
-
-  /* ── Snap tool (always recommended) ── */
-  const snapToolProduct = find('snap_tool')
-  if (snapToolProduct) {
-    items.push({
-      key: 'snap_tool', sku: snapToolProduct.sku,
-      label: snapToolProduct.name,
-      description: 'Required for installing snaps. Fully refundable if returned.',
-      qty: 1, unit: 'tool',
-      unitPrice: snapToolProduct.base_price,
-      totalPrice: snapToolProduct.base_price,
-      image: snapToolProduct.image_url,
-    })
-  }
-
-  return items
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -618,7 +453,7 @@ function buildCartData(sides: SideState[], meshType: MeshType, meshColor: MeshCo
    Main Export
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 export default function PanelBuilder({ initialMeshType, initialMeshColor, contactInfo, basePath = '/start-project/mosquito-curtains/diy-builder' }: PanelBuilderProps = {}) {
-  const { products } = useProducts()
+  const { getRecommendations } = useDiyHardware()
   const [numSides, setNumSides] = useState(2)
   const [sides, setSides] = useState<SideState[]>([defaultSideState(), defaultSideState()])
   const [meshType, setMeshType] = useState<MeshType>(initialMeshType || 'heavy_mosquito')
@@ -655,8 +490,8 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
   const allPanels = useMemo(() => sides.flatMap((s, i) => { const c = SIDE_CONFIGS.find(x => x.id === s.configId)!; const tw = parseFloat(s.totalWidth) || 0; const lh = parseFloat(s.leftHeight) || 0; const rh = parseFloat(s.rightHeight) || 0; if (tw <= 0 || lh <= 0 || rh <= 0) return []; return generateSidePanels({ sideNum: i + 1, totalWidth: tw, leftHeight: lh, rightHeight: rh, config: c, topAttachment: s.topAttachment, leftEdge: s.leftEdge, rightEdge: s.rightEdge }) }), [sides])
   const allSidesReady = sides.every(s => { const tw = parseFloat(s.totalWidth) || 0; const lh = parseFloat(s.leftHeight) || 0; const rh = parseFloat(s.rightHeight) || 0; return tw > 0 && lh > 0 && rh > 0 })
 
-  // Recommendations — real products from DB
-  const baseRecs = useMemo(() => computeProductRecommendations(allPanels, products, meshColor), [allPanels, products, meshColor])
+  // Recommendations — DB-driven hardware items
+  const baseRecs = useMemo(() => getRecommendations(allPanels as PanelForHardware[], meshColor), [allPanels, getRecommendations, meshColor])
 
   // Reset overrides when panels change
   useEffect(() => { setRecOverrides({}) }, [allPanels.length])
@@ -944,11 +779,10 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
           <div className="px-6 py-8 text-center">
             <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
             <div className="text-lg font-bold text-gray-800 mb-1">Project Saved{firstName ? `, ${firstName}` : ''}!</div>
-            <div className="text-sm text-gray-600 mb-6">Your panel configuration has been saved. Choose your next step:</div>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Button variant="primary" size="lg" asChild><Link href={`${basePath}/instant-quote`}><Zap className="w-4 h-4 mr-2" />Get Instant Quote</Link></Button>
-              <Button variant="secondary" size="lg" asChild><Link href={`${basePath}/expert-assistance`}><Users className="w-4 h-4 mr-2" />Send to Planning Team</Link></Button>
-            </div>
+            <div className="text-sm text-gray-600 mb-6">Your panel configuration has been saved. Let&apos;s review it before we build.</div>
+            <Button variant="primary" size="lg" asChild>
+              <Link href={`${basePath}/review`}><ArrowRight className="w-4 h-4 mr-2" />Review Your Design</Link>
+            </Button>
             {shareUrl && <div className="mt-4 text-xs text-gray-500">Project link: <span className="font-mono text-[#406517]">{typeof window !== 'undefined' ? window.location.origin : ''}{shareUrl}</span></div>}
           </div>
         </Card>

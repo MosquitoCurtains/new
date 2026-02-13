@@ -20,17 +20,29 @@ export async function GET(request: NextRequest) {
 
     const supabase = createAdminClient()
 
-    // Fetch projects for this email
-    const { data: projects } = await supabase
+    // Fetch projects for this email (contact info from lead join)
+    const { data: rawProjects } = await supabase
       .from('projects')
       .select(`
-        id, email, first_name, last_name, product_type, status,
+        id, email, product_type, status,
         share_token, estimated_total, created_at, updated_at,
-        staff:assigned_to (id, name, email)
+        staff:assigned_to (id, name, email),
+        leads!lead_id (first_name, last_name)
       `)
       .eq('email', email)
       .not('status', 'eq', 'archived')
       .order('created_at', { ascending: false })
+
+    // Flatten lead contact info for backward compat
+    const projects = (rawProjects || []).map((p: Record<string, unknown>) => {
+      const lead = p.leads as { first_name: string | null; last_name: string | null } | null
+      return {
+        ...p,
+        first_name: lead?.first_name || null,
+        last_name: lead?.last_name || null,
+        leads: undefined,
+      }
+    })
 
     // Fetch orders for this email
     const { data: orders } = await supabase

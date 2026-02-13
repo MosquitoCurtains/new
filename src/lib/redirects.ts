@@ -279,4 +279,7 @@ export const REDIRECTS: RedirectEntry[] = [
   // Legacy instant quote pages -> new start-project routes
   { source: '/mosquito-curtains-instant-quote', destination: '/start-project/mosquito-curtains/instant-quote', permanent: true },
   { source: '/clear-vinyl-instant-quote', destination: '/start-project/clear-vinyl/instant-quote', permanent: true },
+
+  // WordPress admin -> Next.js admin login
+  { source: '/wp-admin', destination: '/admin/login', permanent: true },
 ]

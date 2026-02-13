@@ -75,14 +75,25 @@ export async function GET(request: NextRequest) {
         .eq('id', project.id)
     }
 
+    // Fetch lead contact info for the project
+    let leadContact = null
+    if (project.lead_id) {
+      const { data: lead } = await supabase
+        .from('leads')
+        .select('first_name, last_name, phone')
+        .eq('id', project.lead_id)
+        .single()
+      leadContact = lead
+    }
+
     return NextResponse.json({
       project: {
         id: project.id,
         share_token: project.share_token,
         email: project.email,
-        first_name: project.first_name,
-        last_name: project.last_name,
-        phone: project.phone,
+        first_name: leadContact?.first_name || null,
+        last_name: leadContact?.last_name || null,
+        phone: leadContact?.phone || null,
         product_type: project.product_type,
         status: project.status,
         assigned_to: project.assigned_to,

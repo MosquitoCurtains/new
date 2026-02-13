@@ -125,6 +125,8 @@ export function useJourneyTracking(): UseJourneyTrackingReturn {
           landingPage: sessionData.landingPage,
           referrer: sessionData.referrer,
           utm: sessionData.utm,
+          clickIds: sessionData.clickIds,
+          adClickData: sessionData.adClickData,
           device: sessionData.device
         })
         

@@ -28,14 +28,7 @@ export async function POST(request: NextRequest) {
       estimatedTotal,
       photo_urls,
       cart_data,
-      // Attribution
-      utm_source,
-      utm_medium,
-      utm_campaign,
-      utm_content,
-      utm_term,
-      referrer,
-      landing_page,
+      // Session tracking
       session_id,
     } = body
 
@@ -85,13 +78,6 @@ export async function POST(request: NextRequest) {
           source: 'expert_assistance',
           status: 'open',
           photo_urls: photoUrlStrings.length > 0 ? photoUrlStrings : null,
-          utm_source,
-          utm_medium,
-          utm_campaign,
-          utm_content,
-          utm_term,
-          referrer,
-          landing_page,
           session_id,
         })
         .select('id')
@@ -140,9 +126,6 @@ export async function POST(request: NextRequest) {
         customer_id: customerId,
         lead_id: leadId,
         email,
-        first_name: firstName,
-        last_name: lastName,
-        phone,
         product_type: product,
         project_type: projectType,
         mesh_type: meshType,
@@ -153,13 +136,6 @@ export async function POST(request: NextRequest) {
         estimated_total: estimatedTotal,
         cart_data: cart_data || [],
         status: 'draft',
-        utm_source,
-        utm_medium,
-        utm_campaign,
-        utm_content,
-        utm_term,
-        referrer,
-        landing_page,
         session_id,
       })
       .select()
