@@ -9,7 +9,7 @@ import {
   Layers,
   Shield,
   Home,
-  Play,
+  Hammer,
   Calculator,
   MessageSquare,
   Camera,
@@ -60,28 +60,28 @@ const PROJECT_TYPES = [
 
 const CLEAR_VINYL_HERO_ACTIONS = [
   {
-    icon: Play,
-    title: 'Options',
-    description: 'Thickness, colors & accessories.',
-    href: '/clear-vinyl-options',
-    buttonText: 'Discover',
+    icon: MessageSquare,
+    title: 'Expert Assistance',
+    description: 'Send photos, get personalized guidance from our team.',
+    href: '/start-project?mode=planner',
+    buttonText: 'Get Help',
     color: '#406517',
+  },
+  {
+    icon: Hammer,
+    title: 'DIY Builder',
+    description: 'Configure panels yourself and add directly to cart.',
+    href: '/start-project?mode=diy',
+    buttonText: 'Build',
+    color: '#B30158',
   },
   {
     icon: Calculator,
     title: 'Instant Quote',
-    description: 'Get an estimate within 5% of actual cost.',
-    href: '/start-project',
+    description: 'Quick specs for an estimate within 5% of actual cost.',
+    href: '/start-project?mode=quote',
     buttonText: 'Calculate',
     color: '#003365',
-  },
-  {
-    icon: MessageSquare,
-    title: 'Contact',
-    description: 'Send photos for personalized help!',
-    href: '/contact',
-    buttonText: 'Contact',
-    color: '#B30158',
   },
 ]
 

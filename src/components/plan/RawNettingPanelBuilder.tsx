@@ -3,14 +3,14 @@
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import {
-  Card, Text, Stack, Button, HeaderBarSection,
+  Card, Text, Stack, Button,
 } from '@/lib/design-system'
 import {
-  Check, Info, Plus, Minus,
+  Check, Plus, Minus, Pencil, ChevronDown, ChevronUp,
   SlidersHorizontal, Scissors, Loader2,
   CheckCircle, Mail, User, Phone, ShieldCheck, Send, Bookmark,
   ArrowRight, ArrowLeft, ShoppingCart, X, ClipboardList, Camera,
-  FileText, Link2, Copy,
+  FileText, Link2, Copy, Trash2,
 } from 'lucide-react'
 import type { MeshType, MeshColor } from '@/lib/pricing/types'
 import { useCartContext } from '@/contexts/CartContext'
@@ -559,6 +559,14 @@ export default function RawNettingPanelBuilder() {
 
   const [panels, setPanels] = useState<RawPanelState[]>([defaultPanelState()])
   const [hydrated, setHydrated] = useState(false)
+  const [openPanels, setOpenPanels] = useState<Set<number>>(new Set([0]))
+  const togglePanel = useCallback((idx: number) => {
+    setOpenPanels(prev => {
+      const next = new Set(prev)
+      if (next.has(idx)) next.delete(idx); else next.add(idx)
+      return next
+    })
+  }, [])
 
   // ── Save Your Project (lightweight) ──
   const [projectName, setProjectName] = useState('')
@@ -619,17 +627,42 @@ export default function RawNettingPanelBuilder() {
   }, [])
 
   const addPanel = useCallback(() => {
-    setPanels(prev => [...prev, defaultPanelState()])
+    setPanels(prev => {
+      const next = [...prev, defaultPanelState()]
+      setOpenPanels(op => new Set(op).add(next.length - 1))
+      return next
+    })
   }, [])
 
   const removePanel = useCallback((idx: number) => {
-    setPanels(prev => prev.length > 1 ? prev.filter((_, i) => i !== idx) : prev)
+    setPanels(prev => {
+      if (prev.length <= 1) return prev
+      const next = prev.filter((_, i) => i !== idx)
+      setOpenPanels(op => {
+        const shifted = new Set<number>()
+        op.forEach(i => {
+          if (i < idx) shifted.add(i)
+          else if (i > idx) shifted.add(i - 1)
+          // i === idx is dropped (removed panel)
+        })
+        return shifted
+      })
+      return next
+    })
   }, [])
 
   const duplicatePanel = useCallback((idx: number) => {
     setPanels(prev => {
       const copy = { ...prev[idx] }
-      return [...prev.slice(0, idx + 1), copy, ...prev.slice(idx + 1)]
+      const next = [...prev.slice(0, idx + 1), copy, ...prev.slice(idx + 1)]
+      // Shift open indices above the insertion point, then open the new copy
+      setOpenPanels(op => {
+        const shifted = new Set<number>()
+        op.forEach(i => shifted.add(i <= idx ? i : i + 1))
+        shifted.add(idx + 1)
+        return shifted
+      })
+      return next
     })
   }, [])
 
@@ -813,222 +846,297 @@ export default function RawNettingPanelBuilder() {
         const availableColors = meshCard.colors
         const availableRollWidths = meshCard.rollWidths
         const meshHex = MESH_COLOR_SWATCHES.find(c => c.id === panel.meshColor)?.hex || '#1a1a1a'
+        const colorLabel = MESH_COLOR_SWATCHES.find(c => c.id === panel.meshColor)?.label || panel.meshColor
         const pricing = pricingSummary[idx]
+        const isEditing = openPanels.has(idx)
+        const edgeSummary = panel.allSidesSame
+          ? EDGE_LABEL_SHORT[panel.topEdge] + ' all'
+          : `${EDGE_LABEL_SHORT[panel.topEdge]}/${EDGE_LABEL_SHORT[panel.rightEdge]}/${EDGE_LABEL_SHORT[panel.bottomEdge]}/${EDGE_LABEL_SHORT[panel.leftEdge]}`
 
         return (
-          <div key={idx}>
-            {/* Panel header — always visible */}
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-full bg-[#406517] text-white flex items-center justify-center text-xs font-bold">{idx + 1}</div>
-                <span className="font-bold text-gray-800">Panel {idx + 1}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <button type="button" onClick={() => duplicatePanel(idx)} className="text-xs text-gray-500 hover:text-gray-700 font-medium px-2 py-1 rounded-lg hover:bg-gray-100 transition-colors flex items-center gap-1">
-                  <Copy className="w-3 h-3" /> Duplicate
-                </button>
-                {panels.length > 1 && (
-                  <button type="button" onClick={() => removePanel(idx)} className="text-xs text-red-500 hover:text-red-700 font-medium px-2 py-1 rounded-lg hover:bg-red-50 transition-colors">Remove</button>
-                )}
-              </div>
-            </div>
+          <Card key={idx} className="!p-0 !bg-white !border-2 !border-gray-200 overflow-hidden transition-all">
 
-            {/* ── SECTION 1: Mesh Options ── */}
-            <HeaderBarSection icon={SlidersHorizontal} label={panels.length > 1 ? `Panel ${idx + 1} — Options` : 'Options'} variant="green" headerSubtitle="Mesh type, color & dimensions">
-              <Stack gap="md">
-                {/* 5-across mesh thumbnails — click for details modal */}
-                <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
-                  {MESH_TYPE_CARDS.map(m => (
-                    <div key={m.id} role="button" tabIndex={0}
-                      onClick={() => setMeshDetailType(m.id)}
-                      className={`rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${panel.meshType === m.id ? 'border-[#406517] ring-2 ring-[#406517]/20 shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}
-                    >
-                      <div className="aspect-[4/3] relative">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={m.image} alt={m.label} className="w-full h-full object-cover" />
-                        {m.popular && <span className="absolute top-1 right-1 text-[9px] font-bold bg-[#406517] text-white px-1.5 py-0.5 rounded-full leading-none">Popular</span>}
-                        {panel.meshType === m.id && <div className="absolute top-1 left-1 w-5 h-5 bg-[#406517] rounded-full flex items-center justify-center"><Check className="w-3 h-3 text-white" /></div>}
-                      </div>
-                      <div className="px-1.5 py-1.5 text-center">
-                        <div className="font-bold text-gray-800 text-xs leading-tight">{m.label}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+            {/* ════════════════════════════════════════════
+               COLLAPSED: summary row
+               ════════════════════════════════════════════ */}
+            {!isEditing && (
+              <div
+                className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors"
+                onClick={() => togglePanel(idx)}
+              >
+                {/* Badge */}
+                <div className="w-7 h-7 rounded-full bg-[#406517] text-white flex items-center justify-center text-xs font-bold shrink-0">{idx + 1}</div>
 
-                {/* 3-col configurator: Mesh Type | Roll Width (height) | Panel Width */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {/* Mesh type dropdown */}
-                  <div>
-                    <label className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1 block">Mesh Type</label>
-                    <select
-                      value={panel.meshType}
-                      onChange={e => {
-                        const m = MESH_TYPE_CARDS.find(c => c.id === e.target.value)
-                        if (!m) return
-                        const updates: Partial<RawPanelState> = { meshType: m.id }
-                        if (!m.colors.includes(panel.meshColor)) updates.meshColor = m.colors[0]
-                        if (!m.rollWidths.includes(panel.rollWidth)) updates.rollWidth = m.rollWidths[0]
-                        updatePanel(idx, updates)
-                      }}
-                      className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] bg-white transition-all cursor-pointer"
-                    >
-                      {MESH_TYPE_CARDS.map(m => (
-                        <option key={m.id} value={m.id}>{m.label}</option>
-                      ))}
-                    </select>
+                {/* Summary text */}
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold text-gray-800 truncate">
+                    {meshCard.label} — {colorLabel}
                   </div>
-
-                  {/* Roll width (height) dropdown */}
-                  <div>
-                    <label className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1 block">Roll Width (height)</label>
-                    <select
-                      value={panel.rollWidth}
-                      onChange={e => updatePanel(idx, { rollWidth: parseInt(e.target.value) })}
-                      className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] bg-white transition-all cursor-pointer"
-                    >
-                      {availableRollWidths.map(rw => (
-                        <option key={rw} value={rw}>{rw}&quot; ({fmtFtIn(rw)})</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Panel width input */}
-                  <div>
-                    <label className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1 block">Panel Width</label>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        value={panel.widthInches === 0 ? '' : panel.widthInches}
-                        onChange={e => {
-                          const raw = e.target.value.replace(/[^0-9]/g, '')
-                          updatePanel(idx, { widthInches: raw === '' ? 0 : Math.min(1200, parseInt(raw)) })
-                        }}
-                        onBlur={() => { if (panel.widthInches < 12) updatePanel(idx, { widthInches: 12 }) }}
-                        placeholder="inches"
-                        className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] bg-white transition-all"
-                      />
-                      <span className="text-sm text-gray-500 font-medium whitespace-nowrap shrink-0">
-                        {panel.widthInches > 0 ? fmtFtIn(panel.widthInches) : '—'}
-                      </span>
-                    </div>
+                  <div className="text-xs text-gray-500 truncate">
+                    {fmtFtIn(panel.rollWidth)} &times; {fmtFtIn(panel.widthInches)}
+                    <span className="mx-1.5 text-gray-300">|</span>
+                    {edgeSummary}
                   </div>
                 </div>
 
-                {/* Color swatches */}
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-xs text-gray-700 font-semibold uppercase tracking-wide">Color:</span>
-                  {MESH_COLOR_SWATCHES.filter(c => availableColors.includes(c.id)).map(c => (
-                    <button key={c.id} type="button" onClick={() => updatePanel(idx, { meshColor: c.id })}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${panel.meshColor === c.id ? 'ring-2 ring-[#406517] bg-[#406517]/5' : 'bg-gray-50 hover:bg-gray-100'}`}>
-                      <div className="w-5 h-5 rounded-full border-2 border-gray-300" style={{ backgroundColor: c.hex }} />
-                      <span className="text-gray-700">{c.label}</span>
-                      {panel.meshColor === c.id && <Check className="w-3.5 h-3.5 text-[#406517]" />}
-                    </button>
-                  ))}
-                </div>
-              </Stack>
-            </HeaderBarSection>
-
-            {/* ── SECTION 2: Edge Finishing ── */}
-            <div className="mt-4">
-              <HeaderBarSection icon={Scissors} label="Edge Finishing" variant="green" headerSubtitle="Choose finishing for each side">
-                <Stack gap="md">
-                  {/* All-sides toggle */}
-                  <label className="flex items-center gap-3 cursor-pointer select-none">
-                    <div className="relative">
-                      <input
-                        type="checkbox"
-                        checked={panel.allSidesSame}
-                        onChange={(e) => {
-                          const checked = e.target.checked
-                          if (checked) {
-                            updatePanel(idx, {
-                              allSidesSame: true,
-                              rightEdge: panel.topEdge,
-                              bottomEdge: panel.topEdge,
-                              leftEdge: panel.topEdge,
-                            })
-                          } else {
-                            updatePanel(idx, { allSidesSame: false })
-                          }
-                        }}
-                        className="sr-only peer"
-                      />
-                      <div className="w-10 h-6 bg-gray-200 rounded-full peer-checked:bg-[#406517] transition-colors" />
-                      <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4" />
-                    </div>
-                    <div>
-                      <span className="text-sm font-semibold text-gray-800">Same finishing on all sides</span>
-                      <span className="text-xs text-gray-500 block">Apply the same edge option to top, bottom, left, and right</span>
-                    </div>
-                  </label>
-
-                  {panel.allSidesSame ? (
-                    <>
-                      {/* Single dropdown for all sides */}
-                      <EdgeFinishSelect
-                        label="All Sides"
-                        value={panel.topEdge}
-                        onChange={(v) => updatePanel(idx, { topEdge: v, rightEdge: v, bottomEdge: v, leftEdge: v })}
-                        lengthInches={panel.widthInches}
-                      />
-                      {/* Visual Preview */}
-                      <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                        <RawPanelPreview panel={panel} meshHex={meshHex} />
-                      </div>
-                    </>
+                {/* Price badge */}
+                <div className="shrink-0 text-right">
+                  {pricing.panelTotal != null ? (
+                    <span className="text-sm font-bold text-[#406517]">{fmt$(pricing.panelTotal)}</span>
                   ) : (
-                    <>
-                      {/* ── Desktop: compass layout — dropdowns on respective sides ── */}
-                      {/* ── Mobile: stacked with preview at top ── */}
+                    <span className="text-xs text-gray-400 italic">Quote</span>
+                  )}
+                </div>
 
-                      {/* Mobile: stacked dropdowns + preview */}
-                      <div className="md:hidden space-y-4">
+                {/* Action buttons — stop propagation so they don't trigger expand */}
+                <div className="shrink-0 flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                  <button type="button" onClick={() => togglePanel(idx)} className="p-1.5 rounded-lg text-gray-400 hover:text-[#406517] hover:bg-[#406517]/5 transition-colors" title="Edit">
+                    <Pencil className="w-3.5 h-3.5" />
+                  </button>
+                  <button type="button" onClick={() => duplicatePanel(idx)} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors" title="Duplicate">
+                    <Copy className="w-3.5 h-3.5" />
+                  </button>
+                  {panels.length > 1 && (
+                    <button type="button" onClick={() => removePanel(idx)} className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors" title="Remove">
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-1.5 shrink-0 text-xs text-[#406517] font-medium">
+                  <span>Tap to expand</span>
+                  <ChevronDown className="w-4 h-4" />
+                </div>
+              </div>
+            )}
+
+            {/* ════════════════════════════════════════════
+               EXPANDED: full configurator
+               ════════════════════════════════════════════ */}
+            {isEditing && (
+              <div>
+                {/* Card header — click anywhere to collapse */}
+                <div className="flex items-center justify-between px-5 py-3 bg-[#406517]/5 border-b border-[#406517]/10 cursor-pointer hover:bg-[#406517]/10 transition-colors" onClick={() => togglePanel(idx)}>
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-full bg-[#406517] text-white flex items-center justify-center text-xs font-bold">{idx + 1}</div>
+                    <span className="font-bold text-gray-800">Panel {idx + 1}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1.5 text-xs text-[#406517] font-medium">
+                      <span>Tap to collapse</span>
+                      <ChevronUp className="w-4 h-4" />
+                    </div>
+                    <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+                      <button type="button" onClick={() => duplicatePanel(idx)} className="text-xs text-gray-500 hover:text-gray-700 font-medium px-2 py-1 rounded-lg hover:bg-white/60 transition-colors flex items-center gap-1">
+                        <Copy className="w-3 h-3" /> Duplicate
+                      </button>
+                      {panels.length > 1 && (
+                        <button type="button" onClick={() => removePanel(idx)} className="text-xs text-red-500 hover:text-red-700 font-medium px-2 py-1 rounded-lg hover:bg-red-50 transition-colors">Remove</button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* ── Section A: Mesh Options ── */}
+                <div className="px-5 py-5">
+                  <div className="flex items-center gap-2 mb-4">
+                    <SlidersHorizontal className="w-4 h-4 text-[#406517]" />
+                    <span className="text-sm font-bold text-gray-800 uppercase tracking-wide">Options</span>
+                    <span className="text-xs text-gray-400">Mesh type, color & dimensions</span>
+                  </div>
+
+                  <div className="space-y-4">
+                    {/* 5-across mesh thumbnails */}
+                    <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
+                      {MESH_TYPE_CARDS.map(m => (
+                        <div key={m.id} role="button" tabIndex={0}
+                          onClick={() => setMeshDetailType(m.id)}
+                          className={`rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${panel.meshType === m.id ? 'border-[#406517] ring-2 ring-[#406517]/20 shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}
+                        >
+                          <div className="aspect-[4/3] relative">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={m.image} alt={m.label} className="w-full h-full object-cover" />
+                            {m.popular && <span className="absolute top-1 right-1 text-[9px] font-bold bg-[#406517] text-white px-1.5 py-0.5 rounded-full leading-none">Popular</span>}
+                            {panel.meshType === m.id && <div className="absolute top-1 left-1 w-5 h-5 bg-[#406517] rounded-full flex items-center justify-center"><Check className="w-3 h-3 text-white" /></div>}
+                          </div>
+                          <div className="px-1.5 py-1.5 text-center">
+                            <div className="font-bold text-gray-800 text-xs leading-tight">{m.label}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* 3-col configurator: Mesh Type | Roll Width (height) | Panel Width */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1 block">Mesh Type</label>
+                        <select
+                          value={panel.meshType}
+                          onChange={e => {
+                            const m = MESH_TYPE_CARDS.find(c => c.id === e.target.value)
+                            if (!m) return
+                            const updates: Partial<RawPanelState> = { meshType: m.id }
+                            if (!m.colors.includes(panel.meshColor)) updates.meshColor = m.colors[0]
+                            if (!m.rollWidths.includes(panel.rollWidth)) updates.rollWidth = m.rollWidths[0]
+                            updatePanel(idx, updates)
+                          }}
+                          className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] bg-white transition-all cursor-pointer"
+                        >
+                          {MESH_TYPE_CARDS.map(m => (
+                            <option key={m.id} value={m.id}>{m.label}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1 block">Roll Width (height)</label>
+                        <select
+                          value={panel.rollWidth}
+                          onChange={e => updatePanel(idx, { rollWidth: parseInt(e.target.value) })}
+                          className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] bg-white transition-all cursor-pointer"
+                        >
+                          {availableRollWidths.map(rw => (
+                            <option key={rw} value={rw}>{rw}&quot; ({fmtFtIn(rw)})</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1 block">Panel Width</label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            value={panel.widthInches === 0 ? '' : panel.widthInches}
+                            onChange={e => {
+                              const raw = e.target.value.replace(/[^0-9]/g, '')
+                              updatePanel(idx, { widthInches: raw === '' ? 0 : Math.min(1200, parseInt(raw)) })
+                            }}
+                            onBlur={() => { if (panel.widthInches < 12) updatePanel(idx, { widthInches: 12 }) }}
+                            placeholder="inches"
+                            className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] bg-white transition-all"
+                          />
+                          <span className="text-sm text-gray-500 font-medium whitespace-nowrap shrink-0">
+                            {panel.widthInches > 0 ? fmtFtIn(panel.widthInches) : '—'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Color swatches */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs text-gray-700 font-semibold uppercase tracking-wide">Color:</span>
+                      {MESH_COLOR_SWATCHES.filter(c => availableColors.includes(c.id)).map(c => (
+                        <button key={c.id} type="button" onClick={() => updatePanel(idx, { meshColor: c.id })}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${panel.meshColor === c.id ? 'ring-2 ring-[#406517] bg-[#406517]/5' : 'bg-gray-50 hover:bg-gray-100'}`}>
+                          <div className="w-5 h-5 rounded-full border-2 border-gray-300" style={{ backgroundColor: c.hex }} />
+                          <span className="text-gray-700">{c.label}</span>
+                          {panel.meshColor === c.id && <Check className="w-3.5 h-3.5 text-[#406517]" />}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <div className="border-t border-gray-200" />
+
+                {/* ── Section B: Edge Finishing ── */}
+                <div className="px-5 py-5">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Scissors className="w-4 h-4 text-[#406517]" />
+                    <span className="text-sm font-bold text-gray-800 uppercase tracking-wide">Edge Finishing</span>
+                    <span className="text-xs text-gray-400">Choose finishing for each side</span>
+                  </div>
+
+                  <div className="space-y-4">
+                    {/* All-sides toggle */}
+                    <label className="flex items-center gap-3 cursor-pointer select-none">
+                      <div className="relative">
+                        <input
+                          type="checkbox"
+                          checked={panel.allSidesSame}
+                          onChange={(e) => {
+                            const checked = e.target.checked
+                            if (checked) {
+                              updatePanel(idx, {
+                                allSidesSame: true,
+                                rightEdge: panel.topEdge,
+                                bottomEdge: panel.topEdge,
+                                leftEdge: panel.topEdge,
+                              })
+                            } else {
+                              updatePanel(idx, { allSidesSame: false })
+                            }
+                          }}
+                          className="sr-only peer"
+                        />
+                        <div className="w-10 h-6 bg-gray-200 rounded-full peer-checked:bg-[#406517] transition-colors" />
+                        <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4" />
+                      </div>
+                      <div>
+                        <span className="text-sm font-semibold text-gray-800">Same finishing on all sides</span>
+                        <span className="text-xs text-gray-500 block">Apply the same edge option to top, bottom, left, and right</span>
+                      </div>
+                    </label>
+
+                    {panel.allSidesSame ? (
+                      <>
+                        <EdgeFinishSelect
+                          label="All Sides"
+                          value={panel.topEdge}
+                          onChange={(v) => updatePanel(idx, { topEdge: v, rightEdge: v, bottomEdge: v, leftEdge: v })}
+                          lengthInches={panel.widthInches}
+                        />
                         <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
                           <RawPanelPreview panel={panel} meshHex={meshHex} />
                         </div>
-                        <EdgeFinishSelect label="Top" value={panel.topEdge} onChange={v => updatePanel(idx, { topEdge: v })} lengthInches={panel.widthInches} />
-                        <EdgeFinishSelect label="Right" value={panel.rightEdge} onChange={v => updatePanel(idx, { rightEdge: v })} lengthInches={panel.rollWidth} />
-                        <EdgeFinishSelect label="Bottom" value={panel.bottomEdge} onChange={v => updatePanel(idx, { bottomEdge: v })} lengthInches={panel.widthInches} />
-                        <EdgeFinishSelect label="Left" value={panel.leftEdge} onChange={v => updatePanel(idx, { leftEdge: v })} lengthInches={panel.rollWidth} />
-                      </div>
-
-                      {/* Desktop: compass layout */}
-                      <div className="hidden md:block">
-                        {/* Top dropdown — centered above preview */}
-                        <div className="max-w-xs mx-auto mb-3">
-                          <EdgeFinishSelect label="Top" value={panel.topEdge} onChange={v => updatePanel(idx, { topEdge: v })} lengthInches={panel.widthInches} />
-                        </div>
-
-                        {/* Middle row: Left | Preview | Right */}
-                        <div className="flex items-center gap-4">
-                          <div className="w-48 shrink-0">
-                            <EdgeFinishSelect label="Left" value={panel.leftEdge} onChange={v => updatePanel(idx, { leftEdge: v })} lengthInches={panel.rollWidth} />
-                          </div>
-                          <div className="flex-1 bg-gray-50 rounded-xl p-4 border border-gray-200 min-w-0">
+                      </>
+                    ) : (
+                      <>
+                        {/* Mobile: stacked */}
+                        <div className="md:hidden space-y-4">
+                          <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
                             <RawPanelPreview panel={panel} meshHex={meshHex} />
                           </div>
-                          <div className="w-48 shrink-0">
-                            <EdgeFinishSelect label="Right" value={panel.rightEdge} onChange={v => updatePanel(idx, { rightEdge: v })} lengthInches={panel.rollWidth} />
+                          <EdgeFinishSelect label="Top" value={panel.topEdge} onChange={v => updatePanel(idx, { topEdge: v })} lengthInches={panel.widthInches} />
+                          <EdgeFinishSelect label="Right" value={panel.rightEdge} onChange={v => updatePanel(idx, { rightEdge: v })} lengthInches={panel.rollWidth} />
+                          <EdgeFinishSelect label="Bottom" value={panel.bottomEdge} onChange={v => updatePanel(idx, { bottomEdge: v })} lengthInches={panel.widthInches} />
+                          <EdgeFinishSelect label="Left" value={panel.leftEdge} onChange={v => updatePanel(idx, { leftEdge: v })} lengthInches={panel.rollWidth} />
+                        </div>
+
+                        {/* Desktop: compass layout */}
+                        <div className="hidden md:block">
+                          <div className="max-w-xs mx-auto mb-3">
+                            <EdgeFinishSelect label="Top" value={panel.topEdge} onChange={v => updatePanel(idx, { topEdge: v })} lengthInches={panel.widthInches} />
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <div className="w-48 shrink-0">
+                              <EdgeFinishSelect label="Left" value={panel.leftEdge} onChange={v => updatePanel(idx, { leftEdge: v })} lengthInches={panel.rollWidth} />
+                            </div>
+                            <div className="flex-1 bg-gray-50 rounded-xl p-4 border border-gray-200 min-w-0">
+                              <RawPanelPreview panel={panel} meshHex={meshHex} />
+                            </div>
+                            <div className="w-48 shrink-0">
+                              <EdgeFinishSelect label="Right" value={panel.rightEdge} onChange={v => updatePanel(idx, { rightEdge: v })} lengthInches={panel.rollWidth} />
+                            </div>
+                          </div>
+                          <div className="max-w-xs mx-auto mt-3">
+                            <EdgeFinishSelect label="Bottom" value={panel.bottomEdge} onChange={v => updatePanel(idx, { bottomEdge: v })} lengthInches={panel.widthInches} />
                           </div>
                         </div>
+                      </>
+                    )}
+                  </div>
+                </div>
 
-                        {/* Bottom dropdown — centered below preview */}
-                        <div className="max-w-xs mx-auto mt-3">
-                          <EdgeFinishSelect label="Bottom" value={panel.bottomEdge} onChange={v => updatePanel(idx, { bottomEdge: v })} lengthInches={panel.widthInches} />
-                        </div>
-                      </div>
-                    </>
-                  )}
+                {/* Divider */}
+                <div className="border-t border-gray-200" />
 
-                  {/* Panel price breakdown */}
-                  {pricing && (
+                {/* ── Section C: Price Breakdown ── */}
+                {pricing && (
+                  <div className="px-5 py-4">
                     <div className="bg-[#406517]/5 rounded-xl px-4 py-3 border border-[#406517]/10">
                       <div className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Panel Price Breakdown</div>
                       <div className="space-y-1 text-sm">
-                        {/* Mesh cost */}
                         <div className="flex justify-between">
                           <span className="text-gray-600">
                             Mesh — {meshCard.label} {panel.rollWidth}&quot;
@@ -1038,8 +1146,6 @@ export default function RawNettingPanelBuilder() {
                             {pricing.meshCost > 0 ? fmt$(pricing.meshCost) : <span className="text-gray-400">--</span>}
                           </span>
                         </div>
-
-                        {/* Edge costs */}
                         {[
                           { label: 'Top', cost: pricing.topCost, edge: panel.topEdge, len: panel.widthInches },
                           { label: 'Bottom', cost: pricing.bottomCost, edge: panel.bottomEdge, len: panel.widthInches },
@@ -1056,8 +1162,6 @@ export default function RawNettingPanelBuilder() {
                             </span>
                           </div>
                         ))}
-
-                        {/* Panel total */}
                         <div className="flex justify-between border-t border-[#406517]/20 pt-2 mt-2 font-bold text-base">
                           <span className="text-gray-800">Panel Total</span>
                           <span className="text-[#406517]">
@@ -1066,11 +1170,13 @@ export default function RawNettingPanelBuilder() {
                         </div>
                       </div>
                     </div>
-                  )}
-                </Stack>
-              </HeaderBarSection>
-            </div>
-          </div>
+                  </div>
+                )}
+
+                
+              </div>
+            )}
+          </Card>
         )
       })}
 
@@ -1085,8 +1191,20 @@ export default function RawNettingPanelBuilder() {
       {/* ══════════════════════════════════════════════
          SECTION 1: ORDER SUMMARY
          ══════════════════════════════════════════════ */}
-      <HeaderBarSection icon={ClipboardList} label="Order Summary" variant="green" headerSubtitle={`${panels.length} panel${panels.length !== 1 ? 's' : ''} configured`}>
-        <div className="space-y-3">
+      <Card className="!p-0 !bg-white !border-2 !border-[#406517]/20 overflow-hidden">
+        {/* Centered header */}
+        <div className="text-center px-6 pt-6 md:pt-8 pb-4 border-b border-gray-100">
+          <div className="flex items-center justify-center gap-2.5 mb-1.5">
+            <ClipboardList className="w-6 h-6 text-[#406517]" />
+            <h3 className="text-xl font-bold text-gray-900">Order Summary</h3>
+          </div>
+          <p className="text-sm text-gray-500">
+            {panels.length} panel{panels.length !== 1 ? 's' : ''} configured
+          </p>
+        </div>
+
+        {/* Summary content */}
+        <div className="px-6 pb-6 md:px-8 md:pb-8 pt-5 space-y-3">
           {panels.map((p, i) => {
             const meshLabel = MESH_TYPE_CARDS.find(c => c.id === p.meshType)?.label || p.meshType
             const colorLabel = MESH_COLOR_SWATCHES.find(c => c.id === p.meshColor)?.label || p.meshColor
@@ -1129,7 +1247,7 @@ export default function RawNettingPanelBuilder() {
             </span>
           </div>
         </div>
-      </HeaderBarSection>
+      </Card>
 
       {/* ══════════════════════════════════════════════
          SECTION 2: SAVE YOUR PROJECT

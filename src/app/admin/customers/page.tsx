@@ -2,17 +2,17 @@
 
 /**
  * Admin Customer CRM Page
- * 
- * Searchable customer table with filters, RFM segmentation, and LTV tiers.
- * Follows Mosquito Curtains Design System patterns.
+ *
+ * Real data from customers table with order/project stats.
+ * Searchable, filterable, sortable.
  */
 
-import { useState, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
-import { 
-  Search, 
-  Users, 
-  ArrowUpDown, 
+import {
+  Search,
+  Users,
+  ArrowUpDown,
   Filter,
   Download,
   ChevronLeft,
@@ -21,6 +21,8 @@ import {
   DollarSign,
   ShoppingBag,
   TrendingUp,
+  FolderOpen,
+  RefreshCw,
 } from 'lucide-react'
 import {
   Container,
@@ -41,137 +43,42 @@ import {
 interface Customer {
   id: string
   email: string
-  firstName: string
-  lastName: string
-  phone?: string
-  state?: string
-  city?: string
-  totalOrders: number
-  totalSpent: number
-  avgOrderValue: number
-  firstOrderDate: string
-  lastOrderDate: string
-  rfmScore: {
-    recency: number
-    frequency: number
-    monetary: number
-    total: number
-    segment: string
-  }
-  ltvTier: 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond'
-  salesperson?: string
+  first_name: string | null
+  last_name: string | null
+  phone: string | null
+  city: string | null
+  state: string | null
+  zip: string | null
+  customer_status: string | null
+  notes: string | null
+  lead_id: string | null
+  created_at: string
+  // Computed from API
+  total_orders: number
+  total_spent: number
+  avg_order_value: number
+  first_order_date: string | null
+  last_order_date: string | null
+  total_projects: number
 }
 
-type SortField = 'totalSpent' | 'totalOrders' | 'lastOrderDate' | 'avgOrderValue'
+type SortField = 'total_spent' | 'total_orders' | 'last_order_date' | 'created_at'
 type SortDirection = 'asc' | 'desc'
 
 // =============================================================================
-// MOCK DATA
+// STATUS CONFIG
 // =============================================================================
 
-const MOCK_CUSTOMERS: Customer[] = [
-  {
-    id: 'cust_001',
-    email: 'john.smith@example.com',
-    firstName: 'John',
-    lastName: 'Smith',
-    phone: '(555) 123-4567',
-    state: 'GA',
-    city: 'Atlanta',
-    totalOrders: 5,
-    totalSpent: 4850.00,
-    avgOrderValue: 970.00,
-    firstOrderDate: '2024-03-15',
-    lastOrderDate: '2026-01-20',
-    rfmScore: { recency: 5, frequency: 4, monetary: 4, total: 13, segment: 'Champion' },
-    ltvTier: 'gold',
-    salesperson: 'Sarah M.',
-  },
-  {
-    id: 'cust_002',
-    email: 'mary.johnson@example.com',
-    firstName: 'Mary',
-    lastName: 'Johnson',
-    phone: '(555) 987-6543',
-    state: 'FL',
-    city: 'Miami',
-    totalOrders: 12,
-    totalSpent: 15680.00,
-    avgOrderValue: 1306.67,
-    firstOrderDate: '2022-06-10',
-    lastOrderDate: '2025-12-05',
-    rfmScore: { recency: 4, frequency: 5, monetary: 5, total: 14, segment: 'Loyal' },
-    ltvTier: 'platinum',
-    salesperson: 'Mike T.',
-  },
-  {
-    id: 'cust_003',
-    email: 'robert.williams@example.com',
-    firstName: 'Robert',
-    lastName: 'Williams',
-    state: 'TX',
-    city: 'Houston',
-    totalOrders: 2,
-    totalSpent: 890.00,
-    avgOrderValue: 445.00,
-    firstOrderDate: '2025-08-22',
-    lastOrderDate: '2025-11-18',
-    rfmScore: { recency: 3, frequency: 2, monetary: 2, total: 7, segment: 'Promising' },
-    ltvTier: 'bronze',
-  },
-  {
-    id: 'cust_004',
-    email: 'jennifer.davis@example.com',
-    firstName: 'Jennifer',
-    lastName: 'Davis',
-    phone: '(555) 456-7890',
-    state: 'CA',
-    city: 'San Diego',
-    totalOrders: 8,
-    totalSpent: 9450.00,
-    avgOrderValue: 1181.25,
-    firstOrderDate: '2023-01-05',
-    lastOrderDate: '2026-01-10',
-    rfmScore: { recency: 5, frequency: 4, monetary: 5, total: 14, segment: 'Champion' },
-    ltvTier: 'gold',
-    salesperson: 'Sarah M.',
-  },
-  {
-    id: 'cust_005',
-    email: 'michael.brown@example.com',
-    firstName: 'Michael',
-    lastName: 'Brown',
-    state: 'NC',
-    city: 'Charlotte',
-    totalOrders: 1,
-    totalSpent: 1250.00,
-    avgOrderValue: 1250.00,
-    firstOrderDate: '2025-12-20',
-    lastOrderDate: '2025-12-20',
-    rfmScore: { recency: 4, frequency: 1, monetary: 3, total: 8, segment: 'New' },
-    ltvTier: 'silver',
-  },
-]
-
-// =============================================================================
-// HELPER FUNCTIONS
-// =============================================================================
-
-const LTV_COLORS = {
-  bronze: '!bg-amber-100 !text-amber-800 !border-amber-200',
-  silver: '!bg-gray-100 !text-gray-700 !border-gray-200',
-  gold: '!bg-yellow-100 !text-yellow-800 !border-yellow-200',
-  platinum: '!bg-cyan-100 !text-cyan-800 !border-cyan-200',
-  diamond: '!bg-purple-100 !text-purple-800 !border-purple-200',
+const CUSTOMER_STATUS_COLORS: Record<string, string> = {
+  lead: '!bg-blue-100 !text-blue-700 !border-blue-200',
+  quoted: '!bg-purple-100 !text-purple-700 !border-purple-200',
+  customer: '!bg-green-100 !text-green-700 !border-green-200',
+  repeat: '!bg-[#406517]/10 !text-[#406517] !border-[#406517]/30',
+  churned: '!bg-red-100 !text-red-600 !border-red-200',
 }
 
-const RFM_SEGMENT_COLORS: Record<string, string> = {
-  'Champion': '!bg-[#406517]/10 !text-[#406517] !border-[#406517]/30',
-  'Loyal': '!bg-[#003365]/10 !text-[#003365] !border-[#003365]/30',
-  'Promising': '!bg-teal-100 !text-teal-700 !border-teal-200',
-  'New': '!bg-[#B30158]/10 !text-[#B30158] !border-[#B30158]/30',
-  'At Risk': '!bg-[#FFA501]/10 !text-[#FFA501] !border-[#FFA501]/30',
-  'Dormant': '!bg-red-100 !text-red-700 !border-red-200',
+function statusLabel(s: string) {
+  return s.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
 }
 
 // =============================================================================
@@ -179,67 +86,70 @@ const RFM_SEGMENT_COLORS: Record<string, string> = {
 // =============================================================================
 
 export default function AdminCustomersPage() {
-  const [customers] = useState<Customer[]>(MOCK_CUSTOMERS)
+  const [customers, setCustomers] = useState<Customer[]>([])
+  const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
-  const [ltvFilter, setLtvFilter] = useState<string>('all')
-  const [stateFilter, setStateFilter] = useState<string>('all')
-  const [sortField, setSortField] = useState<SortField>('totalSpent')
+  const [searchInput, setSearchInput] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [sortField, setSortField] = useState<SortField>('total_spent')
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
   const [currentPage, setCurrentPage] = useState(1)
-  const pageSize = 10
+  const pageSize = 25
 
-  // Get unique states for filter
-  const uniqueStates = useMemo(() => {
-    return [...new Set(customers.map(c => c.state).filter(Boolean))] as string[]
-  }, [customers])
+  const fetchCustomers = useCallback(async () => {
+    setLoading(true)
+    try {
+      const params = new URLSearchParams()
+      if (searchQuery) params.set('search', searchQuery)
+      if (statusFilter !== 'all') params.set('status', statusFilter)
+      params.set('limit', '500')
 
-  // Filter and sort customers
-  const filteredCustomers = useMemo(() => {
-    let result = [...customers]
-
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase()
-      result = result.filter(c => 
-        c.email.toLowerCase().includes(query) ||
-        c.firstName.toLowerCase().includes(query) ||
-        c.lastName.toLowerCase().includes(query) ||
-        c.phone?.includes(query)
-      )
+      const res = await fetch(`/api/admin/customers?${params}`)
+      const data = await res.json()
+      setCustomers(data.customers || [])
+    } catch (err) {
+      console.error('Failed to fetch customers:', err)
+    } finally {
+      setLoading(false)
     }
+  }, [searchQuery, statusFilter])
 
-    if (ltvFilter !== 'all') {
-      result = result.filter(c => c.ltvTier === ltvFilter)
-    }
+  useEffect(() => {
+    fetchCustomers()
+  }, [fetchCustomers])
 
-    if (stateFilter !== 'all') {
-      result = result.filter(c => c.state === stateFilter)
-    }
+  const handleSearch = () => {
+    setSearchQuery(searchInput)
+    setCurrentPage(1)
+  }
 
-    result.sort((a, b) => {
+  // Sort
+  const sortedCustomers = useMemo(() => {
+    const sorted = [...customers]
+    sorted.sort((a, b) => {
       let comparison = 0
       switch (sortField) {
-        case 'totalSpent':
-          comparison = a.totalSpent - b.totalSpent
+        case 'total_spent':
+          comparison = a.total_spent - b.total_spent
           break
-        case 'totalOrders':
-          comparison = a.totalOrders - b.totalOrders
+        case 'total_orders':
+          comparison = a.total_orders - b.total_orders
           break
-        case 'avgOrderValue':
-          comparison = a.avgOrderValue - b.avgOrderValue
+        case 'last_order_date':
+          comparison = (new Date(a.last_order_date || 0).getTime()) - (new Date(b.last_order_date || 0).getTime())
           break
-        case 'lastOrderDate':
-          comparison = new Date(a.lastOrderDate).getTime() - new Date(b.lastOrderDate).getTime()
+        case 'created_at':
+          comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
           break
       }
       return sortDirection === 'asc' ? comparison : -comparison
     })
-
-    return result
-  }, [customers, searchQuery, ltvFilter, stateFilter, sortField, sortDirection])
+    return sorted
+  }, [customers, sortField, sortDirection])
 
   // Pagination
-  const totalPages = Math.ceil(filteredCustomers.length / pageSize)
-  const paginatedCustomers = filteredCustomers.slice(
+  const totalPages = Math.ceil(sortedCustomers.length / pageSize)
+  const paginatedCustomers = sortedCustomers.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize
   )
@@ -247,9 +157,9 @@ export default function AdminCustomersPage() {
   // Summary stats
   const stats = useMemo(() => ({
     totalCustomers: customers.length,
-    totalRevenue: customers.reduce((sum, c) => sum + c.totalSpent, 0),
-    avgLTV: customers.reduce((sum, c) => sum + c.totalSpent, 0) / customers.length,
-    avgOrders: customers.reduce((sum, c) => sum + c.totalOrders, 0) / customers.length,
+    totalRevenue: customers.reduce((sum, c) => sum + c.total_spent, 0),
+    avgSpend: customers.length > 0 ? customers.reduce((sum, c) => sum + c.total_spent, 0) / customers.length : 0,
+    totalProjects: customers.reduce((sum, c) => sum + c.total_projects, 0),
   }), [customers])
 
   const handleSort = (field: SortField) => {
@@ -261,6 +171,8 @@ export default function AdminCustomersPage() {
     }
   }
 
+  const formatMoney = (v: number) => `$${v.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+
   return (
     <Container size="xl">
       <Stack gap="lg">
@@ -268,17 +180,22 @@ export default function AdminCustomersPage() {
         <section>
           <div className="flex items-center justify-between">
             <div>
-              <Heading level={1} className="!mb-1">Customer CRM</Heading>
-              <Text className="text-gray-600">
-                Manage customers, view RFM scores, and track lifetime value.
+              <Heading level={1} className="!mb-1">Customers</Heading>
+              <Text className="text-gray-600 !mb-0">
+                Manage customers, track orders and projects.
               </Text>
             </div>
-            <Button variant="outline" asChild>
-              <Link href="/admin/export?type=customers">
-                <Download className="w-4 h-4 mr-2" />
-                Export
-              </Link>
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" onClick={fetchCustomers} disabled={loading}>
+                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              </Button>
+              <Button variant="outline" asChild>
+                <Link href="/admin/export?type=customers">
+                  <Download className="w-4 h-4 mr-2" />
+                  Export
+                </Link>
+              </Button>
+            </div>
           </div>
         </section>
 
@@ -307,7 +224,7 @@ export default function AdminCustomersPage() {
                 <div>
                   <Text size="sm" className="text-gray-500 !mb-0">Total Revenue</Text>
                   <Text className="text-xl font-bold text-gray-900 !mb-0">
-                    ${stats.totalRevenue.toLocaleString()}
+                    {formatMoney(stats.totalRevenue)}
                   </Text>
                 </div>
               </div>
@@ -319,9 +236,9 @@ export default function AdminCustomersPage() {
                   <TrendingUp className="w-5 h-5 text-[#B30158]" />
                 </div>
                 <div>
-                  <Text size="sm" className="text-gray-500 !mb-0">Avg LTV</Text>
+                  <Text size="sm" className="text-gray-500 !mb-0">Avg Spend</Text>
                   <Text className="text-xl font-bold text-gray-900 !mb-0">
-                    ${stats.avgLTV.toFixed(0)}
+                    {formatMoney(stats.avgSpend)}
                   </Text>
                 </div>
               </div>
@@ -330,12 +247,12 @@ export default function AdminCustomersPage() {
             <Card variant="elevated" className="!p-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-[#003365]/10 rounded-lg flex items-center justify-center">
-                  <ShoppingBag className="w-5 h-5 text-[#003365]" />
+                  <FolderOpen className="w-5 h-5 text-[#003365]" />
                 </div>
                 <div>
-                  <Text size="sm" className="text-gray-500 !mb-0">Avg Orders</Text>
+                  <Text size="sm" className="text-gray-500 !mb-0">Total Projects</Text>
                   <Text className="text-xl font-bold text-gray-900 !mb-0">
-                    {stats.avgOrders.toFixed(1)}
+                    {stats.totalProjects.toLocaleString()}
                   </Text>
                 </div>
               </div>
@@ -347,43 +264,38 @@ export default function AdminCustomersPage() {
         <section>
           <Card variant="outlined" className="!p-4">
             <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <Input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-                  placeholder="Search by name, email, or phone..."
-                  className="!pl-10"
-                />
+              <div className="flex-1 flex items-center gap-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="text"
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                    placeholder="Search by name, email, or phone..."
+                    className="w-full pl-10 pr-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:border-[#003365]"
+                  />
+                </div>
+                <Button variant="outline" size="sm" onClick={handleSearch}>
+                  <Search className="w-3.5 h-3.5" />
+                </Button>
               </div>
 
               <div className="flex items-center gap-2">
                 <Filter className="w-4 h-4 text-gray-400" />
                 <select
-                  value={ltvFilter}
-                  onChange={(e) => { setLtvFilter(e.target.value); setCurrentPage(1); }}
-                  className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 text-sm"
+                  value={statusFilter}
+                  onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1) }}
+                  className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 text-sm focus:outline-none focus:border-[#003365]"
                 >
-                  <option value="all">All LTV Tiers</option>
-                  <option value="diamond">Diamond</option>
-                  <option value="platinum">Platinum</option>
-                  <option value="gold">Gold</option>
-                  <option value="silver">Silver</option>
-                  <option value="bronze">Bronze</option>
+                  <option value="all">All Statuses</option>
+                  <option value="lead">Lead</option>
+                  <option value="quoted">Quoted</option>
+                  <option value="customer">Customer</option>
+                  <option value="repeat">Repeat</option>
+                  <option value="churned">Churned</option>
                 </select>
               </div>
-
-              <select
-                value={stateFilter}
-                onChange={(e) => { setStateFilter(e.target.value); setCurrentPage(1); }}
-                className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 text-sm"
-              >
-                <option value="all">All States</option>
-                {uniqueStates.map(state => (
-                  <option key={state} value={state}>{state}</option>
-                ))}
-              </select>
             </div>
           </Card>
         </section>
@@ -391,109 +303,139 @@ export default function AdminCustomersPage() {
         {/* Customer Table */}
         <section>
           <Card variant="elevated" className="!p-0 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Customer</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Location</th>
-                    <th 
-                      className="px-4 py-3 text-left text-sm font-medium text-gray-600 cursor-pointer hover:text-gray-900"
-                      onClick={() => handleSort('totalOrders')}
-                    >
-                      <div className="flex items-center gap-1">
-                        Orders
-                        <ArrowUpDown className="w-4 h-4" />
-                      </div>
-                    </th>
-                    <th 
-                      className="px-4 py-3 text-left text-sm font-medium text-gray-600 cursor-pointer hover:text-gray-900"
-                      onClick={() => handleSort('totalSpent')}
-                    >
-                      <div className="flex items-center gap-1">
-                        Total Spent
-                        <ArrowUpDown className="w-4 h-4" />
-                      </div>
-                    </th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">LTV Tier</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">RFM Segment</th>
-                    <th 
-                      className="px-4 py-3 text-left text-sm font-medium text-gray-600 cursor-pointer hover:text-gray-900"
-                      onClick={() => handleSort('lastOrderDate')}
-                    >
-                      <div className="flex items-center gap-1">
-                        Last Order
-                        <ArrowUpDown className="w-4 h-4" />
-                      </div>
-                    </th>
-                    <th className="px-4 py-3 text-right text-sm font-medium text-gray-600">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {paginatedCustomers.map((customer) => (
-                    <tr key={customer.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-4 py-3">
-                        <div>
-                          <Text className="font-medium text-gray-900 !mb-0">
-                            {customer.firstName} {customer.lastName}
-                          </Text>
-                          <Text size="sm" className="text-gray-500 !mb-0">{customer.email}</Text>
+            {loading ? (
+              <div className="p-12 text-center">
+                <Text className="text-gray-500">Loading customers...</Text>
+              </div>
+            ) : paginatedCustomers.length === 0 ? (
+              <div className="p-12 text-center">
+                <Users className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                <Text className="text-gray-400">No customers found</Text>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Customer</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Location</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Status</th>
+                      <th
+                        className="px-4 py-3 text-left text-sm font-medium text-gray-600 cursor-pointer hover:text-gray-900"
+                        onClick={() => handleSort('total_orders')}
+                      >
+                        <div className="flex items-center gap-1">
+                          Orders
+                          <ArrowUpDown className="w-4 h-4" />
                         </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        {customer.city && customer.state && (
-                          <Text size="sm" className="text-gray-700 !mb-0">
-                            {customer.city}, {customer.state}
-                          </Text>
-                        )}
-                      </td>
-                      <td className="px-4 py-3">
-                        <Text className="font-medium text-gray-900 !mb-0">{customer.totalOrders}</Text>
-                      </td>
-                      <td className="px-4 py-3">
-                        <Text className="font-bold text-[#406517] !mb-0">
-                          ${customer.totalSpent.toLocaleString()}
-                        </Text>
-                      </td>
-                      <td className="px-4 py-3">
-                        <Badge className={`${LTV_COLORS[customer.ltvTier]} capitalize`}>
-                          {customer.ltvTier}
-                        </Badge>
-                      </td>
-                      <td className="px-4 py-3">
-                        <Badge className={RFM_SEGMENT_COLORS[customer.rfmScore.segment] || '!bg-gray-100 !text-gray-600'}>
-                          {customer.rfmScore.segment}
-                        </Badge>
-                      </td>
-                      <td className="px-4 py-3">
-                        <Text size="sm" className="text-gray-700 !mb-0">
-                          {new Date(customer.lastOrderDate).toLocaleDateString()}
-                        </Text>
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <Button variant="ghost" size="sm" asChild>
-                          <Link href={`/admin/customers/${customer.id}`}>
-                            <Eye className="w-4 h-4" />
-                          </Link>
-                        </Button>
-                      </td>
+                      </th>
+                      <th
+                        className="px-4 py-3 text-left text-sm font-medium text-gray-600 cursor-pointer hover:text-gray-900"
+                        onClick={() => handleSort('total_spent')}
+                      >
+                        <div className="flex items-center gap-1">
+                          Total Spent
+                          <ArrowUpDown className="w-4 h-4" />
+                        </div>
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Projects</th>
+                      <th
+                        className="px-4 py-3 text-left text-sm font-medium text-gray-600 cursor-pointer hover:text-gray-900"
+                        onClick={() => handleSort('last_order_date')}
+                      >
+                        <div className="flex items-center gap-1">
+                          Last Order
+                          <ArrowUpDown className="w-4 h-4" />
+                        </div>
+                      </th>
+                      <th className="px-4 py-3 text-right text-sm font-medium text-gray-600">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {paginatedCustomers.map((customer) => (
+                      <tr key={customer.id} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-4 py-3">
+                          <div>
+                            <Link href={`/admin/customers/${customer.id}`} className="font-medium text-[#003365] hover:underline">
+                              {customer.first_name || ''} {customer.last_name || ''}
+                              {!customer.first_name && !customer.last_name && (
+                                <span className="text-gray-400 italic">Unknown</span>
+                              )}
+                            </Link>
+                            <Text size="sm" className="text-gray-500 !mb-0">{customer.email}</Text>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          {customer.city && customer.state ? (
+                            <Text size="sm" className="text-gray-700 !mb-0">
+                              {customer.city}, {customer.state}
+                            </Text>
+                          ) : customer.state ? (
+                            <Text size="sm" className="text-gray-700 !mb-0">{customer.state}</Text>
+                          ) : (
+                            <span className="text-gray-300">--</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          {customer.customer_status ? (
+                            <Badge className={`${CUSTOMER_STATUS_COLORS[customer.customer_status] || '!bg-gray-100 !text-gray-600'} capitalize !text-[10px]`}>
+                              {statusLabel(customer.customer_status)}
+                            </Badge>
+                          ) : (
+                            <span className="text-gray-300">--</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          <Text className="font-medium text-gray-900 !mb-0">{customer.total_orders}</Text>
+                        </td>
+                        <td className="px-4 py-3">
+                          <Text className="font-bold text-[#406517] !mb-0">
+                            {customer.total_spent > 0 ? formatMoney(customer.total_spent) : '--'}
+                          </Text>
+                        </td>
+                        <td className="px-4 py-3">
+                          {customer.total_projects > 0 ? (
+                            <span className="flex items-center gap-1 text-[#003365]">
+                              <FolderOpen className="w-3.5 h-3.5" /> {customer.total_projects}
+                            </span>
+                          ) : (
+                            <span className="text-gray-300">--</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          {customer.last_order_date ? (
+                            <Text size="sm" className="text-gray-700 !mb-0">
+                              {new Date(customer.last_order_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                            </Text>
+                          ) : (
+                            <span className="text-gray-300">--</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <Button variant="ghost" size="sm" asChild>
+                            <Link href={`/admin/customers/${customer.id}`}>
+                              <Eye className="w-4 h-4" />
+                            </Link>
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
 
             {/* Pagination */}
             {totalPages > 1 && (
               <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100">
                 <Text size="sm" className="text-gray-500 !mb-0">
-                  Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, filteredCustomers.length)} of {filteredCustomers.length} customers
+                  Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, sortedCustomers.length)} of {sortedCustomers.length}
                 </Text>
                 <div className="flex items-center gap-2">
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
                   >
                     <ChevronLeft className="w-4 h-4" />
@@ -504,7 +446,7 @@ export default function AdminCustomersPage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                     disabled={currentPage === totalPages}
                   >
                     <ChevronRight className="w-4 h-4" />

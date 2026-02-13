@@ -44,20 +44,20 @@ const heroActions: PowerHeaderAction[] = [
     color: '#406517',
   },
   {
-    icon: Calculator,
-    title: 'Instant Quote',
-    description: 'Quick specs for an estimate within 5% of actual cost.',
-    href: '/start-project?mode=quote',
-    buttonText: 'Calculate',
-    color: '#003365',
-  },
-  {
     icon: Hammer,
     title: 'DIY Builder',
     description: 'Configure panels yourself and add directly to cart.',
     href: '/start-project?mode=diy',
     buttonText: 'Build',
     color: '#B30158',
+  },
+  {
+    icon: Calculator,
+    title: 'Instant Quote',
+    description: 'Quick specs for an estimate within 5% of actual cost.',
+    href: '/start-project?mode=quote',
+    buttonText: 'Calculate',
+    color: '#003365',
   },
 ]
 

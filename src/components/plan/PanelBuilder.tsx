@@ -8,7 +8,6 @@ import {
   Text,
   Stack,
   Button,
-  HeaderBarSection,
 } from '@/lib/design-system'
 import {
   calculatePanelDimensions,
@@ -20,7 +19,7 @@ import {
 import {
   Save, CheckCircle, Loader2, Info, ChevronDown, ChevronUp,
   ArrowRight, ArrowLeft, Users, Zap, Check, Play, X, Plus, Minus,
-  SlidersHorizontal, LayoutGrid, Wrench, Mail, User, ShieldCheck, Bookmark,
+  SlidersHorizontal, Wrench, Mail, User, ShieldCheck, Bookmark,
   Phone, Upload, Image as ImageIcon, FileText, Copy, Link2, Send, Ruler,
 } from 'lucide-react'
 import type { MeshType, MeshColor } from '@/lib/pricing/types'
@@ -425,10 +424,11 @@ function fmt$(n: number): string {
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    Side Section
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-function SideSection({ sideNum, state, onChange, onSave, saveStatus, onShowMeasureGuide }: {
+function SideSection({ sideNum, state, onChange, onSave, saveStatus, onShowMeasureGuide, isOpen, onToggle }: {
   sideNum: number; state: SideState; onChange: (u: Partial<SideState>) => void;
   onSave: () => void; saveStatus: 'idle' | 'saving' | 'saved' | 'error';
   onShowMeasureGuide?: () => void;
+  isOpen: boolean; onToggle: () => void;
 }) {
   const isDesktop = useIsDesktop()
   const config = SIDE_CONFIGS.find((c) => c.id === state.configId)!
@@ -438,103 +438,143 @@ function SideSection({ sideNum, state, onChange, onSave, saveStatus, onShowMeasu
   const panelMaxSize = isDesktop ? (config.panelCount > 1 ? 320 : 420) : (config.panelCount > 1 ? 200 : 280)
 
   return (
-    <Card className="!p-0 !bg-white !border-2 !border-[#406517]/30 overflow-hidden">
-      {/* Header with save button */}
-      <div className="bg-[#406517] px-5 py-2.5 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-full bg-white/20 text-white flex items-center justify-center text-xs font-bold">{sideNum}</div>
-          <span className="text-white font-bold text-sm">Side {sideNum}</span>
-        </div>
-        {isReady && (
-          <button type="button" onClick={onSave} disabled={saveStatus === 'saving'}
-            className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/20 text-white hover:bg-white/30 transition-colors disabled:opacity-50">
-            {saveStatus === 'saving' ? <Loader2 className="w-3 h-3 animate-spin" /> : saveStatus === 'saved' ? <CheckCircle className="w-3 h-3" /> : <Save className="w-3 h-3" />}
-            {saveStatus === 'saved' ? 'Saved' : 'Save Side'}
-          </button>
-        )}
-      </div>
+    <Card className="!p-0 !bg-white !border-2 !border-gray-200 overflow-hidden transition-all">
 
-      {/* Layout picker */}
-      <div className="bg-gray-50 px-5 py-3 border-b border-gray-200">
-        <div className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-2 text-center">Panel Layout</div>
-        <div className="flex justify-center gap-3">
-          {SIDE_CONFIGS.map((c) => <ConfigCard key={c.id} config={c} selected={c.id === state.configId} onClick={() => onChange({ configId: c.id })} />)}
+      {/* ── COLLAPSED: summary row ── */}
+      {!isOpen && (
+        <div className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors" onClick={onToggle}>
+          <div className="w-7 h-7 rounded-full bg-[#406517] text-white flex items-center justify-center text-xs font-bold shrink-0">{sideNum}</div>
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-semibold text-gray-800 truncate">Side {sideNum} — {config.label}</div>
+            <div className="text-xs text-gray-500 truncate">
+              {isReady ? (
+                <>{tw}&quot; W &times; {lh}&quot;/{rh}&quot; H &mdash; {panels.length} panel{panels.length !== 1 ? 's' : ''}</>
+              ) : (
+                <span className="italic text-gray-400">No dimensions yet</span>
+              )}
+            </div>
+          </div>
+          {isReady && panels.length > 0 && (
+            <div className="shrink-0 text-xs text-gray-500">
+              {panels.map(p => `${p.finalWidth}"×${p.finalHeight}"`).join(', ')}
+            </div>
+          )}
+          <div className="flex items-center gap-1.5 shrink-0 text-xs text-[#406517] font-medium">
+            <span>Tap to expand</span>
+            <ChevronDown className="w-4 h-4" />
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Dimensions */}
-      <div className="bg-gray-50 px-5 py-3 border-b border-gray-200">
-        <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-gray-600 font-semibold uppercase tracking-wide">Left H</span>
-            <input type="number" min={1} value={state.leftHeight} onChange={(e) => onChange({ leftHeight: e.target.value })} className={INPUT_CLS} />
-          </div>
-          <span className="text-gray-400 font-bold text-lg">|</span>
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-gray-600 font-semibold uppercase tracking-wide">Width</span>
-            <input type="number" min={1} value={state.totalWidth} onChange={(e) => onChange({ totalWidth: e.target.value })} className={INPUT_CLS} />
-          </div>
-          <span className="text-gray-400 font-bold text-lg">|</span>
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-gray-600 font-semibold uppercase tracking-wide">Right H</span>
-            <input type="number" min={1} value={state.rightHeight} onChange={(e) => onChange({ rightHeight: e.target.value })} className={INPUT_CLS} />
-            <span className="text-gray-500 text-xs">in</span>
-          </div>
-        </div>
-        {onShowMeasureGuide && (
-          <div className="flex justify-center mt-2">
-            <button type="button" onClick={onShowMeasureGuide} className="flex items-center gap-1.5 text-xs text-[#406517] font-semibold hover:underline transition-colors">
-              <Ruler className="w-3.5 h-3.5" /> How to measure
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Visualization */}
-      <div className="px-4 py-6 md:px-8 md:py-8">
-        <div className="flex justify-center mb-4">
-          <EdgeSelector label="Top Attachment" value={state.topAttachment} onChange={(v) => onChange({ topAttachment: v })} options={TOP_OPTIONS} />
-        </div>
-        <div className="flex items-center justify-center gap-3 md:gap-6">
-          <div className="shrink-0"><EdgeSelector label="Left Edge" value={state.leftEdge} onChange={(v) => onChange({ leftEdge: v })} options={OUTER_EDGE_OPTIONS} /></div>
-          <div className="flex-1 flex items-end justify-center min-w-0">
-            {isReady && panels.length > 0 ? (
-              <div className="flex items-end justify-center">
-                {panels.map((panel, i) => (
-                  <div key={panel.id} className="flex items-end">
-                    {i > 0 && <div className="flex flex-col items-center justify-center mx-0.5 self-center">{[0, 1, 2, 3, 4].map((k) => <div key={k} className="w-1.5 h-3 bg-gradient-to-r from-[#d0d0d0] to-[#a0a0a0] rounded-sm my-0.5" />)}<span className="text-[7px] text-gray-500 mt-0.5 whitespace-nowrap leading-none">Mag Door</span></div>}
-                    <div className="flex flex-col items-center">
-                      <PanelVisualizer finalWidth={panel.finalWidth} finalHeight={panel.finalHeight} rawWidth={panel.rawWidth} rawHeight={panel.rawHeight} maxSize={panelMaxSize} topAttachment={panel.topAttachment} side1={panel.side1} side2={panel.side2} />
-                    </div>
-                  </div>
-                ))}
+      {/* ── EXPANDED: full configurator ── */}
+      {isOpen && (
+        <>
+          {/* Header — click to collapse */}
+          <div className="bg-[#406517] px-5 py-2.5 flex items-center justify-between cursor-pointer hover:bg-[#4a7519] transition-colors" onClick={onToggle}>
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-full bg-white/20 text-white flex items-center justify-center text-xs font-bold">{sideNum}</div>
+              <span className="text-white font-bold text-sm">Side {sideNum}</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5 text-xs text-white/70 font-medium">
+                <span>Tap to collapse</span>
+                <ChevronUp className="w-4 h-4" />
               </div>
-            ) : (
-              <div className="flex items-center justify-center h-48 w-full bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-                <Text size="sm" className="text-gray-500 !mb-0">Enter dimensions</Text>
+              <div onClick={e => e.stopPropagation()}>
+                {isReady && (
+                  <button type="button" onClick={onSave} disabled={saveStatus === 'saving'}
+                    className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/20 text-white hover:bg-white/30 transition-colors disabled:opacity-50">
+                    {saveStatus === 'saving' ? <Loader2 className="w-3 h-3 animate-spin" /> : saveStatus === 'saved' ? <CheckCircle className="w-3 h-3" /> : <Save className="w-3 h-3" />}
+                    {saveStatus === 'saved' ? 'Saved' : 'Save Side'}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Layout picker */}
+          <div className="bg-gray-50 px-5 py-3 border-b border-gray-200">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-2 text-center">Panel Layout</div>
+            <div className="flex justify-center gap-3">
+              {SIDE_CONFIGS.map((c) => <ConfigCard key={c.id} config={c} selected={c.id === state.configId} onClick={() => onChange({ configId: c.id })} />)}
+            </div>
+          </div>
+
+          {/* Dimensions */}
+          <div className="bg-gray-50 px-5 py-3 border-b border-gray-200">
+            <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs text-gray-600 font-semibold uppercase tracking-wide">Left H</span>
+                <input type="number" min={1} value={state.leftHeight} onChange={(e) => onChange({ leftHeight: e.target.value })} className={INPUT_CLS} />
+              </div>
+              <span className="text-gray-400 font-bold text-lg">|</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs text-gray-600 font-semibold uppercase tracking-wide">Width</span>
+                <input type="number" min={1} value={state.totalWidth} onChange={(e) => onChange({ totalWidth: e.target.value })} className={INPUT_CLS} />
+              </div>
+              <span className="text-gray-400 font-bold text-lg">|</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs text-gray-600 font-semibold uppercase tracking-wide">Right H</span>
+                <input type="number" min={1} value={state.rightHeight} onChange={(e) => onChange({ rightHeight: e.target.value })} className={INPUT_CLS} />
+                <span className="text-gray-500 text-xs">in</span>
+              </div>
+            </div>
+            {onShowMeasureGuide && (
+              <div className="flex justify-center mt-2">
+                <button type="button" onClick={onShowMeasureGuide} className="flex items-center gap-1.5 text-xs text-[#406517] font-semibold hover:underline transition-colors">
+                  <Ruler className="w-3.5 h-3.5" /> How to measure
+                </button>
               </div>
             )}
           </div>
-          <div className="shrink-0"><EdgeSelector label="Right Edge" value={state.rightEdge} onChange={(v) => onChange({ rightEdge: v })} options={OUTER_EDGE_OPTIONS} /></div>
-        </div>
-      </div>
 
-      {/* ── Bottom bar: 50/50 with breakdown ── */}
-      {panels.length > 0 && (
-        <div className="bg-[#406517]/5 border-t border-gray-200 px-5 py-4">
-          <div className={`grid gap-4 ${panels.length > 1 ? 'grid-cols-2' : 'grid-cols-1 max-w-sm mx-auto'}`}>
-            {panels.map((panel, i) => (
-              <div key={panel.id} className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-gray-700">Panel {i + 1}</span>
-                  <span className="font-mono font-bold text-[#406517] text-sm">{panel.finalWidth}&quot; &times; {panel.finalHeight}&quot;</span>
-                </div>
-                <div className="text-xs text-gray-500">({SIDE_LABEL_MAP[panel.side1]} | {TOP_LABEL_MAP[panel.topAttachment]} | {SIDE_LABEL_MAP[panel.side2]})</div>
-                <BreakdownInline panel={panel} />
+          {/* Visualization */}
+          <div className="px-4 py-6 md:px-8 md:py-8">
+            <div className="flex justify-center mb-4">
+              <EdgeSelector label="Top Attachment" value={state.topAttachment} onChange={(v) => onChange({ topAttachment: v })} options={TOP_OPTIONS} />
+            </div>
+            <div className="flex items-center justify-center gap-3 md:gap-6">
+              <div className="shrink-0"><EdgeSelector label="Left Edge" value={state.leftEdge} onChange={(v) => onChange({ leftEdge: v })} options={OUTER_EDGE_OPTIONS} /></div>
+              <div className="flex-1 flex items-end justify-center min-w-0">
+                {isReady && panels.length > 0 ? (
+                  <div className="flex items-end justify-center">
+                    {panels.map((panel, i) => (
+                      <div key={panel.id} className="flex items-end">
+                        {i > 0 && <div className="flex flex-col items-center justify-center mx-0.5 self-center">{[0, 1, 2, 3, 4].map((k) => <div key={k} className="w-1.5 h-3 bg-gradient-to-r from-[#d0d0d0] to-[#a0a0a0] rounded-sm my-0.5" />)}<span className="text-[7px] text-gray-500 mt-0.5 whitespace-nowrap leading-none">Mag Door</span></div>}
+                        <div className="flex flex-col items-center">
+                          <PanelVisualizer finalWidth={panel.finalWidth} finalHeight={panel.finalHeight} rawWidth={panel.rawWidth} rawHeight={panel.rawHeight} maxSize={panelMaxSize} topAttachment={panel.topAttachment} side1={panel.side1} side2={panel.side2} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center h-48 w-full bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+                    <Text size="sm" className="text-gray-500 !mb-0">Enter dimensions</Text>
+                  </div>
+                )}
               </div>
-            ))}
+              <div className="shrink-0"><EdgeSelector label="Right Edge" value={state.rightEdge} onChange={(v) => onChange({ rightEdge: v })} options={OUTER_EDGE_OPTIONS} /></div>
+            </div>
           </div>
-        </div>
+
+          {/* ── Bottom bar: 50/50 with breakdown ── */}
+          {panels.length > 0 && (
+            <div className="bg-[#406517]/5 border-t border-gray-200 px-5 py-4">
+              <div className={`grid gap-4 ${panels.length > 1 ? 'grid-cols-2' : 'grid-cols-1 max-w-sm mx-auto'}`}>
+                {panels.map((panel, i) => (
+                  <div key={panel.id} className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-gray-700">Panel {i + 1}</span>
+                      <span className="font-mono font-bold text-[#406517] text-sm">{panel.finalWidth}&quot; &times; {panel.finalHeight}&quot;</span>
+                    </div>
+                    <div className="text-xs text-gray-500">({SIDE_LABEL_MAP[panel.side1]} | {TOP_LABEL_MAP[panel.topAttachment]} | {SIDE_LABEL_MAP[panel.side2]})</div>
+                    <BreakdownInline panel={panel} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
       )}
     </Card>
   )
@@ -594,6 +634,12 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
   // Measurement guide modal
   const [showMeasureGuide, setShowMeasureGuide] = useState(false)
 
+  // Collapsible side panels — first side open by default
+  const [openSides, setOpenSides] = useState<Set<number>>(new Set([0]))
+  const toggleSide = useCallback((idx: number) => {
+    setOpenSides(prev => { const next = new Set(prev); if (next.has(idx)) next.delete(idx); else next.add(idx); return next })
+  }, [])
+
   // Restore from localStorage
   useEffect(() => { try { const s = localStorage.getItem(LS_KEY); if (s) { const p = JSON.parse(s); if (p.numSides) setNumSides(p.numSides); if (Array.isArray(p.sides) && p.sides.length > 0) setSides(p.sides); if (p.meshType && !initialMeshType) setMeshType(p.meshType); if (p.meshColor && !initialMeshColor) setMeshColor(p.meshColor) } } catch {} setHydrated(true) }, [initialMeshType, initialMeshColor])
 
@@ -601,7 +647,16 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
   const saveRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   useEffect(() => { if (!hydrated) return; if (saveRef.current) clearTimeout(saveRef.current); saveRef.current = setTimeout(() => { try { localStorage.setItem(LS_KEY, JSON.stringify({ numSides, sides, meshType, meshColor })) } catch {} }, 500); return () => { if (saveRef.current) clearTimeout(saveRef.current) } }, [numSides, sides, meshType, meshColor, hydrated])
 
-  useEffect(() => { setSides(prev => prev.length < numSides ? [...prev, ...Array.from({ length: numSides - prev.length }, () => defaultSideState())] : prev.slice(0, numSides)) }, [numSides])
+  useEffect(() => {
+    setSides(prev => {
+      if (prev.length < numSides) {
+        // Auto-open the first newly added side
+        setOpenSides(os => { const next = new Set(os); next.add(prev.length); return next })
+        return [...prev, ...Array.from({ length: numSides - prev.length }, () => defaultSideState())]
+      }
+      return prev.slice(0, numSides)
+    })
+  }, [numSides])
 
   // Keep meshColor valid
   useEffect(() => { const card = MESH_TYPE_CARDS.find(c => c.id === meshType); if (card && !card.colors.includes(meshColor)) setMeshColor(card.colors[0]) }, [meshType, meshColor])
@@ -704,8 +759,17 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
       {/* ══════════════════════════════════════════════
          SECTION 1: OPTIONS
          ══════════════════════════════════════════════ */}
-      <HeaderBarSection icon={SlidersHorizontal} label="Options" variant="green" headerSubtitle="Mesh type, color & top attachment">
-        <Stack gap="md">
+      <Card className="!p-0 !bg-white !border-2 !border-[#406517]/20 overflow-hidden">
+        {/* Centered header */}
+        <div className="text-center px-6 pt-6 md:pt-8 pb-4 border-b border-gray-100">
+          <div className="flex items-center justify-center gap-2.5 mb-1.5">
+            <SlidersHorizontal className="w-6 h-6 text-[#406517]" />
+            <h3 className="text-xl font-bold text-gray-900">Options</h3>
+          </div>
+          <p className="text-sm text-gray-500">Mesh type, color & top attachment</p>
+        </div>
+
+        <div className="px-6 pb-6 md:px-8 md:pb-8 pt-5 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* LEFT: Mesh Type — 3-across image cards */}
             <div>
@@ -778,8 +842,8 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
               ))}
             </div>
           </div>
-        </Stack>
-      </HeaderBarSection>
+        </div>
+      </Card>
 
       {/* Mesh Detail Lightbox */}
       <LightboxModal open={!!meshDetail} onClose={() => setMeshDetail(null)} title={meshDetail?.label || ''} image={meshDetail?.image || ''}>
@@ -820,15 +884,11 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
       <MeasurementGuideModal open={showMeasureGuide} onClose={() => setShowMeasureGuide(false)} />
 
       {/* ══════════════════════════════════════════════
-         SECTION 2: PANELS
+         SECTION 2: PANELS (each side is its own card)
          ══════════════════════════════════════════════ */}
-      <HeaderBarSection icon={LayoutGrid} label="Panels" variant="green" headerSubtitle={`${numSides} side${numSides !== 1 ? 's' : ''} — ${allPanels.length} panel${allPanels.length !== 1 ? 's' : ''}`}>
-        <Stack gap="md">
-          {sides.map((side, i) => (
-            <SideSection key={i} sideNum={i + 1} state={side} onChange={(u) => updateSide(i, u)} onSave={handleSaveProject} saveStatus={saveStatus} onShowMeasureGuide={() => setShowMeasureGuide(true)} />
-          ))}
-        </Stack>
-      </HeaderBarSection>
+      {sides.map((side, i) => (
+        <SideSection key={i} sideNum={i + 1} state={side} onChange={(u) => updateSide(i, u)} onSave={handleSaveProject} saveStatus={saveStatus} onShowMeasureGuide={() => setShowMeasureGuide(true)} isOpen={openSides.has(i)} onToggle={() => toggleSide(i)} />
+      ))}
 
       {/* ══════════════════════════════════════════════
          SECTION 3: TRACK & ATTACHMENTS
@@ -840,59 +900,69 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
         })
         const grandTotal = recsWithQty.reduce((sum, r) => sum + r.totalPrice, 0)
         return (
-          <HeaderBarSection icon={Wrench} label="Track & Attachments" variant="green" headerSubtitle={`${baseRecs.length} items recommended`}>
-            <div className="text-center mb-4">
-              <div className="text-sm text-gray-600">Based on your {allPanels.length} panel{allPanels.length !== 1 ? 's' : ''} configuration. Adjust quantities as needed.</div>
+          <Card className="!p-0 !bg-white !border-2 !border-[#406517]/20 overflow-hidden">
+            {/* Centered header */}
+            <div className="text-center px-6 pt-6 md:pt-8 pb-4 border-b border-gray-100">
+              <div className="flex items-center justify-center gap-2.5 mb-1.5">
+                <Wrench className="w-6 h-6 text-[#406517]" />
+                <h3 className="text-xl font-bold text-gray-900">Track & Attachments</h3>
+              </div>
+              <p className="text-sm text-gray-500">
+                {baseRecs.length} items recommended — based on your {allPanels.length} panel{allPanels.length !== 1 ? 's' : ''} configuration
+              </p>
             </div>
-            <div className="space-y-2">
-              {/* Header row */}
-              <div className="hidden sm:grid grid-cols-[52px_1fr_100px_80px_70px] gap-3 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-500">
-                <div />
-                <div>Product</div>
-                <div className="text-center">Qty</div>
-                <div className="text-right">Each</div>
-                <div className="text-right">Total</div>
+
+            <div className="px-6 pb-6 md:px-8 md:pb-8 pt-5">
+              <div className="space-y-2">
+                {/* Header row */}
+                <div className="hidden sm:grid grid-cols-[52px_1fr_100px_80px_70px] gap-3 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-500">
+                  <div />
+                  <div>Product</div>
+                  <div className="text-center">Qty</div>
+                  <div className="text-right">Each</div>
+                  <div className="text-right">Total</div>
+                </div>
+
+                {recsWithQty.map(item => (
+                  <div key={item.key} className="flex items-center sm:grid sm:grid-cols-[52px_1fr_100px_80px_70px] gap-3 p-3 rounded-xl bg-gray-50 border border-gray-200">
+                    {/* Product image */}
+                    <div className="w-12 h-12 rounded-lg overflow-hidden bg-white border border-gray-200 shrink-0">
+                      {item.image ? (
+                        <Image src={item.image} alt={item.label} width={48} height={48} className="object-cover w-full h-full" />
+                      ) : (
+                        <div className="w-full h-full bg-gray-100" />
+                      )}
+                    </div>
+
+                    {/* Name + description */}
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-gray-800 text-sm leading-tight">{item.label}</div>
+                      <div className="text-xs text-gray-500 leading-tight">{item.description}</div>
+                    </div>
+
+                    {/* Qty stepper */}
+                    <div className="flex items-center justify-center shrink-0">
+                      <QtyStepper value={item.qty} onChange={v => setRecOverrides(prev => ({ ...prev, [item.key]: v }))} min={0} />
+                    </div>
+
+                    {/* Unit price */}
+                    <div className="text-sm text-gray-600 text-right tabular-nums shrink-0 hidden sm:block">${fmt$(item.unitPrice)}</div>
+
+                    {/* Line total */}
+                    <div className="text-sm font-semibold text-gray-800 text-right tabular-nums shrink-0">
+                      {item.totalPrice > 0 ? `$${fmt$(item.totalPrice)}` : <span className="text-green-600">FREE</span>}
+                    </div>
+                  </div>
+                ))}
               </div>
 
-              {recsWithQty.map(item => (
-                <div key={item.key} className="flex items-center sm:grid sm:grid-cols-[52px_1fr_100px_80px_70px] gap-3 p-3 rounded-xl bg-gray-50 border border-gray-200">
-                  {/* Product image */}
-                  <div className="w-12 h-12 rounded-lg overflow-hidden bg-white border border-gray-200 shrink-0">
-                    {item.image ? (
-                      <Image src={item.image} alt={item.label} width={48} height={48} className="object-cover w-full h-full" />
-                    ) : (
-                      <div className="w-full h-full bg-gray-100" />
-                    )}
-                  </div>
-
-                  {/* Name + description */}
-                  <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-gray-800 text-sm leading-tight">{item.label}</div>
-                    <div className="text-xs text-gray-500 leading-tight">{item.description}</div>
-                  </div>
-
-                  {/* Qty stepper */}
-                  <div className="flex items-center justify-center shrink-0">
-                    <QtyStepper value={item.qty} onChange={v => setRecOverrides(prev => ({ ...prev, [item.key]: v }))} min={0} />
-                  </div>
-
-                  {/* Unit price */}
-                  <div className="text-sm text-gray-600 text-right tabular-nums shrink-0 hidden sm:block">${fmt$(item.unitPrice)}</div>
-
-                  {/* Line total */}
-                  <div className="text-sm font-semibold text-gray-800 text-right tabular-nums shrink-0">
-                    {item.totalPrice > 0 ? `$${fmt$(item.totalPrice)}` : <span className="text-green-600">FREE</span>}
-                  </div>
-                </div>
-              ))}
+              {/* Grand total */}
+              <div className="mt-4 pt-3 border-t-2 border-gray-200 flex items-center justify-between">
+                <div className="text-sm text-gray-600">Hardware & Accessories Total</div>
+                <div className="text-lg font-bold text-[#406517]">${fmt$(grandTotal)}</div>
+              </div>
             </div>
-
-            {/* Grand total */}
-            <div className="mt-4 pt-3 border-t-2 border-gray-200 flex items-center justify-between">
-              <div className="text-sm text-gray-600">Hardware & Accessories Total</div>
-              <div className="text-lg font-bold text-[#406517]">${fmt$(grandTotal)}</div>
-            </div>
-          </HeaderBarSection>
+          </Card>
         )
       })()}
 
@@ -900,199 +970,195 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
          SAVE PROJECT
          ══════════════════════════════════════════════ */}
       {allSidesReady && allPanels.length > 0 && (
-        <HeaderBarSection icon={Save} label="Save Project" variant="green" headerSubtitle="Save your progress and get a shareable link">
-          {saveStatus === 'saved' ? (
-            <div className="space-y-3 max-w-lg mx-auto">
-              <div className="flex items-center justify-center gap-2 text-sm text-[#406517] py-1">
-                <CheckCircle className="w-4 h-4" />
-                Saved! Check your email for a link to your project.
-              </div>
-              {shareUrl && (
-                <div className="flex items-center gap-2 max-w-md mx-auto">
-                  <div className="flex-1 flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-600 overflow-hidden">
-                    <Link2 className="w-4 h-4 text-gray-400 shrink-0" />
-                    <span className="truncate">{typeof window !== 'undefined' ? `${window.location.origin}${shareUrl}` : shareUrl}</span>
+        <Card className="!p-0 !bg-white !border-2 !border-[#406517]/20 overflow-hidden">
+          {/* Centered header */}
+          <div className="text-center px-6 pt-6 md:pt-8 pb-4 border-b border-gray-100">
+            <div className="flex items-center justify-center gap-2.5 mb-1.5">
+              <Bookmark className="w-6 h-6 text-[#406517]" />
+              <h3 className="text-xl font-bold text-gray-900">Save Your Project</h3>
+            </div>
+            <p className="text-sm text-gray-500 max-w-md mx-auto">
+              Get a shareable link emailed to you. Come back anytime to edit, review, or order. No commitment.
+            </p>
+          </div>
+
+          {/* Full-width form content */}
+          <div className="px-6 pb-6 md:px-8 md:pb-8 pt-5">
+            {saveStatus === 'saved' ? (
+              <div className="space-y-3">
+                <div className="flex items-center justify-center gap-2 text-[#406517]">
+                  <CheckCircle className="w-5 h-5" />
+                  <span className="text-sm font-semibold">Project Saved{firstName ? ` for ${firstName}` : ''}!</span>
+                </div>
+                {shareUrl && (
+                  <div className="flex items-center gap-2 bg-[#406517]/5 border border-[#406517]/20 rounded-xl px-4 py-3">
+                    <Link2 className="w-4 h-4 text-[#406517] shrink-0" />
+                    <span className="text-sm font-mono text-[#406517] truncate flex-1">
+                      {typeof window !== 'undefined' ? window.location.origin : ''}{shareUrl}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const fullUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}${shareUrl}`
+                        navigator.clipboard.writeText(fullUrl)
+                        setLinkCopied(true)
+                        setTimeout(() => setLinkCopied(false), 2000)
+                      }}
+                      className="shrink-0 p-1.5 rounded-lg hover:bg-[#406517]/10 transition-colors"
+                      title="Copy link"
+                    >
+                      {linkCopied ? <CheckCircle className="w-4 h-4 text-[#406517]" /> : <Copy className="w-4 h-4 text-[#406517]" />}
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const fullUrl = typeof window !== 'undefined' ? `${window.location.origin}${shareUrl}` : shareUrl
-                      navigator.clipboard.writeText(fullUrl)
-                      setLinkCopied(true)
-                      setTimeout(() => setLinkCopied(false), 2000)
-                    }}
-                    className="flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors shrink-0"
-                  >
-                    {linkCopied ? <><CheckCircle className="w-4 h-4 text-[#406517]" /> Copied</> : <><Copy className="w-4 h-4" /> Copy</>}
+                )}
+                <Text size="xs" className="text-gray-500 !mb-0 text-center">
+                  We&apos;ve emailed your project link to <strong>{saveForLaterEmail}</strong>. You can return anytime to edit or submit for review.
+                </Text>
+                <div className="text-center">
+                  <button type="button" onClick={() => setSaveStatus('idle')} className="text-xs text-[#406517] font-medium underline underline-offset-2 hover:text-[#2e4a10] transition-colors">
+                    Edit project details
                   </button>
                 </div>
-              )}
-            </div>
-          ) : (
-            <div className="space-y-3 max-w-lg mx-auto">
-              <input
-                type="text"
-                placeholder="Project name (e.g., Back Porch)"
-                value={projectName}
-                onChange={e => setProjectName(e.target.value)}
-                className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors"
-              />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              </div>
+            ) : (
+              <div className="space-y-3">
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="First name"
-                    value={firstName}
-                    onChange={e => setFirstName(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors"
-                  />
+                  <FileText className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input type="text" placeholder="Project name (e.g. &quot;Back Porch&quot;)" value={projectName} onChange={e => setProjectName(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
                 </div>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="email"
-                    placeholder="Email address"
-                    value={saveForLaterEmail}
-                    onChange={e => setSaveForLaterEmail(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors"
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input type="text" placeholder="First name *" value={firstName} onChange={e => setFirstName(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
+                  </div>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input type="email" placeholder="Email address *" value={saveForLaterEmail} onChange={e => setSaveForLaterEmail(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
+                  </div>
+                </div>
+                <div className="text-center">
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    onClick={handleSaveForLater}
+                    disabled={!isValidEmail(saveForLaterEmail) || isSavingForLater}
+                  >
+                    {isSavingForLater ? (
+                      <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving...</>
+                    ) : (
+                      <><Bookmark className="w-4 h-4 mr-2" /> Save Project</>
+                    )}
+                  </Button>
                 </div>
               </div>
-              <Button
-                variant="primary"
-                size="lg"
-                className="w-full"
-                onClick={handleSaveForLater}
-                disabled={!isValidEmail(saveForLaterEmail) || isSavingForLater}
-              >
-                {isSavingForLater ? (
-                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving...</>
-                ) : (
-                  <><Save className="w-4 h-4 mr-2" /> Save Project</>
-                )}
-              </Button>
-            </div>
-          )}
-        </HeaderBarSection>
+            )}
+          </div>
+        </Card>
       )}
 
       {/* ══════════════════════════════════════════════
-         NEXT STEPS — CTAs (Expert Review / Checkout)
+         SUBMIT YOUR DESIGN
          ══════════════════════════════════════════════ */}
       {allSidesReady && allPanels.length > 0 && (
-        <HeaderBarSection icon={Send} label="Submit Your Design" variant="green" headerSubtitle="Every project gets a human review before it's built">
-          <div className="max-w-lg mx-auto w-full space-y-4">
-            {/* ── Option 1: Expert Review (primary) ── */}
-            <div className="space-y-3">
-              {/* Name fields */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-md mx-auto">
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="First name *"
-                    value={firstName}
-                    onChange={e => setFirstName(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors"
-                  />
-                </div>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Last name"
-                    value={lastName}
-                    onChange={e => setLastName(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors"
-                  />
-                </div>
-              </div>
-              {/* Email + Phone */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-md mx-auto">
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="email"
-                    placeholder="Email address *"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors"
-                  />
-                </div>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="tel"
-                    placeholder="Phone (optional)"
-                    value={phone}
-                    onChange={e => setPhone(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors"
-                  />
-                </div>
-              </div>
+        <Card className="!p-0 !bg-white !border-2 !border-[#406517]/20 overflow-hidden">
+          {/* Centered header */}
+          <div className="text-center px-6 pt-6 md:pt-8 pb-4 border-b border-gray-100">
+            <div className="flex items-center justify-center gap-2.5 mb-1.5">
+              <Send className="w-6 h-6 text-[#406517]" />
+              <h3 className="text-xl font-bold text-gray-900">Submit Your Design</h3>
+            </div>
+            <p className="text-sm text-gray-500 max-w-lg mx-auto">
+              Every project gets a free human review before it&apos;s built. We&apos;ll confirm pricing, check your specs, and email you a checkout link or suggest adjustments.
+            </p>
+          </div>
 
-              {/* Photo uploader */}
-              <div className="max-w-md mx-auto">
-                <label className="text-xs font-medium text-gray-600 mb-1.5 block text-center">
-                  Upload photos of your space (optional, helps us give better recommendations)
-                </label>
-                <label className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-[#406517]/40 hover:bg-[#406517]/5 transition-colors">
-                  <Upload className="w-4 h-4 text-gray-400" />
-                  <span className="text-sm text-gray-500">
-                    {photos.length > 0 ? `${photos.length} photo${photos.length !== 1 ? 's' : ''} selected` : 'Click to add photos'}
-                  </span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    className="hidden"
-                    onChange={e => {
-                      if (e.target.files) setPhotos(prev => [...prev, ...Array.from(e.target.files!)])
-                    }}
-                  />
-                </label>
-                {photos.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {photos.map((file, i) => (
-                      <div key={i} className="relative group">
-                        <div className="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200">
-                          <ImageIcon className="w-5 h-5 text-gray-400" />
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setPhotos(prev => prev.filter((_, idx) => idx !== i))}
-                          className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                        <div className="text-[10px] text-gray-400 truncate w-14 text-center mt-0.5">{file.name.slice(0, 10)}</div>
-                      </div>
-                    ))}
+          {/* Full-width form content */}
+          <div className="px-6 pb-6 md:px-8 md:pb-8 pt-5 space-y-3">
+            {/* Name fields */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input type="text" placeholder="First name *" value={firstName} onChange={e => setFirstName(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
+              </div>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input type="text" placeholder="Last name" value={lastName} onChange={e => setLastName(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
+              </div>
+            </div>
+
+            {/* Email + Phone */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input type="email" placeholder="Email address *" value={email} onChange={e => setEmail(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
+              </div>
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input type="tel" placeholder="Phone (optional)" value={phone} onChange={e => setPhone(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
+              </div>
+            </div>
+
+            {/* Photo uploader */}
+            <label className="flex items-center gap-3 px-4 py-3 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-[#406517] hover:bg-[#406517]/5 transition-colors group">
+              <Upload className="w-5 h-5 text-gray-400 group-hover:text-[#406517] transition-colors" />
+              <div>
+                <span className="text-sm font-medium text-gray-600 group-hover:text-[#406517] transition-colors">
+                  {photos.length > 0 ? `${photos.length} photo${photos.length !== 1 ? 's' : ''} selected` : 'Upload photos of your space'}
+                </span>
+                <span className="block text-xs text-gray-400">Optional — helps us give the best recommendation</span>
+              </div>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={e => {
+                  if (e.target.files) setPhotos(prev => [...prev, ...Array.from(e.target.files!)])
+                }}
+              />
+            </label>
+            {photos.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {photos.map((file, i) => (
+                  <div key={i} className="relative group">
+                    <div className="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200">
+                      <ImageIcon className="w-5 h-5 text-gray-400" />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setPhotos(prev => prev.filter((_, idx) => idx !== i))}
+                      className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                    <div className="text-[10px] text-gray-400 truncate w-14 text-center mt-0.5">{file.name.slice(0, 10)}</div>
                   </div>
-                )}
+                ))}
               </div>
+            )}
 
-              {/* Description box */}
-              <div className="max-w-md mx-auto">
-                <label className="text-xs font-medium text-gray-600 mb-1.5 flex items-center gap-1.5 justify-center">
-                  <FileText className="w-3.5 h-3.5" />
-                  Describe your project (optional)
-                </label>
-                <textarea
-                  placeholder="Tell us about your space: what you're enclosing, any challenges, special requests..."
-                  value={description}
-                  onChange={e => setDescription(e.target.value)}
-                  rows={3}
-                  className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors resize-none"
-                />
-              </div>
+            {/* Description */}
+            <textarea
+              placeholder="Tell us about your space: what you're enclosing, any challenges, special requests..."
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              rows={3}
+              className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors resize-none"
+            />
 
-              <div className="text-center space-y-2">
+            {/* Submit + Order buttons */}
+            <div className="space-y-3 pt-1 text-center">
+              <div className="space-y-2">
                 <Button
                   variant="primary"
                   size="lg"
-                  className="w-full max-w-sm mx-auto"
                   onClick={handleSaveProject}
                   disabled={!isValidEmail(email) || !firstName.trim() || saveStatus === 'saving'}
                 >
@@ -1102,69 +1168,65 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
                     <><ShieldCheck className="w-4 h-4 mr-2" /> Submit for Free Expert Review</>
                   )}
                 </Button>
-
                 <Text size="xs" className="text-gray-500 !mb-0">
                   Recommended. We&apos;ll double-check measurements, layout, and attachments before you pay.
                 </Text>
-                <Text size="xs" className="text-gray-400 !mb-0 max-w-md mx-auto">
-                  Our team will review your design, flag any issues, and email you with either a thumbs-up and checkout link or suggested tweaks. Nothing gets built until you approve.
+              </div>
+
+              {/* Divider */}
+              <div className="flex items-center gap-3">
+                <div className="h-px flex-1 bg-gray-200" />
+                <span className="text-xs text-gray-400 uppercase tracking-wider">or</span>
+                <div className="h-px flex-1 bg-gray-200" />
+              </div>
+
+              {/* Checkout */}
+              <div className="space-y-1">
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  onClick={() => setShowCheckoutModal(true)}
+                >
+                  I&apos;m sure, take me to checkout
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+                <Text size="xs" className="text-gray-400 !mb-0">
+                  For experienced DIYers who are confident in their measurements.
                 </Text>
               </div>
             </div>
-
-            {/* Divider */}
-            <div className="flex items-center gap-3">
-              <div className="h-px flex-1 bg-gray-200" />
-              <span className="text-xs text-gray-400 uppercase tracking-wider">or</span>
-              <div className="h-px flex-1 bg-gray-200" />
-            </div>
-
-            {/* ── Option 2: Checkout (secondary) ── */}
-            <div className="text-center space-y-2">
-              <Button
-                variant="secondary"
-                size="lg"
-                className="w-full max-w-sm mx-auto"
-                onClick={() => setShowCheckoutModal(true)}
-              >
-                I&apos;m sure, take me to checkout
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-              <Text size="xs" className="text-gray-400 !mb-0">
-                For experienced DIYers who are confident in their measurements.
-              </Text>
-            </div>
           </div>
 
-          {/* ── Checkout confirmation modal ── */}
-          {showCheckoutModal && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-              <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowCheckoutModal(false)} />
-              <div className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 md:p-8">
-                <button type="button" onClick={() => setShowCheckoutModal(false)} className="absolute top-4 right-4 p-1 rounded-full hover:bg-gray-100 transition-colors">
-                  <X className="w-5 h-5 text-gray-400" />
-                </button>
-                <div className="text-center">
-                  <div className="text-xl font-bold text-gray-900 mb-3">Skip expert review?</div>
-                  <Text className="text-gray-600 !mb-2">
-                    Most customers have us double-check their project first.
-                  </Text>
-                  <Text size="sm" className="text-gray-500 !mb-6">
-                    We&apos;ll still look at your order before it ships and reach out if something looks off. Do you still want to go straight to checkout?
-                  </Text>
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                    <Button variant="primary" size="lg" onClick={() => setShowCheckoutModal(false)}>
-                      <ArrowLeft className="w-4 h-4 mr-2" />Back to Expert Review
-                    </Button>
-                    <Button variant="secondary" size="lg" asChild>
-                      <Link href="/cart">Continue to Checkout<ArrowRight className="w-4 h-4 ml-2" /></Link>
-                    </Button>
-                  </div>
-                </div>
+        </Card>
+      )}
+
+      {/* ── Checkout confirmation modal ── */}
+      {showCheckoutModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowCheckoutModal(false)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 md:p-8">
+            <button type="button" onClick={() => setShowCheckoutModal(false)} className="absolute top-4 right-4 p-1 rounded-full hover:bg-gray-100 transition-colors">
+              <X className="w-5 h-5 text-gray-400" />
+            </button>
+            <div className="text-center">
+              <div className="text-xl font-bold text-gray-900 mb-3">Skip expert review?</div>
+              <Text className="text-gray-600 !mb-2">
+                Most customers have us double-check their project first.
+              </Text>
+              <Text size="sm" className="text-gray-500 !mb-6">
+                We&apos;ll still look at your order before it ships and reach out if something looks off. Do you still want to go straight to checkout?
+              </Text>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <Button variant="primary" size="lg" onClick={() => setShowCheckoutModal(false)}>
+                  <ArrowLeft className="w-4 h-4 mr-2" />Back to Expert Review
+                </Button>
+                <Button variant="secondary" size="lg" asChild>
+                  <Link href="/cart">Continue to Checkout<ArrowRight className="w-4 h-4 ml-2" /></Link>
+                </Button>
               </div>
             </div>
-          )}
-        </HeaderBarSection>
+          </div>
+        </div>
       )}
     </Stack>
   )

@@ -72,7 +72,7 @@ export function PhotoUploader({
     
     // Check max files limit
     if (photos.length + fileArray.length > maxFiles) {
-      alert(`Maximum ${maxFiles} photos allowed`)
+      alert(`Maximum ${maxFiles} files allowed`)
       return
     }
 
@@ -212,7 +212,7 @@ export function PhotoUploader({
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/jpeg,image/png,image/webp,image/heic"
+          accept="image/jpeg,image/png,image/webp,image/heic,video/mp4,video/quicktime,video/webm"
           multiple
           onChange={handleFileInput}
           className="hidden"
@@ -231,15 +231,15 @@ export function PhotoUploader({
           
           <div>
             <p className="text-lg font-medium text-gray-900">
-              {isDragging ? 'Drop photos here' : 'Drag photos here or click to browse'}
+              {isDragging ? 'Drop files here' : 'Drag photos or videos here, or click to browse'}
             </p>
             <p className="text-sm text-gray-500 mt-1">
-              JPG, PNG, WebP, HEIC up to 10MB each
+              Images: JPG, PNG, WebP, HEIC (up to 10MB) &middot; Videos: MP4, MOV, WebM (up to 100MB)
             </p>
           </div>
           
           <p className="text-xs text-gray-400">
-            {photos.length} / {maxFiles} photos
+            {photos.length} / {maxFiles} files
           </p>
         </div>
       </div>
@@ -252,13 +252,22 @@ export function PhotoUploader({
               key={photo.id}
               className="relative group rounded-xl overflow-hidden bg-gray-100 aspect-square border border-gray-200"
             >
-              {/* Preview Image */}
+              {/* Preview Image/Video */}
               {photo.preview ? (
-                <img 
-                  src={photo.preview}
-                  alt={photo.fileName}
-                  className="w-full h-full object-cover"
-                />
+                /\.(mp4|mov|webm)$/i.test(photo.fileName) ? (
+                  <video
+                    src={photo.preview}
+                    className="w-full h-full object-cover"
+                    muted
+                    playsInline
+                  />
+                ) : (
+                  <img
+                    src={photo.preview}
+                    alt={photo.fileName}
+                    className="w-full h-full object-cover"
+                  />
+                )
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
                   <ImageIcon className="w-12 h-12 text-gray-300" />

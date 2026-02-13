@@ -10,8 +10,9 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ShoppingCart, ArrowRight, Loader2, Phone, Mail, Package, User, Clock } from 'lucide-react'
-import { Spinner } from '@/lib/design-system'
+import Image from 'next/image'
+import { ShoppingCart, ArrowRight, Loader2, Phone, Mail, Package, User, Clock, Camera, Play } from 'lucide-react'
+import { Spinner, ImageLightbox } from '@/lib/design-system'
 
 // =============================================================================
 // TYPES
@@ -38,10 +39,18 @@ interface LineItem {
   line_item_options: LineItemOption[]
 }
 
+interface ProjectPhoto {
+  id: string
+  storage_path: string
+  filename: string
+  content_type: string
+}
+
 interface SharedProject {
   id: string
   share_token: string
   email: string
+  project_name: string | null
   first_name: string | null
   last_name: string | null
   phone: string | null
@@ -52,6 +61,7 @@ interface SharedProject {
     name: string
     email: string
   } | null
+  photos?: ProjectPhoto[]
   cart?: {
     id: string
     subtotal: number
@@ -98,6 +108,8 @@ export default function SharePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [checkingOut, setCheckingOut] = useState(false)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [lightboxIndex, setLightboxIndex] = useState(0)
 
   useEffect(() => {
     if (!shareToken) return
@@ -117,6 +129,16 @@ export default function SharePage() {
       setLoading(false)
     })()
   }, [shareToken])
+
+  // Photos/videos for lightbox gallery
+  const projectPhotos = project?.photos || []
+  const imagePhotos = projectPhotos.filter(p => p.content_type.startsWith('image/'))
+  const videoPhotos = projectPhotos.filter(p => p.content_type.startsWith('video/'))
+  const lightboxImages = imagePhotos.map(p => ({
+    url: p.storage_path,
+    alt: p.filename,
+    caption: p.filename,
+  }))
 
   const hasCart = project?.cart && project.cart.status === 'active' && project.lineItems && project.lineItems.length > 0
   const lineItems = project?.lineItems || []
@@ -199,7 +221,9 @@ export default function SharePage() {
               <span className="text-white text-sm font-bold">MC</span>
             </div>
             <div>
-              <h1 className="text-lg font-bold text-gray-900">Your Quote from Mosquito Curtains</h1>
+              <h1 className="text-lg font-bold text-gray-900">
+                {project.project_name || 'Your Project'} &mdash; Mosquito Curtains
+              </h1>
               <p className="text-sm text-gray-500">
                 Prepared for {project.first_name} {project.last_name}
               </p>
@@ -223,6 +247,73 @@ export default function SharePage() {
               </a>
             </div>
           </div>
+        )}
+
+        {/* Project Photos & Videos Gallery */}
+        {projectPhotos.length > 0 && (
+          <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+            <div className="px-5 py-3 border-b border-gray-100 bg-gray-50">
+              <h2 className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                <Camera className="w-4 h-4" /> Project Photos & Videos ({projectPhotos.length})
+              </h2>
+            </div>
+            <div className="p-4">
+              {/* Image thumbnails */}
+              {imagePhotos.length > 0 && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                  {imagePhotos.map((photo, idx) => (
+                    <button
+                      key={photo.id}
+                      type="button"
+                      onClick={() => { setLightboxIndex(idx); setLightboxOpen(true) }}
+                      className="relative aspect-[4/3] rounded-lg overflow-hidden border border-gray-200 hover:border-[#406517] hover:shadow-md transition-all cursor-pointer group"
+                    >
+                      <Image
+                        src={photo.storage_path}
+                        alt={photo.filename}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Video items */}
+              {videoPhotos.length > 0 && (
+                <div className={`grid grid-cols-1 sm:grid-cols-2 gap-3 ${imagePhotos.length > 0 ? 'mt-3' : ''}`}>
+                  {videoPhotos.map((video) => (
+                    <div key={video.id} className="relative rounded-lg overflow-hidden border border-gray-200 bg-gray-900">
+                      <video
+                        src={video.storage_path}
+                        controls
+                        playsInline
+                        preload="metadata"
+                        className="w-full aspect-video object-contain"
+                      />
+                      <div className="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-0.5 rounded-md flex items-center gap-1">
+                        <Play className="w-3 h-3" /> {video.filename}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Lightbox for full-size image viewing */}
+        {lightboxOpen && lightboxImages.length > 0 && (
+          <ImageLightbox
+            images={lightboxImages}
+            currentIndex={lightboxIndex}
+            isOpen={lightboxOpen}
+            onClose={() => setLightboxOpen(false)}
+            onNavigate={setLightboxIndex}
+            showCopyButton={false}
+          />
         )}
 
         {/* No cart yet -- show status message */}

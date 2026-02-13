@@ -21,10 +21,7 @@ import type {
   VinylTopAttachment,
   VelcroColor,
 } from '@/lib/pricing/types'
-
-/* ─── Product images ─── */
-const TRACK_IMAGE = 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/Track-Color-White-Black-700x700.jpg'
-const VELCRO_IMAGE = 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/Black-Velcro-1.jpg'
+import { useProducts, getProductOptions } from '@/hooks/useProducts'
 
 /* ─── Measurement guide images ─── */
 const MEASURE_IMAGES = {
@@ -66,60 +63,72 @@ const VINYL_PANEL_SIZES: { id: VinylPanelSize; label: string; range: string; pri
   { id: 'tall', label: 'Tall', range: 'Over 96"', pricePerFoot: 41, hasCanvasColor: true },
 ]
 
-/* ─── Canvas (Sunbrella) color options ─── */
-const CANVAS_COLORS: { id: CanvasColor; label: string; hex: string }[] = [
-  { id: 'black', label: 'Black', hex: '#1a1a1a' },
-  { id: 'ashen_gray', label: 'Ashen Gray', hex: '#B2BEB5' },
-  { id: 'sandy_tan', label: 'Sandy Tan', hex: '#D2B48C' },
-  { id: 'cocoa_brown', label: 'Cocoa Brown', hex: '#D2691E' },
-  { id: 'forest_green', label: 'Forest Green', hex: '#228B22' },
-  { id: 'moss_green', label: 'Moss Green', hex: '#8A9A5B' },
-  { id: 'navy_blue', label: 'Navy Blue', hex: '#000080' },
-  { id: 'royal_blue', label: 'Royal Blue', hex: '#4169E1' },
-  { id: 'burgundy', label: 'Burgundy', hex: '#800020' },
-  { id: 'clear_top_to_bottom', label: 'Clear (No Canvas)', hex: '#E8F4F8' },
-  { id: 'tbd', label: 'TBD — Decide Later', hex: '#cccccc' },
-]
+/* ─── Enriched option type used for top attachments ─── */
+type TopAttachOption = {
+  id: VinylTopAttachment
+  label: string
+  subtitle: string
+  description: string
+  image?: string
+  isGif?: boolean
+  showsVelcroColor?: boolean
+  popular?: boolean
+}
 
-/* ─── Top attachment options (all 5 from admin/sales) ─── */
-const VINYL_TOP_ATTACHMENTS: { id: VinylTopAttachment; label: string; subtitle: string; description: string; image?: string; isGif?: boolean; showsVelcroColor?: boolean; popular?: boolean }[] = [
-  {
-    id: 'standard_track',
-    label: 'Standard Track',
-    subtitle: 'Slides side-to-side',
-    description: 'Panels slide along a ceiling-mounted track. Easy open/close access.',
-    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2021/01/Track-480-Optimized-1.gif',
-    isGif: true,
-  },
-  {
-    id: 'heavy_track',
-    label: 'Heavy Track',
-    subtitle: 'For panels over 10ft tall',
-    description: 'Extra durability for larger, heavier clear vinyl panels.',
-  },
-  {
-    id: 'velcro',
-    label: 'Velcro',
+/* ─── Enriched option type used for canvas colors ─── */
+type CanvasColorOption = {
+  id: CanvasColor
+  label: string
+  hex: string
+  image?: string
+}
+
+const IMG_BASE = 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads'
+
+/* ─── Top attachment UI enrichment (keyed by option_value) ─── */
+const TOP_ATTACH_UI: Record<string, { subtitle: string; description: string; fallbackImage?: string; isGif?: boolean; showsVelcroColor?: boolean; popular?: boolean }> = {
+  velcro: {
     subtitle: 'Fixed in place',
     description: 'Panel attaches with industrial-strength Velcro along the top. Simple installation.',
-    image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/08/Velcro-480-Optimized.gif',
+    fallbackImage: `${IMG_BASE}/2019/09/CV-TRACK-4-OPTIMIZED.gif`,
     isGif: true,
     showsVelcroColor: true,
     popular: true,
   },
-  {
-    id: 'binding_only',
-    label: 'Binding Only',
+  standard_track: {
+    subtitle: 'Slides side-to-side',
+    description: 'Panels slide along a ceiling-mounted track. Easy open/close access.',
+    fallbackImage: `${IMG_BASE}/2019/09/CV-TRACK-12.5-OPTIMIZED.gif`,
+    isGif: true,
+  },
+  heavy_track: {
+    subtitle: 'For panels over 10ft tall',
+    description: 'Extra durability for larger, heavier clear vinyl panels.',
+  },
+  binding_only: {
     subtitle: 'Finished edge, no hardware',
     description: 'Just the sewn edge — no track or velcro. You supply your own attachment.',
   },
-  {
-    id: 'special_rigging',
-    label: 'Special Rigging',
+  special_rigging: {
     subtitle: 'Custom solutions',
     description: 'For unique mounting situations — our team will work with you.',
   },
-]
+}
+
+/* ─── Canvas color UI enrichment (keyed by option_value) ─── */
+const CANVAS_COLOR_UI: Record<string, { hex: string; image?: string }> = {
+  black: { hex: '#1a1a1a', image: `${IMG_BASE}/2019/08/07-Winterized-Porch-Plastic-Panels-Black-Canvas-1200.jpg` },
+  ashen_gray: { hex: '#B2BEB5', image: `${IMG_BASE}/2019/08/00-Clear-Plastic-Winter-Panels-Porch-Gray-1200.jpg` },
+  cocoa_brown: { hex: '#D2691E', image: `${IMG_BASE}/2019/08/17-Plastic-Enclosure-With-Cocoa-Brown-Canvas-Pavilion-1200.jpg` },
+  royal_blue: { hex: '#4169E1', image: `${IMG_BASE}/2019/08/02-Plastic-Enclosures-Royal-Blue-Canvas-Tent-1200.jpg` },
+  navy_blue: { hex: '#000080', image: `${IMG_BASE}/2020/11/7-Navy-Clear-Vinyl-Enclosure.jpg` },
+  moss_green: { hex: '#8A9A5B', image: `${IMG_BASE}/2019/08/00-Clear-Vinyl-Enclosure-Moss-Green-Canvas-Church-1200.jpg` },
+  forest_green: { hex: '#228B22', image: `${IMG_BASE}/2019/08/04_Plastic-Drop-Panels-On-Restaurant-Forest-Green-Canvas-1200.jpg` },
+  sandy_tan: { hex: '#D2B48C', image: `${IMG_BASE}/2019/08/08-Plastic-Porch-and-Patio-Enclosures-Sandy-Tan-Beach-House-1200.jpg` },
+  burgundy: { hex: '#800020' },
+  clear_top_to_bottom: { hex: '#E8F4F8', image: `${IMG_BASE}/2019/08/18-Clear-Plastic-Gazebo-With-No-Canvas-1200.jpg` },
+  tbd: { hex: '#cccccc' },
+}
 
 /* ─── Side attachment options ─── */
 const SIDE_LABEL_MAP: Record<ClearVinylSideAttachment, string> = {
@@ -586,9 +595,10 @@ function ConfigCard({ config, selected, onClick }: { config: SideConfig; selecte
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    Side Section
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-function SideSection({ sideNum, state, onChange, onShowMeasureGuide, canvasHex }: {
+function SideSection({ sideNum, state, onChange, onShowMeasureGuide, canvasHex, isOpen, onToggle }: {
   sideNum: number; state: ClearVinylSideState; onChange: (u: Partial<ClearVinylSideState>) => void;
   onShowMeasureGuide?: () => void; canvasHex: string;
+  isOpen: boolean; onToggle: () => void;
 }) {
   const isDesktop = useIsDesktop()
   const config = SIDE_CONFIGS.find((c) => c.id === state.configId)!
@@ -601,11 +611,45 @@ function SideSection({ sideNum, state, onChange, onShowMeasureGuide, canvasHex }
   const panelMaxSize = isDesktop ? (config.panelCount > 1 ? 320 : 420) : (config.panelCount > 1 ? 200 : 280)
 
   return (
-    <Card className="!p-0 !bg-white !border-2 !border-[#003365]/30 overflow-hidden">
-      <div className="bg-[#003365] px-5 py-2.5 flex items-center">
+    <Card className="!p-0 !bg-white !border-2 !border-gray-200 overflow-hidden transition-all">
+
+      {/* ── COLLAPSED: summary row ── */}
+      {!isOpen && (
+        <div className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors" onClick={onToggle}>
+          <div className="w-7 h-7 rounded-full bg-[#003365] text-white flex items-center justify-center text-xs font-bold shrink-0">{sideNum}</div>
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-semibold text-gray-800 truncate">Side {sideNum} — {config.label}</div>
+            <div className="text-xs text-gray-500 truncate">
+              {isReady ? (
+                <>{tw}&quot; W &times; {lh}&quot;/{rh}&quot; H &mdash; {panels.length} panel{panels.length !== 1 ? 's' : ''}</>
+              ) : (
+                <span className="italic text-gray-400">No dimensions yet</span>
+              )}
+            </div>
+          </div>
+          {isReady && panels.length > 0 && (
+            <div className="shrink-0 text-xs text-gray-500">
+              {panels.map(p => `${p.finalWidth}"×${p.finalHeight}"`).join(', ')}
+            </div>
+          )}
+          <div className="flex items-center gap-1.5 shrink-0 text-xs text-[#003365] font-medium">
+            <span>Tap to expand</span>
+            <ChevronDown className="w-4 h-4" />
+          </div>
+        </div>
+      )}
+
+      {/* ── EXPANDED: full configurator ── */}
+      {isOpen && (
+        <>
+      <div className="bg-[#003365] px-5 py-2.5 flex items-center justify-between cursor-pointer hover:bg-[#0a4a8a] transition-colors" onClick={onToggle}>
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-full bg-white/20 text-white flex items-center justify-center text-xs font-bold">{sideNum}</div>
           <span className="text-white font-bold text-sm">Side {sideNum}</span>
+        </div>
+        <div className="flex items-center gap-1.5 text-xs text-white/70 font-medium">
+          <span>Tap to collapse</span>
+          <ChevronUp className="w-4 h-4" />
         </div>
       </div>
       {/* Layout picker */}
@@ -708,6 +752,8 @@ function SideSection({ sideNum, state, onChange, onShowMeasureGuide, canvasHex }
           </div>
         </div>
       )}
+        </>
+      )}
     </Card>
   )
 }
@@ -758,8 +804,47 @@ export default function ClearVinylPanelBuilder() {
   const [linkCopied, setLinkCopied] = useState(false)
 
   // Detail modals
-  const [attachDetail, setAttachDetail] = useState<typeof VINYL_TOP_ATTACHMENTS[0] | null>(null)
+  const [attachDetail, setAttachDetail] = useState<TopAttachOption | null>(null)
   const [showMeasureGuide, setShowMeasureGuide] = useState(false)
+
+  // Collapsible side panels — first side open by default
+  const [openSides, setOpenSides] = useState<Set<number>>(new Set([0]))
+  const toggleSide = useCallback((idx: number) => {
+    setOpenSides(prev => { const next = new Set(prev); if (next.has(idx)) next.delete(idx); else next.add(idx); return next })
+  }, [])
+
+  // DB-driven product options (filters admin_only automatically)
+  const { vinylPanel, isLoading: productsLoading } = useProducts()
+
+  const topAttachments: TopAttachOption[] = useMemo(() => {
+    const dbOpts = getProductOptions(vinylPanel, 'top_attachment')
+    return dbOpts.map(opt => {
+      const ui = TOP_ATTACH_UI[opt.option_value] || {}
+      return {
+        id: opt.option_value as VinylTopAttachment,
+        label: opt.display_label,
+        subtitle: ui.subtitle || '',
+        description: ui.description || '',
+        image: opt.image_url || ui.fallbackImage,
+        isGif: ui.isGif,
+        showsVelcroColor: ui.showsVelcroColor,
+        popular: ui.popular,
+      }
+    })
+  }, [vinylPanel])
+
+  const canvasColors: CanvasColorOption[] = useMemo(() => {
+    const dbOpts = getProductOptions(vinylPanel, 'canvas_color')
+    return dbOpts.map(opt => {
+      const ui = CANVAS_COLOR_UI[opt.option_value] || { hex: '#cccccc' }
+      return {
+        id: opt.option_value as CanvasColor,
+        label: opt.display_label,
+        hex: ui.hex,
+        image: opt.image_url || ui.image,
+      }
+    })
+  }, [vinylPanel])
 
   // Save for later
   const [saveForLaterEmail, setSaveForLaterEmail] = useState('')
@@ -795,9 +880,13 @@ export default function ClearVinylPanelBuilder() {
   }, [numSides, sides, canvasColor, velcroColor, hydrated])
 
   useEffect(() => {
-    setSides(prev => prev.length < numSides
-      ? [...prev, ...Array.from({ length: numSides - prev.length }, () => defaultClearVinylSideState())]
-      : prev.slice(0, numSides))
+    setSides(prev => {
+      if (prev.length < numSides) {
+        setOpenSides(os => { const next = new Set(os); next.add(prev.length); return next })
+        return [...prev, ...Array.from({ length: numSides - prev.length }, () => defaultClearVinylSideState())]
+      }
+      return prev.slice(0, numSides)
+    })
   }, [numSides])
 
   const updateSide = useCallback((i: number, u: Partial<ClearVinylSideState>) => setSides(prev => prev.map((s, idx) => idx === i ? { ...s, ...u } : s)), [])
@@ -826,8 +915,8 @@ export default function ClearVinylPanelBuilder() {
   // Whether any side uses velcro
   const anyUsesVelcro = sides.some(s => s.topAttachment === 'velcro')
 
-  // Canvas hex for visualization
-  const canvasHex = CANVAS_COLORS.find(c => c.id === canvasColor)?.hex || '#cccccc'
+  // Canvas hex for visualization (DB-driven with fallback)
+  const canvasHex = canvasColors.find(c => c.id === canvasColor)?.hex || CANVAS_COLOR_UI[canvasColor]?.hex || '#cccccc'
 
   const isValidEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)
 
@@ -839,7 +928,7 @@ export default function ClearVinylPanelBuilder() {
       const cd = buildCartData(sides, canvasColor, detectedSize, anyUsesVelcro ? velcroColor : undefined)
       const noteParts = [`Clear Vinyl Panel Builder: ${numSides} sides, ${allPanels.length} panels`]
       noteParts.push(`Panel size tier: ${sizeInfo.label} (${sizeInfo.range})`)
-      if (anyNeedsCanvas) noteParts.push(`Canvas color: ${CANVAS_COLORS.find(c => c.id === canvasColor)?.label || canvasColor}`)
+      if (anyNeedsCanvas) noteParts.push(`Canvas color: ${canvasColors.find(c => c.id === canvasColor)?.label || canvasColor}`)
       if (description.trim()) noteParts.push(description.trim())
 
       const body: Record<string, unknown> = {
@@ -905,54 +994,65 @@ export default function ClearVinylPanelBuilder() {
          ══════════════════════════════════════════════ */}
       <HeaderBarSection icon={SlidersHorizontal} label="Options" variant="green" headerSubtitle="Top attachment, canvas color & number of sides">
         <Stack gap="md">
-          {/* ── Top Attachment (all 5 options) ── */}
+          {/* ── Top Attachment (DB-driven, filters admin_only) ── */}
           <div>
             <div className="text-sm text-gray-700 font-semibold uppercase tracking-wide mb-3">Top Attachment</div>
-            {/* Cards for options with images */}
-            <div className="grid grid-cols-2 gap-2 max-w-md mx-auto mb-3">
-              {VINYL_TOP_ATTACHMENTS.filter(a => a.image).map(att => {
-                const currentTop = sides[0]?.topAttachment
-                const isActive = att.id === currentTop
-                return (
-                  <div key={att.id} role="button" tabIndex={0}
-                    onClick={() => setSides(prev => prev.map(s => ({ ...s, topAttachment: att.id })))}
-                    onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setSides(prev => prev.map(s => ({ ...s, topAttachment: att.id }))) }}
-                    className={`rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${isActive ? 'border-[#003365] ring-2 ring-[#003365]/20 shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}
-                  >
-                    <div className="aspect-video relative bg-gray-100">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={att.image!} alt={att.label} className="w-full h-full object-contain" />
-                      {att.isGif && <div className="absolute bottom-1.5 left-1.5 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded flex items-center gap-0.5"><Play className="w-3 h-3" /> GIF</div>}
-                      {isActive && <div className="absolute top-1.5 left-1.5 w-6 h-6 bg-[#003365] rounded-full flex items-center justify-center"><Check className="w-3.5 h-3.5 text-white" /></div>}
-                    </div>
-                    <div className="p-2.5 text-center">
-                      <div className="font-bold text-gray-800 text-sm leading-tight">{att.label}</div>
-                      <div className="text-xs text-gray-600 leading-tight">{att.subtitle}</div>
-                      <button type="button" onClick={(e) => { e.stopPropagation(); setAttachDetail(att) }} className="text-xs text-[#003365] font-semibold hover:underline mt-0.5">See details</button>
-                    </div>
+            {productsLoading ? (
+              <div className="flex items-center justify-center gap-2 py-6 text-gray-400"><Loader2 className="w-5 h-5 animate-spin" /> Loading options...</div>
+            ) : (
+              <>
+                {/* Cards for options with images */}
+                {topAttachments.filter(a => a.image).length > 0 && (
+                  <div className="grid grid-cols-2 gap-2 max-w-md mx-auto mb-3">
+                    {topAttachments.filter(a => a.image).map(att => {
+                      const currentTop = sides[0]?.topAttachment
+                      const isActive = att.id === currentTop
+                      return (
+                        <div key={att.id} role="button" tabIndex={0}
+                          onClick={() => setSides(prev => prev.map(s => ({ ...s, topAttachment: att.id })))}
+                          onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setSides(prev => prev.map(s => ({ ...s, topAttachment: att.id }))) }}
+                          className={`rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${isActive ? 'border-[#003365] ring-2 ring-[#003365]/20 shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}
+                        >
+                          <div className="aspect-video relative bg-gray-100">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={att.image!} alt={att.label} className="w-full h-full object-cover" />
+                            {att.isGif && <div className="absolute bottom-1.5 left-1.5 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded flex items-center gap-0.5"><Play className="w-3 h-3" /> GIF</div>}
+                            {att.popular && <div className="absolute top-1.5 right-1.5 bg-[#003365] text-white text-[10px] px-1.5 py-0.5 rounded font-semibold">95% Choose</div>}
+                            {isActive && <div className="absolute top-1.5 left-1.5 w-6 h-6 bg-[#003365] rounded-full flex items-center justify-center"><Check className="w-3.5 h-3.5 text-white" /></div>}
+                          </div>
+                          <div className="p-2.5 text-center">
+                            <div className="font-bold text-gray-800 text-sm leading-tight">{att.label}</div>
+                            <div className="text-xs text-gray-600 leading-tight">{att.subtitle}</div>
+                            <button type="button" onClick={(e) => { e.stopPropagation(); setAttachDetail(att) }} className="text-xs text-[#003365] font-semibold hover:underline mt-0.5">See details</button>
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
-                )
-              })}
-            </div>
-            {/* Buttons for options without images */}
-            <div className="grid grid-cols-3 gap-2 max-w-lg mx-auto">
-              {VINYL_TOP_ATTACHMENTS.filter(a => !a.image).map(att => {
-                const currentTop = sides[0]?.topAttachment
-                const isActive = att.id === currentTop
-                return (
-                  <button key={att.id} type="button"
-                    onClick={() => setSides(prev => prev.map(s => ({ ...s, topAttachment: att.id })))}
-                    className={`px-3 py-2.5 rounded-xl text-left transition-all border-2 ${isActive ? 'border-[#003365] bg-[#003365]/5' : 'border-gray-200 hover:border-gray-300'}`}
-                  >
-                    <div className="flex items-center justify-between gap-1">
-                      <span className="font-medium text-gray-900 text-sm">{att.label}</span>
-                      {isActive && <Check className="w-4 h-4 text-[#003365] shrink-0" />}
-                    </div>
-                    <div className="text-xs text-gray-500 leading-tight">{att.subtitle}</div>
-                  </button>
-                )
-              })}
-            </div>
+                )}
+                {/* Buttons for options without images */}
+                {topAttachments.filter(a => !a.image).length > 0 && (
+                  <div className="grid grid-cols-3 gap-2 max-w-lg mx-auto">
+                    {topAttachments.filter(a => !a.image).map(att => {
+                      const currentTop = sides[0]?.topAttachment
+                      const isActive = att.id === currentTop
+                      return (
+                        <button key={att.id} type="button"
+                          onClick={() => setSides(prev => prev.map(s => ({ ...s, topAttachment: att.id })))}
+                          className={`px-3 py-2.5 rounded-xl text-left transition-all border-2 ${isActive ? 'border-[#003365] bg-[#003365]/5' : 'border-gray-200 hover:border-gray-300'}`}
+                        >
+                          <div className="flex items-center justify-between gap-1">
+                            <span className="font-medium text-gray-900 text-sm">{att.label}</span>
+                            {isActive && <Check className="w-4 h-4 text-[#003365] shrink-0" />}
+                          </div>
+                          <div className="text-xs text-gray-500 leading-tight">{att.subtitle}</div>
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+              </>
+            )}
           </div>
 
           {/* ── Velcro Color (conditional) ── */}
@@ -1027,22 +1127,26 @@ export default function ClearVinylPanelBuilder() {
               <div className="text-xs text-gray-600 mb-3">
                 Clear vinyl is {MAX_VINYL_HEIGHT}&quot; tall. The remaining height is filled with marine-grade Sunbrella canvas in your chosen color, usually on the bottom.
               </div>
-              <div className="flex flex-wrap gap-2">
-                {CANVAS_COLORS.map(color => (
-                  <button key={color.id} type="button" onClick={() => setCanvasColor(color.id)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all ${canvasColor === color.id ? 'ring-2 ring-[#003365] bg-[#003365]/5' : 'bg-gray-50 hover:bg-gray-100'}`}
-                  >
-                    <div className={`w-5 h-5 rounded-full border border-gray-300 ${color.id === 'clear_top_to_bottom' ? 'border-dashed' : ''}`} style={{ backgroundColor: color.hex }} />
-                    <span className="text-gray-700">{color.label}</span>
-                    {canvasColor === color.id && <Check className="w-3.5 h-3.5 text-[#003365]" />}
-                  </button>
-                ))}
-              </div>
+              {productsLoading ? (
+                <div className="flex items-center justify-center gap-2 py-4 text-gray-400"><Loader2 className="w-4 h-4 animate-spin" /> Loading colors...</div>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {canvasColors.map(color => (
+                    <button key={color.id} type="button" onClick={() => setCanvasColor(color.id)}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all ${canvasColor === color.id ? 'ring-2 ring-[#003365] bg-[#003365]/5' : 'bg-gray-50 hover:bg-gray-100'}`}
+                    >
+                      <div className={`w-5 h-5 rounded-full border border-gray-300 ${color.id === 'clear_top_to_bottom' ? 'border-dashed' : ''}`} style={{ backgroundColor: color.hex }} />
+                      <span className="text-gray-700">{color.label}</span>
+                      {canvasColor === color.id && <Check className="w-3.5 h-3.5 text-[#003365]" />}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
           {sides.map((side, i) => (
-            <SideSection key={i} sideNum={i + 1} state={side} onChange={(u) => updateSide(i, u)} onShowMeasureGuide={() => setShowMeasureGuide(true)} canvasHex={canvasHex} />
+            <SideSection key={i} sideNum={i + 1} state={side} onChange={(u) => updateSide(i, u)} onShowMeasureGuide={() => setShowMeasureGuide(true)} canvasHex={canvasHex} isOpen={openSides.has(i)} onToggle={() => toggleSide(i)} />
           ))}
         </Stack>
       </HeaderBarSection>

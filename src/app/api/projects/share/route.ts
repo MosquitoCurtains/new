@@ -86,11 +86,19 @@ export async function GET(request: NextRequest) {
       leadContact = lead
     }
 
+    // Fetch project photos/videos
+    const { data: photos } = await supabase
+      .from('project_photos')
+      .select('id, storage_path, filename, content_type')
+      .eq('project_id', project.id)
+      .order('created_at', { ascending: true })
+
     return NextResponse.json({
       project: {
         id: project.id,
         share_token: project.share_token,
         email: project.email,
+        project_name: project.project_name || null,
         first_name: leadContact?.first_name || null,
         last_name: leadContact?.last_name || null,
         phone: leadContact?.phone || null,
@@ -98,6 +106,7 @@ export async function GET(request: NextRequest) {
         status: project.status,
         assigned_to: project.assigned_to,
         salesperson,
+        photos: photos || [],
         cart: cart
           ? {
               id: cart.id,

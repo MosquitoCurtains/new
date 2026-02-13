@@ -42,20 +42,20 @@ export const MC_HERO_ACTIONS: MCHeroAction[] = [
     color: '#406517', // Brand green
   },
   {
-    icon: Calculator,
-    title: 'Instant Quote',
-    description: 'Quick specs for an estimate within 5% of actual cost.',
-    href: '/start-project?mode=quote',
-    buttonText: 'Calculate',
-    color: '#003365', // Brand blue
-  },
-  {
     icon: Hammer,
     title: 'DIY Builder',
     description: 'Configure panels yourself and add directly to cart.',
     href: '/start-project?mode=diy',
     buttonText: 'Build',
     color: '#B30158', // Brand magenta
+  },
+  {
+    icon: Calculator,
+    title: 'Instant Quote',
+    description: 'Quick specs for an estimate within 5% of actual cost.',
+    href: '/start-project?mode=quote',
+    buttonText: 'Calculate',
+    color: '#003365', // Brand blue
   },
 ]
 
@@ -85,20 +85,20 @@ export const CV_HERO_ACTIONS: MCHeroAction[] = [
     color: '#406517',
   },
   {
-    icon: Calculator,
-    title: 'Instant Quote',
-    description: 'Quick specs for an estimate within 5% of actual cost.',
-    href: '/start-project?mode=quote',
-    buttonText: 'Calculate',
-    color: '#003365',
-  },
-  {
     icon: Hammer,
     title: 'DIY Builder',
     description: 'Configure panels yourself and add directly to cart.',
     href: '/start-project?mode=diy',
     buttonText: 'Build',
     color: '#B30158',
+  },
+  {
+    icon: Calculator,
+    title: 'Instant Quote',
+    description: 'Quick specs for an estimate within 5% of actual cost.',
+    href: '/start-project?mode=quote',
+    buttonText: 'Calculate',
+    color: '#003365',
   },
 ]
 
@@ -109,27 +109,27 @@ export const CV_HERO_ACTIONS: MCHeroAction[] = [
 export const MC_SIMPLE_ACTIONS: MCHeroAction[] = [
   {
     icon: MessageSquare,
-    title: 'Contact Us',
-    description: 'Questions? Our team is here to help.',
-    href: '/contact',
-    buttonText: 'Get in Touch',
+    title: 'Expert Assistance',
+    description: 'Send photos, get personalized guidance from our team.',
+    href: '/start-project?mode=planner',
+    buttonText: 'Get Help',
     color: '#406517',
   },
   {
+    icon: Hammer,
+    title: 'DIY Builder',
+    description: 'Configure panels yourself and add directly to cart.',
+    href: '/start-project?mode=diy',
+    buttonText: 'Build',
+    color: '#B30158',
+  },
+  {
     icon: Calculator,
-    title: 'Get a Quote',
-    description: 'Fast estimates for your project.',
+    title: 'Instant Quote',
+    description: 'Quick specs for an estimate within 5% of actual cost.',
     href: '/start-project?mode=quote',
     buttonText: 'Calculate',
     color: '#003365',
-  },
-  {
-    icon: Hammer,
-    title: 'Start Project',
-    description: 'Ready to begin? Start here.',
-    href: '/start-project',
-    buttonText: 'Start',
-    color: '#B30158',
   },
 ]
 

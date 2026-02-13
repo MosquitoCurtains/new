@@ -72,14 +72,17 @@ export async function POST(request: NextRequest) {
       if (description) updates.message = description
       if (projectType) updates.project_type = projectType
       if (Object.keys(updates).length > 0) {
-        await supabase.from('leads').update(updates).eq('id', leadId)
+        const { error: updateError } = await supabase.from('leads').update(updates).eq('id', leadId)
+        if (updateError) {
+          console.error('Error updating lead:', updateError.message, updateError.code)
+        }
       }
     } else {
       const photoUrlStrings = Array.isArray(photo_urls)
         ? photo_urls.map((p: { url: string }) => p.url)
         : []
 
-      const { data: newLead } = await supabase
+      const { data: newLead, error: leadError } = await supabase
         .from('leads')
         .insert({
           email,
@@ -97,49 +100,21 @@ export async function POST(request: NextRequest) {
         .select('id')
         .single()
 
+      if (leadError) {
+        console.error('Error creating lead:', leadError.message, leadError.code, leadError.details)
+      }
+
       if (newLead) {
         leadId = newLead.id
       }
     }
 
     // -------------------------------------------------------------------------
-    // 2. Check if customer exists, create if not
+    // 2. Create the project, linked to the lead (no customer yet — leads ≠ customers)
     // -------------------------------------------------------------------------
-    let customerId: string | null = null
-    const { data: existingCustomer } = await supabase
-      .from('customers')
-      .select('id')
-      .eq('email', email)
-      .single()
-
-    if (existingCustomer) {
-      customerId = existingCustomer.id
-    } else {
-      const { data: newCustomer } = await supabase
-        .from('customers')
-        .insert({
-          email,
-          first_name: firstName,
-          last_name: lastName,
-          phone,
-        })
-        .select('id')
-        .single()
-      
-      if (newCustomer) {
-        customerId = newCustomer.id
-      }
-    }
-
-    // -------------------------------------------------------------------------
-    // 3. Create the project, linked to the lead
-    // -------------------------------------------------------------------------
-    // Note: first_name, last_name, phone live on leads (not projects).
-    // Migration 20260213800000 dropped those columns from projects.
     const { data, error } = await supabase
       .from('projects')
       .insert({
-        customer_id: customerId,
         lead_id: leadId,
         email,
         product_type: product,
