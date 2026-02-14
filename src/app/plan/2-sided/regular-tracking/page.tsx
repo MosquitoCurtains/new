@@ -133,7 +133,7 @@ export default function TwoSidedRegularTrackingPage() {
           </div>
         </section>
 
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
       </Stack>
     </Container>
   )

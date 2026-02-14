@@ -205,7 +205,7 @@ export default function GarageDoorScreensPage() {
           </Stack>
         </HeaderBarSection>
 
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
 
       </Stack>
     </Container>

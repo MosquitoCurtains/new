@@ -95,7 +95,7 @@ export default function FourSidedIrregularTrackingPage() {
           </div>
         </section>
 
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
       </Stack>
     </Container>
   )

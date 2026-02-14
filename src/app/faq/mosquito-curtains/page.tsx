@@ -279,7 +279,7 @@ export default function MosquitoCurtainsFAQPage() {
         </Card>
 
         {/* Final CTA */}
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
 
       </Stack>
     </Container>

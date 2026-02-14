@@ -58,7 +58,7 @@ export default function ThreeSidedIrregularVelcroPage() {
           </div>
         </section>
 
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
       </Stack>
     </Container>
   )

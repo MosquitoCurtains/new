@@ -31,7 +31,6 @@ import {
   Card,
   Heading,
   Text,
-  Button,
   Badge,
 } from '@/lib/design-system'
 import { cn } from '@/lib/utils'
@@ -61,6 +60,12 @@ interface PathSelectionProps {
 export function PathSelection({ productSlug, productTitle, backHref = '/start-project' }: PathSelectionProps) {
   return (
     <Container size="xl">
+      {backHref && (
+        <Link href={backHref} className="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition-colors mb-1">
+          <ArrowLeft className="w-3 h-3" />
+          Back to Options
+        </Link>
+      )}
       <Stack gap="lg">
         <section className="relative">
           {/* Background blurs */}
@@ -70,19 +75,6 @@ export function PathSelection({ productSlug, productTitle, backHref = '/start-pr
           </div>
 
           <div className="bg-gradient-to-br from-[#406517]/5 via-white to-[#003365]/5 border-[#406517]/20 border-2 rounded-3xl p-5 md:p-6 lg:p-8">
-            {/* Back button */}
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex-1">
-                {backHref && (
-                  <Button variant="ghost" size="sm" asChild>
-                    <Link href={backHref}>
-                      <ArrowLeft className="w-4 h-4 mr-1" />
-                      Back
-                    </Link>
-                  </Button>
-                )}
-              </div>
-            </div>
 
             {/* Headline */}
             <div className="flex flex-col items-center text-center space-y-2 mb-6">

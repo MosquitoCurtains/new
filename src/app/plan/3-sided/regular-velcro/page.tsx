@@ -94,7 +94,7 @@ export default function ThreeSidedRegularVelcroPage() {
           </div>
         </section>
 
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
       </Stack>
     </Container>
   )

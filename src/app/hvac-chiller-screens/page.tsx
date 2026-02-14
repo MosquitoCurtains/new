@@ -301,7 +301,7 @@ export default function HVACChillerScreensPage() {
         </HeaderBarSection>
 
 
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
 
       </Stack>
     </Container>

@@ -185,7 +185,7 @@ export default function InsulatedCurtainPanelsPage() {
 
         {/* Final CTA */}
 
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="cv" />
 
       </Stack>
     </Container>

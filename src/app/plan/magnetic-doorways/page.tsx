@@ -273,7 +273,7 @@ export default function MagneticDoorwaysPage() {
           </div>
         </section>
 
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
 
       </Stack>
     </Container>

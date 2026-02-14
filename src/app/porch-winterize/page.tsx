@@ -150,10 +150,7 @@ export default function PorchWinterizePage() {
 
         {/* Final CTA */}
 
-        <FinalCTATemplate 
-          primaryCTALink="/start-project/clear-vinyl"
-          variant="blue"
-        />
+        <FinalCTATemplate productLine="cv" variant="blue" />
 
       </Stack>
     </Container>

@@ -184,7 +184,7 @@ export default function HowToOrderPage() {
         </section>
 
         {/* Final CTA */}
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
 
       </Stack>
     </Container>

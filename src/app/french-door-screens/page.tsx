@@ -167,7 +167,7 @@ export default function FrenchDoorScreensPage() {
           </TwoColumn>
         </HeaderBarSection>
 
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
 
       </Stack>
     </Container>

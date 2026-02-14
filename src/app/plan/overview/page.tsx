@@ -220,7 +220,7 @@ export default function ProjectPlanningOverviewPage() {
         </section>
 
         {/* Final CTA */}
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
 
       </Stack>
     </Container>

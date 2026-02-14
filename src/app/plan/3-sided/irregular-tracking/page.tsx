@@ -95,7 +95,7 @@ export default function ThreeSidedIrregularTrackingPage() {
           </div>
         </section>
 
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
       </Stack>
     </Container>
   )

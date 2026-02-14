@@ -174,7 +174,7 @@ export default function FourSidedPage() {
         </HeaderBarSection>
 
         {/* Final CTA */}
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
 
       </Stack>
     </Container>

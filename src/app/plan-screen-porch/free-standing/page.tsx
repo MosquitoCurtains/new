@@ -268,7 +268,7 @@ export default function FreeStandingPage() {
           </Grid>
         </HeaderBarSection>
 
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
 
       </Stack>
     </Container>

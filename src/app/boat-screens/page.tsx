@@ -184,7 +184,7 @@ export default function BoatScreensPage() {
           </Stack>
         </Card>
 
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
 
       </Stack>
     </Container>

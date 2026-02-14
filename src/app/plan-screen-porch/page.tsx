@@ -215,7 +215,7 @@ export default function PlanPage() {
         {/* ================================================================
             FINAL CTA
             ================================================================ */}
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
 
       </Stack>
     </Container>

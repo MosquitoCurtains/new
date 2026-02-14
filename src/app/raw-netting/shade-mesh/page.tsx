@@ -177,13 +177,7 @@ export default function ShadeMeshPage() {
           </Grid>
         </HeaderBarSection>
 
-        <FinalCTATemplate 
-          title="Ready to Order Your Fabric?"
-          subtitle="Browse our full selection of raw mesh and netting fabric, or let us help you with a custom order."
-          primaryCTAText="Shop Raw Netting"
-          primaryCTALink="/order/raw-netting"
-          variant="dark"
-        />
+        <FinalCTATemplate productLine="rn" />
 
       </Stack>
     </Container>

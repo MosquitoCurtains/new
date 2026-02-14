@@ -122,7 +122,7 @@ export default function ThreeSidedRegularTrackingPage() {
           </div>
         </section>
 
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
       </Stack>
     </Container>
   )

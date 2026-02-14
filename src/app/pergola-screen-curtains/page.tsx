@@ -173,7 +173,7 @@ export default function PergolaScreenCurtainsPage() {
           </TwoColumn>
         </HeaderBarSection>
 
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
 
       </Stack>
     </Container>

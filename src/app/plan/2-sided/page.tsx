@@ -192,7 +192,7 @@ export default function TwoSidedPage() {
         </HeaderBarSection>
 
         {/* Final CTA */}
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
 
       </Stack>
     </Container>

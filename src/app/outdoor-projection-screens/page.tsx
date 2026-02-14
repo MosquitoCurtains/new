@@ -274,7 +274,7 @@ export default function OutdoorProjectionScreensPage() {
         {/* ================================================================
             FINAL CTA
             ================================================================ */}
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
 
       </Stack>
     </Container>
