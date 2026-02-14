@@ -491,7 +491,7 @@ export default function AdminCrmProjectsPage() {
                         {/* Project name */}
                         <td className="px-4 py-3">
                           <Link
-                            href={`/admin/projects/${proj.id}`}
+                            href={`/admin/project/${proj.id}`}
                             className="text-[#003365] hover:underline font-medium"
                           >
                             {proj.project_name || (
@@ -554,7 +554,7 @@ export default function AdminCrmProjectsPage() {
                         {/* Actions */}
                         <td className="px-4 py-3 text-right">
                           <Button variant="ghost" size="sm" asChild>
-                            <Link href={`/admin/projects/${proj.id}`}>
+                            <Link href={`/admin/project/${proj.id}`}>
                               <Eye className="w-4 h-4" />
                             </Link>
                           </Button>

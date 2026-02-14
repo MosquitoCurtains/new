@@ -37,6 +37,8 @@ import {
   CircleDot,
   Timer,
   Upload,
+  ClipboardList,
+  Hammer,
 } from 'lucide-react'
 import {
   Container,
@@ -83,6 +85,7 @@ interface ProjectPhoto {
   storage_path: string
   filename: string
   content_type: string
+  category?: 'planning' | 'installed'
 }
 
 interface SharedProject {
@@ -284,8 +287,8 @@ export default function SharePage() {
   const savedKeysRef = useRef<Set<string>>(new Set())
   const savingRef = useRef(false)
 
-  // Save newly uploaded photos to DB
-  const handleUploadComplete = useCallback(async (photos: UploadedPhoto[]) => {
+  // Generic save handler for both categories
+  const savePhotos = useCallback(async (photos: UploadedPhoto[], category: 'planning' | 'installed') => {
     if (!shareToken || savingRef.current) return
 
     const newPhotos = photos.filter(
@@ -302,6 +305,7 @@ export default function SharePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           token: shareToken,
+          category,
           photos: newPhotos.map((p) => ({
             url: p.publicUrl,
             fileName: p.fileName,
@@ -320,6 +324,16 @@ export default function SharePage() {
       savingRef.current = false
     }
   }, [shareToken])
+
+  const handlePlanningUploadComplete = useCallback(
+    (photos: UploadedPhoto[]) => savePhotos(photos, 'planning'),
+    [savePhotos]
+  )
+
+  const handleInstalledUploadComplete = useCallback(
+    (photos: UploadedPhoto[]) => savePhotos(photos, 'installed'),
+    [savePhotos]
+  )
 
   useEffect(() => {
     if (!shareToken) return
@@ -341,10 +355,18 @@ export default function SharePage() {
   }, [shareToken])
 
   // Photos/videos for lightbox gallery (combine server + newly uploaded)
-  const projectPhotos = [...(project?.photos || []), ...extraPhotos]
-  const imagePhotos = projectPhotos.filter(p => p.content_type?.startsWith('image/'))
-  const videoPhotos = projectPhotos.filter(p => p.content_type?.startsWith('video/'))
-  const lightboxImages = imagePhotos.map(p => ({
+  const allPhotos = [...(project?.photos || []), ...extraPhotos]
+  const planningPhotos = allPhotos.filter(p => !p.category || p.category === 'planning')
+  const installedPhotos = allPhotos.filter(p => p.category === 'installed')
+
+  const planningImages = planningPhotos.filter(p => p.content_type?.startsWith('image/'))
+  const planningVideos = planningPhotos.filter(p => p.content_type?.startsWith('video/'))
+  const installedImages = installedPhotos.filter(p => p.content_type?.startsWith('image/'))
+  const installedVideos = installedPhotos.filter(p => p.content_type?.startsWith('video/'))
+
+  // Combined images for lightbox (planning first, then installed)
+  const allImages = [...planningImages, ...installedImages]
+  const lightboxImages = allImages.map(p => ({
     url: p.storage_path,
     alt: p.filename,
     caption: p.filename,
@@ -702,38 +724,47 @@ export default function SharePage() {
           </Grid>
         </section>
 
-        {/* ═══════════ PHOTOS & VIDEOS + UPLOAD ═══════════ */}
-        <HeaderBarSection icon={Camera} label={`Photos & Videos${projectPhotos.length > 0 ? ` (${projectPhotos.length})` : ''}`} variant="dark">
-          {/* Existing image thumbnails */}
-          {imagePhotos.length > 0 && (
+        {/* ═══════════ PLANNING PHOTOS ═══════════ */}
+        <HeaderBarSection icon={ClipboardList} label={`Planning Photos${planningPhotos.length > 0 ? ` (${planningPhotos.length})` : ''}`} variant="dark">
+          <div className="mb-4">
+            <Text size="sm" className="text-gray-600 !mb-0">
+              We use these photos to plan your project. Upload images of your space so our team can prepare an accurate quote.
+            </Text>
+          </div>
+
+          {/* Planning image thumbnails */}
+          {planningImages.length > 0 && (
             <Grid responsiveCols={{ mobile: 2, tablet: 3, desktop: 5 }} gap="md">
-              {imagePhotos.map((photo, idx) => (
-                <button
-                  key={photo.id}
-                  type="button"
-                  onClick={() => { setLightboxIndex(idx); setLightboxOpen(true) }}
-                  className="relative aspect-[4/3] rounded-xl overflow-hidden border-2 border-gray-200 hover:border-[#406517] hover:shadow-lg transition-all cursor-pointer group"
-                >
-                  <Image
-                    src={photo.storage_path}
-                    alt={photo.filename}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 20vw"
-                  />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-                  <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/50 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <span className="text-xs text-white truncate block">{photo.filename}</span>
-                  </div>
-                </button>
-              ))}
+              {planningImages.map((photo) => {
+                const lbIdx = allImages.findIndex(p => p.id === photo.id)
+                return (
+                  <button
+                    key={photo.id}
+                    type="button"
+                    onClick={() => { setLightboxIndex(lbIdx); setLightboxOpen(true) }}
+                    className="relative aspect-[4/3] rounded-xl overflow-hidden border-2 border-gray-200 hover:border-[#406517] hover:shadow-lg transition-all cursor-pointer group"
+                  >
+                    <Image
+                      src={photo.storage_path}
+                      alt={photo.filename}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 20vw"
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                    <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/50 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="text-xs text-white truncate block">{photo.filename}</span>
+                    </div>
+                  </button>
+                )
+              })}
             </Grid>
           )}
 
-          {/* Existing video items */}
-          {videoPhotos.length > 0 && (
-            <div className={`grid grid-cols-1 sm:grid-cols-2 gap-4 ${imagePhotos.length > 0 ? 'mt-6' : ''}`}>
-              {videoPhotos.map((video) => (
+          {/* Planning video items */}
+          {planningVideos.length > 0 && (
+            <div className={`grid grid-cols-1 sm:grid-cols-2 gap-4 ${planningImages.length > 0 ? 'mt-6' : ''}`}>
+              {planningVideos.map((video) => (
                 <div key={video.id} className="relative rounded-xl overflow-hidden border-2 border-gray-200 bg-gray-900">
                   <video
                     src={video.storage_path}
@@ -750,23 +781,103 @@ export default function SharePage() {
             </div>
           )}
 
-          {/* Upload section */}
-          <div className={projectPhotos.length > 0 ? 'mt-6 pt-6 border-t border-gray-200' : ''}>
+          {/* Planning upload */}
+          <div className={planningPhotos.length > 0 ? 'mt-6 pt-6 border-t border-gray-200' : ''}>
             <div className="mb-4">
               <div className="flex items-center gap-2 mb-1">
                 <Upload className="w-4 h-4 text-[#406517]" />
                 <Text size="sm" className="font-semibold text-gray-700 !mb-0">
-                  {projectPhotos.length > 0 ? 'Add more photos or videos' : 'Upload photos of your space'}
+                  {planningPhotos.length > 0 ? 'Add more planning photos' : 'Upload photos of your space'}
                 </Text>
               </div>
               <Text size="xs" className="text-gray-400 !mb-0">
-                Help your planner prepare an accurate quote by sharing photos or videos of your project area.
+                Photos of the area where your curtains or panels will be installed help us prepare your quote.
               </Text>
             </div>
             <PhotoUploader
               projectId={project.id}
+              category="planning"
               maxFiles={10}
-              onUploadComplete={handleUploadComplete}
+              onUploadComplete={handlePlanningUploadComplete}
+            />
+          </div>
+        </HeaderBarSection>
+
+        {/* ═══════════ INSTALLATION PHOTOS ═══════════ */}
+        <HeaderBarSection icon={Hammer} label={`Installation Photos${installedPhotos.length > 0 ? ` (${installedPhotos.length})` : ''}`} variant="dark">
+          <div className="mb-4">
+            <Text size="sm" className="text-gray-600 !mb-0">
+              We use these photos to see your completed project. Upload images after your curtains or panels have been installed.
+            </Text>
+          </div>
+
+          {/* Installed image thumbnails */}
+          {installedImages.length > 0 && (
+            <Grid responsiveCols={{ mobile: 2, tablet: 3, desktop: 5 }} gap="md">
+              {installedImages.map((photo) => {
+                const lbIdx = allImages.findIndex(p => p.id === photo.id)
+                return (
+                  <button
+                    key={photo.id}
+                    type="button"
+                    onClick={() => { setLightboxIndex(lbIdx); setLightboxOpen(true) }}
+                    className="relative aspect-[4/3] rounded-xl overflow-hidden border-2 border-gray-200 hover:border-[#406517] hover:shadow-lg transition-all cursor-pointer group"
+                  >
+                    <Image
+                      src={photo.storage_path}
+                      alt={photo.filename}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 20vw"
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                    <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/50 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="text-xs text-white truncate block">{photo.filename}</span>
+                    </div>
+                  </button>
+                )
+              })}
+            </Grid>
+          )}
+
+          {/* Installed video items */}
+          {installedVideos.length > 0 && (
+            <div className={`grid grid-cols-1 sm:grid-cols-2 gap-4 ${installedImages.length > 0 ? 'mt-6' : ''}`}>
+              {installedVideos.map((video) => (
+                <div key={video.id} className="relative rounded-xl overflow-hidden border-2 border-gray-200 bg-gray-900">
+                  <video
+                    src={video.storage_path}
+                    controls
+                    playsInline
+                    preload="metadata"
+                    className="w-full aspect-video object-contain"
+                  />
+                  <div className="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-0.5 rounded-md flex items-center gap-1">
+                    <Play className="w-3 h-3" /> {video.filename}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Installed upload */}
+          <div className={installedPhotos.length > 0 ? 'mt-6 pt-6 border-t border-gray-200' : ''}>
+            <div className="mb-4">
+              <div className="flex items-center gap-2 mb-1">
+                <Upload className="w-4 h-4 text-[#406517]" />
+                <Text size="sm" className="font-semibold text-gray-700 !mb-0">
+                  {installedPhotos.length > 0 ? 'Add more installation photos' : 'Upload installation photos'}
+                </Text>
+              </div>
+              <Text size="xs" className="text-gray-400 !mb-0">
+                Share photos of your completed installation so we can see how everything turned out.
+              </Text>
+            </div>
+            <PhotoUploader
+              projectId={project.id}
+              category="installed"
+              maxFiles={10}
+              onUploadComplete={handleInstalledUploadComplete}
             />
           </div>
         </HeaderBarSection>

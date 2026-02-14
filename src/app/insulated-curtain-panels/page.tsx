@@ -26,7 +26,7 @@ import {
   HeaderBarSection,
   WhyChooseUsTemplate,
   PowerHeaderTemplate,
-  MC_HERO_ACTIONS,
+  CV_HERO_ACTIONS,
   TwoColumn,
 } from '@/lib/design-system'
 
@@ -41,7 +41,7 @@ export default function InsulatedCurtainPanelsPage() {
           subtitle="Looking for insulated outdoor panels? Our clear vinyl enclosures provide excellent weather protection for your porch or patio."
           videoId="ca6GufadXoE"
           variant="compact"
-          actions={MC_HERO_ACTIONS}
+          actions={CV_HERO_ACTIONS}
         />
 
         {/* Why Choose Us */}

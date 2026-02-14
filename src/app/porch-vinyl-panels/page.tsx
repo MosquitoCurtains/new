@@ -25,7 +25,7 @@ import {
   HeaderBarSection,
   WhyChooseUsTemplate,
   PowerHeaderTemplate,
-  MC_HERO_ACTIONS,
+  CV_HERO_ACTIONS,
   TwoColumn,
 } from '@/lib/design-system'
 
@@ -40,7 +40,7 @@ export default function PorchVinylPanelsPage() {
           subtitle="Custom clear vinyl panels for your porch. Weather protection that doesn't block your view. Marine-grade quality built to last."
           videoId="ca6GufadXoE"
           variant="compact"
-          actions={MC_HERO_ACTIONS}
+          actions={CV_HERO_ACTIONS}
         />
 
         {/* Why Choose Us */}

@@ -63,6 +63,24 @@ function fmt(map: Record<string, string>, val: unknown): string {
   return map[s] || titleCase(s)
 }
 
+/**
+ * Format width (feet + inches) x height as a readable dimension string.
+ * e.g. 5'6" x 84"  or  0'36" x 96"
+ */
+function fmtDimensions(
+  widthFeet: unknown,
+  widthInches: unknown,
+  heightInches: unknown,
+): string {
+  const wf = Number(widthFeet) || 0
+  const wi = Number(widthInches) || 0
+  const hi = Number(heightInches) || 0
+  if (wf === 0 && wi === 0 && hi === 0) return ''
+  const widthPart = `${wf}'${wi}"`
+  if (hi > 0) return `${widthPart} x ${hi}"`
+  return widthPart
+}
+
 // ─── Public API ──────────────────────────────────────────────────────────────
 
 export interface OptionLabel {
@@ -84,6 +102,8 @@ export function getCartOptionLabels(
 
   // ─── Mesh panels ─────────────────────────────────────────────
   if (sku === 'mesh_panel') {
+    const sizeStr = fmtDimensions(options.widthFeet, options.widthInches, options.heightInches)
+    if (sizeStr) labels.push({ label: 'Size', value: sizeStr })
     if (options.meshType) labels.push({ label: 'Mesh Type', value: fmt(MESH_TYPE, options.meshType) })
     if (options.color || options.meshColor) labels.push({ label: 'Color', value: fmt(COLOR, options.color || options.meshColor) })
     if (options.topAttachment) labels.push({ label: 'Top Attach', value: fmt(TOP_ATTACHMENT, options.topAttachment) })
@@ -95,6 +115,8 @@ export function getCartOptionLabels(
 
   // ─── Clear vinyl panels ──────────────────────────────────────
   if (sku === 'vinyl_panel') {
+    const sizeStr = fmtDimensions(options.widthFeet, options.widthInches, options.heightInches)
+    if (sizeStr) labels.push({ label: 'Size', value: sizeStr })
     if (options.panelSize) labels.push({ label: 'Panel Size', value: fmt(PANEL_SIZE, options.panelSize) })
     if (options.canvasColor) labels.push({ label: 'Canvas', value: fmt(COLOR, options.canvasColor) })
     if (options.topAttachment) labels.push({ label: 'Top Attach', value: fmt(TOP_ATTACHMENT, options.topAttachment) })
@@ -106,6 +128,7 @@ export function getCartOptionLabels(
 
   // ─── Roll-up shades ──────────────────────────────────────────
   if (sku === 'rollup_shade_screen') {
+    if (options.widthInches) labels.push({ label: 'Width', value: `${options.widthInches}"` })
     if (options.ply) labels.push({ label: 'Ply', value: titleCase(String(options.ply)) })
     if (options.meshColor || options.color) labels.push({ label: 'Color', value: fmt(COLOR, options.meshColor || options.color) })
     return labels

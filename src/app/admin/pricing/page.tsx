@@ -25,6 +25,8 @@ import {
   AlertCircle,
   ChevronDown,
   ChevronRight,
+  Scissors,
+  HelpCircle,
 } from 'lucide-react'
 import { Container, Stack, Card, Heading, Text, Button, Spinner } from '@/lib/design-system'
 
@@ -45,6 +47,7 @@ interface ProductItem {
   category_section: string | null
   category_order: number
   admin_only: boolean
+  is_active: boolean
 }
 
 interface OptionItem {
@@ -53,8 +56,8 @@ interface OptionItem {
   option_name: string
   option_value: string
   display_label: string
-  price: number
-  fee: number
+  price: number | null
+  fee: number | null
   pricing_key: string | null
   admin_only: boolean
   sort_order: number
@@ -73,6 +76,7 @@ interface CategoryConfig {
 
 const CATEGORIES: CategoryConfig[] = [
   { id: 'Panels', title: 'Panels', icon: Layers, color: '#406517' },
+  { id: 'Raw Netting Panels', title: 'Raw Netting Panels', icon: Scissors, color: '#0D9488' },
   { id: 'Track Hardware', title: 'Track Hardware', icon: Grid3X3, color: '#003365' },
   { id: 'Attachment Hardware', title: 'Attachment Hardware', icon: Wrench, color: '#B30158' },
   { id: 'Accessories', title: 'Accessories', icon: Package, color: '#FFA501' },
@@ -152,6 +156,10 @@ export default function AdminPricingPage() {
     setEditedValues(prev => ({ ...prev, [`product:${id}:admin_only`]: checked }))
   }
 
+  const handleProductIsActiveChange = (id: string, checked: boolean) => {
+    setEditedValues(prev => ({ ...prev, [`product:${id}:is_active`]: checked }))
+  }
+
   const handleOptionAdminOnlyChange = (id: string, checked: boolean) => {
     setEditedValues(prev => ({ ...prev, [`option:${id}:admin_only`]: checked }))
   }
@@ -165,12 +173,19 @@ export default function AdminPricingPage() {
     return edited !== undefined ? (edited as boolean) : product.admin_only
   }
 
-  const getOptionPrice = (option: OptionItem): number => {
-    return (editedValues[`option:${option.id}:price`] as number) ?? option.price
+  const getProductIsActive = (product: ProductItem): boolean => {
+    const edited = editedValues[`product:${product.id}:is_active`]
+    return edited !== undefined ? (edited as boolean) : product.is_active
   }
 
-  const getOptionFee = (option: OptionItem): number => {
-    return (editedValues[`option:${option.id}:fee`] as number) ?? option.fee
+  const getOptionPrice = (option: OptionItem): number | null => {
+    const edited = editedValues[`option:${option.id}:price`]
+    return edited !== undefined ? (edited as number) : option.price
+  }
+
+  const getOptionFee = (option: OptionItem): number | null => {
+    const edited = editedValues[`option:${option.id}:fee`]
+    return edited !== undefined ? (edited as number) : option.fee
   }
 
   const getOptionAdminOnly = (option: OptionItem): boolean => {
@@ -240,10 +255,22 @@ export default function AdminPricingPage() {
   }
 
   // Group products by category
+  const knownCategoryIds = new Set(CATEGORIES.map(c => c.id))
   const productsByCategory = CATEGORIES.map(cat => ({
     ...cat,
     products: products.filter(p => p.product_category === cat.id),
   }))
+  // Catch-all: products whose category doesn't match any known category
+  const uncategorized = products.filter(p => !knownCategoryIds.has(p.product_category || ''))
+  if (uncategorized.length > 0) {
+    productsByCategory.push({
+      id: '__uncategorized__',
+      title: 'Uncategorized',
+      icon: HelpCircle,
+      color: '#9CA3AF',
+      products: uncategorized,
+    })
+  }
 
   // Group options by product_id
   const optionsByProduct: Record<string, OptionItem[]> = {}
@@ -288,7 +315,7 @@ export default function AdminPricingPage() {
               <div>
                 <Heading level={1} className="!mb-0">Product Pricing</Heading>
                 <Text className="text-gray-500 !mb-0">
-                  {products.length} products, {options.length} options
+                  {products.length} products ({products.filter(p => p.is_active).length} active, {products.filter(p => !p.is_active).length} inactive), {options.length} options
                 </Text>
               </div>
             </div>
@@ -410,13 +437,17 @@ export default function AdminPricingPage() {
                       const productOptions = optionsByProduct[product.id] || []
                       const hasOptions = productOptions.length > 0
                       const isExpanded = expandedProducts.has(product.id)
+                      const isActive = getProductIsActive(product)
+                      const hasEdits = editedValues[`product:${product.id}:base_price`] !== undefined
+                        || editedValues[`product:${product.id}:admin_only`] !== undefined
+                        || editedValues[`product:${product.id}:is_active`] !== undefined
                       
                       return (
                         <div key={product.id}>
                           <div 
                             className={`px-4 py-3 grid grid-cols-[1fr_100px_80px] gap-4 items-center ${
                               idx !== sectionProducts.length - 1 || isExpanded ? 'border-b border-gray-100' : ''
-                            } ${(editedValues[`product:${product.id}:base_price`] !== undefined || editedValues[`product:${product.id}:admin_only`] !== undefined) ? 'bg-amber-50/50' : ''}`}
+                            } ${hasEdits ? 'bg-amber-50/50' : ''} ${!isActive ? 'opacity-50' : ''}`}
                           >
                             <div className="flex items-center gap-2">
                               {hasOptions && (
@@ -428,23 +459,39 @@ export default function AdminPricingPage() {
                                 </button>
                               )}
                               <div>
-                                <Text className="font-medium text-gray-900 !mb-0">{product.name}</Text>
+                                <Text className={`font-medium !mb-0 ${isActive ? 'text-gray-900' : 'text-gray-500 line-through'}`}>{product.name}</Text>
                                 <Text size="sm" className="text-gray-400 !mb-0 font-mono text-xs">{product.sku}</Text>
                               </div>
                               {editMode ? (
-                                <label className="flex items-center gap-1 cursor-pointer select-none">
-                                  <input
-                                    type="checkbox"
-                                    checked={getProductAdminOnly(product)}
-                                    onChange={(e) => handleProductAdminOnlyChange(product.id, e.target.checked)}
-                                    className="w-3.5 h-3.5 rounded border-gray-300 text-[#003365] focus:ring-[#003365]"
-                                  />
-                                  <span className="text-[10px] text-gray-500">admin only</span>
-                                </label>
+                                <div className="flex items-center gap-3">
+                                  <label className="flex items-center gap-1 cursor-pointer select-none">
+                                    <input
+                                      type="checkbox"
+                                      checked={isActive}
+                                      onChange={(e) => handleProductIsActiveChange(product.id, e.target.checked)}
+                                      className="w-3.5 h-3.5 rounded border-gray-300 text-[#406517] focus:ring-[#406517]"
+                                    />
+                                    <span className="text-[10px] text-gray-500">active</span>
+                                  </label>
+                                  <label className="flex items-center gap-1 cursor-pointer select-none">
+                                    <input
+                                      type="checkbox"
+                                      checked={getProductAdminOnly(product)}
+                                      onChange={(e) => handleProductAdminOnlyChange(product.id, e.target.checked)}
+                                      className="w-3.5 h-3.5 rounded border-gray-300 text-[#003365] focus:ring-[#003365]"
+                                    />
+                                    <span className="text-[10px] text-gray-500">admin only</span>
+                                  </label>
+                                </div>
                               ) : (
-                                product.admin_only && (
-                                  <span className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">admin</span>
-                                )
+                                <div className="flex items-center gap-1.5">
+                                  {!isActive && (
+                                    <span className="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-medium">inactive</span>
+                                  )}
+                                  {product.admin_only && (
+                                    <span className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">admin</span>
+                                  )}
+                                </div>
                               )}
                             </div>
                             <div className="text-right">
@@ -480,72 +527,81 @@ export default function AdminPricingPage() {
                               {/* Group options by option_name */}
                               {Array.from(new Set(productOptions.map(o => o.option_name))).map(optName => {
                                 const nameOptions = productOptions.filter(o => o.option_name === optName)
-                                const hasPrice = nameOptions.some(o => o.price > 0 || o.fee > 0)
+                                const hasPrice = nameOptions.some(o => (o.price != null && o.price > 0) || (o.fee != null && o.fee > 0))
+                                const hasQuoteNeeded = nameOptions.some(o => o.price === null)
                                 
                                 return (
                                   <div key={optName} className="px-4 py-2 ml-8 border-b border-gray-100 last:border-b-0">
                                     <Text size="sm" className="text-gray-500 font-medium uppercase tracking-wider !mb-1">{optName.replace(/_/g, ' ')}</Text>
-                                    {nameOptions.map(opt => (
-                                      <div key={opt.id} className={`flex items-center justify-between py-1 ${editedValues[`option:${opt.id}:admin_only`] !== undefined ? 'bg-amber-50/50 -mx-2 px-2 rounded' : ''}`}>
-                                        <div className="flex items-center gap-2">
-                                          <Text size="sm" className="text-gray-700 !mb-0">{opt.display_label}</Text>
-                                          {opt.pricing_key && (
-                                            <Text size="sm" className="text-gray-400 font-mono text-[10px] !mb-0">{opt.pricing_key}</Text>
-                                          )}
-                                          {editMode ? (
-                                            <label className="flex items-center gap-1 cursor-pointer select-none">
-                                              <input
-                                                type="checkbox"
-                                                checked={getOptionAdminOnly(opt)}
-                                                onChange={(e) => handleOptionAdminOnlyChange(opt.id, e.target.checked)}
-                                                className="w-3 h-3 rounded border-gray-300 text-[#003365] focus:ring-[#003365]"
-                                              />
-                                              <span className="text-[10px] text-gray-500">admin only</span>
-                                            </label>
-                                          ) : (
-                                            opt.admin_only && (
-                                              <span className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">admin</span>
-                                            )
-                                          )}
-                                        </div>
-                                        {hasPrice && (
-                                          <div className="flex items-center gap-3">
-                                            {(opt.price > 0 || editMode) && (
-                                              <div className="flex items-center gap-1">
-                                                <Text size="sm" className="text-gray-400 !mb-0">rate:</Text>
-                                                {editMode ? (
-                                                  <input
-                                                    type="number"
-                                                    step="0.01"
-                                                    value={getOptionPrice(opt)}
-                                                    onChange={(e) => handleOptionPriceChange(opt.id, 'price', e.target.value)}
-                                                    className="w-16 px-1.5 py-1 bg-white border border-gray-200 rounded text-xs text-gray-700 text-right focus:outline-none focus:ring-2 focus:ring-[#003365] focus:border-transparent"
-                                                  />
-                                                ) : (
-                                                  <Text size="sm" className="font-medium text-gray-900 !mb-0">${getOptionPrice(opt).toFixed(2)}</Text>
-                                                )}
-                                              </div>
+                                    {nameOptions.map(opt => {
+                                      const priceVal = getOptionPrice(opt)
+                                      const feeVal = getOptionFee(opt)
+                                      const isQuoteNeeded = priceVal === null
+                                      return (
+                                        <div key={opt.id} className={`flex items-center justify-between py-1 ${editedValues[`option:${opt.id}:admin_only`] !== undefined ? 'bg-amber-50/50 -mx-2 px-2 rounded' : ''}`}>
+                                          <div className="flex items-center gap-2">
+                                            <Text size="sm" className="text-gray-700 !mb-0">{opt.display_label}</Text>
+                                            {opt.pricing_key && (
+                                              <Text size="sm" className="text-gray-400 font-mono text-[10px] !mb-0">{opt.pricing_key}</Text>
                                             )}
-                                            {(opt.fee > 0 || (editMode && optName === 'size')) && (
-                                              <div className="flex items-center gap-1">
-                                                <Text size="sm" className="text-gray-400 !mb-0">fee:</Text>
-                                                {editMode ? (
-                                                  <input
-                                                    type="number"
-                                                    step="0.01"
-                                                    value={getOptionFee(opt)}
-                                                    onChange={(e) => handleOptionPriceChange(opt.id, 'fee', e.target.value)}
-                                                    className="w-16 px-1.5 py-1 bg-white border border-gray-200 rounded text-xs text-gray-700 text-right focus:outline-none focus:ring-2 focus:ring-[#003365] focus:border-transparent"
-                                                  />
-                                                ) : (
-                                                  <Text size="sm" className="font-medium text-gray-900 !mb-0">${getOptionFee(opt).toFixed(2)}</Text>
-                                                )}
-                                              </div>
+                                            {editMode ? (
+                                              <label className="flex items-center gap-1 cursor-pointer select-none">
+                                                <input
+                                                  type="checkbox"
+                                                  checked={getOptionAdminOnly(opt)}
+                                                  onChange={(e) => handleOptionAdminOnlyChange(opt.id, e.target.checked)}
+                                                  className="w-3 h-3 rounded border-gray-300 text-[#003365] focus:ring-[#003365]"
+                                                />
+                                                <span className="text-[10px] text-gray-500">admin only</span>
+                                              </label>
+                                            ) : (
+                                              opt.admin_only && (
+                                                <span className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">admin</span>
+                                              )
                                             )}
                                           </div>
-                                        )}
-                                      </div>
-                                    ))}
+                                          {isQuoteNeeded && !editMode ? (
+                                            <span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">Quote needed</span>
+                                          ) : (hasPrice || hasQuoteNeeded || editMode) ? (
+                                            <div className="flex items-center gap-3">
+                                              {((priceVal != null && priceVal > 0) || editMode) && (
+                                                <div className="flex items-center gap-1">
+                                                  <Text size="sm" className="text-gray-400 !mb-0">rate:</Text>
+                                                  {editMode ? (
+                                                    <input
+                                                      type="number"
+                                                      step="0.01"
+                                                      value={priceVal ?? ''}
+                                                      placeholder="Quote"
+                                                      onChange={(e) => handleOptionPriceChange(opt.id, 'price', e.target.value)}
+                                                      className="w-16 px-1.5 py-1 bg-white border border-gray-200 rounded text-xs text-gray-700 text-right focus:outline-none focus:ring-2 focus:ring-[#003365] focus:border-transparent"
+                                                    />
+                                                  ) : (
+                                                    <Text size="sm" className="font-medium text-gray-900 !mb-0">${(priceVal ?? 0).toFixed(2)}</Text>
+                                                  )}
+                                                </div>
+                                              )}
+                                              {((feeVal != null && feeVal > 0) || (editMode && optName === 'size')) && (
+                                                <div className="flex items-center gap-1">
+                                                  <Text size="sm" className="text-gray-400 !mb-0">fee:</Text>
+                                                  {editMode ? (
+                                                    <input
+                                                      type="number"
+                                                      step="0.01"
+                                                      value={feeVal ?? 0}
+                                                      onChange={(e) => handleOptionPriceChange(opt.id, 'fee', e.target.value)}
+                                                      className="w-16 px-1.5 py-1 bg-white border border-gray-200 rounded text-xs text-gray-700 text-right focus:outline-none focus:ring-2 focus:ring-[#003365] focus:border-transparent"
+                                                    />
+                                                  ) : (
+                                                    <Text size="sm" className="font-medium text-gray-900 !mb-0">${(feeVal ?? 0).toFixed(2)}</Text>
+                                                  )}
+                                                </div>
+                                              )}
+                                            </div>
+                                          ) : null}
+                                        </div>
+                                      )
+                                    })}
                                   </div>
                                 )
                               })}

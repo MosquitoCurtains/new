@@ -176,6 +176,7 @@ export async function POST(request: NextRequest) {
             storage_path: p.url,
             filename: p.fileName || 'unknown',
             content_type: guessContentType(p.fileName || ''),
+            category: 'planning',
           }))
 
         if (photoRows.length > 0) {

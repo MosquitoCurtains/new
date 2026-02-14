@@ -37,9 +37,8 @@ export default function RawNettingDIYBuilderPage() {
               </div>
             }
             variant="compact"
-            videoId={VIDEOS.SHORT_OVERVIEW}
-            videoTitle="Raw Netting Overview"
-            thumbnailUrl="https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2020/12/Planning-Overview-Video-Thumbnail-1.jpg"
+            videoId={VIDEOS.RAW_NETTING}
+            videoTitle="Why Us For Raw Netting"
             showCta={false}
             actions={[]}
           />

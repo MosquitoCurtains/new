@@ -1,18 +1,19 @@
 'use client'
 
-import { MessageSquare, Calculator, Hammer, LucideIcon } from 'lucide-react'
+import { MessageSquare, Calculator, Hammer, Scissors, ShoppingCart, LucideIcon } from 'lucide-react'
 
 // ============================================================================
-// MC HERO ACTIONS
+// HERO ACTIONS — Edit Once, Update All Landing Pages
 // ============================================================================
-// 
-// EDIT HERE TO UPDATE ALL LANDING PAGES
-// 
-// This defines the action buttons that appear in the bottom bar of the 
-// PowerHeaderTemplate (compact variant). Edit these once, update everywhere.
 //
-// Used by: /screened-porch, /pergola-screen-curtains, /gazebo-screen-curtains,
-//          /screened-in-decks, /screen-patio, /awning-screen-enclosures, etc.
+// Product-line-specific action buttons shown in the PowerHeaderTemplate hero.
+//
+// MC pages  -> MC_HERO_ACTIONS  (Expert Assistance / DIY Builder / Instant Quote)
+// CV pages  -> CV_HERO_ACTIONS  (Expert Assistance / DIY Builder / Instant Quote)
+// RN pages  -> RN_HERO_ACTIONS  (Shop Fabric / Custom Cut / Expert Help)
+// General   -> MC_HERO_ACTIONS  (default fallback)
+//
+// Use `getHeroActions(productLine)` in pages instead of importing a specific set.
 // ============================================================================
 
 export interface MCHeroAction {
@@ -26,18 +27,15 @@ export interface MCHeroAction {
 }
 
 // ============================================================================
-// MC HERO ACTIONS (GLOBAL)
+// MC HERO ACTIONS — Mosquito Curtain Pages
 // ============================================================================
-// 
-// These are the three action buttons shown in the hero section of landing pages.
-// Edit these to change all pages that use MC_HERO_ACTIONS.
 
 export const MC_HERO_ACTIONS: MCHeroAction[] = [
   {
     icon: MessageSquare,
     title: 'Expert Assistance',
     description: 'Send photos, get personalized guidance from our team.',
-    href: '/start-project?mode=planner',
+    href: '/start-project/mosquito-curtains',
     buttonText: 'Get Help',
     color: '#406517', // Brand green
   },
@@ -45,7 +43,7 @@ export const MC_HERO_ACTIONS: MCHeroAction[] = [
     icon: Hammer,
     title: 'DIY Builder',
     description: 'Configure panels yourself and add directly to cart.',
-    href: '/start-project?mode=diy',
+    href: '/start-project/mosquito-curtains/diy-builder',
     buttonText: 'Build',
     color: '#B30158', // Brand magenta
   },
@@ -53,42 +51,33 @@ export const MC_HERO_ACTIONS: MCHeroAction[] = [
     icon: Calculator,
     title: 'Instant Quote',
     description: 'Quick specs for an estimate within 5% of actual cost.',
-    href: '/start-project?mode=quote',
+    href: '/start-project/mosquito-curtains/instant-quote',
     buttonText: 'Calculate',
     color: '#003365', // Brand blue
   },
 ]
 
-// ============================================================================
-// VARIANT CONFIGURATIONS
-// ============================================================================
-// 
-// Different action sets for different page types. All still globally editable.
-
-/**
- * Actions for Mosquito Curtain product pages (default)
- * Uses the full project flow with Expert Assistance, Quote, and DIY
- */
+/** Alias for backwards compat */
 export const MC_ACTIONS = MC_HERO_ACTIONS
 
-/**
- * Actions for Clear Vinyl product pages
- * Same structure, could be customized in future if needed
- */
+// ============================================================================
+// CV HERO ACTIONS — Clear Vinyl Pages
+// ============================================================================
+
 export const CV_HERO_ACTIONS: MCHeroAction[] = [
   {
     icon: MessageSquare,
     title: 'Expert Assistance',
     description: 'Send photos, get personalized guidance from our team.',
-    href: '/start-project?mode=planner',
+    href: '/start-project/clear-vinyl',
     buttonText: 'Get Help',
     color: '#406517',
   },
   {
     icon: Hammer,
     title: 'DIY Builder',
-    description: 'Configure panels yourself and add directly to cart.',
-    href: '/start-project?mode=diy',
+    description: 'Configure clear vinyl panels and add to cart.',
+    href: '/start-project/clear-vinyl/diy-builder',
     buttonText: 'Build',
     color: '#B30158',
   },
@@ -96,22 +85,53 @@ export const CV_HERO_ACTIONS: MCHeroAction[] = [
     icon: Calculator,
     title: 'Instant Quote',
     description: 'Quick specs for an estimate within 5% of actual cost.',
-    href: '/start-project?mode=quote',
+    href: '/start-project/clear-vinyl/instant-quote',
     buttonText: 'Calculate',
     color: '#003365',
   },
 ]
 
-/**
- * Simplified actions for info/support pages
- * Fewer options, focused on contact
- */
+// ============================================================================
+// RN HERO ACTIONS — Raw Netting Pages
+// ============================================================================
+
+export const RN_HERO_ACTIONS: MCHeroAction[] = [
+  {
+    icon: ShoppingCart,
+    title: 'Shop Fabric',
+    description: 'Browse our full selection of raw mesh and netting by the foot.',
+    href: '/order/raw-netting',
+    buttonText: 'Shop Now',
+    color: '#7C3AED', // Purple for RN brand
+  },
+  {
+    icon: Scissors,
+    title: 'Custom Cut',
+    description: 'Need a specific size? We cut to your measurements.',
+    href: '/raw-netting/custom',
+    buttonText: 'Custom Order',
+    color: '#B30158',
+  },
+  {
+    icon: MessageSquare,
+    title: 'Expert Help',
+    description: 'Not sure what you need? Our team can help.',
+    href: '/start-project/raw-netting',
+    buttonText: 'Get Help',
+    color: '#406517',
+  },
+]
+
+// ============================================================================
+// GENERAL / SIMPLE ACTIONS — Fallback for general pages
+// ============================================================================
+
 export const MC_SIMPLE_ACTIONS: MCHeroAction[] = [
   {
     icon: MessageSquare,
     title: 'Expert Assistance',
     description: 'Send photos, get personalized guidance from our team.',
-    href: '/start-project?mode=planner',
+    href: '/start-project',
     buttonText: 'Get Help',
     color: '#406517',
   },
@@ -119,7 +139,7 @@ export const MC_SIMPLE_ACTIONS: MCHeroAction[] = [
     icon: Hammer,
     title: 'DIY Builder',
     description: 'Configure panels yourself and add directly to cart.',
-    href: '/start-project?mode=diy',
+    href: '/start-project',
     buttonText: 'Build',
     color: '#B30158',
   },
@@ -127,32 +147,45 @@ export const MC_SIMPLE_ACTIONS: MCHeroAction[] = [
     icon: Calculator,
     title: 'Instant Quote',
     description: 'Quick specs for an estimate within 5% of actual cost.',
-    href: '/start-project?mode=quote',
+    href: '/start-project',
     buttonText: 'Calculate',
     color: '#003365',
   },
 ]
 
 // ============================================================================
-// HELPER FUNCTION
+// HELPER FUNCTIONS
 // ============================================================================
 
 /**
- * Get hero actions for a given page type
+ * Get hero actions by product line — preferred way to get CTA actions.
  * 
  * @example
- * const actions = getMCHeroActions('mc')
+ * import { getHeroActions } from '@/lib/design-system'
+ * const actions = getHeroActions('cv')
  * <PowerHeaderTemplate actions={actions} ... />
  */
-export function getMCHeroActions(
-  pageType: 'mc' | 'cv' | 'simple' = 'mc'
+export function getHeroActions(
+  productLine: 'mc' | 'cv' | 'rn' | 'general' = 'mc'
 ): MCHeroAction[] {
-  switch (pageType) {
+  switch (productLine) {
     case 'cv':
       return CV_HERO_ACTIONS
-    case 'simple':
+    case 'rn':
+      return RN_HERO_ACTIONS
+    case 'general':
       return MC_SIMPLE_ACTIONS
     default:
       return MC_HERO_ACTIONS
   }
+}
+
+/**
+ * @deprecated Use `getHeroActions()` instead. Kept for backwards compatibility.
+ */
+export function getMCHeroActions(
+  pageType: 'mc' | 'cv' | 'rn' | 'simple' | 'general' = 'mc'
+): MCHeroAction[] {
+  if (pageType === 'simple') return MC_SIMPLE_ACTIONS
+  return getHeroActions(pageType as 'mc' | 'cv' | 'rn' | 'general')
 }

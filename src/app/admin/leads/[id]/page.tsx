@@ -484,7 +484,7 @@ export default function LeadDetailPage() {
                               <td className="px-3 py-2.5 text-right text-gray-700">{formatMoney(p.estimated_total)}</td>
                               <td className="px-3 py-2.5 text-gray-500">{formatDate(p.created_at)}</td>
                               <td className="px-3 py-2.5 text-right space-x-1">
-                                <Link href={`/admin/projects/${p.id}`} className="text-[#003365] hover:underline text-xs font-medium">
+                                <Link href={`/admin/project/${p.id}`} className="text-[#003365] hover:underline text-xs font-medium">
                                   View
                                 </Link>
                                 {order && (

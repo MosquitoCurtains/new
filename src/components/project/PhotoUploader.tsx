@@ -32,6 +32,8 @@ interface PhotoUploaderProps {
   projectId?: string
   sessionId?: string
   maxFiles?: number
+  /** Photo category: 'planning' (default) or 'installed' */
+  category?: 'planning' | 'installed'
   onUploadComplete?: (photos: UploadedPhoto[]) => void
   className?: string
 }
@@ -44,6 +46,7 @@ export function PhotoUploader({
   projectId,
   sessionId,
   maxFiles = 10,
+  category = 'planning',
   onUploadComplete,
   className,
 }: PhotoUploaderProps) {
@@ -112,6 +115,7 @@ export function PhotoUploader({
           uploadType: 'project-photo',
           projectId,
           sessionId,
+          photoCategory: category,
         }),
       })
 

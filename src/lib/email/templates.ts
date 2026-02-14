@@ -178,7 +178,7 @@ export const SAMPLE_DATA: Record<string, Record<string, string>> = {
     '{{customer_name}}': 'Sarah Johnson',
     '{{customer_email}}': 'sarah.johnson@example.com',
     '{{product_type}}': 'Clear Vinyl Panels',
-    '{{project_url}}': 'https://mosquitocurtains.com/admin/projects/abc-123',
+    '{{project_url}}': 'https://mosquitocurtains.com/admin/project/abc-123',
   },
 }
 
@@ -760,7 +760,7 @@ export function snapToolRefundTemplate(data: SnapToolRefundEmailData): { subject
 export function salespersonAssignedTemplate(data: SalespersonAssignedEmailData): { subject: string; html: string } {
   const productLabel = data.productType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
   const subject = `New Project Assigned: ${data.customerName} - ${productLabel}`
-  const projectUrl = `https://mosquitocurtains.com/admin/projects/${data.projectId}`
+  const projectUrl = `https://mosquitocurtains.com/admin/project/${data.projectId}`
 
   const content = `
     <div style="margin-bottom:20px;">

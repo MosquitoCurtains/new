@@ -42,7 +42,8 @@ export async function POST(
   try {
     const { id } = await params
     const body = await request.json()
-    const { photos } = body
+    const { photos, category = 'planning' } = body
+    const safeCategory = (category === 'installed') ? 'installed' : 'planning'
 
     if (!Array.isArray(photos) || photos.length === 0) {
       return NextResponse.json(
@@ -70,6 +71,7 @@ export async function POST(
       filename: p.fileName || 'unknown',
       content_type: p.contentType || guessContentType(p.fileName || p.url),
       size_bytes: p.sizeBytes || null,
+      category: safeCategory,
     }))
 
     const { data, error } = await supabase

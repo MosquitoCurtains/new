@@ -25,7 +25,7 @@ import {
   HeaderBarSection,
   WhyChooseUsTemplate,
   PowerHeaderTemplate,
-  MC_HERO_ACTIONS,
+  CV_HERO_ACTIONS,
   TwoColumn,
 } from '@/lib/design-system'
 
@@ -40,7 +40,7 @@ export default function PatioWinterizePage() {
           subtitle="Transform your covered patio into year-round living space with clear vinyl enclosures. Block the cold while keeping the view."
           videoId="ca6GufadXoE"
           variant="compact"
-          actions={MC_HERO_ACTIONS}
+          actions={CV_HERO_ACTIONS}
         />
 
         {/* Why Choose Us */}
@@ -149,7 +149,10 @@ export default function PatioWinterizePage() {
 
         {/* Final CTA */}
 
-        <FinalCTATemplate />
+        <FinalCTATemplate 
+          primaryCTALink="/start-project/clear-vinyl"
+          variant="blue"
+        />
 
       </Stack>
     </Container>

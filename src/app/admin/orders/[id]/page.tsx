@@ -31,6 +31,7 @@ import {
   Button,
   Badge,
 } from '@/lib/design-system'
+import { getCartOptionLabels } from '@/lib/cart-option-labels'
 
 // =============================================================================
 // ORDER STATUS CONFIG
@@ -506,32 +507,48 @@ export default function OrderDetailPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                      {lineItems.map((item) => (
-                        <tr key={item.id} className="hover:bg-gray-50">
-                          <td className="px-4 py-3">
-                            <div className="font-medium text-gray-900">{item.product_name}</div>
-                            <div className="text-xs text-gray-500">{item.product_sku}</div>
-                            {item.line_item_options?.map((opt) => (
-                              <div key={opt.id} className="text-xs text-gray-500">
-                                {opt.option_name}: {opt.option_display || opt.option_value}
-                              </div>
-                            ))}
-                            {item.width_inches && item.height_inches && (
-                              <div className="text-xs text-gray-400">
-                                {item.width_inches}&quot;W x {item.height_inches}&quot;H
-                              </div>
-                            )}
-                            {item.adjustment_type && (
-                              <div className="text-xs text-amber-600">
-                                {item.adjustment_type}: {item.adjustment_reason}
-                              </div>
-                            )}
-                          </td>
-                          <td className="px-4 py-3 text-center text-gray-700">{item.quantity}</td>
-                          <td className="px-4 py-3 text-right text-gray-700">{formatMoney(item.unit_price)}</td>
-                          <td className="px-4 py-3 text-right font-medium text-gray-900">{formatMoney(item.line_total)}</td>
-                        </tr>
-                      ))}
+                      {lineItems.map((item) => {
+                        // Build options map from panel_specs (original options) or line_item_options
+                        const optionsMap: Record<string, string | number | boolean> =
+                          (item.panel_specs && typeof item.panel_specs === 'object' && Object.keys(item.panel_specs).length > 0)
+                            ? (item.panel_specs as Record<string, string | number | boolean>)
+                            : item.line_item_options?.reduce((acc, opt) => {
+                                acc[opt.option_name] = opt.option_value
+                                return acc
+                              }, {} as Record<string, string | number | boolean>) || {}
+                        const optLabels = getCartOptionLabels(item.product_sku, optionsMap)
+                        return (
+                          <tr key={item.id} className="hover:bg-gray-50">
+                            <td className="px-4 py-3">
+                              <div className="font-medium text-gray-900">{item.product_name}</div>
+                              <div className="text-xs text-gray-500">{item.product_sku}</div>
+                              {optLabels.length > 0 ? (
+                                <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5">
+                                  {optLabels.map((ol, idx) => (
+                                    <span key={idx} className="text-xs text-gray-500">
+                                      <span className="font-medium text-gray-600">{ol.label}:</span> {ol.value}
+                                    </span>
+                                  ))}
+                                </div>
+                              ) : item.line_item_options?.length ? (
+                                item.line_item_options.map((opt) => (
+                                  <div key={opt.id} className="text-xs text-gray-500">
+                                    {opt.option_name}: {opt.option_display || opt.option_value}
+                                  </div>
+                                ))
+                              ) : null}
+                              {item.adjustment_type && (
+                                <div className="text-xs text-amber-600">
+                                  {item.adjustment_type}: {item.adjustment_reason}
+                                </div>
+                              )}
+                            </td>
+                            <td className="px-4 py-3 text-center text-gray-700">{item.quantity}</td>
+                            <td className="px-4 py-3 text-right text-gray-700">{formatMoney(item.unit_price)}</td>
+                            <td className="px-4 py-3 text-right font-medium text-gray-900">{formatMoney(item.line_total)}</td>
+                          </tr>
+                        )
+                      })}
                     </tbody>
                   </table>
                 </div>

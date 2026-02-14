@@ -9,7 +9,8 @@ import { createAdminClient } from '@/lib/supabase/admin'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { token, photos } = body
+    const { token, photos, category = 'planning' } = body
+    const safeCategory = (category === 'installed') ? 'installed' : 'planning'
 
     if (!token || typeof token !== 'string') {
       return NextResponse.json(
@@ -48,6 +49,7 @@ export async function POST(request: NextRequest) {
         filename: p.fileName || 'unknown',
         content_type: p.contentType || guessContentType(p.fileName || p.url),
         size_bytes: p.sizeBytes || null,
+        category: safeCategory,
       })
     )
 

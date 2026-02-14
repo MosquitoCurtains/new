@@ -89,7 +89,7 @@ export async function GET(request: NextRequest) {
     // Fetch project photos/videos
     const { data: photos } = await supabase
       .from('project_photos')
-      .select('id, storage_path, filename, content_type')
+      .select('id, storage_path, filename, content_type, category')
       .eq('project_id', project.id)
       .order('created_at', { ascending: true })
 

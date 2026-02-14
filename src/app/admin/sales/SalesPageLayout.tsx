@@ -385,7 +385,7 @@ export default function SalesPageLayout({ mode, projectId }: { mode: SalesMode; 
   // --- Edit project (navigate to project detail page) ---
   const handleEditProject = useCallback(() => {
     if (!selectedProject) return
-    router.push(`/admin/projects/${selectedProject.id}`)
+    router.push(`/admin/project/${selectedProject.id}`)
   }, [selectedProject, router])
 
   const adjustmentOptions = useMemo<DBProductOption[]>(() => {

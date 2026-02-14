@@ -228,6 +228,7 @@ export async function POST(request: NextRequest) {
           storage_path: p.url,
           filename: p.fileName || p.key?.split('/').pop() || 'unknown',
           content_type: guessContentType(p.fileName || p.key || ''),
+          category: 'planning',
         }))
 
       if (photoRows.length > 0) {
