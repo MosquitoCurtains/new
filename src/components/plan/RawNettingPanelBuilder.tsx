@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect, useCallback } from 'react'
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import {
   Card, Text, Stack, Button,
@@ -15,6 +15,7 @@ import {
 import type { MeshType, MeshColor } from '@/lib/pricing/types'
 import { useCartContext } from '@/contexts/CartContext'
 import { usePricing } from '@/hooks/usePricing'
+import { PhotoUploader, type UploadedPhoto } from '@/components/project'
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    Constants & Data
@@ -583,6 +584,12 @@ export default function RawNettingPanelBuilder() {
   const [submitDescription, setSubmitDescription] = useState('')
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'submitting' | 'submitted' | 'error'>('idle')
   const [showCheckoutModal, setShowCheckoutModal] = useState(false)
+  const [photos, setPhotos] = useState<UploadedPhoto[]>([])
+  const [uploadPrefix] = useState(() => crypto.randomUUID())
+  const [linkCopied, setLinkCopied] = useState(false)
+
+  // Track saved project to prevent double-creation on submit
+  const savedProjectIdRef = useRef<string | null>(null)
   const [meshDetailType, setMeshDetailType] = useState<MeshType | null>(null)
 
   // Restore from localStorage (sanitize stale edge IDs from previous versions)
@@ -738,22 +745,27 @@ export default function RawNettingPanelBuilder() {
       })
       if (saveDescription.trim()) noteParts.push(`Notes: ${saveDescription.trim()}`)
 
+      const saveBody: Record<string, unknown> = {
+        email: email.trim(),
+        firstName: firstName.trim() || undefined,
+        product: 'raw_materials',
+        projectType: 'raw_netting_panel',
+        numberOfSides: panels.length,
+        notes: noteParts.join('\n'),
+        description: saveDescription.trim() || undefined,
+        cart_data: cd,
+      }
+      if (savedProjectIdRef.current) {
+        saveBody.existingProjectId = savedProjectIdRef.current
+      }
       const res = await fetch('/api/projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: email.trim(),
-          firstName: firstName.trim() || undefined,
-          product: 'raw_materials',
-          projectType: 'raw_netting_panel',
-          numberOfSides: panels.length,
-          notes: noteParts.join('\n'),
-          description: saveDescription.trim() || undefined,
-          cart_data: cd,
-        }),
+        body: JSON.stringify(saveBody),
       })
       const d = await res.json()
       if (!res.ok) throw new Error(d.error || 'Failed')
+      savedProjectIdRef.current = d.project?.id || savedProjectIdRef.current
       setSaveStatus('saved')
       setProjectSaved(true)
       if (d.shareUrl) setShareUrl(d.shareUrl)
@@ -780,24 +792,36 @@ export default function RawNettingPanelBuilder() {
       })
       if (submitDescription.trim()) noteParts.push(`Description: ${submitDescription.trim()}`)
 
+      const completedPhotos = photos.filter(p => p.status === 'complete')
+      const body: Record<string, unknown> = {
+        email: email.trim(),
+        firstName: firstName.trim() || undefined,
+        lastName: lastName.trim() || undefined,
+        phone: phone.trim() || undefined,
+        product: 'raw_materials',
+        projectType: 'raw_netting_panel',
+        numberOfSides: panels.length,
+        notes: noteParts.join('\n'),
+        description: submitDescription.trim() || undefined,
+        cart_data: cd,
+        photo_urls: completedPhotos.map(p => ({
+          url: p.publicUrl,
+          key: p.key,
+          fileName: p.fileName,
+        })),
+      }
+      // If we already saved this project, reuse its ID to prevent duplicates
+      if (savedProjectIdRef.current) {
+        body.existingProjectId = savedProjectIdRef.current
+      }
       const res = await fetch('/api/projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: email.trim(),
-          firstName: firstName.trim() || undefined,
-          lastName: lastName.trim() || undefined,
-          phone: phone.trim() || undefined,
-          product: 'raw_materials',
-          projectType: 'raw_netting_panel',
-          numberOfSides: panels.length,
-          notes: noteParts.join('\n'),
-          description: submitDescription.trim() || undefined,
-          cart_data: cd,
-        }),
+        body: JSON.stringify(body),
       })
       const d = await res.json()
       if (!res.ok) throw new Error(d.error || 'Failed')
+      savedProjectIdRef.current = d.project?.id || savedProjectIdRef.current
       setSubmitStatus('submitted')
       if (d.shareUrl) setShareUrl(d.shareUrl)
     } catch (e) {
@@ -1408,15 +1432,12 @@ export default function RawNettingPanelBuilder() {
               </div>
             </div>
 
-            {/* Photos upload */}
-            <label className="flex items-center gap-3 px-4 py-3 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-[#406517] hover:bg-[#406517]/5 transition-colors group">
-              <Camera className="w-5 h-5 text-gray-400 group-hover:text-[#406517] transition-colors" />
-              <div>
-                <span className="text-sm font-medium text-gray-600 group-hover:text-[#406517] transition-colors">Upload photos of your space</span>
-                <span className="block text-xs text-gray-400">Optional — helps us give the best recommendation</span>
-              </div>
-              <input type="file" multiple accept="image/*" className="hidden" />
-            </label>
+            {/* Photo uploader — S3 presigned upload flow */}
+            <div>
+              <p className="text-sm font-medium text-gray-600 mb-1">Upload photos of your space</p>
+              <p className="text-xs text-gray-400 mb-2">Optional — helps us give the best recommendation</p>
+              <PhotoUploader sessionId={uploadPrefix} maxFiles={10} onUploadComplete={setPhotos} />
+            </div>
 
             {/* Description */}
             <textarea

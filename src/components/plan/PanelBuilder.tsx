@@ -25,6 +25,7 @@ import {
 import type { MeshType, MeshColor } from '@/lib/pricing/types'
 import { useProducts } from '@/hooks/useProducts'
 import { useDiyHardware, type PanelForHardware } from '@/hooks/useDiyHardware'
+import { PhotoUploader, type UploadedPhoto } from '@/components/project'
 
 /* ─── Product images ─── */
 const TRACK_IMAGE = 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/Track-Color-White-Black-700x700.jpg'
@@ -611,12 +612,19 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
 
   // Expert review extras
   const [phone, setPhone] = useState(contactInfo?.phone || '')
-  const [photos, setPhotos] = useState<File[]>([])
+  const [photos, setPhotos] = useState<UploadedPhoto[]>([])
+  const [uploadPrefix] = useState(() => crypto.randomUUID())
   const [description, setDescription] = useState('')
   const [linkCopied, setLinkCopied] = useState(false)
 
+  // Track saved project to prevent double-creation on submit
+  const savedProjectIdRef = useRef<string | null>(null)
+
   // Save project
   const [projectName, setProjectName] = useState('')
+
+  // Expert review submit status (separate from save-for-later)
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'submitting' | 'submitted' | 'error'>('idle')
 
   // Checkout modal + save-for-later
   const [showCheckoutModal, setShowCheckoutModal] = useState(false)
@@ -678,12 +686,13 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
   /* Submit for Expert Review — only needs email */
   const handleSaveProject = async () => {
     if (!isValidEmail(email)) return
-    setSaveStatus('saving')
+    setSubmitStatus('submitting')
     try {
       const cd = buildCartData(sides, meshType, meshColor)
       const noteParts = [`Expert Review Request: ${numSides} sides, ${allPanels.length} panels`]
       if (description.trim()) noteParts.push(description.trim())
 
+      const completedPhotos = photos.filter(p => p.status === 'complete')
       const body: Record<string, unknown> = {
         email: email.trim(),
         firstName: firstName.trim() || undefined,
@@ -697,23 +706,24 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
         notes: noteParts.join('\n\n'),
         description: description.trim() || undefined,
         cart_data: cd,
-        hasPhotos: photos.length > 0,
+        photo_urls: completedPhotos.map(p => ({
+          url: p.publicUrl,
+          key: p.key,
+          fileName: p.fileName,
+        })),
+      }
+      // If we already saved this project, reuse its ID to prevent duplicates
+      if (savedProjectIdRef.current) {
+        body.existingProjectId = savedProjectIdRef.current
       }
       const res = await fetch('/api/projects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
       const d = await res.json()
       if (!res.ok) throw new Error(d.error || 'Failed')
 
-      // Upload photos if any
-      if (photos.length > 0 && d.id) {
-        const formData = new FormData()
-        photos.forEach(f => formData.append('photos', f))
-        formData.append('projectId', d.id)
-        await fetch('/api/projects/photos', { method: 'POST', body: formData }).catch(err => console.error('Photo upload:', err))
-      }
-
-      setSaveStatus('saved')
+      savedProjectIdRef.current = d.project?.id || savedProjectIdRef.current
+      setSubmitStatus('submitted')
       if (d.shareUrl) setShareUrl(d.shareUrl)
-    } catch (e) { console.error('Save:', e); setSaveStatus('error'); setTimeout(() => setSaveStatus('idle'), 3000) }
+    } catch (e) { console.error('Save:', e); setSubmitStatus('error'); setTimeout(() => setSubmitStatus('idle'), 3000) }
   }
 
   /* Save project — pushes name/email into expert review fields on success */
@@ -722,25 +732,30 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
     setIsSavingForLater(true)
     try {
       const cd = buildCartData(sides, meshType, meshColor)
+      const saveBody: Record<string, unknown> = {
+        email: saveForLaterEmail.trim(),
+        firstName: firstName.trim() || undefined,
+        lastName: lastName.trim() || undefined,
+        projectName: projectName.trim() || undefined,
+        product: 'mosquito_curtains',
+        projectType: 'saved_for_later',
+        topAttachment: sides[0]?.topAttachment || 'tracking',
+        numberOfSides: numSides,
+        notes: `Saved for later: ${numSides} sides, ${allPanels.length} panels`,
+        cart_data: cd,
+      }
+      if (savedProjectIdRef.current) {
+        saveBody.existingProjectId = savedProjectIdRef.current
+      }
       const res = await fetch('/api/projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: saveForLaterEmail.trim(),
-          firstName: firstName.trim() || undefined,
-          lastName: lastName.trim() || undefined,
-          projectName: projectName.trim() || undefined,
-          product: 'mosquito_curtains',
-          projectType: 'saved_for_later',
-          topAttachment: sides[0]?.topAttachment || 'tracking',
-          numberOfSides: numSides,
-          notes: `Saved for later: ${numSides} sides, ${allPanels.length} panels`,
-          cart_data: cd,
-        }),
+        body: JSON.stringify(saveBody),
       })
       const d = await res.json()
       if (!res.ok) throw new Error(d.error || 'Failed')
 
+      savedProjectIdRef.current = d.project?.id || savedProjectIdRef.current
       setSaveStatus('saved')
       if (d.shareUrl) setShareUrl(d.shareUrl)
 
@@ -1064,139 +1079,148 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
          ══════════════════════════════════════════════ */}
       {allSidesReady && allPanels.length > 0 && (
         <Card className="!p-0 !bg-white !border-2 !border-[#406517]/20 overflow-hidden">
-          {/* Centered header */}
-          <div className="text-center px-6 pt-6 md:pt-8 pb-4 border-b border-gray-100">
-            <div className="flex items-center justify-center gap-2.5 mb-1.5">
-              <Send className="w-6 h-6 text-[#406517]" />
-              <h3 className="text-xl font-bold text-gray-900">Submit Your Design</h3>
-            </div>
-            <p className="text-sm text-gray-500 max-w-lg mx-auto">
-              Every project gets a free human review before it&apos;s built. We&apos;ll confirm pricing, check your specs, and email you a checkout link or suggest adjustments.
-            </p>
-          </div>
-
-          {/* Full-width form content */}
-          <div className="px-6 pb-6 md:px-8 md:pb-8 pt-5 space-y-3">
-            {/* Name fields */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input type="text" placeholder="First name *" value={firstName} onChange={e => setFirstName(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
+          {submitStatus === 'submitted' ? (
+            /* ── Success view after expert review submission ── */
+            <div className="px-6 py-10 md:px-8 text-center space-y-4">
+              <div className="w-14 h-14 rounded-full bg-[#406517]/10 flex items-center justify-center mx-auto">
+                <CheckCircle className="w-7 h-7 text-[#406517]" />
               </div>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input type="text" placeholder="Last name" value={lastName} onChange={e => setLastName(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
-              </div>
-            </div>
-
-            {/* Email + Phone */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input type="email" placeholder="Email address *" value={email} onChange={e => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
-              </div>
-              <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input type="tel" placeholder="Phone (optional)" value={phone} onChange={e => setPhone(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
-              </div>
-            </div>
-
-            {/* Photo uploader */}
-            <label className="flex items-center gap-3 px-4 py-3 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-[#406517] hover:bg-[#406517]/5 transition-colors group">
-              <Upload className="w-5 h-5 text-gray-400 group-hover:text-[#406517] transition-colors" />
               <div>
-                <span className="text-sm font-medium text-gray-600 group-hover:text-[#406517] transition-colors">
-                  {photos.length > 0 ? `${photos.length} photo${photos.length !== 1 ? 's' : ''} selected` : 'Upload photos of your space'}
-                </span>
-                <span className="block text-xs text-gray-400">Optional — helps us give the best recommendation</span>
+                <h3 className="text-xl font-bold text-gray-900 mb-1">Design Submitted!</h3>
+                <p className="text-sm text-gray-600 max-w-md mx-auto">
+                  Our team will review your {allPanels.length}-panel design and get back to you
+                  {email ? <> at <strong>{email}</strong></> : ''} with a confirmed quote, usually within one business day.
+                </p>
               </div>
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                className="hidden"
-                onChange={e => {
-                  if (e.target.files) setPhotos(prev => [...prev, ...Array.from(e.target.files!)])
-                }}
-              />
-            </label>
-            {photos.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {photos.map((file, i) => (
-                  <div key={i} className="relative group">
-                    <div className="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200">
-                      <ImageIcon className="w-5 h-5 text-gray-400" />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setPhotos(prev => prev.filter((_, idx) => idx !== i))}
-                      className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                    <div className="text-[10px] text-gray-400 truncate w-14 text-center mt-0.5">{file.name.slice(0, 10)}</div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Description */}
-            <textarea
-              placeholder="Tell us about your space: what you're enclosing, any challenges, special requests..."
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              rows={3}
-              className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors resize-none"
-            />
-
-            {/* Submit + Order buttons */}
-            <div className="space-y-3 pt-1 text-center">
-              <div className="space-y-2">
-                <Button
-                  variant="primary"
-                  size="lg"
-                  onClick={handleSaveProject}
-                  disabled={!isValidEmail(email) || !firstName.trim() || saveStatus === 'saving'}
-                >
-                  {saveStatus === 'saving' ? (
-                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Submitting...</>
-                  ) : (
-                    <><ShieldCheck className="w-4 h-4 mr-2" /> Submit for Free Expert Review</>
-                  )}
-                </Button>
-                <Text size="xs" className="text-gray-500 !mb-0">
-                  Recommended. We&apos;ll double-check measurements, layout, and attachments before you pay.
-                </Text>
-              </div>
-
-              {/* Divider */}
-              <div className="flex items-center gap-3">
-                <div className="h-px flex-1 bg-gray-200" />
-                <span className="text-xs text-gray-400 uppercase tracking-wider">or</span>
-                <div className="h-px flex-1 bg-gray-200" />
-              </div>
-
-              {/* Checkout */}
-              <div className="space-y-1">
-                <Button
-                  variant="secondary"
-                  size="lg"
-                  onClick={() => setShowCheckoutModal(true)}
-                >
-                  I&apos;m sure, take me to checkout
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-                <Text size="xs" className="text-gray-400 !mb-0">
-                  For experienced DIYers who are confident in their measurements.
-                </Text>
-              </div>
+              {shareUrl && (
+                <div className="flex items-center gap-2 bg-[#406517]/5 border border-[#406517]/20 rounded-xl px-4 py-3 max-w-md mx-auto">
+                  <Link2 className="w-4 h-4 text-[#406517] shrink-0" />
+                  <span className="text-sm font-mono text-[#406517] truncate flex-1">
+                    {typeof window !== 'undefined' ? window.location.origin : ''}{shareUrl}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const fullUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}${shareUrl}`
+                      navigator.clipboard.writeText(fullUrl)
+                      setLinkCopied(true)
+                      setTimeout(() => setLinkCopied(false), 2000)
+                    }}
+                    className="shrink-0 p-1.5 rounded-lg hover:bg-[#406517]/10 transition-colors"
+                    title="Copy link"
+                  >
+                    {linkCopied ? <CheckCircle className="w-4 h-4 text-[#406517]" /> : <Copy className="w-4 h-4 text-[#406517]" />}
+                  </button>
+                </div>
+              )}
+              <button type="button" onClick={() => setSubmitStatus('idle')} className="text-xs text-[#406517] font-medium underline underline-offset-2 hover:text-[#2e4a10] transition-colors">
+                Edit and resubmit
+              </button>
             </div>
-          </div>
+          ) : (
+            <>
+              {/* Centered header */}
+              <div className="text-center px-6 pt-6 md:pt-8 pb-4 border-b border-gray-100">
+                <div className="flex items-center justify-center gap-2.5 mb-1.5">
+                  <Send className="w-6 h-6 text-[#406517]" />
+                  <h3 className="text-xl font-bold text-gray-900">Submit Your Design</h3>
+                </div>
+                <p className="text-sm text-gray-500 max-w-lg mx-auto">
+                  Every project gets a free human review before it&apos;s built. We&apos;ll confirm pricing, check your specs, and email you a checkout link or suggest adjustments.
+                </p>
+              </div>
 
+              {/* Full-width form content */}
+              <div className="px-6 pb-6 md:px-8 md:pb-8 pt-5 space-y-3">
+                {/* Name fields */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input type="text" placeholder="First name *" value={firstName} onChange={e => setFirstName(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
+                  </div>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input type="text" placeholder="Last name" value={lastName} onChange={e => setLastName(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
+                  </div>
+                </div>
+
+                {/* Email + Phone */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input type="email" placeholder="Email address *" value={email} onChange={e => setEmail(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
+                  </div>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input type="tel" placeholder="Phone (optional)" value={phone} onChange={e => setPhone(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
+                  </div>
+                </div>
+
+                {/* Photo uploader — S3 presigned upload flow */}
+                <div>
+                  <p className="text-sm font-medium text-gray-600 mb-1">Upload photos of your space</p>
+                  <p className="text-xs text-gray-400 mb-2">Optional — helps us give the best recommendation</p>
+                  <PhotoUploader sessionId={uploadPrefix} maxFiles={10} onUploadComplete={setPhotos} />
+                </div>
+
+                {/* Description */}
+                <textarea
+                  placeholder="Tell us about your space: what you're enclosing, any challenges, special requests..."
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
+                  rows={3}
+                  className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors resize-none"
+                />
+
+                {/* Submit + Order buttons */}
+                <div className="space-y-3 pt-1 text-center">
+                  <div className="space-y-2">
+                    <Button
+                      variant="primary"
+                      size="lg"
+                      onClick={handleSaveProject}
+                      disabled={!isValidEmail(email) || !firstName.trim() || submitStatus === 'submitting'}
+                    >
+                      {submitStatus === 'submitting' ? (
+                        <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Submitting...</>
+                      ) : (
+                        <><ShieldCheck className="w-4 h-4 mr-2" /> Submit for Free Expert Review</>
+                      )}
+                    </Button>
+                    <Text size="xs" className="text-gray-500 !mb-0">
+                      Recommended. We&apos;ll double-check measurements, layout, and attachments before you pay.
+                    </Text>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="flex items-center gap-3">
+                    <div className="h-px flex-1 bg-gray-200" />
+                    <span className="text-xs text-gray-400 uppercase tracking-wider">or</span>
+                    <div className="h-px flex-1 bg-gray-200" />
+                  </div>
+
+                  {/* Checkout */}
+                  <div className="space-y-1">
+                    <Button
+                      variant="secondary"
+                      size="lg"
+                      onClick={() => setShowCheckoutModal(true)}
+                    >
+                      I&apos;m sure, take me to checkout
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                    <Text size="xs" className="text-gray-400 !mb-0">
+                      For experienced DIYers who are confident in their measurements.
+                    </Text>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </Card>
       )}
 

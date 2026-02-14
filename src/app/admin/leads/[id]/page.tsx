@@ -103,6 +103,7 @@ interface Lead {
 interface Project {
   id: string
   product_type: string
+  project_name: string | null
   status: string
   estimated_total: number | null
   share_token: string
@@ -457,7 +458,7 @@ export default function LeadDetailPage() {
                     <table className="w-full text-sm">
                       <thead className="bg-gray-50">
                         <tr>
-                          <th className="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase">Product</th>
+                          <th className="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase">Project</th>
                           <th className="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase">Status</th>
                           <th className="text-right px-3 py-2 text-xs font-medium text-gray-500 uppercase">Est. Total</th>
                           <th className="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase">Created</th>
@@ -469,8 +470,11 @@ export default function LeadDetailPage() {
                           const order = orders.find((o) => o.project_id === p.id)
                           return (
                             <tr key={p.id} className="hover:bg-gray-50">
-                              <td className="px-3 py-2.5 font-medium text-gray-900 capitalize">
-                                {p.product_type?.replace(/_/g, ' ')}
+                              <td className="px-3 py-2.5">
+                                <div className="font-medium text-gray-900">
+                                  {p.project_name || p.product_type?.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) + ' Project'}
+                                </div>
+                                <div className="text-xs text-gray-500 capitalize">{p.product_type?.replace(/_/g, ' ')}</div>
                               </td>
                               <td className="px-3 py-2.5">
                                 <Badge className={PROJECT_STATUS_COLORS[p.status] || '!bg-gray-100 !text-gray-600 !border-gray-200'}>

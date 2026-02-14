@@ -20,7 +20,6 @@ import {
   Clock,
   Camera,
   Users,
-  ChevronDown,
   List,
   LayoutGrid,
   Filter,
@@ -90,6 +89,14 @@ function statusLabel(s: string) {
 // TYPES
 // =============================================================================
 
+interface PipelineProject {
+  id: string
+  project_name: string | null
+  product_type: string
+  status: string
+  estimated_total: number | null
+}
+
 interface PipelineLead {
   id: string
   email: string
@@ -103,8 +110,7 @@ interface PipelineLead {
   photo_urls: string[] | null
   created_at: string
   pipeline_order: number | null
-  // Joined from projects count
-  project_count?: number
+  projects?: PipelineProject[]
 }
 
 // =============================================================================
@@ -511,6 +517,23 @@ function LeadCard({
         <Mail className="w-3 h-3 shrink-0" />
         <span className="truncate">{lead.email}</span>
       </div>
+
+      {/* Projects */}
+      {lead.projects && lead.projects.length > 0 && (
+        <div className="mb-1.5 space-y-0.5">
+          {lead.projects.map((proj) => (
+            <div key={proj.id} className="flex items-center gap-1 text-[10px] bg-[#406517]/5 text-[#406517] px-1.5 py-0.5 rounded">
+              <FolderOpen className="w-2.5 h-2.5 shrink-0" />
+              <span className="truncate font-medium">
+                {proj.project_name || proj.product_type?.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()) + ' Project'}
+              </span>
+              {proj.estimated_total && (
+                <span className="ml-auto shrink-0 text-[#406517]/70">${Number(proj.estimated_total).toLocaleString()}</span>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Meta row */}
       <div className="flex items-center gap-2 flex-wrap">

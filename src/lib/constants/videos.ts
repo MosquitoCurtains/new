@@ -46,6 +46,10 @@
  * - SfQwfq5M_Y8 - Company Overview / Opportunities
  * - 0SxYCWqukF8 - FAQ Overview
  * - y3iSh1qt5AA - Professionals / Trade Overview
+ * - B3JppKvi5MU - Mounting Curtains On Track (verified from form-entry page)
+ * - xsj7Hx5Zgis - Mounting Curtains On Velcro (verified from form-entry page)
+ * - gM272jS_fuc - Full Tracking Installation 39:28 (verified from form-entry page)
+ * - FHmzUTEmwfU - Full Velcro Installation 28:38 (verified from form-entry page)
  * 
  * INVALID VIDEO IDS (do NOT use):
  * - e7nP-iD3J9U - Does not exist
@@ -132,6 +136,8 @@ export const VIDEOS = {
   TRACKING_DEMO: 'osA93Zzbk4w',               // Tracking demo
   TRACKING_INSTALL: 'f-RxW5_cLQo',            // Tracking installation
   TRACKING_OPTIONS: 'A53ZmGrqldM',            // Tracking options
+  MOUNTING_CURTAINS_ON_TRACK: 'B3JppKvi5MU',  // Mounting curtains on tracking
+  MOUNTING_CURTAINS_ON_VELCRO: 'xsj7Hx5Zgis', // Mounting curtains on velcro
   
   // Exposure & Layout Planning Videos (VERIFIED)
   EXPOSURE_OVERVIEW: 'Y5hh50u3trQ',           // Exposure overview (2/3/4-sided planning)
@@ -141,6 +147,10 @@ export const VIDEOS = {
   PHOTO_GUIDELINES: '47DB7mSxd5g',            // Photo Guidelines video
   PLANNER_INTRO: 'OZrqh2tG8Nk',              // "Watch Before You Call or Email"
   
+  // Full Installation Videos (VERIFIED)
+  FULL_TRACKING_INSTALL: 'gM272jS_fuc',       // Complete tracking installation (39:28)
+  FULL_VELCRO_INSTALL: 'FHmzUTEmwfU',         // Complete velcro installation (28:38)
+
   // =========================================================================
   // FALLBACKS - Use main overview when specific video not available
   // =========================================================================

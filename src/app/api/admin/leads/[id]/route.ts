@@ -42,7 +42,7 @@ export async function GET(
     // Fetch projects linked to this lead
     const { data: projects } = await supabase
       .from('projects')
-      .select('id, product_type, status, estimated_total, share_token, assigned_to, created_at')
+      .select('id, product_type, project_name, status, estimated_total, share_token, assigned_to, created_at')
       .eq('lead_id', id)
       .order('created_at', { ascending: false })
 
@@ -51,7 +51,7 @@ export async function GET(
     if (lead.email) {
       const { data: emailProjects } = await supabase
         .from('projects')
-        .select('id, product_type, status, estimated_total, share_token, assigned_to, created_at')
+        .select('id, product_type, project_name, status, estimated_total, share_token, assigned_to, created_at')
         .eq('email', lead.email)
         .is('lead_id', null)
         .order('created_at', { ascending: false })

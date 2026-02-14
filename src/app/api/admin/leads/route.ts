@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
 
     let query = supabase
       .from('leads')
-      .select('id, email, first_name, last_name, phone, interest, source, status, assigned_to, created_at, photo_urls')
+      .select('id, email, first_name, last_name, phone, interest, source, status, assigned_to, created_at, photo_urls, projects:projects!lead_id(id, project_name, product_type, status, estimated_total)')
       .order('created_at', { ascending: false })
       .limit(limit)
 

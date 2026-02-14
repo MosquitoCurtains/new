@@ -34,7 +34,7 @@ export async function GET(
     // Fetch projects by customer_id
     const { data: projects } = await supabase
       .from('projects')
-      .select('id, product_type, project_type, status, estimated_total, share_token, assigned_to, lead_id, created_at')
+      .select('id, product_type, project_type, project_name, status, estimated_total, share_token, assigned_to, lead_id, created_at')
       .eq('customer_id', id)
       .order('created_at', { ascending: false })
 
@@ -43,7 +43,7 @@ export async function GET(
     if (customer.email) {
       const { data: emailProjects } = await supabase
         .from('projects')
-        .select('id, product_type, project_type, status, estimated_total, share_token, assigned_to, lead_id, created_at')
+        .select('id, product_type, project_type, project_name, status, estimated_total, share_token, assigned_to, lead_id, created_at')
         .eq('email', customer.email)
         .is('customer_id', null)
         .order('created_at', { ascending: false })

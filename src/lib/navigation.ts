@@ -32,6 +32,7 @@ import {
   FolderOpen,
   Link2,
   Kanban,
+  Zap,
 } from 'lucide-react'
 
 export interface NavItem {
@@ -224,6 +225,7 @@ export const adminNavSections: AdminNavSection[] = [
     label: 'Analytics',
     items: [
       { name: 'Business', href: '/admin/analytics', icon: BarChart3 },
+      { name: 'Ad Efficiency', href: '/admin/ad-spend-efficiency', icon: Zap },
       { name: 'Attribution', href: '/admin/mc-sales/analytics', icon: Target },
       { name: 'Customer Journeys', href: '/admin/mc-sales/analytics/waterfall', icon: UserCheck },
       { name: 'Leads', href: '/admin/mc-sales/analytics/leads', icon: FileUser },

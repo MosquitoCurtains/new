@@ -88,13 +88,13 @@ async function exportCustomers(
 
   // Fetch stats from materialized view
   const { data: stats } = await supabase
-    .from('mv_customer_stats')
+    .from('mv_customer_stats' as never)
     .select('*')
 
   // Build stats lookup
   const statsMap = new Map<string, Record<string, unknown>>()
-  for (const s of (stats || [])) {
-    statsMap.set(s.customer_id, s)
+  for (const s of (stats as { customer_id: string }[] || [])) {
+    statsMap.set(s.customer_id, s as Record<string, unknown>)
   }
 
   // Merge stats into customers

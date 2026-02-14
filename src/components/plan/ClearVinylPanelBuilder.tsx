@@ -22,6 +22,7 @@ import type {
   VelcroColor,
 } from '@/lib/pricing/types'
 import { useProducts, getProductOptions } from '@/hooks/useProducts'
+import { PhotoUploader, type UploadedPhoto } from '@/components/project'
 
 /* ─── Measurement guide images ─── */
 const MEASURE_IMAGES = {
@@ -796,12 +797,16 @@ export default function ClearVinylPanelBuilder() {
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
-  const [photos, setPhotos] = useState<File[]>([])
+  const [photos, setPhotos] = useState<UploadedPhoto[]>([])
+  const [uploadPrefix] = useState(() => crypto.randomUUID())
   const [description, setDescription] = useState('')
   const [projectName, setProjectName] = useState('')
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'submitting' | 'submitted' | 'error'>('idle')
   const [shareUrl, setShareUrl] = useState<string | null>(null)
   const [linkCopied, setLinkCopied] = useState(false)
+
+  // Track saved project to prevent double-creation on submit
+  const savedProjectIdRef = useRef<string | null>(null)
 
   // Detail modals
   const [attachDetail, setAttachDetail] = useState<TopAttachOption | null>(null)
@@ -931,6 +936,7 @@ export default function ClearVinylPanelBuilder() {
       if (anyNeedsCanvas) noteParts.push(`Canvas color: ${canvasColors.find(c => c.id === canvasColor)?.label || canvasColor}`)
       if (description.trim()) noteParts.push(description.trim())
 
+      const completedPhotos = photos.filter(p => p.status === 'complete')
       const body: Record<string, unknown> = {
         email: email.trim(),
         firstName: firstName.trim() || undefined,
@@ -944,19 +950,21 @@ export default function ClearVinylPanelBuilder() {
         notes: noteParts.join('\n\n'),
         description: description.trim() || undefined,
         cart_data: cd,
-        hasPhotos: photos.length > 0,
+        photo_urls: completedPhotos.map(p => ({
+          url: p.publicUrl,
+          key: p.key,
+          fileName: p.fileName,
+        })),
+      }
+      // If we already saved this project, reuse its ID to prevent duplicates
+      if (savedProjectIdRef.current) {
+        body.existingProjectId = savedProjectIdRef.current
       }
       const res = await fetch('/api/projects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
       const d = await res.json()
       if (!res.ok) throw new Error(d.error || 'Failed')
 
-      if (photos.length > 0 && d.id) {
-        const formData = new FormData()
-        photos.forEach(f => formData.append('photos', f))
-        formData.append('projectId', d.id)
-        await fetch('/api/projects/photos', { method: 'POST', body: formData }).catch(err => console.error('Photo upload:', err))
-      }
-
+      savedProjectIdRef.current = d.project?.id || savedProjectIdRef.current
       setSubmitStatus('submitted')
       if (d.shareUrl) setShareUrl(d.shareUrl)
     } catch (e) { console.error('Submit:', e); setSubmitStatus('error'); setTimeout(() => setSubmitStatus('idle'), 3000) }
@@ -968,17 +976,22 @@ export default function ClearVinylPanelBuilder() {
     setIsSavingForLater(true)
     try {
       const cd = buildCartData(sides, canvasColor, detectedSize, anyUsesVelcro ? velcroColor : undefined)
+      const saveBody: Record<string, unknown> = {
+        email: saveForLaterEmail.trim(), firstName: firstName.trim() || undefined, lastName: lastName.trim() || undefined,
+        projectName: projectName.trim() || undefined, product: 'clear_vinyl', projectType: 'saved_for_later',
+        topAttachment: sides[0]?.topAttachment || 'standard_track', numberOfSides: numSides,
+        notes: `Saved for later: ${numSides} sides, ${allPanels.length} panels`, cart_data: cd,
+      }
+      if (savedProjectIdRef.current) {
+        saveBody.existingProjectId = savedProjectIdRef.current
+      }
       const res = await fetch('/api/projects', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: saveForLaterEmail.trim(), firstName: firstName.trim() || undefined, lastName: lastName.trim() || undefined,
-          projectName: projectName.trim() || undefined, product: 'clear_vinyl', projectType: 'saved_for_later',
-          topAttachment: sides[0]?.topAttachment || 'standard_track', numberOfSides: numSides,
-          notes: `Saved for later: ${numSides} sides, ${allPanels.length} panels`, cart_data: cd,
-        }),
+        body: JSON.stringify(saveBody),
       })
       const d = await res.json()
       if (!res.ok) throw new Error(d.error || 'Failed')
+      savedProjectIdRef.current = d.project?.id || savedProjectIdRef.current
       setSaveStatus('saved')
       setProjectSaved(true)
       if (d.shareUrl) setShareUrl(d.shareUrl)
@@ -1312,28 +1325,12 @@ export default function ClearVinylPanelBuilder() {
               </div>
             </div>
 
-            {/* Photos upload */}
-            <label className="flex items-center gap-3 px-4 py-3 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-[#003365] hover:bg-[#003365]/5 transition-colors group">
-              <Camera className="w-5 h-5 text-gray-400 group-hover:text-[#003365] transition-colors" />
-              <div>
-                <span className="text-sm font-medium text-gray-600 group-hover:text-[#003365] transition-colors">
-                  {photos.length > 0 ? `${photos.length} photo${photos.length !== 1 ? 's' : ''} selected` : 'Upload photos of your space'}
-                </span>
-                <span className="block text-xs text-gray-400">Optional — helps us give the best recommendation</span>
-              </div>
-              <input type="file" multiple accept="image/*" className="hidden" onChange={e => { if (e.target.files) setPhotos(prev => [...prev, ...Array.from(e.target.files!)]) }} />
-            </label>
-            {photos.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {photos.map((file, i) => (
-                  <div key={i} className="relative group">
-                    <div className="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200"><ImageIcon className="w-5 h-5 text-gray-400" /></div>
-                    <button type="button" onClick={() => setPhotos(prev => prev.filter((_, idx) => idx !== i))} className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><X className="w-3 h-3" /></button>
-                    <div className="text-[10px] text-gray-400 truncate w-14 text-center mt-0.5">{file.name.slice(0, 10)}</div>
-                  </div>
-                ))}
-              </div>
-            )}
+            {/* Photo uploader — S3 presigned upload flow */}
+            <div>
+              <p className="text-sm font-medium text-gray-600 mb-1">Upload photos of your space</p>
+              <p className="text-xs text-gray-400 mb-2">Optional — helps us give the best recommendation</p>
+              <PhotoUploader sessionId={uploadPrefix} maxFiles={10} onUploadComplete={setPhotos} />
+            </div>
 
             {/* Description */}
             <textarea

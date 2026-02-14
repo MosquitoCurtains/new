@@ -17,6 +17,7 @@ import {
   X,
   Save,
   Edit,
+  FolderOpen,
 } from 'lucide-react'
 import {
   Container,
@@ -105,6 +106,14 @@ const PIPELINE_COLUMNS: PipelineColumn[] = [
 // TYPES
 // =============================================================================
 
+interface LeadProject {
+  id: string
+  project_name: string | null
+  product_type: string
+  status: string
+  estimated_total: number | null
+}
+
 interface Lead {
   id: string
   email: string
@@ -117,6 +126,7 @@ interface Lead {
   assigned_to: string | null
   photo_urls: string[] | null
   created_at: string
+  projects?: LeadProject[]
 }
 
 interface Staff {
@@ -378,7 +388,7 @@ export default function LeadsPage() {
                         <tr>
                           <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Name</th>
                           <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Email</th>
-                          <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Interest</th>
+                          <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Project</th>
                           <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Source</th>
                           <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Status</th>
                           <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Photos</th>
@@ -396,7 +406,22 @@ export default function LeadsPage() {
                               </Link>
                             </td>
                             <td className="px-4 py-3 text-gray-700">{lead.email}</td>
-                            <td className="px-4 py-3 text-gray-600 capitalize">{lead.interest?.replace(/_/g, ' ') || '--'}</td>
+                            <td className="px-4 py-3">
+                              {lead.projects && lead.projects.length > 0 ? (
+                                <div className="space-y-0.5">
+                                  {lead.projects.map((proj) => (
+                                    <div key={proj.id} className="flex items-center gap-1 text-xs">
+                                      <FolderOpen className="w-3 h-3 text-[#406517] shrink-0" />
+                                      <span className="text-gray-900 truncate max-w-[160px]">
+                                        {proj.project_name || proj.product_type?.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()) + ' Project'}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <span className="text-gray-300 text-xs">No project</span>
+                              )}
+                            </td>
                             <td className="px-4 py-3">
                               <Badge className="!bg-gray-100 !text-gray-600 !border-gray-200 !text-[10px]">
                                 {SOURCE_LABELS[lead.source || ''] || lead.source || '--'}
@@ -511,6 +536,23 @@ export default function LeadsPage() {
                                     <Mail className="w-2.5 h-2.5 shrink-0" />
                                     <span className="truncate">{lead.email}</span>
                                   </div>
+
+                                  {/* Projects */}
+                                  {lead.projects && lead.projects.length > 0 && (
+                                    <div className="mb-1.5 space-y-0.5">
+                                      {lead.projects.map((proj) => (
+                                        <div key={proj.id} className="flex items-center gap-1 text-[10px] bg-[#406517]/5 text-[#406517] px-1.5 py-0.5 rounded">
+                                          <FolderOpen className="w-2.5 h-2.5 shrink-0" />
+                                          <span className="truncate font-medium">
+                                            {proj.project_name || proj.product_type?.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()) + ' Project'}
+                                          </span>
+                                          {proj.estimated_total && (
+                                            <span className="ml-auto shrink-0 text-[#406517]/70">${Number(proj.estimated_total).toLocaleString()}</span>
+                                          )}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
 
                                   {/* Meta */}
                                   <div className="flex items-center gap-1.5 flex-wrap">
