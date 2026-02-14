@@ -311,7 +311,7 @@ export async function sendSalespersonAssignedNotification(data: SalespersonAssig
     '{{customer_name}}': data.customerName,
     '{{customer_email}}': data.customerEmail,
     '{{product_type}}': data.productType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
-    '{{project_url}}': `https://mosquitocurtains.com/admin/projects/${data.projectId}`,
+    '{{project_url}}': `https://mosquitocurtains.com/admin/project/${data.projectId}`,
   }
 
   const custom = await tryCustomTemplate('salesperson_assigned', mergeValues)

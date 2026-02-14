@@ -25,7 +25,7 @@ import {
   HeaderBarSection,
   WhyChooseUsTemplate,
   PowerHeaderTemplate,
-  MC_HERO_ACTIONS,
+  CV_HERO_ACTIONS,
   TwoColumn,
 } from '@/lib/design-system'
 
@@ -40,7 +40,7 @@ export default function PorchWinterizePage() {
           subtitle="Extend your outdoor living season with clear vinyl enclosures. Keep the cold out and the warmth in - enjoy your porch year-round."
           videoId="ca6GufadXoE"
           variant="compact"
-          actions={MC_HERO_ACTIONS}
+          actions={CV_HERO_ACTIONS}
         />
 
         {/* Why Choose Us */}
@@ -150,7 +150,10 @@ export default function PorchWinterizePage() {
 
         {/* Final CTA */}
 
-        <FinalCTATemplate />
+        <FinalCTATemplate 
+          primaryCTALink="/start-project/clear-vinyl"
+          variant="blue"
+        />
 
       </Stack>
     </Container>

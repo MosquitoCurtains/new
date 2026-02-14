@@ -12,11 +12,10 @@ export async function GET() {
   try {
     const supabase = await createClient()
 
-    // Fetch all active products with prices
+    // Fetch ALL products (including inactive) with prices
     const { data: products, error: productsError } = await supabase
       .from('products')
-      .select('id, sku, name, description, product_type, base_price, unit, pack_quantity, product_category, category_section, category_order, admin_only')
-      .eq('is_active', true)
+      .select('id, sku, name, description, product_type, base_price, unit, pack_quantity, product_category, category_section, category_order, admin_only, is_active')
       .order('product_category')
       .order('category_section')
       .order('category_order')
@@ -80,19 +79,21 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Missing type, id, field, or value' }, { status: 400 })
     }
 
-    const numValue = parseFloat(value)
-    if (isNaN(numValue)) {
+    const isBooleanField = field === 'admin_only' || field === 'is_active'
+    const numValue = isBooleanField ? 0 : parseFloat(value)
+    if (!isBooleanField && isNaN(numValue)) {
       return NextResponse.json({ error: 'Invalid value' }, { status: 400 })
     }
 
     if (type === 'product') {
-      if (field !== 'base_price') {
-        return NextResponse.json({ error: 'Only base_price can be updated for products' }, { status: 400 })
+      if (!['base_price', 'admin_only', 'is_active'].includes(field)) {
+        return NextResponse.json({ error: 'Only base_price, admin_only, and is_active can be updated for products' }, { status: 400 })
       }
 
+      const updateValue = (field === 'admin_only' || field === 'is_active') ? Boolean(value) : numValue
       const { data, error } = await supabase
         .from('products')
-        .update({ base_price: numValue })
+        .update({ [field]: updateValue })
         .eq('id', id)
         .select()
         .single()
@@ -107,13 +108,14 @@ export async function PUT(request: Request) {
     }
 
     if (type === 'option') {
-      if (field !== 'price' && field !== 'fee') {
-        return NextResponse.json({ error: 'Only price or fee can be updated for options' }, { status: 400 })
+      if (!['price', 'fee', 'admin_only'].includes(field)) {
+        return NextResponse.json({ error: 'Only price, fee, and admin_only can be updated for options' }, { status: 400 })
       }
 
+      const updateValue = field === 'admin_only' ? Boolean(value) : numValue
       const { data, error } = await supabase
         .from('product_options')
-        .update({ [field]: numValue })
+        .update({ [field]: updateValue })
         .eq('id', id)
         .select()
         .single()
@@ -155,9 +157,11 @@ export async function POST(request: Request) {
     const results = await Promise.all(
       updates.map(async ({ type, id, field, value }) => {
         const table = type === 'product' ? 'products' : 'product_options'
+        const isBool = field === 'admin_only' || field === 'is_active'
+        const updateValue = isBool ? Boolean(value) : value
         const { data, error } = await supabase
           .from(table)
-          .update({ [field]: value })
+          .update({ [field]: updateValue })
           .eq('id', id)
           .select()
           .single()

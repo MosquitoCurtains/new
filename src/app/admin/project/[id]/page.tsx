@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import {
@@ -29,6 +29,7 @@ import {
   Button,
   Badge,
 } from '@/lib/design-system'
+import { PhotoUploader, UploadedPhoto } from '@/components/project/PhotoUploader'
 
 // =============================================================================
 // STATUS CONFIG
@@ -90,6 +91,7 @@ interface Photo {
   content_type: string | null
   size_bytes: number | null
   created_at: string
+  category?: 'planning' | 'installed'
 }
 
 interface CartData {
@@ -123,6 +125,16 @@ function isVideo(ct: string | null, filename: string): boolean {
   return /\.(mp4|mov|webm)$/i.test(filename)
 }
 
+function guessContentType(filename: string): string {
+  const ext = filename.split('.').pop()?.toLowerCase()
+  const map: Record<string, string> = {
+    jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png',
+    webp: 'image/webp', heic: 'image/heic', pdf: 'application/pdf',
+    mp4: 'video/mp4', mov: 'video/quicktime', webm: 'video/webm',
+  }
+  return map[ext || ''] || 'image/jpeg'
+}
+
 // =============================================================================
 // MAIN PAGE
 // =============================================================================
@@ -145,9 +157,6 @@ export default function ProjectDetailPage() {
   // Notes
   const [notesText, setNotesText] = useState('')
   const [savingNotes, setSavingNotes] = useState(false)
-
-  // Upload
-  const [uploading, setUploading] = useState(false)
 
   // Lightbox
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null)
@@ -267,54 +276,55 @@ export default function ProjectDetailPage() {
     }
   }
 
-  // --- Upload photo ---
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file || !project) return
-    setUploading(true)
+  // --- Save newly uploaded photos from PhotoUploader to DB ---
+  const savedKeysRef = useRef<Set<string>>(new Set())
+  const savingRef = useRef(false)
+
+  const saveUploadedPhotos = useCallback(async (uploaded: UploadedPhoto[], category: 'planning' | 'installed') => {
+    if (!id || savingRef.current) return
+    const newPhotos = uploaded.filter(
+      (p) => p.status === 'complete' && p.publicUrl && !savedKeysRef.current.has(p.key)
+    )
+    if (newPhotos.length === 0) return
+
+    savingRef.current = true
+    newPhotos.forEach((p) => savedKeysRef.current.add(p.key))
+
     try {
-      const ext = file.name.split('.').pop()?.toLowerCase() || ''
-      const mimeFallback: Record<string, string> = {
-        jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png',
-        webp: 'image/webp', heic: 'image/heic', pdf: 'application/pdf',
-        mp4: 'video/mp4', mov: 'video/quicktime', webm: 'video/webm',
-      }
-      const fileType = file.type || mimeFallback[ext] || 'image/jpeg'
-
-      const presignedRes = await fetch('/api/uploads/presigned-url', {
+      const res = await fetch(`/api/admin/projects/${id}/photos`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          fileName: file.name,
-          fileType,
-          fileSize: file.size,
-          uploadType: 'project-photo',
-          projectId: project.id,
+          category,
+          photos: newPhotos.map((p) => ({
+            url: p.publicUrl,
+            fileName: p.fileName,
+            contentType: guessContentType(p.fileName),
+            sizeBytes: null,
+          })),
         }),
       })
-      const { presignedUrl, publicUrl } = await presignedRes.json()
-      if (!presignedUrl) return
-
-      await fetch(presignedUrl, { method: 'PUT', headers: { 'Content-Type': fileType }, body: file })
-
-      // Save to project_photos
-      const saveRes = await fetch(`/api/admin/projects/${id}/photos`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          photos: [{ url: publicUrl, fileName: file.name, contentType: fileType, sizeBytes: file.size }],
-        }),
-      })
-      const saveData = await saveRes.json()
-      if (saveData.photos) {
-        setPhotos((prev) => [...prev, ...saveData.photos])
+      const data = await res.json()
+      if (data.photos) {
+        setPhotos((prev) => [...prev, ...data.photos])
       }
     } catch (err) {
-      console.error('Upload error:', err)
+      console.error('Failed to save photos:', err)
+      newPhotos.forEach((p) => savedKeysRef.current.delete(p.key))
     } finally {
-      setUploading(false)
+      savingRef.current = false
     }
-  }
+  }, [id])
+
+  const handlePlanningUpload = useCallback(
+    (photos: UploadedPhoto[]) => saveUploadedPhotos(photos, 'planning'),
+    [saveUploadedPhotos]
+  )
+
+  const handleInstalledUpload = useCallback(
+    (photos: UploadedPhoto[]) => saveUploadedPhotos(photos, 'installed'),
+    [saveUploadedPhotos]
+  )
 
   // --- Copy share link ---
   const handleCopyShareLink = () => {
@@ -399,69 +409,73 @@ export default function ProjectDetailPage() {
           <Grid responsiveCols={{ mobile: 1, tablet: 1, desktop: 3 }} gap="md">
             {/* Left: main content (2 cols) */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Photo / Video Gallery */}
-              <Card variant="elevated" className="!p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <Camera className="w-4 h-4 text-[#406517]" />
-                    <Text size="sm" className="font-semibold text-gray-500 uppercase tracking-wider !mb-0">
-                      Photos & Videos ({photos.length})
-                    </Text>
-                  </div>
-                  <label className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-[#003365] text-white rounded-full hover:bg-[#002244] cursor-pointer transition-colors">
-                    <Upload className="w-3.5 h-3.5" />
-                    {uploading ? 'Uploading...' : 'Upload'}
-                    <input
-                      type="file"
-                      accept="image/*,video/mp4,video/quicktime,video/webm,.pdf"
-                      onChange={handleUpload}
-                      className="hidden"
-                      disabled={uploading}
+              {/* Photo / Video Gallery — grouped by category */}
+              {(['planning', 'installed'] as const).map((cat) => {
+                const catPhotos = photos.filter(p => (cat === 'planning') ? (!p.category || p.category === 'planning') : p.category === 'installed')
+                const catLabel = cat === 'planning' ? 'Planning Photos' : 'Installation Photos'
+                const catDesc = cat === 'planning'
+                  ? 'Used to plan the project'
+                  : 'Completed project photos'
+                return (
+                  <Card key={cat} variant="elevated" className="!p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Camera className="w-4 h-4 text-[#406517]" />
+                      <Text size="sm" className="font-semibold text-gray-500 uppercase tracking-wider !mb-0">
+                        {catLabel} ({catPhotos.length})
+                      </Text>
+                      <Text size="xs" className="text-gray-400 !mb-0 hidden sm:block">
+                        &mdash; {catDesc}
+                      </Text>
+                    </div>
+
+                    {/* Existing photos grid */}
+                    {catPhotos.length > 0 && (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-4">
+                        {catPhotos.map((photo) => {
+                          const isVid = isVideo(photo.content_type, photo.filename)
+                          return (
+                            <button
+                              key={photo.id}
+                              onClick={() => setLightboxUrl(photo.storage_path)}
+                              className="relative group aspect-square rounded-xl overflow-hidden bg-gray-100 border border-gray-200 hover:border-[#003365] transition-colors"
+                            >
+                              {isVid ? (
+                                <div className="w-full h-full flex items-center justify-center bg-gray-900/10">
+                                  <Play className="w-8 h-8 text-white drop-shadow-lg" />
+                                  <video src={photo.storage_path} className="absolute inset-0 w-full h-full object-cover" muted />
+                                </div>
+                              ) : photo.content_type === 'application/pdf' ? (
+                                <div className="w-full h-full flex flex-col items-center justify-center">
+                                  <FileText className="w-8 h-8 text-gray-400" />
+                                  <span className="text-xs text-gray-500 mt-1 truncate px-2">{photo.filename}</span>
+                                </div>
+                              ) : (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                  src={photo.storage_path}
+                                  alt={photo.filename}
+                                  className="w-full h-full object-cover"
+                                />
+                              )}
+                              <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/50 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span className="text-xs text-white truncate block">{photo.filename}</span>
+                              </div>
+                            </button>
+                          )
+                        })}
+                      </div>
+                    )}
+
+                    {/* Multi-upload via PhotoUploader */}
+                    <PhotoUploader
+                      projectId={project.id}
+                      category={cat}
+                      maxFiles={10}
+                      onUploadComplete={cat === 'planning' ? handlePlanningUpload : handleInstalledUpload}
                     />
-                  </label>
-                </div>
-                {photos.length === 0 ? (
-                  <div className="py-12 text-center">
-                    <Camera className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-                    <Text size="sm" className="text-gray-400 !mb-0">No photos or videos uploaded yet.</Text>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                    {photos.map((photo) => {
-                      const isVid = isVideo(photo.content_type, photo.filename)
-                      return (
-                        <button
-                          key={photo.id}
-                          onClick={() => setLightboxUrl(photo.storage_path)}
-                          className="relative group aspect-square rounded-xl overflow-hidden bg-gray-100 border border-gray-200 hover:border-[#003365] transition-colors"
-                        >
-                          {isVid ? (
-                            <div className="w-full h-full flex items-center justify-center bg-gray-900/10">
-                              <Play className="w-8 h-8 text-white drop-shadow-lg" />
-                              <video src={photo.storage_path} className="absolute inset-0 w-full h-full object-cover" muted />
-                            </div>
-                          ) : photo.content_type === 'application/pdf' ? (
-                            <div className="w-full h-full flex flex-col items-center justify-center">
-                              <FileText className="w-8 h-8 text-gray-400" />
-                              <span className="text-xs text-gray-500 mt-1 truncate px-2">{photo.filename}</span>
-                            </div>
-                          ) : (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              src={photo.storage_path}
-                              alt={photo.filename}
-                              className="w-full h-full object-cover"
-                            />
-                          )}
-                          <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/50 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <span className="text-xs text-white truncate block">{photo.filename}</span>
-                          </div>
-                        </button>
-                      )
-                    })}
-                  </div>
-                )}
-              </Card>
+                  </Card>
+                )
+              })}
 
               {/* Notes */}
               <Card variant="elevated" className="!p-4">

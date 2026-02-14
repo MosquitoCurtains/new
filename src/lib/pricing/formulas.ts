@@ -353,12 +353,31 @@ export function calculateStuccoStripPrice(
  * 
  * Formula: lengthFeet × perFootRate
  * 
- * DB keys: raw_{materialType}_{rollWidth}
- * e.g. raw_heavy_mosquito_101, raw_no_see_um_123, raw_shade_120, etc.
+ * DB keys (new canonical): raw_panel_{abbrev}_{rollWidth}
+ * e.g. raw_panel_hm_101, raw_panel_nsu_123, raw_panel_shade_120, etc.
+ * 
+ * Abbreviation map:
+ *   heavy_mosquito -> hm
+ *   no_see_um      -> nsu
+ *   shade          -> shade
+ *   theater_scrim / scrim -> scrim
+ *   industrial     -> ind
  */
+const MESH_KEY_ABBREV: Record<string, string> = {
+  heavy_mosquito: 'hm',
+  no_see_um: 'nsu',
+  shade: 'shade',
+  theater_scrim: 'scrim',
+  scrim: 'scrim',
+  industrial: 'ind',
+}
+
 export function calculateRawMeshPrice(config: RawMeshConfig, prices: PricingMap): number {
-  const key = `raw_${config.materialType}_${config.rollWidth}`
-  const perFootRate = p(prices, key)
+  const abbrev = MESH_KEY_ABBREV[config.materialType] || config.materialType
+  const key = `raw_panel_${abbrev}_${config.rollWidth}`
+  // Fallback to legacy key format for backwards compatibility
+  const legacyKey = `raw_${config.materialType}_${config.rollWidth}`
+  const perFootRate = prices[key] ?? p(prices, legacyKey)
   return round(perFootRate * config.lengthFeet)
 }
 

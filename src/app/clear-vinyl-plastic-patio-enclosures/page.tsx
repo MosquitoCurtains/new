@@ -9,9 +9,6 @@ import {
   Layers,
   Shield,
   Home,
-  Play,
-  Calculator,
-  MessageSquare,
   Camera,
 } from 'lucide-react'
 import { 
@@ -30,7 +27,7 @@ import {
   HeaderBarSection,
   PowerHeaderTemplate,
   YouTubeEmbed,
-  MC_HERO_ACTIONS,
+  CV_HERO_ACTIONS,
 } from '@/lib/design-system'
 import { ClearVinylFooter } from '@/components/marketing/ClearVinylFooter'
 
@@ -58,33 +55,6 @@ const PROJECT_TYPES = [
   { title: 'Pavilions', image: 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/09/Clear-Vinyl-Bar-5.jpg' },
 ]
 
-const CLEAR_VINYL_HERO_ACTIONS = [
-  {
-    icon: Play,
-    title: 'Options',
-    description: 'Thickness, colors & accessories.',
-    href: '/clear-vinyl-options',
-    buttonText: 'Discover',
-    color: '#406517',
-  },
-  {
-    icon: Calculator,
-    title: 'Instant Quote',
-    description: 'Get an estimate within 5% of actual cost.',
-    href: '/start-project',
-    buttonText: 'Calculate',
-    color: '#003365',
-  },
-  {
-    icon: MessageSquare,
-    title: 'Contact',
-    description: 'Send photos for personalized help!',
-    href: '/contact',
-    buttonText: 'Contact',
-    color: '#B30158',
-  },
-]
-
 export default function ClearVinylPage() {
   return (
     <Container size="xl">
@@ -97,7 +67,7 @@ export default function ClearVinylPage() {
           videoTitle="Clear Vinyl Overview"
           thumbnailUrl="https://i.ytimg.com/vi/ca6GufadXoE/maxresdefault.jpg"
           variant="compact"
-          actions={CLEAR_VINYL_HERO_ACTIONS}
+          actions={CV_HERO_ACTIONS}
         />
 
         <WhyChooseUsTemplate />

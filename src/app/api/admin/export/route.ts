@@ -79,24 +79,50 @@ async function exportCustomers(
   supabase: Awaited<ReturnType<typeof createClient>>,
   format: ExportFormat
 ) {
+  // Fetch customers with stats from materialized view
   const { data: customers, error } = await supabase
     .from('customers')
     .select('*')
-    .order('total_spent', { ascending: false })
 
   if (error) throw error
 
+  // Fetch stats from materialized view
+  const { data: stats } = await supabase
+    .from('mv_customer_stats' as never)
+    .select('*')
+
+  // Build stats lookup
+  const statsMap = new Map<string, Record<string, unknown>>()
+  for (const s of (stats as { customer_id: string }[] || [])) {
+    statsMap.set(s.customer_id, s as Record<string, unknown>)
+  }
+
+  // Merge stats into customers
+  const enriched = (customers || []).map((c: Record<string, unknown>) => {
+    const s = statsMap.get(c.id as string)
+    return {
+      ...c,
+      total_orders: s?.total_orders ?? 0,
+      total_spent: s?.total_spent ?? 0,
+      avg_order_value: s?.average_order_value ?? 0,
+      first_order_date: s?.first_order_at ?? null,
+      last_order_date: s?.last_order_at ?? null,
+    }
+  }).sort((a: Record<string, unknown>, b: Record<string, unknown>) =>
+    (Number(b.total_spent) || 0) - (Number(a.total_spent) || 0)
+  )
+
   if (format === 'json') {
-    return customers
+    return enriched
   }
 
   const columns = [
     'id', 'email', 'first_name', 'last_name', 'phone',
     'city', 'state', 'total_orders', 'total_spent', 'avg_order_value',
-    'first_order_date', 'last_order_date', 'ltv_tier', 'rfm_segment'
+    'first_order_date', 'last_order_date'
   ]
   
-  return arrayToCSV(customers || [], columns)
+  return arrayToCSV(enriched, columns)
 }
 
 async function exportProducts(

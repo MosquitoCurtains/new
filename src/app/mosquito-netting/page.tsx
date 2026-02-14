@@ -35,9 +35,9 @@ import RawNettingFeaturesBlock from '@/app/order/components/RawNettingFeaturesBl
 // =============================================================================
 
 const ROLL_SIZES = [
-  { value: '101', label: '101"', priceLabel: '$5.50/ft', pricingKey: 'raw_heavy_mosquito_101' },
-  { value: '123', label: '123"', priceLabel: '$6.00/ft', pricingKey: 'raw_heavy_mosquito_123' },
-  { value: '138', label: '138"', priceLabel: '$6.50/ft', pricingKey: 'raw_heavy_mosquito_138' },
+  { value: '101', label: '101"', priceLabel: '$5.50/ft', pricingKey: 'raw_panel_hm_101' },
+  { value: '123', label: '123"', priceLabel: '$6.00/ft', pricingKey: 'raw_panel_hm_123' },
+  { value: '138', label: '138"', priceLabel: '$6.50/ft', pricingKey: 'raw_panel_hm_138' },
 ]
 
 const COLORS = [

@@ -30,7 +30,7 @@ import RawNettingOrderForm from '@/app/order/components/RawNettingOrderForm'
 import RawNettingFeaturesBlock from '@/app/order/components/RawNettingFeaturesBlock'
 
 const ROLL_SIZES = [
-  { value: '120', label: '120"', priceLabel: '$7.00/ft', pricingKey: 'raw_shade_120' },
+  { value: '120', label: '120"', priceLabel: '$7.00/ft', pricingKey: 'raw_panel_shade_120' },
 ]
 
 const COLORS = [

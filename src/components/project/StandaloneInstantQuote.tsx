@@ -16,13 +16,11 @@
  * plus all educational content via QuoteGuidance.
  */
 
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import {
   DollarSign,
   Truck,
-  CheckCircle,
-  Info,
   MessageSquare,
   Hammer,
   Check,
@@ -35,12 +33,8 @@ import {
   Card,
   Heading,
   Text,
-  Button,
-  Input,
-  Spinner,
   Badge,
 } from '@/lib/design-system'
-import { PhotoUploader, UploadedPhoto } from '@/components/project'
 import { QuoteGuidance } from './QuoteGuidance'
 import {
   calculateMosquitoQuote,
@@ -58,6 +52,7 @@ import {
   type TopAttachmentVinyl,
   type ShipLocation,
   type QuoteResult,
+  type InstantQuotePricingConfig,
 } from '@/lib/pricing/instant-quote'
 
 // =============================================================================
@@ -73,14 +68,6 @@ interface InstantQuoteState {
   numberOfSides: number | null
   projectWidth: number | null
   shipLocation: ShipLocation
-  projectNote: string
-}
-
-interface ContactInfo {
-  firstName: string
-  lastName: string
-  email: string
-  phone: string
 }
 
 interface StandaloneInstantQuoteProps {
@@ -100,14 +87,11 @@ const initialQuoteState: InstantQuoteState = {
   numberOfSides: null,
   projectWidth: null,
   shipLocation: 'usa',
-  projectNote: '',
 }
 
-const initialContact: ContactInfo = {
-  firstName: '',
-  lastName: '',
-  email: '',
-  phone: '',
+const PRODUCT_SLUG: Record<ProductType, string> = {
+  mosquito_curtains: 'mosquito-curtains',
+  clear_vinyl: 'clear-vinyl',
 }
 
 const PRODUCT_META = {
@@ -131,15 +115,41 @@ const PRODUCT_META = {
 
 export function StandaloneInstantQuote({ productType }: StandaloneInstantQuoteProps) {
   const [quoteState, setQuoteState] = useState<InstantQuoteState>(initialQuoteState)
-  const [contact, setContact] = useState<ContactInfo>(initialContact)
-  const [photos, setPhotos] = useState<UploadedPhoto[]>([])
-  const [sessionId] = useState(() => `session-${Date.now()}`)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
+  const [pricingConfig, setPricingConfig] = useState<InstantQuotePricingConfig | undefined>(undefined)
+  const [dynamicOptions, setDynamicOptions] = useState<{
+    meshTypeOptions: Array<{ value: string; label: string }>
+    panelHeightOptions: Array<{ value: string; label: string }>
+    mosquitoAttachmentOptions: Array<{ value: string; label: string }>
+    vinylAttachmentOptions: Array<{ value: string; label: string }>
+    sidesOptions: Array<{ value: number; label: string }>
+    shipLocationOptions: Array<{ value: string; label: string }>
+  } | null>(null)
 
   const isMosquito = productType === 'mosquito_curtains'
+  const productSlug = PRODUCT_SLUG[productType]
   const meta = PRODUCT_META[productType]
   const brandColor = meta.brandColor
+
+  // Resolved dropdown options (DB-driven if available, else hard-coded fallbacks)
+  const meshOptions = dynamicOptions?.meshTypeOptions ?? MESH_TYPE_OPTIONS.map(o => ({ value: o.value, label: o.label }))
+  const heightOptions = dynamicOptions?.panelHeightOptions ?? PANEL_HEIGHT_OPTIONS.map(o => ({ value: o.value, label: o.label }))
+  const mcAttachmentOptions = dynamicOptions?.mosquitoAttachmentOptions ?? MOSQUITO_ATTACHMENT_OPTIONS.map(o => ({ value: o.value, label: o.label }))
+  const cvAttachmentOptions = dynamicOptions?.vinylAttachmentOptions ?? VINYL_ATTACHMENT_OPTIONS.map(o => ({ value: o.value, label: o.label }))
+  const sidesOpts = dynamicOptions?.sidesOptions ?? SIDES_OPTIONS.map(o => ({ value: o.value, label: o.label }))
+  const shipOpts = dynamicOptions?.shipLocationOptions ?? SHIP_LOCATION_OPTIONS.map(o => ({ value: o.value, label: o.label }))
+
+  // Load pricing config + available options from database
+  useEffect(() => {
+    fetch('/api/instant-quote/pricing')
+      .then(r => r.json())
+      .then(data => {
+        if (data.config) setPricingConfig(data.config)
+        if (data.availableOptions) setDynamicOptions(data.availableOptions)
+      })
+      .catch(() => {
+        // Falls back to hard-coded defaults (calculator default param + static arrays)
+      })
+  }, [])
 
   // Calculate price
   const price: QuoteResult = useMemo(() => {
@@ -150,7 +160,7 @@ export function StandaloneInstantQuote({ productType }: StandaloneInstantQuotePr
         numberOfSides: quoteState.numberOfSides,
         projectWidth: quoteState.projectWidth,
         shipLocation: quoteState.shipLocation,
-      })
+      }, pricingConfig)
     }
     return calculateClearVinylQuote({
       panelHeight: quoteState.panelHeight,
@@ -158,86 +168,10 @@ export function StandaloneInstantQuote({ productType }: StandaloneInstantQuotePr
       numberOfSides: quoteState.numberOfSides,
       projectWidth: quoteState.projectWidth,
       shipLocation: quoteState.shipLocation,
-    })
-  }, [isMosquito, quoteState])
+    }, pricingConfig)
+  }, [isMosquito, quoteState, pricingConfig])
 
   const allInputsFilled = price.isComplete
-
-  const canSubmit = useCallback((): boolean => {
-    if (!price.isComplete) return false
-    return !!(contact.firstName && contact.lastName && contact.email && contact.phone)
-  }, [price.isComplete, contact])
-
-  const handleSubmit = async () => {
-    if (!canSubmit()) return
-    setIsSubmitting(true)
-    try {
-      const payload = {
-        email: contact.email,
-        firstName: contact.firstName,
-        lastName: contact.lastName,
-        phone: contact.phone,
-        product: productType,
-        projectType: 'quote',
-        meshType: quoteState.meshType,
-        panelHeight: quoteState.panelHeight,
-        topAttachment: quoteState.topAttachment,
-        totalWidth: quoteState.projectWidth,
-        numberOfSides: quoteState.numberOfSides,
-        shipLocation: quoteState.shipLocation,
-        subtotal: price.subtotal,
-        shipping: price.shipping,
-        estimatedTotal: price.total,
-        notes: JSON.stringify({
-          projectNote: quoteState.projectNote,
-          photos: photos.map(p => ({ url: p.publicUrl, key: p.key })),
-        }),
-        session_id: sessionId,
-      }
-
-      const response = await fetch('/api/projects', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      })
-      if (!response.ok) throw new Error('Failed to submit')
-      setSubmitted(true)
-    } catch (error) {
-      console.error('Submit error:', error)
-      alert('Failed to submit project. Please try again.')
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  // ---- SUCCESS STATE ----
-  if (submitted) {
-    return (
-      <Container size="md">
-        <Stack gap="lg">
-          <section className="min-h-[60vh] flex items-center justify-center py-12">
-            <div className="bg-gradient-to-br from-[#406517]/5 via-white to-[#003365]/5 border-[#406517]/20 border-2 rounded-3xl p-6 md:p-8 text-center">
-              <div className="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center" style={{ backgroundColor: `${brandColor}10` }}>
-                <CheckCircle className="w-10 h-10" style={{ color: brandColor }} />
-              </div>
-              <Heading level={2} className="!mb-2">Quote Submitted!</Heading>
-              <Text className="text-gray-600 mb-6">
-                Thank you, {contact.firstName}! We&apos;ll contact you within 1 business day.
-              </Text>
-              <Card variant="outlined" className="!p-4 !bg-white/80 !border-[#406517]/20 mb-6 inline-block">
-                <Text size="sm" className="text-gray-500 !mb-1">Your Estimated Total</Text>
-                <Text className="text-2xl font-bold !mb-0" style={{ color: brandColor }}>{formatUSD(price.total)}</Text>
-              </Card>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Button variant="primary" asChild><Link href="/">Return Home</Link></Button>
-                <Button variant="outline" asChild><a href="tel:7706454745">Call (770) 645-4745</a></Button>
-              </div>
-            </div>
-          </section>
-        </Stack>
-      </Container>
-    )
-  }
 
   // ---- MAIN PAGE ----
   return (
@@ -296,7 +230,7 @@ export function StandaloneInstantQuote({ productType }: StandaloneInstantQuotePr
                         className={selectClass}
                       >
                         <option value="">Select Mesh Type</option>
-                        {MESH_TYPE_OPTIONS.map((opt) => (
+                        {meshOptions.map((opt) => (
                           <option key={opt.value} value={opt.value}>{opt.label}</option>
                         ))}
                       </select>
@@ -313,7 +247,7 @@ export function StandaloneInstantQuote({ productType }: StandaloneInstantQuotePr
                         className={selectClass}
                       >
                         <option value="">Select Panel Height</option>
-                        {PANEL_HEIGHT_OPTIONS.map((opt) => (
+                        {heightOptions.map((opt) => (
                           <option key={opt.value} value={opt.value}>{opt.label}</option>
                         ))}
                       </select>
@@ -329,7 +263,7 @@ export function StandaloneInstantQuote({ productType }: StandaloneInstantQuotePr
                       className={selectClass}
                     >
                       <option value="">Select Top Attachment</option>
-                      {(isMosquito ? MOSQUITO_ATTACHMENT_OPTIONS : VINYL_ATTACHMENT_OPTIONS).map((opt) => (
+                      {(isMosquito ? mcAttachmentOptions : cvAttachmentOptions).map((opt) => (
                         <option key={opt.value} value={opt.value}>{opt.label}</option>
                       ))}
                     </select>
@@ -344,7 +278,7 @@ export function StandaloneInstantQuote({ productType }: StandaloneInstantQuotePr
                       className={selectClass}
                     >
                       <option value="">Number of Open Sides</option>
-                      {SIDES_OPTIONS.map((opt) => (
+                      {sidesOpts.map((opt) => (
                         <option key={opt.value} value={opt.value}>{opt.label}</option>
                       ))}
                     </select>
@@ -373,7 +307,7 @@ export function StandaloneInstantQuote({ productType }: StandaloneInstantQuotePr
                       onChange={(e) => setQuoteState(s => ({ ...s, shipLocation: e.target.value as ShipLocation }))}
                       className={selectClass}
                     >
-                      {SHIP_LOCATION_OPTIONS.map((opt) => (
+                      {shipOpts.map((opt) => (
                         <option key={opt.value} value={opt.value}>{opt.label}</option>
                       ))}
                     </select>
@@ -412,46 +346,52 @@ export function StandaloneInstantQuote({ productType }: StandaloneInstantQuotePr
                 </Card>
               )}
 
-              {/* Other options - same card style as path selection */}
+              {/* Next steps - Expert Assistance + DIY Builder */}
               {allInputsFilled && (
-                <Grid responsiveCols={{ mobile: 1, tablet: isMosquito ? 2 : 1 }} gap="md">
-                  <Link href={isMosquito ? "/start-project/mosquito-curtains/expert-assistance" : "/start-project/clear-vinyl/expert-assistance"}>
-                    <Card
-                      variant="elevated"
-                      className="relative h-full flex flex-col text-left p-5 rounded-2xl border-2 transition-all bg-white hover:transform hover:-translate-y-1 hover:shadow-lg hover:border-gray-300"
-                    >
-                      <Badge className="absolute -top-3 right-4 !text-white" style={{ backgroundColor: '#B30158', borderColor: '#B30158' }}>
-                        Recommended
-                      </Badge>
-                      <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ backgroundColor: '#B3015815' }}>
-                        <MessageSquare className="w-5 h-5" style={{ color: '#B30158' }} />
-                      </div>
-                      <Heading level={4} className="!mb-1">Expert Assistance</Heading>
-                      <Text size="sm" className="text-gray-600 !mb-2">
-                        {isMosquito ? 'Upload photos, get personalized guidance' : 'Upload photos and get a detailed quote within 24-48 hours'}
-                      </Text>
-                      <ul className="space-y-1 mb-4">
-                        {(
-                          isMosquito
-                            ? ['Upload photos of your space', 'Expert reviews your project', 'Detailed quote within 24-48 hours']
-                            : ['Share photos of your space', 'Our experts review your project', 'Custom quote within 24-48 hours']
-                        ).map((feature, i) => (
-                          <li key={i} className="flex items-center gap-2 text-sm text-gray-700">
-                            <Check className="w-3.5 h-3.5 text-[#406517] flex-shrink-0" />
-                            {feature}
-                          </li>
-                        ))}
-                      </ul>
-                      <div className="flex justify-end mt-auto">
-                        <span className="inline-flex items-center gap-1 px-4 py-2 rounded-full text-sm font-medium border-2 transition-all" style={{ color: '#B30158', borderColor: 'rgba(179,1,88,0.5)' }}>
-                          Get started
-                          <ArrowRight className="w-4 h-4" />
-                        </span>
-                      </div>
-                    </Card>
-                  </Link>
-                  {isMosquito && (
-                    <Link href="/start-project/mosquito-curtains/diy-builder">
+                <>
+                  <div className="text-center">
+                    <Heading level={3} className="!text-lg md:!text-xl !mb-1" style={{ color: brandColor }}>
+                      Ready to move forward?
+                    </Heading>
+                    <Text size="sm" className="text-gray-600 !mb-0">
+                      Choose the path that works best for you.
+                    </Text>
+                  </div>
+
+                  <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="md">
+                    <Link href={`/start-project/${productSlug}/expert-assistance`}>
+                      <Card
+                        variant="elevated"
+                        className="relative h-full flex flex-col text-left p-5 rounded-2xl border-2 transition-all bg-white hover:transform hover:-translate-y-1 hover:shadow-lg hover:border-gray-300"
+                      >
+                        <Badge className="absolute -top-3 right-4 !text-white" style={{ backgroundColor: '#406517', borderColor: '#406517' }}>
+                          Recommended
+                        </Badge>
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ backgroundColor: '#40651715' }}>
+                          <MessageSquare className="w-5 h-5" style={{ color: '#406517' }} />
+                        </div>
+                        <Heading level={4} className="!mb-1">Expert Assistance</Heading>
+                        <Text size="sm" className="text-gray-600 !mb-2">
+                          Upload photos, get personalized guidance and an exact quote
+                        </Text>
+                        <ul className="space-y-1 mb-4">
+                          {['Upload photos of your space', 'Expert reviews your project', 'Detailed quote within 24-48 hours'].map((feature, i) => (
+                            <li key={i} className="flex items-center gap-2 text-sm text-gray-700">
+                              <Check className="w-3.5 h-3.5 text-[#406517] flex-shrink-0" />
+                              {feature}
+                            </li>
+                          ))}
+                        </ul>
+                        <div className="flex justify-end mt-auto">
+                          <span className="inline-flex items-center gap-1 px-4 py-2 rounded-full text-sm font-medium border-2 transition-all" style={{ color: '#406517', borderColor: 'rgba(64,101,23,0.5)' }}>
+                            Get started
+                            <ArrowRight className="w-4 h-4" />
+                          </span>
+                        </div>
+                      </Card>
+                    </Link>
+
+                    <Link href={`/start-project/${productSlug}/diy-builder`}>
                       <Card
                         variant="elevated"
                         className="relative h-full flex flex-col text-left p-5 rounded-2xl border-2 transition-all bg-white hover:transform hover:-translate-y-1 hover:shadow-lg hover:border-gray-300"
@@ -480,97 +420,7 @@ export function StandaloneInstantQuote({ productType }: StandaloneInstantQuotePr
                         </div>
                       </Card>
                     </Link>
-                  )}
-                </Grid>
-              )}
-
-              {/* Contact Section */}
-              {allInputsFilled && (
-                <>
-                  {/* Decorative divider */}
-                  <div className="relative py-2">
-                    <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t-2" style={{ borderColor: `${brandColor}30` }} />
-                    </div>
-                  </div>
-
-                  <div className="text-center">
-                    <Heading level={3} className="!text-lg md:!text-xl !mb-1" style={{ color: brandColor }}>
-                      Want to have a quick chat about your quote?
-                    </Heading>
-                    <Text size="sm" className="text-gray-600 !mb-0">
-                      Our project planning team is super friendly and can answer any questions you may have. Drop us your contact and we&apos;ll be in touch as soon as possible.
-                    </Text>
-                  </div>
-
-                  {/* Contact Form */}
-                  <Card variant="elevated" className="!p-5 md:!p-6">
-                    <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="md">
-                      <div className="md:col-span-2">
-                        <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="md">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
-                            <Input value={contact.firstName} onChange={(e) => setContact(c => ({ ...c, firstName: e.target.value }))} placeholder="First Name" />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
-                            <Input value={contact.lastName} onChange={(e) => setContact(c => ({ ...c, lastName: e.target.value }))} placeholder="Last Name" />
-                          </div>
-                        </Grid>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Phone *</label>
-                        <Input type="tel" value={contact.phone} onChange={(e) => setContact(c => ({ ...c, phone: e.target.value }))} placeholder="Phone" />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-                        <Input type="email" value={contact.email} onChange={(e) => setContact(c => ({ ...c, email: e.target.value }))} placeholder="Email" />
-                      </div>
-                    </Grid>
-
-                    {/* Project Note */}
-                    <div className="mt-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">A quick note about your project</label>
-                      <textarea
-                        value={quoteState.projectNote}
-                        onChange={(e) => setQuoteState(s => ({ ...s, projectNote: e.target.value }))}
-                        placeholder="A quick note about your project"
-                        rows={3}
-                        className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-gray-900 focus:ring-2 focus:ring-[#406517]/20 focus:border-[#406517] transition-colors resize-none"
-                      />
-                    </div>
-                  </Card>
-
-                  {/* Photo Upload */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Photos (Optional but very helpful)</label>
-                    <PhotoUploader sessionId={sessionId} maxFiles={10} onUploadComplete={setPhotos} />
-                  </div>
-
-                  {/* Tip */}
-                  <Card variant="outlined" className="!p-3 !bg-[#003365]/5 !border-[#003365]/20">
-                    <div className="flex items-start gap-2">
-                      <Info className="w-4 h-4 text-[#003365] mt-0.5 flex-shrink-0" />
-                      <Text size="sm" className="text-[#003365] !mb-0">
-                        <strong>Tip:</strong> Step BACK and zoom OUT when taking photos. We need to see full sides with all fastening surfaces visible.
-                      </Text>
-                    </div>
-                  </Card>
-
-                  {/* Submit Button - Centered (never full-width per rules) */}
-                  <div className="flex justify-center">
-                    <Button
-                      variant="primary"
-                      size="lg"
-                      onClick={handleSubmit}
-                      disabled={isSubmitting || !canSubmit()}
-                    >
-                      {isSubmitting
-                        ? <><Spinner size="sm" className="mr-2" />Submitting...</>
-                        : <>Submit Quote<CheckCircle className="ml-2 w-5 h-5" /></>
-                      }
-                    </Button>
-                  </div>
+                  </Grid>
                 </>
               )}
             </Stack>

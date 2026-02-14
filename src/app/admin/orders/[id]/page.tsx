@@ -31,6 +31,7 @@ import {
   Button,
   Badge,
 } from '@/lib/design-system'
+import { getCartOptionLabels } from '@/lib/cart-option-labels'
 
 // =============================================================================
 // ORDER STATUS CONFIG
@@ -191,6 +192,10 @@ export default function OrderDetailPage() {
   // Diagram upload
   const [uploadingDiagram, setUploadingDiagram] = useState(false)
 
+  // Delete order
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deletingOrder, setDeletingOrder] = useState(false)
+
   // Staff list for salesperson dropdown
   const [staffList, setStaffList] = useState<{ id: string; name: string; email: string }[]>([])
 
@@ -334,6 +339,26 @@ export default function OrderDetailPage() {
     }
   }
 
+  // --- Delete Order ---
+  const handleDeleteOrder = async () => {
+    setDeletingOrder(true)
+    try {
+      const res = await fetch(`/api/admin/orders/${id}`, { method: 'DELETE' })
+      const data = await res.json()
+      if (data.success) {
+        router.push('/admin/orders')
+      } else {
+        console.error('Failed to delete order:', data.error)
+        setShowDeleteConfirm(false)
+      }
+    } catch (err) {
+      console.error('Failed to delete order:', err)
+      setShowDeleteConfirm(false)
+    } finally {
+      setDeletingOrder(false)
+    }
+  }
+
   // --- Diagram Upload ---
   const handleDiagramUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -424,6 +449,14 @@ export default function OrderDetailPage() {
                   </Link>
                 </Button>
               )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowDeleteConfirm(true)}
+                className="!border-red-200 !text-red-600 hover:!bg-red-50"
+              >
+                <Trash2 className="w-4 h-4 mr-1" /> Delete
+              </Button>
             </div>
           </div>
         </section>
@@ -474,32 +507,48 @@ export default function OrderDetailPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                      {lineItems.map((item) => (
-                        <tr key={item.id} className="hover:bg-gray-50">
-                          <td className="px-4 py-3">
-                            <div className="font-medium text-gray-900">{item.product_name}</div>
-                            <div className="text-xs text-gray-500">{item.product_sku}</div>
-                            {item.line_item_options?.map((opt) => (
-                              <div key={opt.id} className="text-xs text-gray-500">
-                                {opt.option_name}: {opt.option_display || opt.option_value}
-                              </div>
-                            ))}
-                            {item.width_inches && item.height_inches && (
-                              <div className="text-xs text-gray-400">
-                                {item.width_inches}&quot;W x {item.height_inches}&quot;H
-                              </div>
-                            )}
-                            {item.adjustment_type && (
-                              <div className="text-xs text-amber-600">
-                                {item.adjustment_type}: {item.adjustment_reason}
-                              </div>
-                            )}
-                          </td>
-                          <td className="px-4 py-3 text-center text-gray-700">{item.quantity}</td>
-                          <td className="px-4 py-3 text-right text-gray-700">{formatMoney(item.unit_price)}</td>
-                          <td className="px-4 py-3 text-right font-medium text-gray-900">{formatMoney(item.line_total)}</td>
-                        </tr>
-                      ))}
+                      {lineItems.map((item) => {
+                        // Build options map from panel_specs (original options) or line_item_options
+                        const optionsMap: Record<string, string | number | boolean> =
+                          (item.panel_specs && typeof item.panel_specs === 'object' && Object.keys(item.panel_specs).length > 0)
+                            ? (item.panel_specs as Record<string, string | number | boolean>)
+                            : item.line_item_options?.reduce((acc, opt) => {
+                                acc[opt.option_name] = opt.option_value
+                                return acc
+                              }, {} as Record<string, string | number | boolean>) || {}
+                        const optLabels = getCartOptionLabels(item.product_sku, optionsMap)
+                        return (
+                          <tr key={item.id} className="hover:bg-gray-50">
+                            <td className="px-4 py-3">
+                              <div className="font-medium text-gray-900">{item.product_name}</div>
+                              <div className="text-xs text-gray-500">{item.product_sku}</div>
+                              {optLabels.length > 0 ? (
+                                <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5">
+                                  {optLabels.map((ol, idx) => (
+                                    <span key={idx} className="text-xs text-gray-500">
+                                      <span className="font-medium text-gray-600">{ol.label}:</span> {ol.value}
+                                    </span>
+                                  ))}
+                                </div>
+                              ) : item.line_item_options?.length ? (
+                                item.line_item_options.map((opt) => (
+                                  <div key={opt.id} className="text-xs text-gray-500">
+                                    {opt.option_name}: {opt.option_display || opt.option_value}
+                                  </div>
+                                ))
+                              ) : null}
+                              {item.adjustment_type && (
+                                <div className="text-xs text-amber-600">
+                                  {item.adjustment_type}: {item.adjustment_reason}
+                                </div>
+                              )}
+                            </td>
+                            <td className="px-4 py-3 text-center text-gray-700">{item.quantity}</td>
+                            <td className="px-4 py-3 text-right text-gray-700">{formatMoney(item.unit_price)}</td>
+                            <td className="px-4 py-3 text-right font-medium text-gray-900">{formatMoney(item.line_total)}</td>
+                          </tr>
+                        )
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -775,6 +824,52 @@ export default function OrderDetailPage() {
           </Grid>
         </section>
       </Stack>
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-red-100 rounded-full">
+                <Trash2 className="w-5 h-5 text-red-600" />
+              </div>
+              <Heading level={3} className="!mb-0">Delete Order</Heading>
+            </div>
+            <Text size="sm" className="text-gray-600 mb-2">
+              Are you sure you want to delete <strong>{order.order_number}</strong>? This will permanently remove:
+            </Text>
+            <ul className="text-sm text-gray-600 mb-6 ml-4 list-disc space-y-1">
+              <li>The order and all its details</li>
+              <li>All line items ({lineItems.length})</li>
+              <li>All line item options</li>
+              <li>All order notes ({notes.length})</li>
+            </ul>
+            <Text size="xs" className="text-red-600 font-medium mb-4">
+              This action cannot be undone.
+            </Text>
+            <div className="flex items-center justify-end gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={deletingOrder}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleDeleteOrder}
+                disabled={deletingOrder}
+                className="!bg-red-600 hover:!bg-red-700 !border-red-600"
+              >
+                <Trash2 className="w-4 h-4 mr-1" />
+                {deletingOrder ? 'Deleting...' : 'Delete Order'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </Container>
   )
 }

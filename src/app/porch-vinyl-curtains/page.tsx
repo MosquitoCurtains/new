@@ -25,7 +25,7 @@ import {
   HeaderBarSection,
   WhyChooseUsTemplate,
   PowerHeaderTemplate,
-  MC_HERO_ACTIONS,
+  CV_HERO_ACTIONS,
   TwoColumn,
 } from '@/lib/design-system'
 
@@ -40,7 +40,7 @@ export default function PorchVinylCurtainsPage() {
           subtitle="Heavy-duty clear vinyl curtains for your porch. Block wind, rain, and cold while maintaining your view. Custom-made to fit your space perfectly."
           videoId="ca6GufadXoE"
           variant="compact"
-          actions={MC_HERO_ACTIONS}
+          actions={CV_HERO_ACTIONS}
         />
 
         {/* Why Choose Us */}

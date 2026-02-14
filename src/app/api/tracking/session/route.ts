@@ -19,6 +19,8 @@ export async function POST(request: NextRequest) {
       landingPage,
       referrer,
       utm,
+      clickIds,
+      adClickData,
       device
     } = body
     
@@ -49,6 +51,8 @@ export async function POST(request: NextRequest) {
           first_utm_campaign: utm?.utm_campaign || null,
           first_utm_term: utm?.utm_term || null,
           first_utm_content: utm?.utm_content || null,
+          first_gclid: clickIds?.gclid || null,
+          first_fbclid: clickIds?.fbclid || null,
           last_landing_page: landingPage,
           last_utm_source: utm?.utm_source || null,
           last_utm_medium: utm?.utm_medium || null,
@@ -98,6 +102,16 @@ export async function POST(request: NextRequest) {
       
       const actualVisitorId = visitor?.id || visitorId
       
+      // Build ad_click_data JSONB (only include non-empty values)
+      const adClickDataClean: Record<string, string> = {}
+      if (adClickData && typeof adClickData === 'object') {
+        for (const [key, value] of Object.entries(adClickData)) {
+          if (value && typeof value === 'string' && value.trim() !== '') {
+            adClickDataClean[key] = value
+          }
+        }
+      }
+
       const { error: sessionError } = await supabase
         .from('sessions')
         .insert({
@@ -110,6 +124,9 @@ export async function POST(request: NextRequest) {
           utm_campaign: utm?.utm_campaign || null,
           utm_term: utm?.utm_term || null,
           utm_content: utm?.utm_content || null,
+          gclid: clickIds?.gclid || null,
+          fbclid: clickIds?.fbclid || null,
+          ad_click_data: Object.keys(adClickDataClean).length > 0 ? adClickDataClean : null,
           device_type: device?.type || null,
           browser: device?.browser || null,
           os: device?.os || null,

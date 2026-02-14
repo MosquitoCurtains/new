@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict Xp7akUyVQ7uX2fkVVNgBUuK4Qzo0841eyzoFBcYQV4kyQT1EGeRUxK3DzejcMAS
+\restrict VdFCrqveprHj04g5EZwEeTJKY6hI1aoQZLD0F18xzn1rsqKtF6xZT6t9zQj6tjC
 
 -- Dumped from database version 17.6
 -- Dumped by pg_dump version 17.7 (Homebrew)
@@ -303,32 +303,35 @@ $$;
 -- Name: generate_order_number(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.generate_order_number() RETURNS text
+CREATE FUNCTION public.generate_order_number() RETURNS trigger
     LANGUAGE plpgsql
-    AS $_$
-DECLARE
-  year_part TEXT;
-  seq_part TEXT;
-  new_number TEXT;
+    AS $$
 BEGIN
-  year_part := to_char(NOW(), 'YY');
-  
-  -- Get next sequence number for this year
-  SELECT LPAD((COALESCE(MAX(
-    CASE 
-      WHEN order_number ~ ('^MC' || year_part || '-[0-9]+$')
-      THEN SUBSTRING(order_number FROM 6)::INTEGER
-      ELSE 0
-    END
-  ), 0) + 1)::TEXT, 5, '0')
-  INTO seq_part
-  FROM orders
-  WHERE order_number LIKE 'MC' || year_part || '-%';
-  
-  new_number := 'MC' || year_part || '-' || seq_part;
-  RETURN new_number;
+  IF NEW.order_number IS NULL OR NEW.order_number = '' THEN
+    NEW.order_number := nextval('order_number_seq')::TEXT;
+  END IF;
+  RETURN NEW;
 END;
-$_$;
+$$;
+
+
+--
+-- Name: get_orders_served_count(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.get_orders_served_count() RETURNS integer
+    LANGUAGE plpgsql SECURITY DEFINER
+    AS $$
+DECLARE
+  current_val INTEGER;
+BEGIN
+  SELECT last_value INTO current_val
+  FROM pg_sequences
+  WHERE schemaname = 'public' AND sequencename = 'order_number_seq';
+
+  RETURN COALESCE(current_val, 95000);
+END;
+$$;
 
 
 --
@@ -374,6 +377,22 @@ BEGIN
   NEW.updated_at = NOW();
   RETURN NEW;
 END;
+$$;
+
+
+--
+-- Name: is_active_staff(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.is_active_staff() RETURNS boolean
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM staff
+    WHERE auth_user_id = auth.uid()
+      AND is_active = true
+  );
 $$;
 
 
@@ -545,6 +564,20 @@ BEGIN
   END IF;
   
   RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: update_instant_quote_pricing_updated_at(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.update_instant_quote_pricing_updated_at() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    NEW.updated_at = now();
+    RETURN NEW;
 END;
 $$;
 
@@ -1229,7 +1262,6 @@ CREATE TABLE public.customers (
     ltv_tier text,
     preferred_products text[],
     acquisition_source text,
-    assigned_salesperson text,
     city text,
     state text,
     zip text,
@@ -1246,6 +1278,8 @@ CREATE TABLE public.customers (
     first_quote_at timestamp with time zone,
     first_purchase_at timestamp with time zone,
     customer_status text DEFAULT 'lead'::text,
+    assigned_salesperson_id uuid,
+    lead_id uuid,
     CONSTRAINT customers_ltv_tier_check CHECK ((ltv_tier = ANY (ARRAY['vip'::text, 'high'::text, 'medium'::text, 'low'::text, 'new'::text]))),
     CONSTRAINT customers_rfm_frequency_score_check CHECK (((rfm_frequency_score >= 1) AND (rfm_frequency_score <= 5))),
     CONSTRAINT customers_rfm_monetary_score_check CHECK (((rfm_monetary_score >= 1) AND (rfm_monetary_score <= 5))),
@@ -1430,6 +1464,15 @@ CREATE TABLE public.carts (
     utm_campaign text,
     referrer text,
     project_id uuid,
+    sales_mode text,
+    salesperson_id uuid,
+    shipping_first_name text,
+    shipping_last_name text,
+    shipping_address_1 text,
+    shipping_city text,
+    shipping_state text,
+    shipping_zip text,
+    shipping_country text DEFAULT 'US'::text,
     CONSTRAINT carts_status_check CHECK ((status = ANY (ARRAY['active'::text, 'checkout'::text, 'abandoned'::text, 'converted'::text])))
 );
 
@@ -1711,6 +1754,21 @@ COMMENT ON TABLE public.google_ads_sync_log IS 'Audit log of Google Ads API sync
 
 
 --
+-- Name: instant_quote_pricing; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.instant_quote_pricing (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    category text NOT NULL,
+    pricing_key text NOT NULL,
+    value numeric(10,4) NOT NULL,
+    display_label text NOT NULL,
+    sort_order integer DEFAULT 0,
+    updated_at timestamp with time zone DEFAULT now()
+);
+
+
+--
 -- Name: issue_templates; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1787,7 +1845,7 @@ CREATE TABLE public.leads (
     assigned_to uuid,
     pipeline_order integer DEFAULT 0,
     photo_urls text[],
-    CONSTRAINT leads_status_check CHECK ((status = ANY (ARRAY['open'::text, 'pending'::text, 'need_photos'::text, 'invitation_to_plan'::text, 'need_measurements'::text, 'working_on_quote'::text, 'quote_sent'::text, 'need_decision'::text, 'order_placed'::text, 'order_on_hold'::text, 'difficult'::text, 'closed'::text])))
+    CONSTRAINT leads_status_check CHECK ((status = ANY (ARRAY['open'::text, 'pending'::text, 'need_photos'::text, 'invitation_to_plan'::text, 'need_measurements'::text, 'working_on_quote'::text, 'quote_sent'::text, 'need_decision'::text, 'order_placed'::text, 'order_on_hold'::text, 'difficult'::text, 'closed'::text, 'converted'::text])))
 );
 
 
@@ -2183,7 +2241,7 @@ CREATE TABLE public.line_items (
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
     cart_id uuid,
     order_id uuid,
-    product_id uuid NOT NULL,
+    product_id uuid,
     product_sku text NOT NULL,
     product_name text NOT NULL,
     quantity integer DEFAULT 1 NOT NULL,
@@ -2432,6 +2490,18 @@ CREATE VIEW public.open_issues_summary AS
 
 
 --
+-- Name: order_number_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.order_number_seq
+    START WITH 95000
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
 -- Name: orders; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2494,8 +2564,7 @@ CREATE TABLE public.orders (
     first_utm_campaign text,
     converting_utm_source text,
     converting_utm_campaign text,
-    salesperson_id text,
-    salesperson_name text,
+    salesperson_id uuid,
     order_source text DEFAULT 'online_self'::text,
     CONSTRAINT orders_payment_status_check CHECK ((payment_status = ANY (ARRAY['pending'::text, 'paid'::text, 'refunded'::text, 'failed'::text]))),
     CONSTRAINT orders_source_check CHECK ((source = ANY (ARRAY['website'::text, 'admin'::text, 'import'::text, 'api'::text]))),
@@ -2901,7 +2970,8 @@ CREATE TABLE public.projects (
     landing_page text,
     session_id text,
     cart_data jsonb DEFAULT '[]'::jsonb,
-    lead_id uuid
+    lead_id uuid,
+    project_name text
 );
 
 
@@ -3488,6 +3558,22 @@ ALTER TABLE ONLY public.google_ads_sync_log
 
 
 --
+-- Name: instant_quote_pricing instant_quote_pricing_category_pricing_key_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.instant_quote_pricing
+    ADD CONSTRAINT instant_quote_pricing_category_pricing_key_key UNIQUE (category, pricing_key);
+
+
+--
+-- Name: instant_quote_pricing instant_quote_pricing_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.instant_quote_pricing
+    ADD CONSTRAINT instant_quote_pricing_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: issue_templates issue_templates_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3981,6 +4067,13 @@ CREATE INDEX idx_carts_status ON public.carts USING btree (status);
 
 
 --
+-- Name: idx_customers_assigned_salesperson; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_customers_assigned_salesperson ON public.customers USING btree (assigned_salesperson_id);
+
+
+--
 -- Name: idx_customers_auth_user; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -4020,6 +4113,13 @@ CREATE INDEX idx_customers_first_utm_campaign ON public.customers USING btree (f
 --
 
 CREATE INDEX idx_customers_first_utm_source ON public.customers USING btree (first_utm_source);
+
+
+--
+-- Name: idx_customers_lead; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_customers_lead ON public.customers USING btree (lead_id);
 
 
 --
@@ -4142,10 +4242,31 @@ CREATE INDEX idx_gallery_images_canvas_color ON public.gallery_images USING btre
 
 
 --
+-- Name: idx_gallery_images_color; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_gallery_images_color ON public.gallery_images USING btree (color);
+
+
+--
 -- Name: idx_gallery_images_is_featured; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX idx_gallery_images_is_featured ON public.gallery_images USING btree (is_featured);
+
+
+--
+-- Name: idx_gallery_images_mesh_color; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_gallery_images_mesh_color ON public.gallery_images USING btree (mesh_type, color, sort_order);
+
+
+--
+-- Name: idx_gallery_images_mesh_type; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_gallery_images_mesh_type ON public.gallery_images USING btree (mesh_type);
 
 
 --
@@ -4195,6 +4316,13 @@ CREATE INDEX idx_google_ads_keywords_date ON public.google_ads_keywords USING bt
 --
 
 CREATE INDEX idx_google_ads_sync_log_date ON public.google_ads_sync_log USING btree (sync_date);
+
+
+--
+-- Name: idx_iq_pricing_category; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_iq_pricing_category ON public.instant_quote_pricing USING btree (category);
 
 
 --
@@ -5045,6 +5173,13 @@ CREATE TRIGGER audit_products AFTER INSERT OR DELETE OR UPDATE ON public.product
 
 
 --
+-- Name: orders auto_generate_order_number; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER auto_generate_order_number BEFORE INSERT ON public.orders FOR EACH ROW EXECUTE FUNCTION public.generate_order_number();
+
+
+--
 -- Name: notification_settings notification_settings_updated_at; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -5084,6 +5219,13 @@ CREATE TRIGGER page_notes_updated BEFORE UPDATE ON public.page_notes FOR EACH RO
 --
 
 CREATE TRIGGER products_price_audit BEFORE UPDATE ON public.products FOR EACH ROW EXECUTE FUNCTION public.log_product_price_change();
+
+
+--
+-- Name: instant_quote_pricing set_instant_quote_pricing_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_instant_quote_pricing_updated_at BEFORE UPDATE ON public.instant_quote_pricing FOR EACH ROW EXECUTE FUNCTION public.update_instant_quote_pricing_updated_at();
 
 
 --
@@ -5296,11 +5438,35 @@ ALTER TABLE ONLY public.carts
 
 
 --
+-- Name: carts carts_salesperson_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.carts
+    ADD CONSTRAINT carts_salesperson_id_fkey FOREIGN KEY (salesperson_id) REFERENCES public.staff(id) ON DELETE SET NULL;
+
+
+--
+-- Name: customers customers_assigned_salesperson_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.customers
+    ADD CONSTRAINT customers_assigned_salesperson_id_fkey FOREIGN KEY (assigned_salesperson_id) REFERENCES public.staff(id) ON DELETE SET NULL;
+
+
+--
 -- Name: customers customers_auth_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.customers
     ADD CONSTRAINT customers_auth_user_id_fkey FOREIGN KEY (auth_user_id) REFERENCES auth.users(id) ON DELETE SET NULL;
+
+
+--
+-- Name: customers customers_lead_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.customers
+    ADD CONSTRAINT customers_lead_id_fkey FOREIGN KEY (lead_id) REFERENCES public.leads(id) ON DELETE SET NULL;
 
 
 --
@@ -5501,6 +5667,14 @@ ALTER TABLE ONLY public.orders
 
 ALTER TABLE ONLY public.orders
     ADD CONSTRAINT orders_project_id_fkey FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE SET NULL;
+
+
+--
+-- Name: orders orders_salesperson_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.orders
+    ADD CONSTRAINT orders_salesperson_id_fkey FOREIGN KEY (salesperson_id) REFERENCES public.staff(id) ON DELETE SET NULL;
 
 
 --
@@ -5947,6 +6121,13 @@ CREATE POLICY "Public can view gallery images" ON public.gallery_images FOR SELE
 
 
 --
+-- Name: instant_quote_pricing Public can view instant quote pricing; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Public can view instant quote pricing" ON public.instant_quote_pricing FOR SELECT USING (true);
+
+
+--
 -- Name: galleries Public can view published galleries; Type: POLICY; Schema: public; Owner: -
 --
 
@@ -6151,6 +6332,15 @@ CREATE POLICY "Staff can manage email messages" ON public.email_messages USING (
 
 
 --
+-- Name: instant_quote_pricing Staff can manage instant quote pricing; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Staff can manage instant quote pricing" ON public.instant_quote_pricing USING ((EXISTS ( SELECT 1
+   FROM public.staff
+  WHERE ((staff.auth_user_id = auth.uid()) AND (staff.is_active = true)))));
+
+
+--
 -- Name: orders Staff can manage orders; Type: POLICY; Schema: public; Owner: -
 --
 
@@ -6181,9 +6371,7 @@ CREATE POLICY "Staff can manage sms messages" ON public.sms_messages USING ((EXI
 -- Name: staff Staff can read all staff; Type: POLICY; Schema: public; Owner: -
 --
 
-CREATE POLICY "Staff can read all staff" ON public.staff FOR SELECT USING ((EXISTS ( SELECT 1
-   FROM public.staff s
-  WHERE ((s.auth_user_id = auth.uid()) AND (s.is_active = true)))));
+CREATE POLICY "Staff can read all staff" ON public.staff FOR SELECT USING (public.is_active_staff());
 
 
 --
@@ -6386,6 +6574,12 @@ ALTER TABLE public.google_ads_keywords ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.google_ads_sync_log ENABLE ROW LEVEL SECURITY;
 
 --
+-- Name: instant_quote_pricing; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.instant_quote_pricing ENABLE ROW LEVEL SECURITY;
+
+--
 -- Name: issue_templates; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
@@ -6565,5 +6759,5 @@ ALTER TABLE public.visitors ENABLE ROW LEVEL SECURITY;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict Xp7akUyVQ7uX2fkVVNgBUuK4Qzo0841eyzoFBcYQV4kyQT1EGeRUxK3DzejcMAS
+\unrestrict VdFCrqveprHj04g5EZwEeTJKY6hI1aoQZLD0F18xzn1rsqKtF6xZT6t9zQj6tjC
 

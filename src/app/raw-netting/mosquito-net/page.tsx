@@ -29,9 +29,9 @@ const IMG = 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtai
 // Product config for the order section
 // ---------------------------------------------------------------------------
 const MOSQUITO_ROLL_SIZES = [
-  { value: '101', label: '101"', priceLabel: '$5.50/ft', pricingKey: 'raw_heavy_mosquito_101' },
-  { value: '123', label: '123"', priceLabel: '$6.00/ft', pricingKey: 'raw_heavy_mosquito_123' },
-  { value: '138', label: '138"', priceLabel: '$6.50/ft', pricingKey: 'raw_heavy_mosquito_138' },
+  { value: '101', label: '101"', priceLabel: '$5.50/ft', pricingKey: 'raw_panel_hm_101' },
+  { value: '123', label: '123"', priceLabel: '$6.00/ft', pricingKey: 'raw_panel_hm_123' },
+  { value: '138', label: '138"', priceLabel: '$6.50/ft', pricingKey: 'raw_panel_hm_138' },
 ]
 
 const MOSQUITO_COLORS = [
@@ -220,7 +220,13 @@ export default function MosquitoNettingPage() {
         </HeaderBarSection>
 
         <WhyChooseUsTemplate />
-        <FinalCTATemplate />
+        <FinalCTATemplate 
+          title="Ready to Order Your Fabric?"
+          subtitle="Browse our full selection of raw mesh and netting fabric, or let us help you with a custom order."
+          primaryCTAText="Shop Raw Netting"
+          primaryCTALink="/order/raw-netting"
+          variant="dark"
+        />
 
       </Stack>
     </Container>

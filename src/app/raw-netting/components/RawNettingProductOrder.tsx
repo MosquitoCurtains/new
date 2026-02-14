@@ -200,16 +200,17 @@ export default function RawNettingProductOrder({
 
       addItem({
         type: 'fabric',
-        productSku: `raw_${meshType}`,
+        productSku: 'raw_netting_panel',
         name: productName,
         description: `${selectedColorObj?.label || selectedColor} - ${selectedRoll?.label || selectedRollSize} wide x ${li.lengthFeet}ft`,
         quantity: 1,
         unitPrice: price,
         totalPrice: price,
         options: {
-          materialType: meshType,
-          rollWidth: selectedRollSize,
+          mesh_type: meshType,
+          [`roll_width_${meshType}`]: selectedRollSize,
           color: selectedColor,
+          purchase_type: 'by_foot',
           lengthFeet: li.lengthFeet,
         },
       })

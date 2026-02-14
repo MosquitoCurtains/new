@@ -56,19 +56,30 @@ export async function GET(
       .eq('order_id', id)
       .order('created_at', { ascending: true })
 
-    // Fetch project info if linked
+    // Fetch project info if linked (contact info from lead join)
     let project = null
     if (order.project_id) {
       const { data } = await supabase
         .from('projects')
         .select(`
-          id, email, first_name, last_name, phone, product_type,
+          id, email, product_type,
           status, share_token, notes,
           leads!lead_id (id, email, first_name, last_name, phone)
         `)
         .eq('id', order.project_id)
         .single()
-      project = data
+      if (data) {
+        const lead = (data as Record<string, unknown>).leads as {
+          id: string; email: string; first_name: string | null;
+          last_name: string | null; phone: string | null;
+        } | null
+        project = {
+          ...data,
+          first_name: lead?.first_name || null,
+          last_name: lead?.last_name || null,
+          phone: lead?.phone || null,
+        }
+      }
     }
 
     return NextResponse.json({
@@ -105,7 +116,7 @@ export async function PUT(
     const allowedFields = [
       'status', 'payment_status', 'payment_method', 'payment_transaction_id',
       'paid_at', 'shipped_at', 'diagram_url', 'customer_note', 'internal_note',
-      'salesperson_id', 'salesperson_username',
+      'salesperson_id',
       'billing_first_name', 'billing_last_name', 'billing_phone',
       'billing_address_1', 'billing_address_2', 'billing_city',
       'billing_state', 'billing_zip', 'billing_country',
@@ -147,6 +158,59 @@ export async function PUT(
     return NextResponse.json({ success: true, order })
   } catch (error) {
     console.error('Order PUT error:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
+
+/**
+ * DELETE /api/admin/orders/[id]
+ * Delete an order and all associated line items/options (cascade).
+ */
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+    const supabase = createAdminClient()
+
+    // Verify order exists first
+    const { data: existing, error: fetchError } = await supabase
+      .from('orders')
+      .select('id, order_number')
+      .eq('id', id)
+      .single()
+
+    if (fetchError || !existing) {
+      return NextResponse.json(
+        { error: 'Order not found' },
+        { status: 404 }
+      )
+    }
+
+    // Delete order — line_items and line_item_options cascade automatically
+    const { error: deleteError } = await supabase
+      .from('orders')
+      .delete()
+      .eq('id', id)
+
+    if (deleteError) {
+      console.error('Error deleting order:', deleteError)
+      return NextResponse.json(
+        { error: 'Failed to delete order' },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: `Order ${existing.order_number} deleted`,
+    })
+  } catch (error) {
+    console.error('Order DELETE error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -65,42 +65,34 @@ export async function GET(request: NextRequest) {
     }
 
     // =========================================================================
-    // Get visitor and customer attribution data
+    // Get visitor and customer data
     // =========================================================================
     let actualVisitorId: string | null = null
     let actualSessionId: string | null = null
     let customerId: string | null = null
-    let firstUtmSource: string | null = null
-    let firstUtmCampaign: string | null = null
-    let convertingUtmSource: string | null = null
-    let convertingUtmCampaign: string | null = null
     
     if (visitorId) {
       const { data: visitor } = await adminSupabase
         .from('visitors')
-        .select('id, customer_id, first_utm_source, first_utm_campaign')
+        .select('id, customer_id')
         .eq('fingerprint', visitorId)
         .single()
       
       if (visitor) {
         actualVisitorId = visitor.id
         customerId = visitor.customer_id
-        firstUtmSource = visitor.first_utm_source
-        firstUtmCampaign = visitor.first_utm_campaign
       }
     }
     
     if (sessionId) {
       const { data: session } = await adminSupabase
         .from('sessions')
-        .select('id, utm_source, utm_campaign')
+        .select('id')
         .eq('id', sessionId)
         .single()
       
       if (session) {
         actualSessionId = session.id
-        convertingUtmSource = session.utm_source
-        convertingUtmCampaign = session.utm_campaign
       }
     }
     
@@ -156,16 +148,11 @@ export async function GET(request: NextRequest) {
 
         // References
         cart_id: cartId || null,
-        source: 'website',
         order_source: 'online_self',
 
-        // Attribution
+        // Journey tracking
         visitor_id: actualVisitorId,
         session_id: actualSessionId,
-        first_utm_source: firstUtmSource,
-        first_utm_campaign: firstUtmCampaign,
-        converting_utm_source: convertingUtmSource,
-        converting_utm_campaign: convertingUtmCampaign,
       })
       .select('*')
       .single()
@@ -328,41 +315,33 @@ export async function POST(request: NextRequest) {
       cart = data
     }
 
-    // Get visitor attribution data
+    // Get visitor data
     let actualVisitorId: string | null = null
     let actualSessionId: string | null = null
     let customerId: string | null = null
-    let firstUtmSource: string | null = null
-    let firstUtmCampaign: string | null = null
-    let convertingUtmSource: string | null = null
-    let convertingUtmCampaign: string | null = null
     
     if (visitorId) {
       const { data: visitor } = await adminSupabase
         .from('visitors')
-        .select('id, customer_id, first_utm_source, first_utm_campaign')
+        .select('id, customer_id')
         .eq('fingerprint', visitorId)
         .single()
       
       if (visitor) {
         actualVisitorId = visitor.id
         customerId = visitor.customer_id
-        firstUtmSource = visitor.first_utm_source
-        firstUtmCampaign = visitor.first_utm_campaign
       }
     }
     
     if (sessionId) {
       const { data: session } = await adminSupabase
         .from('sessions')
-        .select('id, utm_source, utm_campaign')
+        .select('id')
         .eq('id', sessionId)
         .single()
       
       if (session) {
         actualSessionId = session.id
-        convertingUtmSource = session.utm_source
-        convertingUtmCampaign = session.utm_campaign
       }
     }
 
@@ -386,14 +365,9 @@ export async function POST(request: NextRequest) {
         paid_at: new Date().toISOString(),
         status: 'processing',
         cart_id: cartId || null,
-        source: 'website',
         order_source: 'online_self',
         visitor_id: actualVisitorId,
         session_id: actualSessionId,
-        first_utm_source: firstUtmSource,
-        first_utm_campaign: firstUtmCampaign,
-        converting_utm_source: convertingUtmSource,
-        converting_utm_campaign: convertingUtmCampaign,
       })
       .select('*')
       .single()

@@ -1,6 +1,6 @@
 # Customer Attribution & Journey Tracking System
 
-**Last Updated:** February 5, 2026  
+**Last Updated:** February 12, 2026  
 **Status:** Active
 
 A comprehensive waterfall attribution system that tracks the complete customer journey from first landing through purchase, integrating real-time tracking with legacy historical data.
@@ -13,16 +13,17 @@ A comprehensive waterfall attribution system that tracks the complete customer j
 
 1. [System Overview](#system-overview)
 2. [Architecture Diagram](#architecture-diagram)
-3. [Database Schema](#database-schema)
-4. [Customer Journey Flow](#customer-journey-flow)
-5. [Attribution Model](#attribution-model)
-6. [Google Ads Waterfall Attribution Example](#google-ads-waterfall-attribution-example) ← **NEW: Detailed flow**
-7. [Legacy Data Integration](#legacy-data-integration)
-8. [GA4 Integration](#ga4-integration)
-9. [Google Ads Integration](#google-ads-integration)
-10. [Admin Dashboards](#admin-dashboards)
-11. [API Endpoints](#api-endpoints)
-12. [Cookie & Session Management](#cookie--session-management)
+3. [Full Journey Chain](#full-journey-chain) ← **NEW: Visitor through every CRM entity**
+4. [Database Schema](#database-schema)
+5. [Customer Journey Flow](#customer-journey-flow)
+6. [Attribution Model](#attribution-model)
+7. [Google Ads Waterfall Attribution Example](#google-ads-waterfall-attribution-example)
+8. [Legacy Data Integration](#legacy-data-integration)
+9. [GA4 Integration](#ga4-integration)
+10. [Google Ads Integration](#google-ads-integration)
+11. [Admin Dashboards](#admin-dashboards)
+12. [API Endpoints](#api-endpoints)
+13. [Cookie & Session Management](#cookie--session-management)
 
 ---
 
@@ -51,33 +52,31 @@ The attribution system answers the critical business questions:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                           CUSTOMER JOURNEY FLOW                             │
+│                     FULL JOURNEY CHAIN (v2)                                  │
 └─────────────────────────────────────────────────────────────────────────────┘
 
-    ┌──────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
-    │   LANDING    │────▶│   BROWSING   │────▶│    EMAIL     │────▶│   PURCHASE   │
-    │  (Anonymous) │     │  (Sessions)  │     │  (Identified)│     │  (Customer)  │
-    └──────────────┘     └──────────────┘     └──────────────┘     └──────────────┘
-          │                    │                    │                    │
-          ▼                    ▼                    ▼                    ▼
-    ┌──────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
-    │   visitors   │     │   sessions   │     │   customers  │     │    orders    │
-    │   table      │     │   table      │     │   table      │     │    table     │
-    └──────────────┘     └──────────────┘     └──────────────┘     └──────────────┘
-          │                    │                                          │
-          │                    ▼                                          │
-          │              ┌──────────────┐                                 │
-          │              │  page_views  │                                 │
-          │              │    table     │                                 │
-          │              └──────────────┘                                 │
-          │                    │                                          │
-          └────────────────────┼──────────────────────────────────────────┘
-                               │
-                               ▼
-                    ┌─────────────────────┐
-                    │   journey_events    │
-                    │   (milestones)      │
-                    └─────────────────────┘
+  Visitor ──▶ Session ──▶ Lead ──▶ Project ──▶ Cart ──▶ Order ──▶ Customer
+   (anon)     (click)    (form)   (sales)    (build)   (pay)    (waterfall)
+     │           │          │        │          │         │          │
+     └───────────┴──────────┴────────┴──────────┴─────────┴──────────┘
+                          ALL share visitor_id
+
+  Tables:
+  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌────────────┐
+  │  visitors  │  │  sessions  │  │   leads    │  │  projects  │
+  │  (anon)    │  │  (gclid,   │  │ (visitor_id│  │ (visitor_id│
+  │            │  │   UTMs,    │  │  session_id│  │  session_id│
+  │            │  │   ad_data) │  │  UTMs)     │  │  lead_id)  │
+  └────────────┘  └────────────┘  └────────────┘  └────────────┘
+  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌────────────┐
+  │   carts    │  │   orders   │  │ customers  │  │ journey_   │
+  │ (visitor_id│  │ (visitor_id│  │ (first_    │  │  events    │
+  │  session_id│  │  session_id│  │  gclid,    │  │ (timeline) │
+  │  lead_id)  │  │  lead_id)  │  │  lead_id)  │  │            │
+  └────────────┘  └────────────┘  └────────────┘  └────────────┘
+
+  Journey Events Timeline:
+  lead_created → project_created → cart_created → purchase_completed
 
 
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -97,6 +96,78 @@ The attribution system answers the critical business questions:
     │ • journey_events│     │                 │     │                 │
     └─────────────────┘     └─────────────────┘     └─────────────────┘
 ```
+
+---
+
+## Full Journey Chain
+
+Every CRM entity carries `visitor_id` (uuid) so you can always trace back to the original ad click:
+
+```
+Visitor ──▶ Session ──▶ Lead ──▶ Project ──▶ Cart ──▶ Order ──▶ Customer
+  (anon)    (click)    (form)   (sales)    (build)  (pay)     (waterfall)
+   │          │          │         │          │        │          │
+   └──────────┴──────────┴─────────┴──────────┴────────┴──────────┘
+                     all share visitor_id
+```
+
+### How IDs Flow Down the Chain
+
+| Step | What Happens | IDs Cascaded |
+|------|-------------|--------------|
+| **1. Visitor lands** | Cookie set, `visitors` row created | `visitor_id` generated |
+| **2. Session starts** | UTMs, gclid, fbclid captured | `session_id` generated, linked to `visitor_id` |
+| **3. Lead created** | Form submission (QuickConnect, Contact, EmailGate) | `visitor_id` + `session_id` stored on lead |
+| **4. Project created** | Admin creates from lead | `visitor_id` + `session_id` + `lead_id` inherited from lead |
+| **5. Cart created** | Admin builds quote | `visitor_id` + `session_id` + `lead_id` inherited from project |
+| **6. Order placed** | Payment or admin conversion | `visitor_id` + `session_id` + `lead_id` inherited from cart |
+| **7. Customer created** | Waterfall from visitor | `first_gclid` + `first_fbclid` waterfalled, `lead_id` set |
+
+### Linking Columns by Table
+
+| Table | `visitor_id` | `session_id` | `lead_id` | `project_id` | `cart_id` | `customer_id` |
+|-------|:---:|:---:|:---:|:---:|:---:|:---:|
+| **visitors** | PK | - | - | - | - | FK |
+| **sessions** | FK | PK | - | - | - | - |
+| **leads** | FK | FK | PK | - | - | - |
+| **projects** | FK | FK | FK | PK | - | FK |
+| **carts** | FK | FK | FK | FK | PK | FK |
+| **orders** | FK | FK | FK | FK | FK | FK |
+| **customers** | - | - | FK | - | - | PK |
+| **journey_events** | FK | FK | FK | FK | - | FK |
+
+### Journey Events Timeline
+
+Each step fires a `journey_event` for full timeline visibility:
+
+| Event Type | Fired By | Data Includes |
+|-----------|----------|--------------|
+| `lead_created` | `POST /api/leads` | email, source, interest |
+| `project_created` | `POST /api/admin/sales/projects` | product_type, assigned_to |
+| `cart_created` | `POST /api/admin/carts` | cart_id, subtotal, item_count |
+| `purchase_completed` | `POST /api/admin/orders` | order_id, order_number, total |
+
+### Migration
+
+**File:** `supabase/migrations/20260213000000_wire_visitor_id_through_journey.sql`
+
+Changes:
+- Added `visitor_id` (uuid FK) to `leads`, `projects`, `carts`
+- Added `lead_id` (uuid FK) to `carts`, `orders`
+- Added `lead_id`, `project_id` to `journey_events`
+- Converted `session_id` from `text` to `uuid` on `leads`, `projects`, `carts`
+- Added FK constraints to `sessions` table
+- Added `lead_created` to event_type CHECK constraint
+
+### Test Journey Walkthrough
+
+1. **Land on site** with UTM params (or click Google Ad) -- `visitor` + `session` created with gclid, UTMs, ad_click_data
+2. **Browse pages** -- `page_views` tracked against session
+3. **Submit contact form** -- `lead` created with `visitor_id`, `session_id`, UTMs; `journey_event: lead_created` fired
+4. **Admin creates project** from lead -- `project` inherits `visitor_id`, `session_id`, `lead_id` from lead; `journey_event: project_created` fired
+5. **Admin creates cart** from project -- `cart` inherits `visitor_id`, `session_id`, `lead_id`, `project_id`; `journey_event: cart_created` fired
+6. **Order placed** -- `order` gets `visitor_id`, `session_id`, `lead_id`, `project_id`, `cart_id`; `customer` created/updated with `lead_id` + first-touch attribution waterfalled from visitor; `journey_event: purchase_completed` fired
+7. **Verify in admin**: Customer detail page shows full chain: original ad click (gclid) --> first visit --> lead --> project --> cart --> order --> customer
 
 ---
 
@@ -1252,12 +1323,16 @@ curl -X POST http://localhost:3001/api/google-ads/sync \
 
 This attribution system provides:
 
-1. **Complete Journey Visibility** - From first click to purchase
-2. **First-Touch Attribution** - Know what marketing works
-3. **Legacy Data Integration** - Historical context preserved
-4. **Real-Time Tracking** - Live customer journeys
-5. **Actionable Dashboards** - Make data-driven decisions
+1. **Complete Journey Visibility** - From first click through every CRM entity to purchase
+2. **Full Journey Chain** - Visitor -> Session -> Lead -> Project -> Cart -> Order -> Customer, all linked by `visitor_id`
+3. **First-Touch Attribution** - Know what marketing works (GCLID, FBCLID, UTMs preserved)
+4. **Ad Click Tracking** - Google Ads, Facebook Ads, and Microsoft Ads dynamic parameters captured
+5. **Legacy Data Integration** - Historical context preserved
+6. **Real-Time Tracking** - Live customer journeys with timeline events
+7. **Actionable Dashboards** - Make data-driven decisions
 
 For questions or enhancements, refer to the migration files:
 - `supabase/migrations/20260205000000_journey_schema.sql`
 - `supabase/migrations/20260205000001_legacy_leads.sql`
+- `supabase/migrations/20260212700000_add_click_id_tracking.sql`
+- `supabase/migrations/20260213000000_wire_visitor_id_through_journey.sql`

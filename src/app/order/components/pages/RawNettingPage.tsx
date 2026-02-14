@@ -1,10 +1,11 @@
 'use client'
 
 /**
- * RawNettingPage — Customer-facing raw netting + industrial mesh ordering.
+ * RawNettingPage — Customer-facing raw netting ordering.
  *
- * Mirrors admin RawNettingSection, filtered for admin_only = false.
- * Used by /order/raw-netting and /order-mesh-netting-fabrics/ (shell wrapper).
+ * Uses the canonical `raw_netting_panel` product. All mesh types (heavy mosquito,
+ * no-see-um, shade, theater scrim, industrial) are options on one product.
+ * Industrial mesh additionally supports a "full roll" purchase type.
  */
 
 import { useMemo, useState } from 'react'
@@ -16,8 +17,6 @@ import { OrderPageHeader } from '../OrderPageHeader'
 import { useCartContext } from '@/contexts/CartContext'
 import { useProducts, getProductOptions } from '@/hooks/useProducts'
 import { usePricing } from '@/hooks/usePricing'
-import { calculateRawMeshPrice } from '@/lib/pricing/formulas'
-import type { DBProduct } from '@/hooks/useProducts'
 import StepNav from '../StepNav'
 
 const IMG = 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads'
@@ -90,38 +89,39 @@ function createLine(): RawNettingLine {
 
 export function RawNettingPage() {
   const { addItem } = useCartContext()
-  const { rawMaterials, isLoading: productsLoading } = useProducts()
+  const { rawNettingPanel: product, isLoading: productsLoading } = useProducts()
   const { prices: dbPrices, getPrice, isLoading: pricingLoading } = usePricing()
 
   const [productModal, setProductModal] = useState<ProductModalInfo | null>(null)
 
-  // Separate regular mesh from industrial
-  const meshMaterials = useMemo(
-    () => rawMaterials.filter(p => p.sku !== 'raw_industrial_mesh' && !p.admin_only),
-    [rawMaterials]
-  )
-  const industrialProduct = useMemo(
-    () => rawMaterials.find(p => p.sku === 'raw_industrial_mesh' && !p.admin_only) || null,
-    [rawMaterials]
-  )
+  // Get mesh types from product options (excludes admin_only)
+  const meshTypes = getProductOptions(product, 'mesh_type')
 
-  const materialKeyFromSku = (sku: string) => sku.replace(/^raw_/, '')
-  const getProductForMaterial = (materialKey: string): DBProduct | undefined => {
-    return meshMaterials.find(p => materialKeyFromSku(p.sku) === materialKey)
+  // Get roll widths for a specific mesh type
+  const getRollWidths = (meshType: string) => {
+    return getProductOptions(product, `roll_width_${meshType}`)
   }
 
-  const getRollWidths = (materialKey: string) => {
-    const product = getProductForMaterial(materialKey)
-    return getProductOptions(product, 'roll_size')
+  // Get colors filtered by mesh type (using valid_for)
+  const getColors = (meshType: string) => {
+    const allColors = getProductOptions(product, 'color')
+    return allColors.filter(c => !c.valid_for || c.valid_for.includes(meshType))
   }
 
-  const getColors = (materialKey: string) => {
-    const product = getProductForMaterial(materialKey)
-    return getProductOptions(product, 'color')
+  // Get per-foot price for a specific mesh type + roll width
+  const getPerFootRate = (meshType: string, rollWidth: string): number => {
+    const widths = getRollWidths(meshType)
+    const match = widths.find(w => w.option_value === rollWidth)
+    if (!match?.pricing_key) return match?.price ?? 0
+    return getPrice(match.pricing_key, match.price ?? 0)
   }
 
-  // Industrial purchase type options from DB
-  const industrialPurchaseTypes = getProductOptions(industrialProduct, 'purchase_type')
+  // Purchase type options (by_foot, full_roll) — filtered by valid_for for industrial
+  const getIndustrialPurchaseTypes = () => {
+    const allPT = getProductOptions(product, 'purchase_type')
+    // Show all purchase types for industrial (full_roll has valid_for = {industrial})
+    return allPT
+  }
 
   // =========================================================================
   // RAW NETTING STATE
@@ -133,15 +133,12 @@ export function RawNettingPage() {
     if (!dbPrices) return { totals: [], subtotal: 0 }
     const totals = lines.map((line) => {
       if (!line.lengthFeet) return 0
-      return calculateRawMeshPrice({
-        materialType: line.materialType as any,
-        rollWidth: parseInt(line.rollWidth) as any,
-        color: line.color as any,
-        lengthFeet: line.lengthFeet,
-      }, dbPrices)
+      const rate = getPerFootRate(line.materialType, line.rollWidth)
+      return rate * line.lengthFeet
     })
     const subtotal = totals.reduce((sum, v) => sum + v, 0)
     return { totals, subtotal }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lines, dbPrices])
 
   const addLine = () => setLines([...lines, createLine()])
@@ -164,28 +161,16 @@ export function RawNettingPage() {
     if (lines.length > 1) setLines(lines.filter((_, i) => i !== index))
   }
 
-  const openMaterialModal = (materialKey: string) => {
-    const product = getProductForMaterial(materialKey)
-    if (!product) return
+  const openMeshTypeModal = (meshType: string) => {
+    const meshOpt = meshTypes.find(m => m.option_value === meshType)
+    if (!meshOpt || !product) return
     setProductModal({
-      name: product.name,
+      name: meshOpt.display_label,
       image: product.image_url || undefined,
       price: 0,
       unit: '/ft',
       description: product.description || undefined,
-      sku: product.sku,
-    })
-  }
-
-  const openIndustrialModal = () => {
-    if (!industrialProduct) return
-    setProductModal({
-      name: industrialProduct.name,
-      image: industrialProduct.image_url || `${IMG}/2024/02/Industrial-Mesh-Looking-In-1200-2.jpg`,
-      price: getPrice('raw_industrial_mesh_foot'),
-      unit: '/ft or full roll',
-      description: industrialProduct.description || undefined,
-      sku: industrialProduct.sku,
+      sku: 'raw_netting_panel',
     })
   }
 
@@ -193,60 +178,73 @@ export function RawNettingPage() {
     lines.forEach((line, index) => {
       if (!line.lengthFeet || line.lengthFeet <= 0) return
       const total = lineTotals.totals[index]
-      const product = getProductForMaterial(line.materialType)
+      const meshOpt = meshTypes.find(m => m.option_value === line.materialType)
       addItem({
         type: 'fabric',
-        productSku: product?.sku || `raw_${line.materialType}`,
-        name: `Raw ${product?.name || line.materialType} ${line.rollWidth}"`,
+        productSku: 'raw_netting_panel',
+        name: `Raw ${meshOpt?.display_label || line.materialType} ${line.rollWidth}"`,
         description: `${line.lengthFeet}ft x ${line.rollWidth}" roll - ${line.color}`,
         quantity: 1,
         unitPrice: total,
         totalPrice: total,
         options: {
-          materialType: line.materialType,
-          rollWidth: line.rollWidth,
+          mesh_type: line.materialType,
+          [`roll_width_${line.materialType}`]: line.rollWidth,
           color: line.color,
           lengthFeet: line.lengthFeet,
+          purchase_type: 'by_foot',
         },
       })
     })
   }
 
   // =========================================================================
-  // INDUSTRIAL MESH STATE
+  // INDUSTRIAL MESH STATE (full roll option)
   // =========================================================================
 
+  const hasIndustrial = meshTypes.some(m => m.option_value === 'industrial')
   const [industrialFeet, setIndustrialFeet] = useState<number | undefined>(undefined)
   const [industrialMode, setIndustrialMode] = useState<'foot' | 'roll'>('foot')
 
   const industrialPrice = useMemo(() => {
-    if (industrialMode === 'roll') return getPrice('raw_industrial_mesh_roll')
-    return (industrialFeet ?? 0) * getPrice('raw_industrial_mesh_foot')
+    if (industrialMode === 'roll') return getPrice('raw_panel_ind_full_roll', 1350)
+    return (industrialFeet ?? 0) * getPrice('raw_panel_ind_65', 4)
   }, [industrialMode, industrialFeet, getPrice])
 
   const addIndustrialToCart = () => {
     if (industrialMode === 'roll') {
       addItem({
         type: 'fabric',
-        productSku: 'raw_industrial_mesh',
-        name: `${industrialProduct?.name || 'Raw Industrial Mesh'} (Full Roll)`,
+        productSku: 'raw_netting_panel',
+        name: 'Raw Industrial Mesh (Full Roll)',
         description: '65" x 330ft full roll',
         quantity: 1,
         unitPrice: industrialPrice,
         totalPrice: industrialPrice,
-        options: { purchaseType: 'roll' },
+        options: {
+          mesh_type: 'industrial',
+          roll_width_industrial: '65',
+          color: 'olive_green',
+          purchase_type: 'full_roll',
+        },
       })
     } else {
       if (!industrialFeet || industrialFeet <= 0) return
       addItem({
         type: 'fabric',
-        productSku: 'raw_industrial_mesh',
-        name: `${industrialProduct?.name || 'Raw Industrial Mesh'} (By the Foot)`,
+        productSku: 'raw_netting_panel',
+        name: 'Raw Industrial Mesh (By the Foot)',
         description: `${industrialFeet}ft x 65" roll`,
         quantity: 1,
         unitPrice: industrialPrice,
         totalPrice: industrialPrice,
-        options: { purchaseType: 'foot', lengthFeet: industrialFeet },
+        options: {
+          mesh_type: 'industrial',
+          roll_width_industrial: '65',
+          color: 'olive_green',
+          purchase_type: 'by_foot',
+          lengthFeet: industrialFeet,
+        },
       })
     }
   }
@@ -263,6 +261,8 @@ export function RawNettingPage() {
     )
   }
 
+  const industrialPurchaseTypes = getIndustrialPurchaseTypes()
+
   // =========================================================================
   // RENDER
   // =========================================================================
@@ -272,7 +272,7 @@ export function RawNettingPage() {
       <Stack gap="xl">
         <OrderPageHeader
           title="Order Raw Netting"
-          subtitle="Raw mesh netting by the foot. Heavy mosquito, no-see-um, pet screen, and industrial mesh options available."
+          subtitle="Raw mesh netting by the foot. Heavy mosquito, no-see-um, shade, theater scrim, and industrial mesh options available."
         />
 
         <StepNav flow="rn" currentStep={1} />
@@ -288,30 +288,23 @@ export function RawNettingPage() {
             </div>
 
             <div className="border border-gray-200 rounded-lg overflow-hidden mb-4">
-              <div className="bg-gray-50 border-b border-gray-200 px-3 py-2 grid grid-cols-[40px_40px_1fr_100px_100px_100px_80px_48px] gap-2 text-xs font-medium text-gray-600">
-                <div>#</div><div></div><div>Material</div><div>Roll Width</div><div>Color</div><div>Length (ft)</div><div className="text-right">Price</div><div></div>
+              <div className="bg-gray-50 border-b border-gray-200 px-3 py-2 grid grid-cols-[40px_1fr_100px_100px_100px_80px_48px] gap-2 text-xs font-medium text-gray-600">
+                <div>#</div><div>Material</div><div>Roll Width</div><div>Color</div><div>Length (ft)</div><div className="text-right">Price</div><div></div>
               </div>
               {lines.map((line, index) => {
                 const widths = getRollWidths(line.materialType)
                 const colors = getColors(line.materialType)
-                const product = getProductForMaterial(line.materialType)
-                const productImage = product?.image_url || `${IMG}/2019/12/Raw-Mesh.jpg`
+                const meshOpt = meshTypes.find(m => m.option_value === line.materialType)
                 return (
-                  <div key={line.id} className="px-3 py-2 grid grid-cols-[40px_40px_1fr_100px_100px_100px_80px_48px] gap-2 items-center border-b border-gray-100 last:border-b-0">
+                  <div key={line.id} className="px-3 py-2 grid grid-cols-[40px_1fr_100px_100px_100px_80px_48px] gap-2 items-center border-b border-gray-100 last:border-b-0">
                     <div className="text-sm font-medium text-gray-500">{index + 1}</div>
-                    <div
-                      className="w-8 h-8 rounded-md overflow-hidden shrink-0 border border-gray-200 cursor-pointer hover:ring-2 hover:ring-[#003365] transition-all"
-                      onClick={() => openMaterialModal(line.materialType)}
-                    >
-                      <Image src={productImage} alt={product?.name || ''} width={32} height={32} className="w-full h-full object-cover" />
-                    </div>
                     <div className="flex items-center gap-1">
                       <select value={line.materialType} onChange={(e) => updateLine(index, { materialType: e.target.value })} className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#003365] focus:border-transparent">
-                        {meshMaterials.map((m) => (
-                          <option key={m.sku} value={materialKeyFromSku(m.sku)}>{m.name}</option>
+                        {meshTypes.map((m) => (
+                          <option key={m.option_value} value={m.option_value}>{m.display_label}</option>
                         ))}
                       </select>
-                      <button onClick={() => openMaterialModal(line.materialType)} className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 hover:bg-[#003365] hover:text-white text-gray-500 transition-colors shrink-0" title="Product info">
+                      <button onClick={() => openMeshTypeModal(line.materialType)} className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 hover:bg-[#003365] hover:text-white text-gray-500 transition-colors shrink-0" title="Product info">
                         <Info className="w-3 h-3" />
                       </button>
                     </div>
@@ -349,31 +342,18 @@ export function RawNettingPage() {
           </Card>
         </section>
 
-        {/* INDUSTRIAL MESH */}
-        {industrialProduct && (
+        {/* INDUSTRIAL MESH — FULL ROLL OPTION */}
+        {hasIndustrial && (
           <section>
             <Card variant="elevated" className="!p-6">
               <div className="flex items-center gap-4 mb-4">
-                <div
-                  className="w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-gray-200 cursor-pointer hover:ring-2 hover:ring-[#003365] transition-all"
-                  onClick={openIndustrialModal}
-                >
-                  <Image src={industrialProduct.image_url || `${IMG}/2024/02/Industrial-Mesh-Looking-In-1200-2.jpg`} alt={industrialProduct.name} width={64} height={64} className="w-full h-full object-cover" />
+                <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-gray-200">
+                  <Image src={`${IMG}/2024/02/Industrial-Mesh-Looking-In-1200-2.jpg`} alt="Industrial Mesh" width={64} height={64} className="w-full h-full object-cover" />
                 </div>
                 <div>
-                  <div className="flex items-center gap-1.5">
-                    <Heading level={2} className="!mb-0">{industrialProduct.name}</Heading>
-                    <button onClick={openIndustrialModal} className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 hover:bg-[#003365] hover:text-white text-gray-500 transition-colors shrink-0" title="Product info">
-                      <Info className="w-3 h-3" />
-                    </button>
-                  </div>
+                  <Heading level={2} className="!mb-0">Industrial Mesh</Heading>
                   <Text size="sm" className="text-gray-500 !mb-0">
-                    {industrialPurchaseTypes.map((pt, i) => (
-                      <span key={pt.option_value}>
-                        {i > 0 && ' or '}
-                        ${formatMoney(Number(pt.price))}/{pt.option_value === 'by_foot' ? 'ft' : 'roll'}
-                      </span>
-                    ))}
+                    ${formatMoney(getPrice('raw_panel_ind_65', 4))}/ft or ${formatMoney(getPrice('raw_panel_ind_full_roll', 1350))}/roll
                   </Text>
                 </div>
               </div>

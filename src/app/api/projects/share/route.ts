@@ -75,18 +75,50 @@ export async function GET(request: NextRequest) {
         .eq('id', project.id)
     }
 
+    // Fetch lead contact info for the project
+    let leadContact = null
+    if (project.lead_id) {
+      const { data: lead } = await supabase
+        .from('leads')
+        .select('first_name, last_name, phone')
+        .eq('id', project.lead_id)
+        .single()
+      leadContact = lead
+    }
+
+    // Fetch project photos/videos
+    const { data: photos } = await supabase
+      .from('project_photos')
+      .select('id, storage_path, filename, content_type, category')
+      .eq('project_id', project.id)
+      .order('created_at', { ascending: true })
+
     return NextResponse.json({
       project: {
         id: project.id,
         share_token: project.share_token,
         email: project.email,
-        first_name: project.first_name,
-        last_name: project.last_name,
-        phone: project.phone,
+        project_name: project.project_name || null,
+        first_name: leadContact?.first_name || null,
+        last_name: leadContact?.last_name || null,
+        phone: leadContact?.phone || null,
         product_type: project.product_type,
+        project_type: project.project_type || null,
+        mesh_type: project.mesh_type || null,
+        top_attachment: project.top_attachment || null,
+        total_width: project.total_width || null,
+        number_of_sides: project.number_of_sides || null,
+        notes: project.notes || null,
+        estimated_total: project.estimated_total || null,
         status: project.status,
         assigned_to: project.assigned_to,
+        lead_id: project.lead_id || null,
+        customer_id: project.customer_id || null,
+        created_at: project.created_at,
+        updated_at: project.updated_at,
+        cart_data: project.cart_data || [],
         salesperson,
+        photos: photos || [],
         cart: cart
           ? {
               id: cart.id,

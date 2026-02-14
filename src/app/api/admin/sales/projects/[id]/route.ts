@@ -28,7 +28,20 @@ export async function GET(
       return NextResponse.json({ error: 'Project not found' }, { status: 404 })
     }
 
-    return NextResponse.json({ project: data })
+    // Flatten lead contact info onto project for backward compat
+    const lead = (data as Record<string, unknown>).leads as {
+      id: string; email: string; first_name: string | null;
+      last_name: string | null; phone: string | null;
+      status: string; interest: string | null;
+    } | null
+    const project = {
+      ...data,
+      first_name: lead?.first_name || null,
+      last_name: lead?.last_name || null,
+      phone: lead?.phone || null,
+    }
+
+    return NextResponse.json({ project })
   } catch (error) {
     console.error('Project detail GET error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -52,7 +65,7 @@ export async function PATCH(
       'status', 'assigned_to', 'notes', 'estimated_total',
       'product_type', 'project_type', 'mesh_type', 'top_attachment',
       'total_width', 'number_of_sides', 'project_name',
-      'first_name', 'last_name', 'email', 'phone',
+      'email',
     ]
     const update: Record<string, unknown> = {}
     for (const field of allowedFields) {

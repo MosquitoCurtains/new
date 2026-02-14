@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Phone, Mail, Clock, MapPin, Send, CheckCircle, Upload } from 'lucide-react'
+import { useTracking } from '@/components/tracking'
 import {
   Container,
   Stack,
@@ -69,6 +70,7 @@ export default function ContactPage() {
   const [files, setFiles] = useState<File[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const { getAttribution } = useTracking()
   const [submitError, setSubmitError] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [lightboxOpen, setLightboxOpen] = useState(false)
@@ -135,6 +137,9 @@ export default function ContactPage() {
       }
       const fullMessage = [formState.message, ...extra].filter(Boolean).join('\n\n')
 
+      // Use tracking system for attribution (includes visitor_id, session_id, UTMs)
+      const attribution = getAttribution()
+
       const response = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -148,8 +153,7 @@ export default function ContactPage() {
           message: fullMessage,
           source: 'contact_form',
           photo_urls: uploaded.length > 0 ? uploaded : undefined,
-          referrer: typeof document !== 'undefined' ? document.referrer || undefined : undefined,
-          landing_page: typeof window !== 'undefined' ? window.location.href : undefined,
+          ...attribution,
         }),
       })
 

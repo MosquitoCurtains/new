@@ -79,6 +79,7 @@ export async function POST(request: NextRequest) {
       uploadType = 'project-photo',
       projectId,
       sessionId,
+      photoCategory,
     } = body
 
     // Validate required fields
@@ -117,16 +118,24 @@ export async function POST(request: NextRequest) {
     // Generate unique file key
     const ext = fileName.split('.').pop()?.toLowerCase() || 'jpg'
     const uniqueId = nanoid(12)
-    const timestamp = new Date().toISOString().split('T')[0] // YYYY-MM-DD
     
     // Build the S3 key
-    // Format: user-uploads/project-photos/2026-02-01/abc123xyz/original-filename.jpg
-    const s3Key = [
-      UPLOAD_PATHS[uploadType],
-      timestamp,
-      projectId || sessionId || 'anonymous',
-      `${uniqueId}-${sanitizeFileName(fileName)}`,
-    ].join('/')
+    // Project photos use: user-uploads/project-photos/[projectId]/planning|installed/file
+    // Other uploads use:  user-uploads/[type]/[date]/[id]/file
+    const category = (photoCategory === 'installed') ? 'installed' : 'planning'
+    const s3Key = (uploadType === 'project-photo' && projectId)
+      ? [
+          UPLOAD_PATHS[uploadType],
+          projectId,
+          category,
+          `${uniqueId}-${sanitizeFileName(fileName)}`,
+        ].join('/')
+      : [
+          UPLOAD_PATHS[uploadType],
+          new Date().toISOString().split('T')[0], // YYYY-MM-DD
+          projectId || sessionId || 'anonymous',
+          `${uniqueId}-${sanitizeFileName(fileName)}`,
+        ].join('/')
 
     // Create presigned URL
     const command = new PutObjectCommand({

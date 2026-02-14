@@ -1,92 +1,33 @@
 'use client'
 
 /**
- * Raw Netting - Contact for Quote
+ * Raw Netting - Instant Quote → Path Selection
  *
- * Raw materials don't have instant pricing. Collect project details
- * and contact info for a custom quote.
+ * Raw materials don't have instant pricing. Direct users to
+ * Expert Assistance or the DIY Builder.
  */
 
-import { useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, CheckCircle } from 'lucide-react'
+import {
+  MessageSquare,
+  Hammer,
+  Check,
+  ArrowRight,
+  ArrowLeft,
+  Info,
+} from 'lucide-react'
 import {
   Container,
   Stack,
+  Grid,
   Card,
   Heading,
   Text,
   Button,
-  Input,
-  Spinner,
+  Badge,
 } from '@/lib/design-system'
 
-export default function RawNettingContactQuotePage() {
-  const [contact, setContact] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-  })
-  const [notes, setNotes] = useState('')
-  const [sessionId] = useState(() => `session-${Date.now()}`)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
-
-  const canSubmit = !!(contact.firstName && contact.lastName && contact.email && contact.phone)
-
-  const handleSubmit = async () => {
-    if (!canSubmit) return
-    setIsSubmitting(true)
-    try {
-      const payload = {
-        email: contact.email,
-        firstName: contact.firstName,
-        lastName: contact.lastName,
-        phone: contact.phone,
-        product: 'raw_materials',
-        projectType: 'quote',
-        notes: JSON.stringify({ projectNote: notes }),
-        session_id: sessionId,
-      }
-
-      const response = await fetch('/api/projects', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      })
-      if (!response.ok) throw new Error('Failed to submit')
-      setSubmitted(true)
-    } catch (error) {
-      console.error('Submit error:', error)
-      alert('Failed to submit. Please try again.')
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  if (submitted) {
-    return (
-      <Container size="md">
-        <Stack gap="lg">
-          <section className="min-h-[60vh] flex items-center justify-center py-12">
-            <div className="bg-gradient-to-br from-[#406517]/5 via-white to-[#003365]/5 border-2 rounded-3xl p-8 text-center" style={{ borderColor: '#B3015820' }}>
-              <div className="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center" style={{ backgroundColor: '#B3015810' }}>
-                <CheckCircle className="w-10 h-10" style={{ color: '#B30158' }} />
-              </div>
-              <Heading level={2} className="!mb-2">Request Submitted!</Heading>
-              <Text className="text-gray-600 mb-6">Thank you, {contact.firstName}! We&apos;ll contact you within 1 business day with a custom quote for your raw materials.</Text>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Button variant="primary" asChild><Link href="/">Return Home</Link></Button>
-                <Button variant="outline" asChild><a href="tel:7706454745">Call (770) 645-4745</a></Button>
-              </div>
-            </div>
-          </section>
-        </Stack>
-      </Container>
-    )
-  }
-
+export default function RawNettingInstantQuotePage() {
   return (
     <Container size="xl">
       <Stack gap="lg">
@@ -105,45 +46,88 @@ export default function RawNettingContactQuotePage() {
             </Button>
 
             <div className="text-center mb-6">
-              <Heading level={2} className="!text-xl md:!text-2xl !mb-1">Contact for Quote</Heading>
-              <Text size="sm" className="text-gray-600 !mb-0">Share your project details and we&apos;ll send a custom quote within 24-48 hours.</Text>
+              <Heading level={2} className="!text-xl md:!text-2xl !mb-2">
+                Raw Mesh Fabric Quote
+              </Heading>
+              <Text size="sm" className="text-gray-600 !mb-0">
+                Raw materials are custom-quoted per project. Choose how you&apos;d like to proceed.
+              </Text>
             </div>
 
-            <Card variant="elevated" className="!p-6 max-w-xl mx-auto">
-              <Stack gap="md">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
-                    <Input value={contact.firstName} onChange={(e) => setContact(prev => ({ ...prev, firstName: e.target.value }))} placeholder="John" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
-                    <Input value={contact.lastName} onChange={(e) => setContact(prev => ({ ...prev, lastName: e.target.value }))} placeholder="Smith" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-                    <Input type="email" value={contact.email} onChange={(e) => setContact(prev => ({ ...prev, email: e.target.value }))} placeholder="john@example.com" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone *</label>
-                    <Input type="tel" value={contact.phone} onChange={(e) => setContact(prev => ({ ...prev, phone: e.target.value }))} placeholder="(555) 123-4567" />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Project details (mesh type, quantity, dimensions)</label>
-                  <textarea
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Tell us about your project. What mesh type do you need? How much fabric? Any specific dimensions?"
-                    rows={4}
-                    className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-gray-900 focus:ring-2 focus:ring-[#406517]/20 focus:border-[#406517] transition-colors resize-none"
-                  />
-                </div>
-                <Button variant="primary" size="lg" onClick={handleSubmit} disabled={!canSubmit || isSubmitting}>
-                  {isSubmitting ? <><Spinner size="sm" className="mr-2" />Submitting...</> : <>Request Quote</>}
-                </Button>
-              </Stack>
+            {/* Info card */}
+            <Card variant="outlined" className="!p-4 !bg-[#003365]/5 !border-[#003365]/20 max-w-2xl mx-auto mb-6">
+              <div className="flex items-start gap-2">
+                <Info className="w-4 h-4 text-[#003365] mt-0.5 flex-shrink-0" />
+                <Text size="sm" className="text-[#003365] !mb-0">
+                  Raw mesh fabric pricing depends on the specific mesh type, quantity, and dimensions needed. Our team will provide an exact quote tailored to your project.
+                </Text>
+              </div>
             </Card>
+
+            {/* Path cards */}
+            <Grid responsiveCols={{ mobile: 1, tablet: 2 }} gap="md" className="max-w-3xl mx-auto">
+              <Link href="/start-project/raw-netting/expert-assistance">
+                <Card
+                  variant="elevated"
+                  className="relative h-full flex flex-col text-left p-5 rounded-2xl border-2 transition-all bg-white hover:transform hover:-translate-y-1 hover:shadow-lg hover:border-gray-300"
+                >
+                  <Badge className="absolute -top-3 right-4 !text-white" style={{ backgroundColor: '#406517', borderColor: '#406517' }}>
+                    Recommended
+                  </Badge>
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ backgroundColor: '#40651715' }}>
+                    <MessageSquare className="w-5 h-5" style={{ color: '#406517' }} />
+                  </div>
+                  <Heading level={4} className="!mb-1">Expert Assistance</Heading>
+                  <Text size="sm" className="text-gray-600 !mb-2">
+                    Tell us about your project and get an exact quote
+                  </Text>
+                  <ul className="space-y-1 mb-4">
+                    {['Share your project details', 'Expert reviews your needs', 'Custom quote within 24-48 hours'].map((feature, i) => (
+                      <li key={i} className="flex items-center gap-2 text-sm text-gray-700">
+                        <Check className="w-3.5 h-3.5 text-[#406517] flex-shrink-0" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="flex justify-end mt-auto">
+                    <span className="inline-flex items-center gap-1 px-4 py-2 rounded-full text-sm font-medium border-2 transition-all" style={{ color: '#406517', borderColor: 'rgba(64,101,23,0.5)' }}>
+                      Get started
+                      <ArrowRight className="w-4 h-4" />
+                    </span>
+                  </div>
+                </Card>
+              </Link>
+
+              <Link href="/start-project/raw-netting/diy-builder">
+                <Card
+                  variant="elevated"
+                  className="relative h-full flex flex-col text-left p-5 rounded-2xl border-2 transition-all bg-white hover:transform hover:-translate-y-1 hover:shadow-lg hover:border-gray-300"
+                >
+                  <Badge className="absolute -top-3 right-4 !text-white" style={{ backgroundColor: '#FFA501', borderColor: '#FFA501' }}>
+                    Most Control
+                  </Badge>
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ backgroundColor: '#FFA50115' }}>
+                    <Hammer className="w-5 h-5" style={{ color: '#FFA501' }} />
+                  </div>
+                  <Heading level={4} className="!mb-1">DIY Builder</Heading>
+                  <Text size="sm" className="text-gray-600 !mb-2">Configure panels and add to cart</Text>
+                  <ul className="space-y-1 mb-4">
+                    {['Panel-by-panel config', 'Full control over options', 'Direct checkout'].map((feature, i) => (
+                      <li key={i} className="flex items-center gap-2 text-sm text-gray-700">
+                        <Check className="w-3.5 h-3.5 text-[#406517] flex-shrink-0" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="flex justify-end mt-auto">
+                    <span className="inline-flex items-center gap-1 px-4 py-2 rounded-full text-sm font-medium border-2 transition-all" style={{ color: '#FFA501', borderColor: 'rgba(255,165,1,0.5)' }}>
+                      Get started
+                      <ArrowRight className="w-4 h-4" />
+                    </span>
+                  </div>
+                </Card>
+              </Link>
+            </Grid>
           </div>
         </section>
       </Stack>

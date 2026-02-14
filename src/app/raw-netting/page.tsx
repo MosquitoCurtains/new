@@ -26,7 +26,7 @@ import {
   HeaderBarSection,
   WhyChooseUsTemplate,
   PowerHeaderTemplate,
-  MC_HERO_ACTIONS,
+  RN_HERO_ACTIONS,
   YouTubeEmbed,
 } from '@/lib/design-system'
 import { VIDEOS, RAW_NETTING_VIDEOS } from '@/lib/constants/videos'
@@ -96,7 +96,7 @@ export default function RawNettingPage() {
           videoId={VIDEOS.RAW_NETTING}
           videoTitle="Why Us For Raw Netting"
           variant="compact"
-          actions={MC_HERO_ACTIONS}
+          actions={RN_HERO_ACTIONS}
         />
 
         {/* Why Choose Us */}
@@ -241,7 +241,13 @@ export default function RawNettingPage() {
         </HeaderBarSection>
 
         {/* Final CTA */}
-        <FinalCTATemplate />
+        <FinalCTATemplate 
+          title="Ready to Order Your Fabric?"
+          subtitle="Browse our full selection of raw mesh and netting fabric, or let us help you with a custom order."
+          primaryCTAText="Shop Raw Netting"
+          primaryCTALink="/order/raw-netting"
+          variant="dark"
+        />
 
       </Stack>
     </Container>

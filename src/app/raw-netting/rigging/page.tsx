@@ -18,7 +18,7 @@ import {
   PowerHeaderTemplate,
   FinalCTATemplate,
   HeaderBarSection,
-  MC_HERO_ACTIONS,
+  RN_HERO_ACTIONS,
 } from '@/lib/design-system'
 import { VIDEOS } from '@/lib/constants/videos'
 
@@ -36,7 +36,7 @@ export default function RiggingPage() {
           videoId={VIDEOS.NETTING_RIGGING}
           videoTitle="Netting Rigging Techniques"
           variant="compact"
-          actions={MC_HERO_ACTIONS}
+          actions={RN_HERO_ACTIONS}
         />
 
         {/* Overview */}
@@ -208,7 +208,13 @@ export default function RiggingPage() {
           </Grid>
         </HeaderBarSection>
 
-        <FinalCTATemplate />
+        <FinalCTATemplate 
+          title="Ready to Order Your Fabric?"
+          subtitle="Browse our full selection of raw mesh and netting fabric, or let us help you with a custom order."
+          primaryCTAText="Shop Raw Netting"
+          primaryCTALink="/order/raw-netting"
+          variant="dark"
+        />
 
       </Stack>
     </Container>

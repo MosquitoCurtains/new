@@ -18,7 +18,7 @@ import {
   PowerHeaderTemplate,
   FinalCTATemplate,
   HeaderBarSection,
-  MC_HERO_ACTIONS,
+  RN_HERO_ACTIONS,
 } from '@/lib/design-system'
 import { VIDEOS } from '@/lib/constants/videos'
 
@@ -36,7 +36,7 @@ export default function ScrimPage() {
           videoId={VIDEOS.THEATER_SCRIM}
           videoTitle="Theater Scrim Demo"
           variant="compact"
-          actions={MC_HERO_ACTIONS}
+          actions={RN_HERO_ACTIONS}
         />
 
         {/* Product Details */}
@@ -205,7 +205,13 @@ export default function ScrimPage() {
           </Grid>
         </HeaderBarSection>
 
-        <FinalCTATemplate />
+        <FinalCTATemplate 
+          title="Ready to Order Your Fabric?"
+          subtitle="Browse our full selection of raw mesh and netting fabric, or let us help you with a custom order."
+          primaryCTAText="Shop Raw Netting"
+          primaryCTALink="/order/raw-netting"
+          variant="dark"
+        />
 
       </Stack>
     </Container>

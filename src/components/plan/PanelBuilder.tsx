@@ -8,7 +8,6 @@ import {
   Text,
   Stack,
   Button,
-  HeaderBarSection,
 } from '@/lib/design-system'
 import {
   calculatePanelDimensions,
@@ -19,15 +18,36 @@ import {
 } from '@/lib/panel-calculator'
 import {
   Save, CheckCircle, Loader2, Info, ChevronDown, ChevronUp,
-  ArrowRight, Users, Zap, Check, Play, X, Plus, Minus,
-  SlidersHorizontal, LayoutGrid, Wrench, Mail, User,
+  ArrowRight, ArrowLeft, Users, Zap, Check, Play, X, Plus, Minus,
+  SlidersHorizontal, Wrench, Mail, User, ShieldCheck, Bookmark,
+  Phone, Upload, Image as ImageIcon, FileText, Copy, Link2, Send, Ruler,
 } from 'lucide-react'
 import type { MeshType, MeshColor } from '@/lib/pricing/types'
-import { useProducts, type DBProduct } from '@/hooks/useProducts'
+import { useProducts } from '@/hooks/useProducts'
+import { useDiyHardware, type PanelForHardware } from '@/hooks/useDiyHardware'
+import { PhotoUploader, type UploadedPhoto } from '@/components/project'
 
 /* ─── Product images ─── */
 const TRACK_IMAGE = 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/Track-Color-White-Black-700x700.jpg'
 const VELCRO_IMAGE = 'https://static.mosquitocurtains.com/wp-media-folder-mosquito-curtains/wp-content/uploads/2019/10/Black-Velcro-1.jpg'
+
+/* ─── Measurement guide images ─── */
+const MEASURE_IMAGES = {
+  width: {
+    main: 'https://media.mosquitocurtains.com/site-assets/measurements/measurement-1-inside-edges.jpg',
+    examples: [
+      'https://media.mosquitocurtains.com/site-assets/measurements/measurement-1-example-1.jpg',
+      'https://media.mosquitocurtains.com/site-assets/measurements/measurement-1-example-2-.jpg',
+    ],
+  },
+  height: {
+    main: 'https://media.mosquitocurtains.com/site-assets/measurements/measurement-2-height.jpg',
+    examples: [
+      'https://media.mosquitocurtains.com/site-assets/measurements/measurement-2-examle-1.jpg',
+      'https://media.mosquitocurtains.com/site-assets/measurements/measurement-2-example-2.jpg',
+    ],
+  },
+}
 
 /* ─── Mesh type data with images ─── */
 const MESH_TYPE_CARDS = [
@@ -140,6 +160,7 @@ export interface PanelBuilderProps {
   initialMeshType?: MeshType; initialMeshColor?: MeshColor;
   contactInfo?: { email: string; firstName?: string; lastName?: string; phone?: string };
   basePath?: string;
+  productType?: string;
 }
 
 /* ─── Hooks ─── */
@@ -168,6 +189,78 @@ function LightboxModal({ open, onClose, title, image, isGif, children }: { open:
         </div>
         {/* Info bar — same width as image */}
         <div className="bg-white px-5 py-4 shrink-0">{children}</div>
+      </div>
+    </div>
+  )
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   Measurement Guide Modal
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function MeasurementGuideModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const [tab, setTab] = useState<'width' | 'height'>('width')
+  if (!open) return null
+  const data = tab === 'width' ? MEASURE_IMAGES.width : MEASURE_IMAGES.height
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+      <div className="relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl overflow-hidden shadow-2xl bg-white" onClick={e => e.stopPropagation()}>
+        {/* Close */}
+        <button type="button" onClick={onClose} className="absolute top-3 right-3 z-20 w-9 h-9 rounded-full bg-black/10 hover:bg-black/20 flex items-center justify-center transition-colors">
+          <X className="w-5 h-5 text-gray-600" />
+        </button>
+
+        {/* Header */}
+        <div className="px-6 pt-5 pb-3 shrink-0">
+          <div className="flex items-center gap-2 mb-1">
+            <Ruler className="w-5 h-5 text-[#406517]" />
+            <span className="text-lg font-bold text-gray-800">How to Measure</span>
+          </div>
+          <p className="text-sm text-gray-500">Measure in inches from inside edge to inside edge.</p>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex px-6 gap-2 border-b border-gray-200 shrink-0">
+          <button type="button" onClick={() => setTab('width')}
+            className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors ${tab === 'width' ? 'border-[#406517] text-[#406517]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+            Width
+          </button>
+          <button type="button" onClick={() => setTab('height')}
+            className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors ${tab === 'height' ? 'border-[#406517] text-[#406517]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+            Height
+          </button>
+        </div>
+
+        {/* Scrollable content */}
+        <div className="overflow-y-auto p-6">
+          {/* Main diagram */}
+          <div className="rounded-xl overflow-hidden border border-gray-200 mb-4">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={data.main} alt={`How to measure ${tab}`} className="w-full" />
+          </div>
+
+          {/* Contextual tip */}
+          <div className="flex items-start gap-2.5 bg-[#406517]/5 rounded-lg px-4 py-3 mb-4">
+            <Info className="w-4 h-4 text-[#406517] mt-0.5 shrink-0" />
+            <p className="text-sm text-gray-700">
+              {tab === 'width'
+                ? 'Measure the total width from inside edge to inside edge of your opening. We will split panels automatically if you choose a 2-panel layout.'
+                : 'Measure height at both the left and right side — porches often have different heights due to sloped ceilings or uneven ground.'}
+            </p>
+          </div>
+
+          {/* Example images */}
+          <div className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Examples</div>
+          <div className="grid grid-cols-2 gap-3">
+            {data.examples.map((src, i) => (
+              <div key={src} className="rounded-xl overflow-hidden border border-gray-200">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={src} alt={`${tab} measurement example ${i + 1}`} className="w-full" />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -325,181 +418,18 @@ function ConfigCard({ config, selected, onClick }: { config: SideConfig; selecte
   )
 }
 
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   Compute recommended hardware from panels + DB
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-interface ProductRecommendation {
-  key: string
-  sku: string
-  label: string
-  description: string
-  qty: number
-  unit: string
-  unitPrice: number
-  totalPrice: number
-  image: string | null
-}
-
 function fmt$(n: number): string {
   return n % 1 === 0 ? n.toFixed(0) : n.toFixed(2)
-}
-
-function computeProductRecommendations(
-  panels: SavedPanel[],
-  products: DBProduct[] | null,
-  meshColor: MeshColor,
-): ProductRecommendation[] {
-  if (panels.length === 0 || !products) return []
-
-  const find = (sku: string) => products.find(p => p.sku === sku)
-  const items: ProductRecommendation[] = []
-
-  /* ── Track hardware (for tracking top attachment) ── */
-  const trackingPanels = panels.filter(p => p.topAttachment === 'tracking')
-  if (trackingPanels.length > 0) {
-    const totalInches = trackingPanels.reduce((sum, p) => sum + p.finalWidth, 0)
-    const totalFeet = totalInches / 12
-    const trackPieces = Math.ceil(totalFeet / 7) // 7ft pieces
-
-    const straightTrack = find('track_standard_straight')
-    if (straightTrack) {
-      items.push({
-        key: 'track_straight', sku: straightTrack.sku,
-        label: `${straightTrack.name} (7ft)`,
-        description: `${trackPieces} piece${trackPieces !== 1 ? 's' : ''} for ~${Math.ceil(totalFeet)}ft of track`,
-        qty: trackPieces, unit: 'pcs',
-        unitPrice: straightTrack.base_price,
-        totalPrice: trackPieces * straightTrack.base_price,
-        image: straightTrack.image_url,
-      })
-    }
-
-    // Splices: 1 per joint between track pieces in a continuous run
-    // Rough: total pieces minus number of separate runs (1 run per side)
-    const sidesWithTracking = new Set(trackingPanels.map(p => p.side)).size
-    const splices = Math.max(0, trackPieces - sidesWithTracking)
-    const spliceProduct = find('track_standard_splice')
-    if (splices > 0 && spliceProduct) {
-      items.push({
-        key: 'track_splice', sku: spliceProduct.sku,
-        label: spliceProduct.name,
-        description: `Connects track pieces end-to-end`,
-        qty: splices, unit: 'pcs',
-        unitPrice: spliceProduct.base_price,
-        totalPrice: splices * spliceProduct.base_price,
-        image: spliceProduct.image_url,
-      })
-    }
-
-    // End caps: 2 per continuous track run
-    const endCapQty = sidesWithTracking * 2
-    const endCapProduct = find('track_standard_endcap')
-    if (endCapProduct) {
-      items.push({
-        key: 'track_endcap', sku: endCapProduct.sku,
-        label: `${endCapProduct.name}s`,
-        description: `2 per track run (${sidesWithTracking} run${sidesWithTracking !== 1 ? 's' : ''})`,
-        qty: endCapQty, unit: 'pcs',
-        unitPrice: endCapProduct.base_price,
-        totalPrice: endCapQty * endCapProduct.base_price,
-        image: endCapProduct.image_url,
-      })
-    }
-
-    // Note: snap carriers & velcro are included free of charge with panels/track
-  }
-
-  /* ── Marine snaps (for snap side edges) ── */
-  const snapEdges = panels.reduce((n, p) => n + (p.side1 === 'marine_snaps' ? 1 : 0) + (p.side2 === 'marine_snaps' ? 1 : 0), 0)
-  if (snapEdges > 0) {
-    const snapSku = (meshColor === 'white' || meshColor === 'ivory') ? 'marine_snap_white' : 'marine_snap_black'
-    const snapProduct = find(snapSku)
-    if (snapProduct) {
-      items.push({
-        key: 'marine_snaps', sku: snapProduct.sku,
-        label: snapProduct.name,
-        description: `Pack of ${snapProduct.pack_quantity} — 1 pack per snap edge`,
-        qty: snapEdges, unit: 'packs',
-        unitPrice: snapProduct.base_price,
-        totalPrice: snapEdges * snapProduct.base_price,
-        image: snapProduct.image_url,
-      })
-    }
-  }
-
-  /* ── Magnetic doorways ── */
-  const magnetEdges = panels.reduce((n, p) => n + (p.side1 === 'magnetic_door' ? 1 : 0) + (p.side2 === 'magnetic_door' ? 1 : 0), 0)
-  const magnetDoorways = Math.ceil(magnetEdges / 2)
-  if (magnetDoorways > 0) {
-    const magnetProduct = find('block_magnet')
-    if (magnetProduct) {
-      const magnetQty = magnetDoorways * 8
-      items.push({
-        key: 'block_magnets', sku: magnetProduct.sku,
-        label: magnetProduct.name,
-        description: `8 per doorway × ${magnetDoorways} doorway${magnetDoorways !== 1 ? 's' : ''}`,
-        qty: magnetQty, unit: 'pcs',
-        unitPrice: magnetProduct.base_price,
-        totalPrice: magnetQty * magnetProduct.base_price,
-        image: magnetProduct.image_url,
-      })
-    }
-
-    const rodProduct = find('fiberglass_rod')
-    if (rodProduct) {
-      const rodQty = magnetDoorways * 2
-      items.push({
-        key: 'fiberglass_rods', sku: rodProduct.sku,
-        label: rodProduct.name,
-        description: `2 per doorway × ${magnetDoorways} doorway${magnetDoorways !== 1 ? 's' : ''}`,
-        qty: rodQty, unit: 'sets',
-        unitPrice: rodProduct.base_price,
-        totalPrice: rodQty * rodProduct.base_price,
-        image: rodProduct.image_url,
-      })
-    }
-  }
-
-  /* ── Stucco strips ── */
-  const stuccoEdges = panels.reduce((n, p) => n + (p.side1 === 'stucco_strip' ? 1 : 0) + (p.side2 === 'stucco_strip' ? 1 : 0), 0)
-  if (stuccoEdges > 0) {
-    const stuccoProduct = find('stucco_standard')
-    if (stuccoProduct) {
-      items.push({
-        key: 'stucco', sku: stuccoProduct.sku,
-        label: stuccoProduct.name,
-        description: `1 per stucco edge`,
-        qty: stuccoEdges, unit: 'strips',
-        unitPrice: stuccoProduct.base_price,
-        totalPrice: stuccoEdges * stuccoProduct.base_price,
-        image: stuccoProduct.image_url,
-      })
-    }
-  }
-
-  /* ── Snap tool (always recommended) ── */
-  const snapToolProduct = find('snap_tool')
-  if (snapToolProduct) {
-    items.push({
-      key: 'snap_tool', sku: snapToolProduct.sku,
-      label: snapToolProduct.name,
-      description: 'Required for installing snaps. Fully refundable if returned.',
-      qty: 1, unit: 'tool',
-      unitPrice: snapToolProduct.base_price,
-      totalPrice: snapToolProduct.base_price,
-      image: snapToolProduct.image_url,
-    })
-  }
-
-  return items
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    Side Section
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-function SideSection({ sideNum, state, onChange, onSave, saveStatus }: {
+function SideSection({ sideNum, state, onChange, onSave, saveStatus, onShowMeasureGuide, isOpen, onToggle }: {
   sideNum: number; state: SideState; onChange: (u: Partial<SideState>) => void;
   onSave: () => void; saveStatus: 'idle' | 'saving' | 'saved' | 'error';
+  onShowMeasureGuide?: () => void;
+  isOpen: boolean; onToggle: () => void;
 }) {
   const isDesktop = useIsDesktop()
   const config = SIDE_CONFIGS.find((c) => c.id === state.configId)!
@@ -509,96 +439,143 @@ function SideSection({ sideNum, state, onChange, onSave, saveStatus }: {
   const panelMaxSize = isDesktop ? (config.panelCount > 1 ? 320 : 420) : (config.panelCount > 1 ? 200 : 280)
 
   return (
-    <Card className="!p-0 !bg-white !border-2 !border-[#406517]/30 overflow-hidden">
-      {/* Header with save button */}
-      <div className="bg-[#406517] px-5 py-2.5 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-full bg-white/20 text-white flex items-center justify-center text-xs font-bold">{sideNum}</div>
-          <span className="text-white font-bold text-sm">Side {sideNum}</span>
-        </div>
-        {isReady && (
-          <button type="button" onClick={onSave} disabled={saveStatus === 'saving'}
-            className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/20 text-white hover:bg-white/30 transition-colors disabled:opacity-50">
-            {saveStatus === 'saving' ? <Loader2 className="w-3 h-3 animate-spin" /> : saveStatus === 'saved' ? <CheckCircle className="w-3 h-3" /> : <Save className="w-3 h-3" />}
-            {saveStatus === 'saved' ? 'Saved' : 'Save Side'}
-          </button>
-        )}
-      </div>
+    <Card className="!p-0 !bg-white !border-2 !border-gray-200 overflow-hidden transition-all">
 
-      {/* Layout picker */}
-      <div className="bg-gray-50 px-5 py-3 border-b border-gray-200">
-        <div className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-2 text-center">Panel Layout</div>
-        <div className="flex justify-center gap-3">
-          {SIDE_CONFIGS.map((c) => <ConfigCard key={c.id} config={c} selected={c.id === state.configId} onClick={() => onChange({ configId: c.id })} />)}
-        </div>
-      </div>
-
-      {/* Dimensions */}
-      <div className="bg-gray-50 px-5 py-3 border-b border-gray-200">
-        <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-gray-600 font-semibold uppercase tracking-wide">Left H</span>
-            <input type="number" min={1} value={state.leftHeight} onChange={(e) => onChange({ leftHeight: e.target.value })} className={INPUT_CLS} />
+      {/* ── COLLAPSED: summary row ── */}
+      {!isOpen && (
+        <div className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors" onClick={onToggle}>
+          <div className="w-7 h-7 rounded-full bg-[#406517] text-white flex items-center justify-center text-xs font-bold shrink-0">{sideNum}</div>
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-semibold text-gray-800 truncate">Side {sideNum} — {config.label}</div>
+            <div className="text-xs text-gray-500 truncate">
+              {isReady ? (
+                <>{tw}&quot; W &times; {lh}&quot;/{rh}&quot; H &mdash; {panels.length} panel{panels.length !== 1 ? 's' : ''}</>
+              ) : (
+                <span className="italic text-gray-400">No dimensions yet</span>
+              )}
+            </div>
           </div>
-          <span className="text-gray-400 font-bold text-lg">|</span>
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-gray-600 font-semibold uppercase tracking-wide">Width</span>
-            <input type="number" min={1} value={state.totalWidth} onChange={(e) => onChange({ totalWidth: e.target.value })} className={INPUT_CLS} />
-          </div>
-          <span className="text-gray-400 font-bold text-lg">|</span>
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-gray-600 font-semibold uppercase tracking-wide">Right H</span>
-            <input type="number" min={1} value={state.rightHeight} onChange={(e) => onChange({ rightHeight: e.target.value })} className={INPUT_CLS} />
-            <span className="text-gray-500 text-xs">in</span>
+          {isReady && panels.length > 0 && (
+            <div className="shrink-0 text-xs text-gray-500">
+              {panels.map(p => `${p.finalWidth}"×${p.finalHeight}"`).join(', ')}
+            </div>
+          )}
+          <div className="flex items-center gap-1.5 shrink-0 text-xs text-[#406517] font-medium">
+            <span>Tap to expand</span>
+            <ChevronDown className="w-4 h-4" />
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Visualization */}
-      <div className="px-4 py-6 md:px-8 md:py-8">
-        <div className="flex justify-center mb-4">
-          <EdgeSelector label="Top Attachment" value={state.topAttachment} onChange={(v) => onChange({ topAttachment: v })} options={TOP_OPTIONS} />
-        </div>
-        <div className="flex items-center justify-center gap-3 md:gap-6">
-          <div className="shrink-0"><EdgeSelector label="Left Edge" value={state.leftEdge} onChange={(v) => onChange({ leftEdge: v })} options={OUTER_EDGE_OPTIONS} /></div>
-          <div className="flex-1 flex items-end justify-center min-w-0">
-            {isReady && panels.length > 0 ? (
-              <div className="flex items-end justify-center">
-                {panels.map((panel, i) => (
-                  <div key={panel.id} className="flex items-end">
-                    {i > 0 && <div className="flex flex-col items-center justify-center mx-0.5 self-center">{[0, 1, 2, 3, 4].map((k) => <div key={k} className="w-1.5 h-3 bg-gradient-to-r from-[#d0d0d0] to-[#a0a0a0] rounded-sm my-0.5" />)}<span className="text-[7px] text-gray-500 mt-0.5 whitespace-nowrap leading-none">Mag Door</span></div>}
-                    <div className="flex flex-col items-center">
-                      <PanelVisualizer finalWidth={panel.finalWidth} finalHeight={panel.finalHeight} rawWidth={panel.rawWidth} rawHeight={panel.rawHeight} maxSize={panelMaxSize} topAttachment={panel.topAttachment} side1={panel.side1} side2={panel.side2} />
-                    </div>
-                  </div>
-                ))}
+      {/* ── EXPANDED: full configurator ── */}
+      {isOpen && (
+        <>
+          {/* Header — click to collapse */}
+          <div className="bg-[#406517] px-5 py-2.5 flex items-center justify-between cursor-pointer hover:bg-[#4a7519] transition-colors" onClick={onToggle}>
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-full bg-white/20 text-white flex items-center justify-center text-xs font-bold">{sideNum}</div>
+              <span className="text-white font-bold text-sm">Side {sideNum}</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5 text-xs text-white/70 font-medium">
+                <span>Tap to collapse</span>
+                <ChevronUp className="w-4 h-4" />
               </div>
-            ) : (
-              <div className="flex items-center justify-center h-48 w-full bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-                <Text size="sm" className="text-gray-500 !mb-0">Enter dimensions</Text>
+              <div onClick={e => e.stopPropagation()}>
+                {isReady && (
+                  <button type="button" onClick={onSave} disabled={saveStatus === 'saving'}
+                    className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/20 text-white hover:bg-white/30 transition-colors disabled:opacity-50">
+                    {saveStatus === 'saving' ? <Loader2 className="w-3 h-3 animate-spin" /> : saveStatus === 'saved' ? <CheckCircle className="w-3 h-3" /> : <Save className="w-3 h-3" />}
+                    {saveStatus === 'saved' ? 'Saved' : 'Save Side'}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Layout picker */}
+          <div className="bg-gray-50 px-5 py-3 border-b border-gray-200">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-2 text-center">Panel Layout</div>
+            <div className="flex justify-center gap-3">
+              {SIDE_CONFIGS.map((c) => <ConfigCard key={c.id} config={c} selected={c.id === state.configId} onClick={() => onChange({ configId: c.id })} />)}
+            </div>
+          </div>
+
+          {/* Dimensions */}
+          <div className="bg-gray-50 px-5 py-3 border-b border-gray-200">
+            <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs text-gray-600 font-semibold uppercase tracking-wide">Left H</span>
+                <input type="number" min={1} value={state.leftHeight} onChange={(e) => onChange({ leftHeight: e.target.value })} className={INPUT_CLS} />
+              </div>
+              <span className="text-gray-400 font-bold text-lg">|</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs text-gray-600 font-semibold uppercase tracking-wide">Width</span>
+                <input type="number" min={1} value={state.totalWidth} onChange={(e) => onChange({ totalWidth: e.target.value })} className={INPUT_CLS} />
+              </div>
+              <span className="text-gray-400 font-bold text-lg">|</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs text-gray-600 font-semibold uppercase tracking-wide">Right H</span>
+                <input type="number" min={1} value={state.rightHeight} onChange={(e) => onChange({ rightHeight: e.target.value })} className={INPUT_CLS} />
+                <span className="text-gray-500 text-xs">in</span>
+              </div>
+            </div>
+            {onShowMeasureGuide && (
+              <div className="flex justify-center mt-2">
+                <button type="button" onClick={onShowMeasureGuide} className="flex items-center gap-1.5 text-xs text-[#406517] font-semibold hover:underline transition-colors">
+                  <Ruler className="w-3.5 h-3.5" /> How to measure
+                </button>
               </div>
             )}
           </div>
-          <div className="shrink-0"><EdgeSelector label="Right Edge" value={state.rightEdge} onChange={(v) => onChange({ rightEdge: v })} options={OUTER_EDGE_OPTIONS} /></div>
-        </div>
-      </div>
 
-      {/* ── Bottom bar: 50/50 with breakdown ── */}
-      {panels.length > 0 && (
-        <div className="bg-[#406517]/5 border-t border-gray-200 px-5 py-4">
-          <div className={`grid gap-4 ${panels.length > 1 ? 'grid-cols-2' : 'grid-cols-1 max-w-sm mx-auto'}`}>
-            {panels.map((panel, i) => (
-              <div key={panel.id} className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-gray-700">Panel {i + 1}</span>
-                  <span className="font-mono font-bold text-[#406517] text-sm">{panel.finalWidth}&quot; &times; {panel.finalHeight}&quot;</span>
-                </div>
-                <div className="text-xs text-gray-500">({SIDE_LABEL_MAP[panel.side1]} | {TOP_LABEL_MAP[panel.topAttachment]} | {SIDE_LABEL_MAP[panel.side2]})</div>
-                <BreakdownInline panel={panel} />
+          {/* Visualization */}
+          <div className="px-4 py-6 md:px-8 md:py-8">
+            <div className="flex justify-center mb-4">
+              <EdgeSelector label="Top Attachment" value={state.topAttachment} onChange={(v) => onChange({ topAttachment: v })} options={TOP_OPTIONS} />
+            </div>
+            <div className="flex items-center justify-center gap-3 md:gap-6">
+              <div className="shrink-0"><EdgeSelector label="Left Edge" value={state.leftEdge} onChange={(v) => onChange({ leftEdge: v })} options={OUTER_EDGE_OPTIONS} /></div>
+              <div className="flex-1 flex items-end justify-center min-w-0">
+                {isReady && panels.length > 0 ? (
+                  <div className="flex items-end justify-center">
+                    {panels.map((panel, i) => (
+                      <div key={panel.id} className="flex items-end">
+                        {i > 0 && <div className="flex flex-col items-center justify-center mx-0.5 self-center">{[0, 1, 2, 3, 4].map((k) => <div key={k} className="w-1.5 h-3 bg-gradient-to-r from-[#d0d0d0] to-[#a0a0a0] rounded-sm my-0.5" />)}<span className="text-[7px] text-gray-500 mt-0.5 whitespace-nowrap leading-none">Mag Door</span></div>}
+                        <div className="flex flex-col items-center">
+                          <PanelVisualizer finalWidth={panel.finalWidth} finalHeight={panel.finalHeight} rawWidth={panel.rawWidth} rawHeight={panel.rawHeight} maxSize={panelMaxSize} topAttachment={panel.topAttachment} side1={panel.side1} side2={panel.side2} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center h-48 w-full bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+                    <Text size="sm" className="text-gray-500 !mb-0">Enter dimensions</Text>
+                  </div>
+                )}
               </div>
-            ))}
+              <div className="shrink-0"><EdgeSelector label="Right Edge" value={state.rightEdge} onChange={(v) => onChange({ rightEdge: v })} options={OUTER_EDGE_OPTIONS} /></div>
+            </div>
           </div>
-        </div>
+
+          {/* ── Bottom bar: 50/50 with breakdown ── */}
+          {panels.length > 0 && (
+            <div className="bg-[#406517]/5 border-t border-gray-200 px-5 py-4">
+              <div className={`grid gap-4 ${panels.length > 1 ? 'grid-cols-2' : 'grid-cols-1 max-w-sm mx-auto'}`}>
+                {panels.map((panel, i) => (
+                  <div key={panel.id} className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-gray-700">Panel {i + 1}</span>
+                      <span className="font-mono font-bold text-[#406517] text-sm">{panel.finalWidth}&quot; &times; {panel.finalHeight}&quot;</span>
+                    </div>
+                    <div className="text-xs text-gray-500">({SIDE_LABEL_MAP[panel.side1]} | {TOP_LABEL_MAP[panel.topAttachment]} | {SIDE_LABEL_MAP[panel.side2]})</div>
+                    <BreakdownInline panel={panel} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
       )}
     </Card>
   )
@@ -617,8 +594,9 @@ function buildCartData(sides: SideState[], meshType: MeshType, meshColor: MeshCo
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    Main Export
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-export default function PanelBuilder({ initialMeshType, initialMeshColor, contactInfo, basePath = '/start-project/mosquito-curtains/diy-builder' }: PanelBuilderProps = {}) {
+export default function PanelBuilder({ initialMeshType, initialMeshColor, contactInfo, basePath = '/start-project/mosquito-curtains/diy-builder', productType = 'mosquito_curtains' }: PanelBuilderProps = {}) {
   const { products } = useProducts()
+  const { getRecommendations } = useDiyHardware()
   const [numSides, setNumSides] = useState(2)
   const [sides, setSides] = useState<SideState[]>([defaultSideState(), defaultSideState()])
   const [meshType, setMeshType] = useState<MeshType>(initialMeshType || 'heavy_mosquito')
@@ -629,7 +607,30 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
 
   // Contact capture
   const [firstName, setFirstName] = useState(contactInfo?.firstName || '')
+  const [lastName, setLastName] = useState(contactInfo?.lastName || '')
   const [email, setEmail] = useState(contactInfo?.email || '')
+
+  // Expert review extras
+  const [phone, setPhone] = useState(contactInfo?.phone || '')
+  const [photos, setPhotos] = useState<UploadedPhoto[]>([])
+  const [uploadPrefix] = useState(() => crypto.randomUUID())
+  const [description, setDescription] = useState('')
+  const [linkCopied, setLinkCopied] = useState(false)
+
+  // Track saved project to prevent double-creation on submit
+  const savedProjectIdRef = useRef<string | null>(null)
+
+  // Save project
+  const [projectName, setProjectName] = useState('')
+
+  // Expert review submit status (separate from save-for-later)
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'submitting' | 'submitted' | 'error'>('idle')
+
+  // Checkout modal + save-for-later
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false)
+  const [showSaveField, setShowSaveField] = useState(false)
+  const [saveForLaterEmail, setSaveForLaterEmail] = useState('')
+  const [isSavingForLater, setIsSavingForLater] = useState(false)
 
   // Detail modals
   const [meshDetail, setMeshDetail] = useState<typeof MESH_TYPE_CARDS[0] | null>(null)
@@ -638,6 +639,15 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
   // Editable recommendations overrides
   const [recOverrides, setRecOverrides] = useState<Record<string, number>>({})
 
+  // Measurement guide modal
+  const [showMeasureGuide, setShowMeasureGuide] = useState(false)
+
+  // Collapsible side panels — first side open by default
+  const [openSides, setOpenSides] = useState<Set<number>>(new Set([0]))
+  const toggleSide = useCallback((idx: number) => {
+    setOpenSides(prev => { const next = new Set(prev); if (next.has(idx)) next.delete(idx); else next.add(idx); return next })
+  }, [])
+
   // Restore from localStorage
   useEffect(() => { try { const s = localStorage.getItem(LS_KEY); if (s) { const p = JSON.parse(s); if (p.numSides) setNumSides(p.numSides); if (Array.isArray(p.sides) && p.sides.length > 0) setSides(p.sides); if (p.meshType && !initialMeshType) setMeshType(p.meshType); if (p.meshColor && !initialMeshColor) setMeshColor(p.meshColor) } } catch {} setHydrated(true) }, [initialMeshType, initialMeshColor])
 
@@ -645,7 +655,16 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
   const saveRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   useEffect(() => { if (!hydrated) return; if (saveRef.current) clearTimeout(saveRef.current); saveRef.current = setTimeout(() => { try { localStorage.setItem(LS_KEY, JSON.stringify({ numSides, sides, meshType, meshColor })) } catch {} }, 500); return () => { if (saveRef.current) clearTimeout(saveRef.current) } }, [numSides, sides, meshType, meshColor, hydrated])
 
-  useEffect(() => { setSides(prev => prev.length < numSides ? [...prev, ...Array.from({ length: numSides - prev.length }, () => defaultSideState())] : prev.slice(0, numSides)) }, [numSides])
+  useEffect(() => {
+    setSides(prev => {
+      if (prev.length < numSides) {
+        // Auto-open the first newly added side
+        setOpenSides(os => { const next = new Set(os); next.add(prev.length); return next })
+        return [...prev, ...Array.from({ length: numSides - prev.length }, () => defaultSideState())]
+      }
+      return prev.slice(0, numSides)
+    })
+  }, [numSides])
 
   // Keep meshColor valid
   useEffect(() => { const card = MESH_TYPE_CARDS.find(c => c.id === meshType); if (card && !card.colors.includes(meshColor)) setMeshColor(card.colors[0]) }, [meshType, meshColor])
@@ -655,8 +674,8 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
   const allPanels = useMemo(() => sides.flatMap((s, i) => { const c = SIDE_CONFIGS.find(x => x.id === s.configId)!; const tw = parseFloat(s.totalWidth) || 0; const lh = parseFloat(s.leftHeight) || 0; const rh = parseFloat(s.rightHeight) || 0; if (tw <= 0 || lh <= 0 || rh <= 0) return []; return generateSidePanels({ sideNum: i + 1, totalWidth: tw, leftHeight: lh, rightHeight: rh, config: c, topAttachment: s.topAttachment, leftEdge: s.leftEdge, rightEdge: s.rightEdge }) }), [sides])
   const allSidesReady = sides.every(s => { const tw = parseFloat(s.totalWidth) || 0; const lh = parseFloat(s.leftHeight) || 0; const rh = parseFloat(s.rightHeight) || 0; return tw > 0 && lh > 0 && rh > 0 })
 
-  // Recommendations — real products from DB
-  const baseRecs = useMemo(() => computeProductRecommendations(allPanels, products, meshColor), [allPanels, products, meshColor])
+  // Recommendations — DB-driven rules + product pricing
+  const baseRecs = useMemo(() => getRecommendations(allPanels as PanelForHardware[], products, meshColor, productType), [allPanels, getRecommendations, products, meshColor, productType])
 
   // Reset overrides when panels change
   useEffect(() => { setRecOverrides({}) }, [allPanels.length])
@@ -664,14 +683,87 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
   const isValidEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)
   const canSave = firstName.trim().length > 0 && isValidEmail(email)
 
+  /* Submit for Expert Review — only needs email */
   const handleSaveProject = async () => {
-    if (!canSave) return
-    setSaveStatus('saving')
+    if (!isValidEmail(email)) return
+    setSubmitStatus('submitting')
     try {
       const cd = buildCartData(sides, meshType, meshColor)
-      const res = await fetch('/api/projects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email.trim(), firstName: firstName.trim(), lastName: contactInfo?.lastName, phone: contactInfo?.phone, product: 'mosquito_curtains', projectType: 'porch', topAttachment: sides[0]?.topAttachment || 'tracking', numberOfSides: numSides, notes: `Panel Builder: ${numSides} sides, ${allPanels.length} panels`, cart_data: cd }) })
-      const d = await res.json(); if (!res.ok) throw new Error(d.error || 'Failed'); setSaveStatus('saved'); if (d.shareUrl) setShareUrl(d.shareUrl)
-    } catch (e) { console.error('Save:', e); setSaveStatus('error'); setTimeout(() => setSaveStatus('idle'), 3000) }
+      const noteParts = [`Expert Review Request: ${numSides} sides, ${allPanels.length} panels`]
+      if (description.trim()) noteParts.push(description.trim())
+
+      const completedPhotos = photos.filter(p => p.status === 'complete')
+      const body: Record<string, unknown> = {
+        email: email.trim(),
+        firstName: firstName.trim() || undefined,
+        lastName: lastName.trim() || undefined,
+        phone: phone.trim() || undefined,
+        product: 'mosquito_curtains',
+        projectType: 'expert_review',
+        projectName: projectName.trim() || undefined,
+        topAttachment: sides[0]?.topAttachment || 'tracking',
+        numberOfSides: numSides,
+        notes: noteParts.join('\n\n'),
+        description: description.trim() || undefined,
+        cart_data: cd,
+        photo_urls: completedPhotos.map(p => ({
+          url: p.publicUrl,
+          key: p.key,
+          fileName: p.fileName,
+        })),
+      }
+      // If we already saved this project, reuse its ID to prevent duplicates
+      if (savedProjectIdRef.current) {
+        body.existingProjectId = savedProjectIdRef.current
+      }
+      const res = await fetch('/api/projects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      const d = await res.json()
+      if (!res.ok) throw new Error(d.error || 'Failed')
+
+      savedProjectIdRef.current = d.project?.id || savedProjectIdRef.current
+      setSubmitStatus('submitted')
+      if (d.shareUrl) setShareUrl(d.shareUrl)
+    } catch (e) { console.error('Save:', e); setSubmitStatus('error'); setTimeout(() => setSubmitStatus('idle'), 3000) }
+  }
+
+  /* Save project — pushes name/email into expert review fields on success */
+  const handleSaveForLater = async () => {
+    if (!isValidEmail(saveForLaterEmail)) return
+    setIsSavingForLater(true)
+    try {
+      const cd = buildCartData(sides, meshType, meshColor)
+      const saveBody: Record<string, unknown> = {
+        email: saveForLaterEmail.trim(),
+        firstName: firstName.trim() || undefined,
+        lastName: lastName.trim() || undefined,
+        projectName: projectName.trim() || undefined,
+        product: 'mosquito_curtains',
+        projectType: 'saved_for_later',
+        topAttachment: sides[0]?.topAttachment || 'tracking',
+        numberOfSides: numSides,
+        notes: `Saved for later: ${numSides} sides, ${allPanels.length} panels`,
+        cart_data: cd,
+      }
+      if (savedProjectIdRef.current) {
+        saveBody.existingProjectId = savedProjectIdRef.current
+      }
+      const res = await fetch('/api/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(saveBody),
+      })
+      const d = await res.json()
+      if (!res.ok) throw new Error(d.error || 'Failed')
+
+      savedProjectIdRef.current = d.project?.id || savedProjectIdRef.current
+      setSaveStatus('saved')
+      if (d.shareUrl) setShareUrl(d.shareUrl)
+
+      // Push saved contact info into Expert Review fields so they don't re-type
+      if (saveForLaterEmail.trim() && !email) setEmail(saveForLaterEmail.trim())
+      // firstName and lastName are already shared state
+    } catch { alert('Could not save. Please try again.') }
+    finally { setIsSavingForLater(false) }
   }
 
   const currentMeshCard = MESH_TYPE_CARDS.find(c => c.id === meshType)
@@ -682,8 +774,17 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
       {/* ══════════════════════════════════════════════
          SECTION 1: OPTIONS
          ══════════════════════════════════════════════ */}
-      <HeaderBarSection icon={SlidersHorizontal} label="Options" variant="green" headerSubtitle="Mesh type, color & top attachment">
-        <Stack gap="md">
+      <Card className="!p-0 !bg-white !border-2 !border-[#406517]/20 overflow-hidden">
+        {/* Centered header */}
+        <div className="text-center px-6 pt-6 md:pt-8 pb-4 border-b border-gray-100">
+          <div className="flex items-center justify-center gap-2.5 mb-1.5">
+            <SlidersHorizontal className="w-6 h-6 text-[#406517]" />
+            <h3 className="text-xl font-bold text-gray-900">Options</h3>
+          </div>
+          <p className="text-sm text-gray-500">Mesh type, color & top attachment</p>
+        </div>
+
+        <div className="px-6 pb-6 md:px-8 md:pb-8 pt-5 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* LEFT: Mesh Type — 3-across image cards */}
             <div>
@@ -756,8 +857,8 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
               ))}
             </div>
           </div>
-        </Stack>
-      </HeaderBarSection>
+        </div>
+      </Card>
 
       {/* Mesh Detail Lightbox */}
       <LightboxModal open={!!meshDetail} onClose={() => setMeshDetail(null)} title={meshDetail?.label || ''} image={meshDetail?.image || ''}>
@@ -794,16 +895,15 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
         )}
       </LightboxModal>
 
+      {/* Measurement Guide Modal */}
+      <MeasurementGuideModal open={showMeasureGuide} onClose={() => setShowMeasureGuide(false)} />
+
       {/* ══════════════════════════════════════════════
-         SECTION 2: PANELS
+         SECTION 2: PANELS (each side is its own card)
          ══════════════════════════════════════════════ */}
-      <HeaderBarSection icon={LayoutGrid} label="Panels" variant="green" headerSubtitle={`${numSides} side${numSides !== 1 ? 's' : ''} — ${allPanels.length} panel${allPanels.length !== 1 ? 's' : ''}`}>
-        <Stack gap="md">
-          {sides.map((side, i) => (
-            <SideSection key={i} sideNum={i + 1} state={side} onChange={(u) => updateSide(i, u)} onSave={handleSaveProject} saveStatus={saveStatus} />
-          ))}
-        </Stack>
-      </HeaderBarSection>
+      {sides.map((side, i) => (
+        <SideSection key={i} sideNum={i + 1} state={side} onChange={(u) => updateSide(i, u)} onSave={handleSaveProject} saveStatus={saveStatus} onShowMeasureGuide={() => setShowMeasureGuide(true)} isOpen={openSides.has(i)} onToggle={() => toggleSide(i)} />
+      ))}
 
       {/* ══════════════════════════════════════════════
          SECTION 3: TRACK & ATTACHMENTS
@@ -815,143 +915,342 @@ export default function PanelBuilder({ initialMeshType, initialMeshColor, contac
         })
         const grandTotal = recsWithQty.reduce((sum, r) => sum + r.totalPrice, 0)
         return (
-          <HeaderBarSection icon={Wrench} label="Track & Attachments" variant="green" headerSubtitle={`${baseRecs.length} items recommended`}>
-            <div className="text-center mb-4">
-              <div className="text-sm text-gray-600">Based on your {allPanels.length} panel{allPanels.length !== 1 ? 's' : ''} configuration. Adjust quantities as needed.</div>
+          <Card className="!p-0 !bg-white !border-2 !border-[#406517]/20 overflow-hidden">
+            {/* Centered header */}
+            <div className="text-center px-6 pt-6 md:pt-8 pb-4 border-b border-gray-100">
+              <div className="flex items-center justify-center gap-2.5 mb-1.5">
+                <Wrench className="w-6 h-6 text-[#406517]" />
+                <h3 className="text-xl font-bold text-gray-900">Track & Attachments</h3>
+              </div>
+              <p className="text-sm text-gray-500">
+                {baseRecs.length} items recommended — based on your {allPanels.length} panel{allPanels.length !== 1 ? 's' : ''} configuration
+              </p>
             </div>
-            <div className="space-y-2">
-              {/* Header row */}
-              <div className="hidden sm:grid grid-cols-[52px_1fr_100px_80px_70px] gap-3 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-500">
-                <div />
-                <div>Product</div>
-                <div className="text-center">Qty</div>
-                <div className="text-right">Each</div>
-                <div className="text-right">Total</div>
+
+            <div className="px-6 pb-6 md:px-8 md:pb-8 pt-5">
+              <div className="space-y-2">
+                {/* Header row */}
+                <div className="hidden sm:grid grid-cols-[52px_1fr_100px_80px_70px] gap-3 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-500">
+                  <div />
+                  <div>Product</div>
+                  <div className="text-center">Qty</div>
+                  <div className="text-right">Each</div>
+                  <div className="text-right">Total</div>
+                </div>
+
+                {recsWithQty.map(item => (
+                  <div key={item.key} className="flex items-center sm:grid sm:grid-cols-[52px_1fr_100px_80px_70px] gap-3 p-3 rounded-xl bg-gray-50 border border-gray-200">
+                    {/* Product image */}
+                    <div className="w-12 h-12 rounded-lg overflow-hidden bg-white border border-gray-200 shrink-0">
+                      {item.image ? (
+                        <Image src={item.image} alt={item.label} width={48} height={48} className="object-cover w-full h-full" />
+                      ) : (
+                        <div className="w-full h-full bg-gray-100" />
+                      )}
+                    </div>
+
+                    {/* Name + description */}
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-gray-800 text-sm leading-tight">{item.label}</div>
+                      <div className="text-xs text-gray-500 leading-tight">{item.description}</div>
+                    </div>
+
+                    {/* Qty stepper */}
+                    <div className="flex items-center justify-center shrink-0">
+                      <QtyStepper value={item.qty} onChange={v => setRecOverrides(prev => ({ ...prev, [item.key]: v }))} min={0} />
+                    </div>
+
+                    {/* Unit price */}
+                    <div className="text-sm text-gray-600 text-right tabular-nums shrink-0 hidden sm:block">${fmt$(item.unitPrice)}</div>
+
+                    {/* Line total */}
+                    <div className="text-sm font-semibold text-gray-800 text-right tabular-nums shrink-0">
+                      {item.totalPrice > 0 ? `$${fmt$(item.totalPrice)}` : <span className="text-green-600">FREE</span>}
+                    </div>
+                  </div>
+                ))}
               </div>
 
-              {recsWithQty.map(item => (
-                <div key={item.key} className="flex items-center sm:grid sm:grid-cols-[52px_1fr_100px_80px_70px] gap-3 p-3 rounded-xl bg-gray-50 border border-gray-200">
-                  {/* Product image */}
-                  <div className="w-12 h-12 rounded-lg overflow-hidden bg-white border border-gray-200 shrink-0">
-                    {item.image ? (
-                      <Image src={item.image} alt={item.label} width={48} height={48} className="object-cover w-full h-full" />
-                    ) : (
-                      <div className="w-full h-full bg-gray-100" />
-                    )}
-                  </div>
-
-                  {/* Name + description */}
-                  <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-gray-800 text-sm leading-tight">{item.label}</div>
-                    <div className="text-xs text-gray-500 leading-tight">{item.description}</div>
-                  </div>
-
-                  {/* Qty stepper */}
-                  <div className="flex items-center justify-center shrink-0">
-                    <QtyStepper value={item.qty} onChange={v => setRecOverrides(prev => ({ ...prev, [item.key]: v }))} min={0} />
-                  </div>
-
-                  {/* Unit price */}
-                  <div className="text-sm text-gray-600 text-right tabular-nums shrink-0 hidden sm:block">${fmt$(item.unitPrice)}</div>
-
-                  {/* Line total */}
-                  <div className="text-sm font-semibold text-gray-800 text-right tabular-nums shrink-0">
-                    {item.totalPrice > 0 ? `$${fmt$(item.totalPrice)}` : <span className="text-green-600">FREE</span>}
-                  </div>
-                </div>
-              ))}
+              {/* Grand total */}
+              <div className="mt-4 pt-3 border-t-2 border-gray-200 flex items-center justify-between">
+                <div className="text-sm text-gray-600">Hardware & Accessories Total</div>
+                <div className="text-lg font-bold text-[#406517]">${fmt$(grandTotal)}</div>
+              </div>
             </div>
-
-            {/* Grand total */}
-            <div className="mt-4 pt-3 border-t-2 border-gray-200 flex items-center justify-between">
-              <div className="text-sm text-gray-600">Hardware & Accessories Total</div>
-              <div className="text-lg font-bold text-[#406517]">${fmt$(grandTotal)}</div>
-            </div>
-          </HeaderBarSection>
+          </Card>
         )
       })()}
 
       {/* ══════════════════════════════════════════════
-         SAVE & NEXT STEPS
+         SAVE PROJECT
          ══════════════════════════════════════════════ */}
-      {allSidesReady && allPanels.length > 0 && saveStatus !== 'saved' && (
-        <Card className="!p-0 !bg-white !border-2 !border-[#406517]/30 overflow-hidden">
-          {/* Summary strip */}
-          <div className="bg-[#406517]/5 px-6 py-3 border-b border-[#406517]/10 flex items-center justify-between flex-wrap gap-2">
-            <div className="text-sm text-gray-700">
-              <span className="font-semibold">{allPanels.length} panel{allPanels.length !== 1 ? 's' : ''}</span>
-              <span className="text-gray-400 mx-1.5">/</span>
-              <span>{numSides} side{numSides !== 1 ? 's' : ''}</span>
-              <span className="text-gray-400 mx-1.5">/</span>
-              <span className="capitalize">{meshType.replace(/_/g, ' ')} in {meshColor}</span>
+      {allSidesReady && allPanels.length > 0 && (
+        <Card className="!p-0 !bg-white !border-2 !border-[#406517]/20 overflow-hidden">
+          {/* Centered header */}
+          <div className="text-center px-6 pt-6 md:pt-8 pb-4 border-b border-gray-100">
+            <div className="flex items-center justify-center gap-2.5 mb-1.5">
+              <Bookmark className="w-6 h-6 text-[#406517]" />
+              <h3 className="text-xl font-bold text-gray-900">Save Your Project</h3>
             </div>
+            <p className="text-sm text-gray-500 max-w-md mx-auto">
+              Get a shareable link emailed to you. Come back anytime to edit, review, or order. No commitment.
+            </p>
           </div>
 
-          {/* Contact + CTA */}
-          <div className="px-6 py-6 md:py-8">
-            <div className="max-w-xl mx-auto text-center">
-              <div className="text-xl font-bold text-gray-900 mb-1">Save Your Project</div>
-              <p className="text-sm text-gray-500 mb-5">We&apos;ll save your configuration so you can pick up where you left off, or our team can prepare a detailed quote.</p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="First name"
-                    value={firstName}
-                    onChange={e => setFirstName(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors"
-                  />
+          {/* Full-width form content */}
+          <div className="px-6 pb-6 md:px-8 md:pb-8 pt-5">
+            {saveStatus === 'saved' ? (
+              <div className="space-y-3">
+                <div className="flex items-center justify-center gap-2 text-[#406517]">
+                  <CheckCircle className="w-5 h-5" />
+                  <span className="text-sm font-semibold">Project Saved{firstName ? ` for ${firstName}` : ''}!</span>
                 </div>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="email"
-                    placeholder="Email address"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors"
-                  />
+                {shareUrl && (
+                  <div className="flex items-center gap-2 bg-[#406517]/5 border border-[#406517]/20 rounded-xl px-4 py-3">
+                    <Link2 className="w-4 h-4 text-[#406517] shrink-0" />
+                    <span className="text-sm font-mono text-[#406517] truncate flex-1">
+                      {typeof window !== 'undefined' ? window.location.origin : ''}{shareUrl}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const fullUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}${shareUrl}`
+                        navigator.clipboard.writeText(fullUrl)
+                        setLinkCopied(true)
+                        setTimeout(() => setLinkCopied(false), 2000)
+                      }}
+                      className="shrink-0 p-1.5 rounded-lg hover:bg-[#406517]/10 transition-colors"
+                      title="Copy link"
+                    >
+                      {linkCopied ? <CheckCircle className="w-4 h-4 text-[#406517]" /> : <Copy className="w-4 h-4 text-[#406517]" />}
+                    </button>
+                  </div>
+                )}
+                <Text size="xs" className="text-gray-500 !mb-0 text-center">
+                  We&apos;ve emailed your project link to <strong>{saveForLaterEmail}</strong>. You can return anytime to edit or submit for review.
+                </Text>
+                <div className="text-center">
+                  <button type="button" onClick={() => setSaveStatus('idle')} className="text-xs text-[#406517] font-medium underline underline-offset-2 hover:text-[#2e4a10] transition-colors">
+                    Edit project details
+                  </button>
                 </div>
               </div>
-
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={handleSaveProject}
-                disabled={!canSave || saveStatus === 'saving'}
-                className="w-full sm:w-auto"
-              >
-                {saveStatus === 'saving' ? (
-                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving...</>
-                ) : saveStatus === 'error' ? (
-                  <>Try Again</>
-                ) : (
-                  <><Save className="w-4 h-4 mr-2" /> Save & Get Quote</>
-                )}
-              </Button>
-
-              <p className="text-xs text-gray-400 mt-3">We&apos;ll never share your info. No spam, just your project.</p>
-            </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="relative">
+                  <FileText className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input type="text" placeholder="Project name (e.g. &quot;Back Porch&quot;)" value={projectName} onChange={e => setProjectName(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input type="text" placeholder="First name *" value={firstName} onChange={e => setFirstName(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
+                  </div>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input type="email" placeholder="Email address *" value={saveForLaterEmail} onChange={e => setSaveForLaterEmail(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
+                  </div>
+                </div>
+                <div className="text-center">
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    onClick={handleSaveForLater}
+                    disabled={!isValidEmail(saveForLaterEmail) || isSavingForLater}
+                  >
+                    {isSavingForLater ? (
+                      <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving...</>
+                    ) : (
+                      <><Bookmark className="w-4 h-4 mr-2" /> Save Project</>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </Card>
       )}
 
-      {/* ── Saved Success ── */}
-      {saveStatus === 'saved' && (
-        <Card className="!p-0 !bg-white !border-2 !border-[#406517]/30 overflow-hidden">
-          <div className="px-6 py-8 text-center">
-            <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
-            <div className="text-lg font-bold text-gray-800 mb-1">Project Saved{firstName ? `, ${firstName}` : ''}!</div>
-            <div className="text-sm text-gray-600 mb-6">Your panel configuration has been saved. Choose your next step:</div>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Button variant="primary" size="lg" asChild><Link href={`${basePath}/instant-quote`}><Zap className="w-4 h-4 mr-2" />Get Instant Quote</Link></Button>
-              <Button variant="secondary" size="lg" asChild><Link href={`${basePath}/expert-assistance`}><Users className="w-4 h-4 mr-2" />Send to Planning Team</Link></Button>
+      {/* ══════════════════════════════════════════════
+         SUBMIT YOUR DESIGN
+         ══════════════════════════════════════════════ */}
+      {allSidesReady && allPanels.length > 0 && (
+        <Card className="!p-0 !bg-white !border-2 !border-[#406517]/20 overflow-hidden">
+          {submitStatus === 'submitted' ? (
+            /* ── Success view after expert review submission ── */
+            <div className="px-6 py-10 md:px-8 text-center space-y-4">
+              <div className="w-14 h-14 rounded-full bg-[#406517]/10 flex items-center justify-center mx-auto">
+                <CheckCircle className="w-7 h-7 text-[#406517]" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-900 mb-1">Design Submitted!</h3>
+                <p className="text-sm text-gray-600 max-w-md mx-auto">
+                  Our team will review your {allPanels.length}-panel design and get back to you
+                  {email ? <> at <strong>{email}</strong></> : ''} with a confirmed quote, usually within one business day.
+                </p>
+              </div>
+              {shareUrl && (
+                <div className="flex items-center gap-2 bg-[#406517]/5 border border-[#406517]/20 rounded-xl px-4 py-3 max-w-md mx-auto">
+                  <Link2 className="w-4 h-4 text-[#406517] shrink-0" />
+                  <span className="text-sm font-mono text-[#406517] truncate flex-1">
+                    {typeof window !== 'undefined' ? window.location.origin : ''}{shareUrl}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const fullUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}${shareUrl}`
+                      navigator.clipboard.writeText(fullUrl)
+                      setLinkCopied(true)
+                      setTimeout(() => setLinkCopied(false), 2000)
+                    }}
+                    className="shrink-0 p-1.5 rounded-lg hover:bg-[#406517]/10 transition-colors"
+                    title="Copy link"
+                  >
+                    {linkCopied ? <CheckCircle className="w-4 h-4 text-[#406517]" /> : <Copy className="w-4 h-4 text-[#406517]" />}
+                  </button>
+                </div>
+              )}
+              <button type="button" onClick={() => setSubmitStatus('idle')} className="text-xs text-[#406517] font-medium underline underline-offset-2 hover:text-[#2e4a10] transition-colors">
+                Edit and resubmit
+              </button>
             </div>
-            {shareUrl && <div className="mt-4 text-xs text-gray-500">Project link: <span className="font-mono text-[#406517]">{typeof window !== 'undefined' ? window.location.origin : ''}{shareUrl}</span></div>}
-          </div>
+          ) : (
+            <>
+              {/* Centered header */}
+              <div className="text-center px-6 pt-6 md:pt-8 pb-4 border-b border-gray-100">
+                <div className="flex items-center justify-center gap-2.5 mb-1.5">
+                  <Send className="w-6 h-6 text-[#406517]" />
+                  <h3 className="text-xl font-bold text-gray-900">Submit Your Design</h3>
+                </div>
+                <p className="text-sm text-gray-500 max-w-lg mx-auto">
+                  Every project gets a free human review before it&apos;s built. We&apos;ll confirm pricing, check your specs, and email you a checkout link or suggest adjustments.
+                </p>
+              </div>
+
+              {/* Full-width form content */}
+              <div className="px-6 pb-6 md:px-8 md:pb-8 pt-5 space-y-3">
+                {/* Name fields */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input type="text" placeholder="First name *" value={firstName} onChange={e => setFirstName(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
+                  </div>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input type="text" placeholder="Last name" value={lastName} onChange={e => setLastName(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
+                  </div>
+                </div>
+
+                {/* Email + Phone */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input type="email" placeholder="Email address *" value={email} onChange={e => setEmail(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
+                  </div>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input type="tel" placeholder="Phone (optional)" value={phone} onChange={e => setPhone(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors" />
+                  </div>
+                </div>
+
+                {/* Photo uploader — S3 presigned upload flow */}
+                <div>
+                  <p className="text-sm font-medium text-gray-600 mb-1">Upload photos of your space</p>
+                  <p className="text-xs text-gray-400 mb-2">Optional — helps us give the best recommendation</p>
+                  <PhotoUploader sessionId={uploadPrefix} maxFiles={10} onUploadComplete={setPhotos} />
+                </div>
+
+                {/* Description */}
+                <textarea
+                  placeholder="Tell us about your space: what you're enclosing, any challenges, special requests..."
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
+                  rows={3}
+                  className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#406517] focus:border-[#406517] transition-colors resize-none"
+                />
+
+                {/* Submit + Order buttons */}
+                <div className="space-y-3 pt-1 text-center">
+                  <div className="space-y-2">
+                    <Button
+                      variant="primary"
+                      size="lg"
+                      onClick={handleSaveProject}
+                      disabled={!isValidEmail(email) || !firstName.trim() || submitStatus === 'submitting'}
+                    >
+                      {submitStatus === 'submitting' ? (
+                        <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Submitting...</>
+                      ) : (
+                        <><ShieldCheck className="w-4 h-4 mr-2" /> Submit for Free Expert Review</>
+                      )}
+                    </Button>
+                    <Text size="xs" className="text-gray-500 !mb-0">
+                      Recommended. We&apos;ll double-check measurements, layout, and attachments before you pay.
+                    </Text>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="flex items-center gap-3">
+                    <div className="h-px flex-1 bg-gray-200" />
+                    <span className="text-xs text-gray-400 uppercase tracking-wider">or</span>
+                    <div className="h-px flex-1 bg-gray-200" />
+                  </div>
+
+                  {/* Checkout */}
+                  <div className="space-y-1">
+                    <Button
+                      variant="secondary"
+                      size="lg"
+                      onClick={() => setShowCheckoutModal(true)}
+                    >
+                      I&apos;m sure, take me to checkout
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                    <Text size="xs" className="text-gray-400 !mb-0">
+                      For experienced DIYers who are confident in their measurements.
+                    </Text>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </Card>
+      )}
+
+      {/* ── Checkout confirmation modal ── */}
+      {showCheckoutModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowCheckoutModal(false)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 md:p-8">
+            <button type="button" onClick={() => setShowCheckoutModal(false)} className="absolute top-4 right-4 p-1 rounded-full hover:bg-gray-100 transition-colors">
+              <X className="w-5 h-5 text-gray-400" />
+            </button>
+            <div className="text-center">
+              <div className="text-xl font-bold text-gray-900 mb-3">Skip expert review?</div>
+              <Text className="text-gray-600 !mb-2">
+                Most customers have us double-check their project first.
+              </Text>
+              <Text size="sm" className="text-gray-500 !mb-6">
+                We&apos;ll still look at your order before it ships and reach out if something looks off. Do you still want to go straight to checkout?
+              </Text>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <Button variant="primary" size="lg" onClick={() => setShowCheckoutModal(false)}>
+                  <ArrowLeft className="w-4 h-4 mr-2" />Back to Expert Review
+                </Button>
+                <Button variant="secondary" size="lg" asChild>
+                  <Link href="/cart">Continue to Checkout<ArrowRight className="w-4 h-4 ml-2" /></Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </Stack>
   )

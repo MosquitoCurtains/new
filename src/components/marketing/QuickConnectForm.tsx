@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { Send, Upload, Phone, Info } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useTracking } from '@/components/tracking'
 
 interface QuickConnectFormProps {
   className?: string
@@ -25,14 +26,15 @@ export function QuickConnectForm({
     message: '',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const { getAttribution } = useTracking()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
     
     try {
-      // Capture attribution from URL params
-      const urlParams = new URLSearchParams(window.location.search)
+      // Use tracking system for attribution (includes visitor_id, session_id, UTMs)
+      const attribution = getAttribution()
       
       const response = await fetch('/api/leads', {
         method: 'POST',
@@ -46,14 +48,7 @@ export function QuickConnectForm({
           projectType: formData.projectType,
           message: formData.message,
           source: 'quick_connect',
-          utm_source: urlParams.get('utm_source') || '',
-          utm_medium: urlParams.get('utm_medium') || '',
-          utm_campaign: urlParams.get('utm_campaign') || '',
-          utm_content: urlParams.get('utm_content') || '',
-          utm_term: urlParams.get('utm_term') || '',
-          referrer: document.referrer,
-          landing_page: window.location.href,
-          session_id: Math.random().toString(36).substring(2, 15),
+          ...attribution,
         }),
       })
       

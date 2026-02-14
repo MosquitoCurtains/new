@@ -38,6 +38,7 @@ import {
   Spinner,
 } from '@/lib/design-system'
 import { useCart, CartLineItem } from '@/hooks/useCart'
+import { getCartOptionLabels } from '@/lib/cart-option-labels'
 
 // =============================================================================
 // LINE ITEM COMPONENT
@@ -54,6 +55,7 @@ function CartItem({
 }) {
   const isCustomItem = item.type === 'panel' || item.type === 'fabric'
   const isFabric = item.type === 'fabric'
+  const optionLabels = getCartOptionLabels(item.productSku, item.options)
   
   return (
     <div className="flex gap-4 p-4 bg-white border border-gray-200 rounded-xl">
@@ -69,7 +71,17 @@ function CartItem({
         <div className="flex items-start justify-between gap-2">
           <div>
             <Text className="font-semibold text-gray-900 !mb-0">{item.name}</Text>
-            <Text size="sm" className="text-gray-500 !mb-0">{item.description}</Text>
+            {optionLabels.length > 0 ? (
+              <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5">
+                {optionLabels.map((ol, idx) => (
+                  <Text key={idx} size="sm" className="text-gray-500 !mb-0">
+                    <span className="font-medium text-gray-600">{ol.label}:</span> {ol.value}
+                  </Text>
+                ))}
+              </div>
+            ) : item.description ? (
+              <Text size="sm" className="text-gray-500 !mb-0">{item.description}</Text>
+            ) : null}
             {item.productSku && (
               <Text size="sm" className="text-gray-400 !mb-0">SKU: {item.productSku}</Text>
             )}

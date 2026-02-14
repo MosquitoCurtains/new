@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, ShoppingCart, X, Trash2, Save, Link2, Credit
 import { Text } from '@/lib/design-system'
 import type { CartLineItem } from '@/hooks/useCart'
 import { formatMoney } from '../types'
+import { getCartOptionLabels } from '@/lib/cart-option-labels'
 
 type ActiveAction = 'save' | 'copy' | 'phone' | 'order' | null
 
@@ -221,36 +222,50 @@ export default function CartSidebar({
                         {GROUP_LABELS[type] || type}
                       </p>
                       <div className="space-y-px">
-                        {groupItems.map((item) => (
-                          <div
-                            key={item.id}
-                            className="group flex items-start gap-1 py-1 px-1.5 rounded hover:bg-gray-50 transition-colors"
-                          >
-                            <div className="flex-1 min-w-0">
-                              <p className="text-[11px] font-medium text-gray-800 truncate leading-tight">
-                                {item.name}
-                              </p>
-                              <p className="text-[10px] text-gray-400 truncate leading-tight">
-                                {item.description}
-                              </p>
-                              <div className="flex items-center gap-1.5 mt-0.5">
-                                {item.quantity > 1 && (
-                                  <span className="text-[10px] text-gray-400">x{item.quantity}</span>
-                                )}
-                                <span className="text-[11px] font-semibold text-gray-700">
-                                  ${formatMoney(item.totalPrice)}
-                                </span>
-                              </div>
-                            </div>
-                            <button
-                              onClick={() => removeItem(item.id)}
-                              className="opacity-0 group-hover:opacity-100 shrink-0 w-5 h-5 flex items-center justify-center rounded text-gray-300 hover:text-red-500 transition-all mt-0.5"
-                              title="Remove"
+                        {groupItems.map((item) => {
+                          const optLabels = getCartOptionLabels(item.productSku, item.options)
+                          return (
+                            <div
+                              key={item.id}
+                              className="group flex items-start gap-1 py-1 px-1.5 rounded hover:bg-gray-50 transition-colors"
                             >
-                              <X className="w-3 h-3" />
-                            </button>
-                          </div>
-                        ))}
+                              <div className="flex-1 min-w-0">
+                                <p className="text-[11px] font-medium text-gray-800 truncate leading-tight">
+                                  {item.name}
+                                </p>
+                                {optLabels.length > 0 && (
+                                  <div className="mt-0.5 space-y-px">
+                                    {optLabels.map((ol, idx) => (
+                                      <p key={idx} className="text-[9px] text-gray-500 leading-tight">
+                                        <span className="font-medium text-gray-600">{ol.label}:</span> {ol.value}
+                                      </p>
+                                    ))}
+                                  </div>
+                                )}
+                                {!optLabels.length && item.description && (
+                                  <p className="text-[10px] text-gray-400 truncate leading-tight">
+                                    {item.description}
+                                  </p>
+                                )}
+                                <div className="flex items-center gap-1.5 mt-0.5">
+                                  {item.quantity > 1 && (
+                                    <span className="text-[10px] text-gray-400">x{item.quantity}</span>
+                                  )}
+                                  <span className="text-[11px] font-semibold text-gray-700">
+                                    ${formatMoney(item.totalPrice)}
+                                  </span>
+                                </div>
+                              </div>
+                              <button
+                                onClick={() => removeItem(item.id)}
+                                className="opacity-0 group-hover:opacity-100 shrink-0 w-5 h-5 flex items-center justify-center rounded text-gray-300 hover:text-red-500 transition-all mt-0.5"
+                                title="Remove"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                          )
+                        })}
                       </div>
                     </div>
                   )

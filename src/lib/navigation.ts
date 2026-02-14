@@ -30,6 +30,9 @@ import {
   Megaphone,
   Briefcase,
   FolderOpen,
+  Link2,
+  Kanban,
+  Zap,
 } from 'lucide-react'
 
 export interface NavItem {
@@ -192,7 +195,7 @@ export const userNavigation: NavItem[] = [
 
 export const adminNavSections: AdminNavSection[] = [
   {
-    label: 'Sales & Commerce',
+    label: 'Sales & Orders',
     items: [
       {
         name: 'Sales',
@@ -207,25 +210,27 @@ export const adminNavSections: AdminNavSection[] = [
         ],
       },
       { name: 'Orders', href: '/admin/orders', icon: Package },
-      { name: 'Product Pricing', href: '/admin/pricing', icon: DollarSign },
-      { name: 'Shipping & Tax', href: '/admin/shipping-tax', icon: Truck },
+    ],
+  },
+  {
+    label: 'CRM',
+    items: [
+      { name: 'Pipeline', href: '/admin/crm', icon: Kanban },
+      { name: 'Projects', href: '/admin/crm/projects', icon: FolderOpen },
+      { name: 'Leads', href: '/admin/leads', icon: FileUser },
+      { name: 'Customers', href: '/admin/customers', icon: Users },
     ],
   },
   {
     label: 'Analytics',
     items: [
       { name: 'Business', href: '/admin/analytics', icon: BarChart3 },
+      { name: 'Ad Efficiency', href: '/admin/ad-spend-efficiency', icon: Zap },
       { name: 'Attribution', href: '/admin/mc-sales/analytics', icon: Target },
       { name: 'Customer Journeys', href: '/admin/mc-sales/analytics/waterfall', icon: UserCheck },
       { name: 'Leads', href: '/admin/mc-sales/analytics/leads', icon: FileUser },
       { name: 'Google Ads', href: '/admin/mc-sales/analytics/ads', icon: Megaphone },
-    ],
-  },
-  {
-    label: 'Customers',
-    items: [
-      { name: 'Leads', href: '/admin/leads', icon: FileUser },
-      { name: 'Customer CRM', href: '/admin/customers', icon: Users },
+      { name: 'UTM Builder', href: '/admin/utm-builder', icon: Link2 },
     ],
   },
   {
@@ -244,6 +249,14 @@ export const adminNavSections: AdminNavSection[] = [
       { name: 'Site Assets', href: '/admin/assets', icon: FolderOpen },
       { name: 'Site Audit', href: '/admin/audit', icon: Shield },
       { name: 'Sitemap', href: '/admin/sitemap', icon: Map },
+    ],
+  },
+  {
+    label: 'Pricing & Config',
+    items: [
+      { name: 'Product Pricing', href: '/admin/pricing', icon: DollarSign },
+      { name: 'Instant Quote Pricing', href: '/admin/instant-quote', icon: Calculator },
+      { name: 'Shipping & Tax', href: '/admin/shipping-tax', icon: Truck },
     ],
   },
   {

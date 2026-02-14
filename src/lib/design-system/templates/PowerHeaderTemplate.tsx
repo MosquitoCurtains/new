@@ -5,9 +5,9 @@ import { ReactNode } from 'react'
 import { 
   ArrowRight, 
   Sparkles,
-  Play,
   Calculator,
   MessageSquare,
+  Hammer,
   LucideIcon,
 } from 'lucide-react'
 import { 
@@ -42,7 +42,7 @@ export interface PowerHeaderTemplateProps {
   /**
    * Subtitle/description (optional - omit for title-only heroes)
    */
-  subtitle?: string
+  subtitle?: ReactNode
   /**
    * Trust badge text (e.g., "Trusted by 92,000+ customers")
    */
@@ -115,28 +115,28 @@ export interface PowerHeaderTemplateProps {
 
 const defaultActions: PowerHeaderAction[] = [
   {
-    icon: Play,
-    title: 'Options',
-    description: 'Mesh types, top attachments & usability.',
-    href: '/options',
-    buttonText: 'Discover',
+    icon: MessageSquare,
+    title: 'Expert Assistance',
+    description: 'Send photos, get personalized guidance from our team.',
+    href: '/start-project?mode=planner',
+    buttonText: 'Get Help',
     color: '#406517',
+  },
+  {
+    icon: Hammer,
+    title: 'DIY Builder',
+    description: 'Configure panels yourself and add directly to cart.',
+    href: '/start-project?mode=diy',
+    buttonText: 'Build',
+    color: '#B30158',
   },
   {
     icon: Calculator,
     title: 'Instant Quote',
-    description: 'Get an estimate within 5% of actual cost.',
-    href: '/start-project',
+    description: 'Quick specs for an estimate within 5% of actual cost.',
+    href: '/start-project?mode=quote',
     buttonText: 'Calculate',
     color: '#003365',
-  },
-  {
-    icon: MessageSquare,
-    title: 'Ordering',
-    description: 'Our team will help plan your project!',
-    href: '/contact',
-    buttonText: 'Contact',
-    color: '#B30158',
   },
 ]
 
@@ -226,9 +226,9 @@ export function PowerHeaderTemplate({
                   </h1>
                   
                   {subtitle && (
-                    <p className="text-base md:text-lg text-gray-600">
+                    <div className="text-base md:text-lg text-gray-600">
                       {subtitle}
-                    </p>
+                    </div>
                   )}
                   
                   {ctaSlot ? (
@@ -271,9 +271,9 @@ export function PowerHeaderTemplate({
                   </h1>
                   
                   {subtitle && (
-                    <p className="text-base md:text-lg text-gray-600">
+                    <div className="text-base md:text-lg text-gray-600">
                       {subtitle}
-                    </p>
+                    </div>
                   )}
                   
                   {ctaSlot ? (
@@ -355,9 +355,9 @@ export function PowerHeaderTemplate({
           </h1>
           
           {subtitle && (
-            <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto">
+            <div className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto">
               {subtitle}
-            </p>
+            </div>
           )}
           
           {showCta && (
