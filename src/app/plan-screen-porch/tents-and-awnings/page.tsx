@@ -81,7 +81,7 @@ export default function TentsAwningsPage() {
           </BulletedList>
         </Card>
 
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
 
       </Stack>
     </Container>

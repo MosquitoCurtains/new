@@ -149,7 +149,7 @@ export default function PorchVinylPanelsPage() {
 
         {/* Final CTA */}
 
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="cv" />
 
       </Stack>
     </Container>

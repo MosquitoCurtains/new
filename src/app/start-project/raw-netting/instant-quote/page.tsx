@@ -23,13 +23,16 @@ import {
   Card,
   Heading,
   Text,
-  Button,
   Badge,
 } from '@/lib/design-system'
 
 export default function RawNettingInstantQuotePage() {
   return (
     <Container size="xl">
+      <Link href="/start-project/raw-netting" className="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition-colors mb-1">
+        <ArrowLeft className="w-3 h-3" />
+        Back to Options
+      </Link>
       <Stack gap="lg">
         <section className="relative">
           <div className="absolute inset-0 -z-10 overflow-hidden">
@@ -38,12 +41,6 @@ export default function RawNettingInstantQuotePage() {
           </div>
 
           <div className="bg-gradient-to-br from-[#406517]/5 via-white to-[#003365]/5 border-2 rounded-3xl p-5 md:p-6 lg:p-8" style={{ borderColor: '#B3015820' }}>
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/start-project/raw-netting">
-                <ArrowLeft className="w-4 h-4 mr-1" />
-                Back
-              </Link>
-            </Button>
 
             <div className="text-center mb-6">
               <Heading level={2} className="!text-xl md:!text-2xl !mb-2">

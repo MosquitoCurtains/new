@@ -193,7 +193,7 @@ export default function YardistryGazeboCurtainsPage() {
         {/* ================================================================
             FINAL CTA
             ================================================================ */}
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
 
       </Stack>
     </Container>

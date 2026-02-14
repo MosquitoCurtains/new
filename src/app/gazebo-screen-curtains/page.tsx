@@ -159,7 +159,7 @@ export default function GazeboScreenCurtainsPage() {
           </Text>
         </Card>
 
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
 
       </Stack>
     </Container>

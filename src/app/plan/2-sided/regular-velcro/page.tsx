@@ -132,7 +132,7 @@ export default function TwoSidedRegularVelcroPage() {
           </div>
         </section>
 
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
       </Stack>
     </Container>
   )

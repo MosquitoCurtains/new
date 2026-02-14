@@ -174,7 +174,7 @@ export default function ThreeSidedPage() {
         </HeaderBarSection>
 
         {/* Final CTA */}
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
 
       </Stack>
     </Container>

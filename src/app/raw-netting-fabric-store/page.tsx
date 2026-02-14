@@ -194,7 +194,7 @@ export default function RawNettingStorePage() {
         </section>
 
         {/* Final CTA */}
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="rn" />
       </Stack>
     </Container>
   )

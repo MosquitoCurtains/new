@@ -343,7 +343,7 @@ export default function WeatherCurtainsPage() {
         </HeaderBarSection>
 
 
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
 
       </Stack>
     </Container>

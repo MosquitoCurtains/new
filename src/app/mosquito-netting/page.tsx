@@ -190,7 +190,7 @@ function MosquitoNettingContent() {
         </section>
 
         {/* Final CTA */}
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
       </Stack>
     </Container>
   )

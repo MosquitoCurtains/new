@@ -1,10 +1,11 @@
 'use client'
 
+import Link from 'next/link'
 import { Container, Stack } from '@/lib/design-system'
 import { PowerHeaderTemplate } from '@/lib/design-system/templates/PowerHeaderTemplate'
 import { VIDEOS } from '@/lib/constants/videos'
 import PanelBuilder from '@/components/plan/PanelBuilder'
-import { Check } from 'lucide-react'
+import { Check, ArrowLeft } from 'lucide-react'
 
 const STEPS = [
   'Choose your mesh type and color',
@@ -16,6 +17,10 @@ const STEPS = [
 export default function MosquitoCurtainsDIYBuilderPage() {
   return (
     <Container size="xl">
+      <Link href="/start-project/mosquito-curtains" className="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition-colors mb-1">
+        <ArrowLeft className="w-3 h-3" />
+        Back to Options
+      </Link>
       <Stack gap="lg">
         <PowerHeaderTemplate
           title="DIY Project Builder"

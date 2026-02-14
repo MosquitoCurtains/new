@@ -10,11 +10,17 @@
  * ```tsx
  * import { FinalCTATemplate } from '@/lib/design-system'
  * 
- * <FinalCTATemplate />
- * // or with custom text:
+ * // Auto-links to /start-project/mosquito-curtains for MC pages:
+ * <FinalCTATemplate productLine="mc" />
+ * 
+ * // Auto-links to /start-project/clear-vinyl for CV pages:
+ * <FinalCTATemplate productLine="cv" />
+ * 
+ * // Or with fully custom text:
  * <FinalCTATemplate 
  *   title="Custom Headline"
  *   subtitle="Custom supporting text"
+ *   primaryCTALink="/custom-link"
  * />
  * ```
  */
@@ -23,14 +29,23 @@ import Link from 'next/link'
 import { ArrowRight, Phone } from 'lucide-react'
 import { Button } from '../components'
 
+// Maps productLine to the correct start-project URL
+const PRODUCT_LINE_PATHS: Record<string, string> = {
+  mc: '/start-project/mosquito-curtains',
+  cv: '/start-project/clear-vinyl',
+  rn: '/start-project/raw-netting',
+}
+
 export interface FinalCTATemplateProps {
+  /** Product line — auto-sets the CTA link to /start-project/[product] */
+  productLine?: 'mc' | 'cv' | 'rn' | 'general'
   /** Main headline */
   title?: string
   /** Supporting text */
   subtitle?: string
-  /** Primary CTA text */
+  /** Primary CTA text (default: "Start Your Project") */
   primaryCTAText?: string
-  /** Primary CTA link */
+  /** Primary CTA link — overrides productLine auto-link */
   primaryCTALink?: string
   /** Show phone number button (default: true) */
   showPhone?: boolean
@@ -45,13 +60,19 @@ const VARIANT_STYLES = {
 }
 
 export function FinalCTATemplate({
+  productLine,
   title = 'Ready to Enjoy Your Outdoor Space?',
   subtitle = "Get a custom quote in minutes. Our planning team is here to help you create the perfect solution for your home.",
-  primaryCTAText = 'Free Instant Quote',
-  primaryCTALink = '/start-project',
+  primaryCTAText = 'Start Your Project',
+  primaryCTALink,
   showPhone = true,
   variant = 'green',
 }: FinalCTATemplateProps) {
+  // Auto-compute link from productLine if no explicit link provided
+  const ctaLink = primaryCTALink
+    ?? (productLine && PRODUCT_LINE_PATHS[productLine])
+    ?? '/start-project'
+
   return (
     <section>
       <div className={`${VARIANT_STYLES[variant]} rounded-3xl p-8 md:p-12 lg:p-16 text-center relative overflow-hidden`}>
@@ -68,7 +89,7 @@ export function FinalCTATemplate({
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button variant="highlight" size="lg" asChild>
-              <Link href={primaryCTALink}>
+              <Link href={ctaLink}>
                 {primaryCTAText}
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Link>

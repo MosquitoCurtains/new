@@ -294,7 +294,7 @@ function IndustrialMeshContent() {
           </Grid>
         </section>
 
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
       </Stack>
     </Container>
   )

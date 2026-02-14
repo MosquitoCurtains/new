@@ -183,7 +183,7 @@ export default function OneSidedPage() {
         </section>
 
         {/* Final CTA */}
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
 
       </Stack>
     </Container>

@@ -25,6 +25,7 @@ import {
   Hammer,
   Check,
   ArrowRight,
+  ArrowLeft,
 } from 'lucide-react'
 import {
   Container,
@@ -176,6 +177,10 @@ export function StandaloneInstantQuote({ productType }: StandaloneInstantQuotePr
   // ---- MAIN PAGE ----
   return (
     <Container size="xl">
+      <Link href={`/start-project/${productSlug}`} className="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition-colors mb-1">
+        <ArrowLeft className="w-3 h-3" />
+        Back to Options
+      </Link>
       <Stack gap="lg">
 
         {/* ============================================================

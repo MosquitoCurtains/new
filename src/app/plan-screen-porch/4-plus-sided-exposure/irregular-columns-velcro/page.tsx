@@ -58,7 +58,7 @@ export default function FourSidedIrregularVelcroPage() {
           </div>
         </section>
 
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
       </Stack>
     </Container>
   )

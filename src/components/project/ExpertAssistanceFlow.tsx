@@ -157,6 +157,10 @@ export function ExpertAssistanceFlow({ productType, options }: ExpertAssistanceF
 
   return (
     <Container size="xl">
+      <Link href={`/start-project/${productType}`} className="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition-colors mb-1">
+        <ArrowLeft className="w-3 h-3" />
+        Back to Options
+      </Link>
       <Stack gap="lg">
 
         {/* Hero - from Contact page, no actions bar */}
@@ -237,14 +241,6 @@ export function ExpertAssistanceFlow({ productType, options }: ExpertAssistanceF
           </div>
 
           <div className="bg-gradient-to-br from-[#406517]/5 via-white to-[#003365]/5 border-2 rounded-3xl p-5 md:p-6 lg:p-8" style={{ borderColor: `${brandColor}20` }}>
-
-            {/* Back button */}
-            <Button variant="ghost" size="sm" asChild>
-              <Link href={`/start-project/${productType}`}>
-                <ArrowLeft className="w-4 h-4 mr-1" />
-                Back
-              </Link>
-            </Button>
 
             <Stack gap="lg" className="max-w-3xl mx-auto">
 

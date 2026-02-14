@@ -94,7 +94,7 @@ export default function FourSidedRegularVelcroPage() {
           </div>
         </section>
 
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
       </Stack>
     </Container>
   )

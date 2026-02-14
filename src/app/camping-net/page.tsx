@@ -305,7 +305,7 @@ export default function CampingNetPage() {
         {/* ================================================================
             FINAL CTA
             ================================================================ */}
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
 
       </Stack>
     </Container>

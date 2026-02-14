@@ -145,7 +145,7 @@ export default function PorchVinylCurtainsPage() {
 
         {/* Final CTA */}
 
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="cv" />
 
       </Stack>
     </Container>

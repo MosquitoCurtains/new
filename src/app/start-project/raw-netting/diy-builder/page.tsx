@@ -1,11 +1,12 @@
 'use client'
 
+import Link from 'next/link'
 import { Container, Stack } from '@/lib/design-system'
 import { PowerHeaderTemplate } from '@/lib/design-system/templates/PowerHeaderTemplate'
 import { VIDEOS } from '@/lib/constants/videos'
 import { CartProvider } from '@/contexts/CartContext'
 import RawNettingPanelBuilder from '@/components/plan/RawNettingPanelBuilder'
-import { Check } from 'lucide-react'
+import { Check, ArrowLeft } from 'lucide-react'
 
 const STEPS = [
   'Pick your mesh type, roll width, and panel dimensions',
@@ -18,6 +19,10 @@ export default function RawNettingDIYBuilderPage() {
   return (
     <CartProvider>
       <Container size="xl">
+        <Link href="/start-project/raw-netting" className="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition-colors mb-1">
+          <ArrowLeft className="w-3 h-3" />
+          Back to Options
+        </Link>
         <Stack gap="lg">
           <PowerHeaderTemplate
             title="Raw Netting Panel Builder"

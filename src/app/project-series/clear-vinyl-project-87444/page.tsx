@@ -194,7 +194,7 @@ export default function ClearVinylProject87444Page() {
         {/* ================================================================
             FINAL CTA
             ================================================================ */}
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="cv" />
 
       </Stack>
     </Container>

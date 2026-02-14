@@ -182,7 +182,7 @@ function ShadeScreenMeshContent() {
           </Grid>
         </section>
 
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
       </Stack>
     </Container>
   )

@@ -146,7 +146,7 @@ export default function ScreenedInDecksPage() {
           </TwoColumn>
         </HeaderBarSection>
 
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
 
       </Stack>
     </Container>

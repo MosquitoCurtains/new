@@ -118,7 +118,7 @@ const defaultActions: PowerHeaderAction[] = [
     icon: MessageSquare,
     title: 'Expert Assistance',
     description: 'Send photos, get personalized guidance from our team.',
-    href: '/start-project?mode=planner',
+    href: '/start-project/mosquito-curtains/expert-assistance',
     buttonText: 'Get Help',
     color: '#406517',
   },
@@ -126,7 +126,7 @@ const defaultActions: PowerHeaderAction[] = [
     icon: Hammer,
     title: 'DIY Builder',
     description: 'Configure panels yourself and add directly to cart.',
-    href: '/start-project?mode=diy',
+    href: '/start-project/mosquito-curtains/diy-builder',
     buttonText: 'Build',
     color: '#B30158',
   },
@@ -134,7 +134,7 @@ const defaultActions: PowerHeaderAction[] = [
     icon: Calculator,
     title: 'Instant Quote',
     description: 'Quick specs for an estimate within 5% of actual cost.',
-    href: '/start-project?mode=quote',
+    href: '/start-project/mosquito-curtains/instant-quote',
     buttonText: 'Calculate',
     color: '#003365',
   },
@@ -303,6 +303,8 @@ export function PowerHeaderTemplate({
                     <Link
                       key={idx}
                       href={action.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="flex items-center gap-4 p-4 rounded-xl bg-white border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all group"
                     >
                       <div 

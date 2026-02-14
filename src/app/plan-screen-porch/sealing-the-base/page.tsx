@@ -126,7 +126,7 @@ export default function SealingBasePage() {
           </div>
         </section>
 
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
 
       </Stack>
     </Container>

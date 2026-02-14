@@ -180,7 +180,7 @@ export default function ScreenPatioPage() {
           </TwoColumn>
         </HeaderBarSection>
 
-        <FinalCTATemplate />
+        <FinalCTATemplate productLine="mc" />
 
       </Stack>
     </Container>
